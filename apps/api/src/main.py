@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
 from src.routes.auth import router as auth_router
+from src.routes.vaults import router as vault_router
 
 
 @asynccontextmanager
@@ -43,6 +44,7 @@ def create_app() -> FastAPI:
 
     # Register routers
     app.include_router(auth_router)
+    app.include_router(vault_router)
 
     return app
 

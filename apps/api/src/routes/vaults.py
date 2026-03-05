@@ -1,0 +1,181 @@
+"""Vault routes — CRUD, hierarchy traversal, chamber progression."""
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
+
+from src.db import get_db
+from src.middleware.auth import get_current_user
+from src.schemas.vault import (
+    CreateVaultRequest,
+    UpdateVaultRequest,
+    VaultListResponse,
+    VaultResponse,
+)
+from src.services.vault import (
+    advance_chamber,
+    archive_vault,
+    create_vault,
+    get_vault,
+    get_vault_children,
+    list_vaults,
+    update_vault,
+)
+
+router = APIRouter(prefix="/api/v1/vaults", tags=["vaults"])
+
+
+def _vault_to_response(vault) -> VaultResponse:
+    return VaultResponse(
+        id=vault.id,
+        workspace_id=vault.workspace_id,
+        parent_vault_id=vault.parent_vault_id,
+        vault_level=vault.vault_level,
+        name=vault.name,
+        slug=vault.slug,
+        vault_type=vault.vault_type,
+        module_type=vault.module_type,
+        chamber=vault.chamber,
+        gate=vault.gate,
+        metadata=vault.metadata_,
+        health_score=vault.health_score,
+        created_at=vault.created_at,
+        updated_at=vault.updated_at,
+        archived_at=vault.archived_at,
+    )
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+def create_vault_route(
+    body: CreateVaultRequest,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultResponse:
+    """Create a new vault."""
+    vault = create_vault(
+        db,
+        workspace_id=current_user.get("workspace_id", ""),
+        name=body.name,
+        vault_type=body.vault_type,
+        vault_level=body.vault_level,
+        parent_vault_id=body.parent_vault_id,
+        module_type=body.module_type,
+        metadata=body.metadata,
+        creator_id=current_user.get("sub"),
+    )
+    return _vault_to_response(vault)
+
+
+@router.get("")
+def list_vaults_route(
+    module_type: str | None = Query(default=None),  # noqa: B008
+    vault_level: int | None = Query(default=None, ge=1, le=4),  # noqa: B008
+    chamber: str | None = Query(default=None),  # noqa: B008
+    parent_vault_id: str | None = Query(default=None),  # noqa: B008
+    limit: int = Query(default=50, ge=1, le=200),  # noqa: B008
+    offset: int = Query(default=0, ge=0),  # noqa: B008
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultListResponse:
+    """List vaults with optional filters."""
+    workspace_id = current_user.get("workspace_id", "")
+    vaults = list_vaults(
+        db,
+        workspace_id,
+        module_type=module_type,
+        vault_level=vault_level,
+        chamber=chamber,
+        parent_vault_id=parent_vault_id,
+        limit=limit,
+        offset=offset,
+    )
+    return VaultListResponse(
+        vaults=[_vault_to_response(v) for v in vaults],
+        total=len(vaults),
+    )
+
+
+@router.get("/{vault_id}")
+def get_vault_route(
+    vault_id: str,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultResponse:
+    """Get a single vault by ID."""
+    workspace_id = current_user.get("workspace_id", "")
+    vault = get_vault(db, vault_id, workspace_id)
+    if vault is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found")
+    return _vault_to_response(vault)
+
+
+@router.get("/{vault_id}/children")
+def get_vault_children_route(
+    vault_id: str,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultListResponse:
+    """Get direct children of a vault."""
+    workspace_id = current_user.get("workspace_id", "")
+    children = get_vault_children(db, vault_id, workspace_id)
+    return VaultListResponse(
+        vaults=[_vault_to_response(v) for v in children],
+        total=len(children),
+    )
+
+
+@router.patch("/{vault_id}")
+def update_vault_route(
+    vault_id: str,
+    body: UpdateVaultRequest,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultResponse:
+    """Update a vault's name, metadata, or parent."""
+    workspace_id = current_user.get("workspace_id", "")
+    vault = get_vault(db, vault_id, workspace_id)
+    if vault is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found")
+
+    kwargs = {}
+    if body.name is not None:
+        kwargs["name"] = body.name
+    if body.metadata is not None:
+        kwargs["metadata"] = body.metadata
+    if body.parent_vault_id is not None:
+        kwargs["parent_vault_id"] = body.parent_vault_id
+
+    vault = update_vault(db, vault, **kwargs)
+    return _vault_to_response(vault)
+
+
+@router.post("/{vault_id}/advance")
+def advance_chamber_route(
+    vault_id: str,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultResponse:
+    """Advance a vault to the next chamber."""
+    workspace_id = current_user.get("workspace_id", "")
+    vault = get_vault(db, vault_id, workspace_id)
+    if vault is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found")
+    try:
+        vault = advance_chamber(db, vault)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
+    return _vault_to_response(vault)
+
+
+@router.post("/{vault_id}/archive")
+def archive_vault_route(
+    vault_id: str,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultResponse:
+    """Soft-delete a vault."""
+    workspace_id = current_user.get("workspace_id", "")
+    vault = get_vault(db, vault_id, workspace_id)
+    if vault is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found")
+    vault = archive_vault(db, vault)
+    return _vault_to_response(vault)
