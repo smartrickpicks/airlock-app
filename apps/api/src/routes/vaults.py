@@ -11,6 +11,7 @@ from src.schemas.vault import (
     VaultListResponse,
     VaultResponse,
 )
+from src.services.event import create_event
 from src.services.vault import (
     advance_chamber,
     archive_vault,
@@ -61,6 +62,14 @@ def create_vault_route(
         module_type=body.module_type,
         metadata=body.metadata,
         creator_id=current_user.get("sub"),
+    )
+    create_event(
+        db,
+        vault_id=vault.id,
+        workspace_id=vault.workspace_id,
+        event_type="vault_created",
+        actor_id=current_user.get("sub"),
+        payload={"name": vault.name, "vault_type": vault.vault_type, "chamber": vault.chamber},
     )
     return _vault_to_response(vault)
 
@@ -163,6 +172,14 @@ def advance_chamber_route(
         vault = advance_chamber(db, vault)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
+    create_event(
+        db,
+        vault_id=vault.id,
+        workspace_id=vault.workspace_id,
+        event_type="chamber_advanced",
+        actor_id=current_user.get("sub"),
+        payload={"chamber": vault.chamber, "gate": vault.gate},
+    )
     return _vault_to_response(vault)
 
 
@@ -178,4 +195,12 @@ def archive_vault_route(
     if vault is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found")
     vault = archive_vault(db, vault)
+    create_event(
+        db,
+        vault_id=vault.id,
+        workspace_id=vault.workspace_id,
+        event_type="vault_archived",
+        actor_id=current_user.get("sub"),
+        payload={"name": vault.name},
+    )
     return _vault_to_response(vault)
