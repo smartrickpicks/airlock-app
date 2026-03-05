@@ -16,10 +16,10 @@ interface LoginResponse {
   user: {
     id: string;
     email: string;
-    name: string;
+    display_name: string;
     avatar_url?: string;
+    org_role: string;
   };
-  org_role: OrgRole;
 }
 
 interface AuthState {
@@ -76,10 +76,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: {
         id: response.user.id,
         email: response.user.email,
-        name: response.user.name,
+        name: response.user.display_name,
         avatarUrl: response.user.avatar_url,
       },
-      orgRole: response.org_role,
+      orgRole: response.user.org_role as OrgRole,
       accessToken: response.access_token,
       isLoading: false,
     });

@@ -5,6 +5,18 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useAuthStore } from "@/stores/auth.store";
 import { apiFetch } from "@/lib/api";
 
+interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+    display_name: string;
+    avatar_url?: string;
+    org_role: string;
+  };
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { hydrateFromLoginResponse } = useAuthStore();
@@ -15,19 +27,12 @@ export default function LoginPage() {
     if (!credentialResponse.credential) return;
 
     try {
-      const data = await apiFetch<{
-        access_token: string;
-        refresh_token: string;
-        user: {
-          id: string;
-          email: string;
-          name: string;
-          avatar_url?: string;
-        };
-        org_role: "member" | "lead" | "director" | "executive";
-      }>("/api/v1/auth/google", {
+      const data = await apiFetch<AuthResponse>("/api/v1/auth/google/verify", {
         method: "POST",
-        body: JSON.stringify({ token: credentialResponse.credential }),
+        body: JSON.stringify({
+          credential: credentialResponse.credential,
+          workspace_id: "ws_default",
+        }),
       });
 
       hydrateFromLoginResponse(data);
@@ -39,24 +44,14 @@ export default function LoginPage() {
 
   const handleDevLogin = async () => {
     try {
-      const data = await apiFetch<{
-        access_token: string;
-        refresh_token: string;
-        user: {
-          id: string;
-          email: string;
-          name: string;
-          avatar_url?: string;
-        };
-        org_role: "member" | "lead" | "director" | "executive";
-      }>("/api/v1/auth/dev-login", {
+      const data = await apiFetch<AuthResponse>("/api/v1/auth/dev/login", {
         method: "POST",
       });
 
       hydrateFromLoginResponse(data);
       router.push("/");
     } catch {
-      // Dev login failed
+      // Dev login failed — API may not be running
     }
   };
 
