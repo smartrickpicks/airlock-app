@@ -1,5 +1,21 @@
 import type { Metadata } from "next";
+import { Fira_Sans, Fira_Code } from "next/font/google";
 import "@/styles/globals.css";
+import ShellLayout from "@/components/templates/ShellLayout";
+
+const firaSans = Fira_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-fira-sans",
+  display: "swap",
+});
+
+const firaCode = Fira_Code({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-fira-code",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Airlock",
@@ -12,25 +28,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html
+      lang="en"
+      className={`dark ${firaSans.variable} ${firaCode.variable}`}
+    >
       <body className="bg-surface-base text-text-primary min-h-screen">
-        {/* Shell: Module bar (left) + Sidebar + Main content */}
-        <div className="flex h-screen overflow-hidden">
-          {/* Module bar — 72px fixed width */}
-          <aside
-            className="flex-shrink-0 bg-surface-sunken border-r border-surface-border"
-            style={{ width: "var(--module-bar-width)" }}
-          >
-            <div className="flex flex-col items-center py-4 gap-2">
-              <div className="w-10 h-10 rounded-xl bg-accent-primary flex items-center justify-center text-sm font-bold">
-                A
-              </div>
-            </div>
-          </aside>
-
-          {/* Sidebar + Page content */}
-          <div className="flex flex-1 overflow-hidden">{children}</div>
-        </div>
+        <ShellLayout>{children}</ShellLayout>
       </body>
     </html>
   );

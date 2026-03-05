@@ -1,12 +1,19 @@
+import TriptychLayout from "@/components/templates/TriptychLayout";
+
 export default function VaultLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { vaultId: string };
 }) {
   return (
-    <div className="flex h-full overflow-hidden">
-      {/* Triptych: Signal | Orchestrate | Control */}
+    <TriptychLayout
+      title={`Vault ${params.vaultId}`}
+      breadcrumb="Contracts"
+      vaultId={params.vaultId}
+    >
       {children}
-    </div>
+    </TriptychLayout>
   );
 }
