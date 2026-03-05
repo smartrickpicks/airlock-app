@@ -51,7 +51,19 @@ export default function LoginPage() {
       hydrateFromLoginResponse(data);
       router.push("/");
     } catch {
-      // Dev login failed — API may not be running
+      // API not running — use client-side mock for dev preview
+      const mockResponse: AuthResponse = {
+        access_token: "dev_mock_token",
+        refresh_token: "dev_mock_refresh",
+        user: {
+          id: "dev_user_001",
+          email: "dev@airlock.local",
+          display_name: "Dev User",
+          org_role: "executive",
+        },
+      };
+      hydrateFromLoginResponse(mockResponse);
+      router.push("/");
     }
   };
 

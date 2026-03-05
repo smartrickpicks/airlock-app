@@ -21,6 +21,21 @@ export default function AuthProvider({
       return;
     }
 
+    // Dev mock token — skip API validation, use stored state
+    if (token === "dev_mock_token") {
+      const state = useAuthStore.getState();
+      if (!state.user) {
+        setUser({
+          id: "dev_user_001",
+          email: "dev@airlock.local",
+          name: "Dev User",
+        });
+        setOrgRole("executive");
+        setAccessToken(token);
+      }
+      return;
+    }
+
     apiFetch<{
       user_id: string;
       email: string;
