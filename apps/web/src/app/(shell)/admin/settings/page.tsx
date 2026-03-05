@@ -1,10 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAdminStore } from "@/stores/admin.store";
-import ProfileSettings from "@/components/organisms/ProfileSettings";
 import AppearanceSettings from "@/components/organisms/AppearanceSettings";
 
 const NAV_ITEMS = [
@@ -14,13 +11,8 @@ const NAV_ITEMS = [
   { label: "Feature Flags", href: "/admin/features" },
 ];
 
-export default function AdminPage() {
+export default function AdminSettingsPage() {
   const pathname = usePathname();
-  const { fetchAdmin } = useAdminStore();
-
-  useEffect(() => {
-    fetchAdmin();
-  }, [fetchAdmin]);
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -33,7 +25,6 @@ export default function AdminPage() {
         </p>
       </div>
 
-      {/* Tab navigation */}
       <div className="flex gap-1 border-b border-surface-border">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
@@ -53,8 +44,6 @@ export default function AdminPage() {
         })}
       </div>
 
-      {/* Profile + Appearance (default admin page) */}
-      <ProfileSettings />
       <AppearanceSettings />
     </div>
   );

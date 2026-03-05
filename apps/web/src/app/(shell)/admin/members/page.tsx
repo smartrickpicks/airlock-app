@@ -4,8 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAdminStore } from "@/stores/admin.store";
-import ProfileSettings from "@/components/organisms/ProfileSettings";
-import AppearanceSettings from "@/components/organisms/AppearanceSettings";
+import MembersTable from "@/components/organisms/MembersTable";
 
 const NAV_ITEMS = [
   { label: "Profile", href: "/admin" },
@@ -14,7 +13,7 @@ const NAV_ITEMS = [
   { label: "Feature Flags", href: "/admin/features" },
 ];
 
-export default function AdminPage() {
+export default function AdminMembersPage() {
   const pathname = usePathname();
   const { fetchAdmin } = useAdminStore();
 
@@ -33,7 +32,6 @@ export default function AdminPage() {
         </p>
       </div>
 
-      {/* Tab navigation */}
       <div className="flex gap-1 border-b border-surface-border">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
@@ -53,9 +51,7 @@ export default function AdminPage() {
         })}
       </div>
 
-      {/* Profile + Appearance (default admin page) */}
-      <ProfileSettings />
-      <AppearanceSettings />
+      <MembersTable />
     </div>
   );
 }
