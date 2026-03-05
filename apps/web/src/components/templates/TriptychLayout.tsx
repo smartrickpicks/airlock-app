@@ -201,6 +201,7 @@ export default function TriptychLayout({
               tab as "lifecycle" | "sla" | "approvals" | "audit" | "ai-agent",
             )
           }
+          vaultId={vaultId}
         />
       </div>
 
@@ -235,6 +236,7 @@ export default function TriptychLayout({
                     | "ai-agent",
                 )
               }
+              vaultId={vaultId}
             />
           </div>
         </>

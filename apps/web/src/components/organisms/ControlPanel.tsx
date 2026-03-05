@@ -1,8 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import { GitBranch, Clock, CheckCircle, ScrollText, Bot } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import ControlTab from "@/components/molecules/ControlTab";
+import PatchList from "@/components/molecules/PatchList";
+import PatchStateBadge from "@/components/atoms/PatchStateBadge";
+import ApprovalChain from "@/components/organisms/ApprovalChain";
+import SLATimer from "@/components/molecules/SLATimer";
+import { usePatchStore } from "@/stores/patch.store";
 
 /** Tab definition with icon, label, and placeholder content */
 interface TabDef {
@@ -65,6 +71,8 @@ interface ControlPanelProps {
   activeTab: string;
   /** Callback when a tab is selected */
   onTabChange: (tab: string) => void;
+  /** Vault ID to load patches for */
+  vaultId?: string | null;
 }
 
 export default function ControlPanel({
@@ -73,7 +81,16 @@ export default function ControlPanel({
   onOverlayToggle,
   activeTab,
   onTabChange,
+  vaultId,
 }: ControlPanelProps) {
+  const { patches, selectedPatch, fetchPatches, selectPatch } = usePatchStore();
+
+  useEffect(() => {
+    if (vaultId) {
+      fetchPatches(vaultId);
+    }
+  }, [vaultId, fetchPatches]);
+
   // Collapsed icon-only mode
   if (collapsed) {
     return (
@@ -100,6 +117,69 @@ export default function ControlPanel({
 
   // Find the active tab's placeholder content
   const activeTabDef = TABS.find((t) => t.key === activeTab) ?? TABS[0];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "approvals":
+        return (
+          <div className="flex flex-col gap-4">
+            <PatchList
+              patches={patches}
+              selectedPatchId={selectedPatch?.id ?? null}
+              onSelect={selectPatch}
+            />
+            {selectedPatch && (
+              <div className="border-t border-surface-border pt-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-text-primary">
+                    {selectedPatch.field_name}
+                  </span>
+                  <PatchStateBadge state={selectedPatch.state} />
+                </div>
+                <ApprovalChain steps={selectedPatch.approval_steps} />
+              </div>
+            )}
+          </div>
+        );
+      case "sla":
+        return (
+          <div className="flex flex-col gap-4">
+            {patches
+              .filter((p) => p.sla_deadline)
+              .map((patch) => (
+                <div
+                  key={patch.id}
+                  className="rounded-lg border border-surface-border bg-surface-overlay p-3"
+                >
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-medium text-text-primary">
+                      {patch.field_name}
+                    </span>
+                    <PatchStateBadge state={patch.state} />
+                  </div>
+                  <SLATimer
+                    deadline={patch.sla_deadline}
+                    paused={patch.state === "admin_hold"}
+                  />
+                  <p className="mt-1 text-[10px] text-text-muted">
+                    {patch.approval_steps.find((s) => s.status === "active")
+                      ?.actor_name ?? "Awaiting assignment"}
+                  </p>
+                </div>
+              ))}
+            {patches.filter((p) => p.sla_deadline).length === 0 && (
+              <p className="text-sm text-text-muted">
+                No active SLA deadlines.
+              </p>
+            )}
+          </div>
+        );
+      default:
+        return (
+          <p className="text-sm text-text-muted">{activeTabDef.placeholder}</p>
+        );
+    }
+  };
 
   // Expanded mode
   return (
@@ -130,7 +210,7 @@ export default function ControlPanel({
         role="tabpanel"
         aria-label={activeTabDef.label}
       >
-        <p className="text-sm text-text-muted">{activeTabDef.placeholder}</p>
+        {renderTabContent()}
       </div>
     </div>
   );
