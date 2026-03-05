@@ -8,6 +8,9 @@
     "type-check": "turbo run type-check",
     "test": "turbo run test",
     "test:api": "cd apps/api && pytest tests/ -v",
+    "test:e2e": "pnpm --filter @airlock/web test:e2e",
+    "test:e2e:ui": "pnpm --filter @airlock/web test:e2e:ui",
+    "test:e2e:update": "pnpm --filter @airlock/web test:e2e:update",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,yaml}\"",
     "prepare": "husky"
   },
