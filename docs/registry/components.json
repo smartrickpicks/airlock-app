@@ -50,6 +50,27 @@
       "level": "organism",
       "path": "src/components/organisms/LeadsTable.tsx",
       "description": "New lead triage table with score, stage, source"
+    },
+    {
+      "name": "TaskCard",
+      "level": "molecule",
+      "path": "src/components/molecules/TaskCard.tsx",
+      "description": "Task card with severity dot, module badge, vault name, assignee, due countdown",
+      "milestone": "M11"
+    },
+    {
+      "name": "TasksTable",
+      "level": "organism",
+      "path": "src/components/organisms/TasksTable.tsx",
+      "description": "Sortable task table with quick filter pills and column sorting",
+      "milestone": "M11"
+    },
+    {
+      "name": "TasksKanban",
+      "level": "organism",
+      "path": "src/components/organisms/TasksKanban.tsx",
+      "description": "4-column Kanban board (Open/In Progress/In Review/Resolved) with drag-and-drop",
+      "milestone": "M11"
     }
   ]
 }
