@@ -26,6 +26,30 @@
       "level": "organism",
       "path": "src/components/organisms/ActivityFeed.tsx",
       "description": "Reverse-chronological event stream grouped by time period"
+    },
+    {
+      "name": "DealCard",
+      "level": "molecule",
+      "path": "src/components/molecules/DealCard.tsx",
+      "description": "Pipeline Kanban deal card with value, rep, tasks, progress"
+    },
+    {
+      "name": "PipelineBoard",
+      "level": "organism",
+      "path": "src/components/organisms/PipelineBoard.tsx",
+      "description": "Drag-and-drop deal Kanban with 5 pipeline stages"
+    },
+    {
+      "name": "AccountsTable",
+      "level": "organism",
+      "path": "src/components/organisms/AccountsTable.tsx",
+      "description": "CRM accounts table with health, segment, deals, contacts"
+    },
+    {
+      "name": "LeadsTable",
+      "level": "organism",
+      "path": "src/components/organisms/LeadsTable.tsx",
+      "description": "New lead triage table with score, stage, source"
     }
   ]
 }
