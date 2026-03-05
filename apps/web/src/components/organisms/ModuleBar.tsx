@@ -76,7 +76,9 @@ export default function ModuleBar() {
                 isActive={isActive}
                 onClick={() => {
                   setActiveModule(key);
-                  router.push(mod.path);
+                  const lastView =
+                    useModuleStore.getState().lastVisitedView[key];
+                  router.push(lastView || mod.path);
                 }}
               />
             );
