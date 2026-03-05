@@ -1,10 +1,18 @@
-export default function DocumentsPage() {
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function DocumentsRootPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/documents/library");
+  }, [router]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-1">Documents</h1>
-      <p className="text-text-secondary">
-        Document management — TipTap editor + PDF.js viewer
-      </p>
+    <div className="flex h-full items-center justify-center">
+      <span className="text-sm text-text-muted">Loading Documents...</span>
     </div>
   );
 }
