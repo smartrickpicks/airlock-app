@@ -1,0 +1,272 @@
+scenario: happy-path
+description: "Standard contract vaults spread across all four chambers with realistic entity names and event history"
+seed: 42
+entities:
+  workspaces:
+    - id: "{{ulid}}"
+      name: "Acme Records"
+      slug: "acme-records"
+
+  users:
+    - id: "{{ulid}}"
+      name: "Ana Chen"
+      role: builder
+    - id: "{{ulid}}"
+      name: "David Park"
+      role: gatekeeper
+    - id: "{{ulid}}"
+      name: "Sarah Miller"
+      role: owner
+
+  vaults:
+    # Discover chamber (4 vaults)
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: discover
+      gate: triage
+      title: "Distribution Agreement — Acme Records x Henderson Co"
+      fields:
+        OPP_CONTRACT_TYPE: "Distribution"
+        OPP_ENTITY: "Henderson Co"
+      health_score: 72
+
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: discover
+      gate: triage
+      title: "Licensing Agreement — Acme Records x Nova Entertainment"
+      fields:
+        OPP_CONTRACT_TYPE: "Licensing"
+        OPP_ENTITY: "Nova Entertainment"
+      health_score: 65
+
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: discover
+      gate: intake
+      title: "Publishing Agreement — Acme Records x TechFlow Inc"
+      fields:
+        OPP_CONTRACT_TYPE: "Publishing"
+        OPP_ENTITY: "TechFlow Inc"
+      health_score: 58
+
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: discover
+      gate: intake
+      title: "Master Use Agreement — Acme Records x Summit Media"
+      fields:
+        OPP_CONTRACT_TYPE: "Master Use"
+        OPP_ENTITY: "Summit Media"
+      health_score: 80
+
+    # Build chamber (3 vaults)
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: build
+      gate: assembly
+      title: "Distribution Agreement — Acme Records x Ostereo Music Group"
+      fields:
+        OPP_CONTRACT_TYPE: "Distribution"
+        OPP_ENTITY: "Ostereo Music Group"
+      health_score: 88
+
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: build
+      gate: assembly
+      title: "Sync License Agreement — Acme Records x Warner Bros"
+      fields:
+        OPP_CONTRACT_TYPE: "Sync License"
+        OPP_ENTITY: "Warner Bros"
+      health_score: 75
+
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: build
+      gate: drafting
+      title: "Co-Publishing Agreement — Acme Records x Pinnacle Partners"
+      fields:
+        OPP_CONTRACT_TYPE: "Co-Publishing"
+        OPP_ENTITY: "Pinnacle Partners"
+      health_score: 91
+
+    # Review chamber (2 vaults)
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: review
+      gate: legal_review
+      title: "Distribution Agreement — Acme Records x Atlas Records"
+      fields:
+        OPP_CONTRACT_TYPE: "Distribution"
+        OPP_ENTITY: "Atlas Records"
+      health_score: 85
+
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: review
+      gate: final_approval
+      title: "Licensing Agreement — Acme Records x MediaWorks LLC"
+      fields:
+        OPP_CONTRACT_TYPE: "Licensing"
+        OPP_ENTITY: "MediaWorks LLC"
+      health_score: 94
+
+    # Ship chamber (1 vault)
+    - id: "{{ulid}}"
+      module: contracts
+      chamber: ship
+      gate: execution
+      title: "Master Agreement — Acme Records x Acme Inc"
+      fields:
+        OPP_CONTRACT_TYPE: "Master Agreement"
+        OPP_ENTITY: "Acme Inc"
+      health_score: 98
+
+  events:
+    # Extraction events
+    - vault_id: "{{ref:vaults.0}}"
+      type: extraction
+      actor: "{{ref:users.0}}"
+      payload:
+        source: "document_upload"
+        fields_extracted: 12
+        confidence_score: 0.87
+
+    - vault_id: "{{ref:vaults.1}}"
+      type: extraction
+      actor: "{{ref:users.0}}"
+      payload:
+        source: "document_upload"
+        fields_extracted: 8
+        confidence_score: 0.92
+
+    - vault_id: "{{ref:vaults.4}}"
+      type: extraction
+      actor: "{{ref:users.0}}"
+      payload:
+        source: "document_upload"
+        fields_extracted: 18
+        confidence_score: 0.81
+
+    - vault_id: "{{ref:vaults.7}}"
+      type: extraction
+      actor: "{{ref:users.0}}"
+      payload:
+        source: "document_upload"
+        fields_extracted: 22
+        confidence_score: 0.95
+
+    # Patch events
+    - vault_id: "{{ref:vaults.2}}"
+      type: patch_created
+      actor: "{{ref:users.0}}"
+      payload:
+        fields_modified: ["territory", "effective_date"]
+
+    - vault_id: "{{ref:vaults.3}}"
+      type: patch_created
+      actor: "{{ref:users.0}}"
+      payload:
+        fields_modified: ["royalty_rate", "advance"]
+
+    - vault_id: "{{ref:vaults.5}}"
+      type: patch_submitted
+      actor: "{{ref:users.0}}"
+      payload:
+        submitted_by_role: "builder"
+
+    - vault_id: "{{ref:vaults.6}}"
+      type: patch_submitted
+      actor: "{{ref:users.0}}"
+      payload:
+        submitted_by_role: "builder"
+
+    - vault_id: "{{ref:vaults.4}}"
+      type: patch_created
+      actor: "{{ref:users.0}}"
+      payload:
+        fields_modified: ["term_length"]
+
+    - vault_id: "{{ref:vaults.4}}"
+      type: patch_submitted
+      actor: "{{ref:users.0}}"
+      payload:
+        submitted_by_role: "builder"
+
+    # Gate advancement events
+    - vault_id: "{{ref:vaults.4}}"
+      type: gate_advanced
+      actor: "{{ref:users.1}}"
+      payload:
+        from_gate: "triage"
+        to_gate: "assembly"
+        auto_advanced: false
+
+    - vault_id: "{{ref:vaults.5}}"
+      type: gate_advanced
+      actor: "{{ref:users.1}}"
+      payload:
+        from_gate: "triage"
+        to_gate: "assembly"
+        auto_advanced: false
+
+    - vault_id: "{{ref:vaults.7}}"
+      type: gate_advanced
+      actor: "{{ref:users.1}}"
+      payload:
+        from_gate: "assembly"
+        to_gate: "legal_review"
+        auto_advanced: false
+
+    - vault_id: "{{ref:vaults.9}}"
+      type: gate_advanced
+      actor: "{{ref:users.2}}"
+      payload:
+        from_gate: "final_approval"
+        to_gate: "execution"
+        auto_advanced: false
+
+    # Review events
+    - vault_id: "{{ref:vaults.7}}"
+      type: review_requested
+      actor: "{{ref:users.0}}"
+      payload:
+        reviewer_role: "gatekeeper"
+        priority: "high"
+
+    - vault_id: "{{ref:vaults.8}}"
+      type: review_requested
+      actor: "{{ref:users.0}}"
+      payload:
+        reviewer_role: "gatekeeper"
+        priority: "normal"
+
+    - vault_id: "{{ref:vaults.9}}"
+      type: review_requested
+      actor: "{{ref:users.0}}"
+      payload:
+        reviewer_role: "owner"
+        priority: "urgent"
+
+    # Approval events
+    - vault_id: "{{ref:vaults.8}}"
+      type: approval_granted
+      actor: "{{ref:users.1}}"
+      payload:
+        approved_by_role: "gatekeeper"
+        conditions: []
+
+    - vault_id: "{{ref:vaults.9}}"
+      type: approval_granted
+      actor: "{{ref:users.1}}"
+      payload:
+        approved_by_role: "gatekeeper"
+        conditions: []
+
+    - vault_id: "{{ref:vaults.9}}"
+      type: approval_granted
+      actor: "{{ref:users.2}}"
+      payload:
+        approved_by_role: "owner"
+        conditions: []
