@@ -1,10 +1,18 @@
-export default function TasksPage() {
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function TasksRootPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/tasks/inbox");
+  }, [router]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-1">Tasks</h1>
-      <p className="text-text-secondary">
-        Kanban, table, and agenda views — computed from vault data
-      </p>
+    <div className="flex h-full items-center justify-center">
+      <span className="text-sm text-text-muted">Loading Tasks...</span>
     </div>
   );
 }
