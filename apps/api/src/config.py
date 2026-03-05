@@ -1,0 +1,42 @@
+"""Airlock API configuration — Pydantic BaseSettings (env vars)."""
+
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+    """Application settings loaded from environment variables."""
+
+    # Database
+    database_url: str = "postgresql://airlock:airlock@localhost:5432/airlock"
+
+    # Redis
+    redis_url: str = "redis://localhost:6379/0"
+
+    # Auth
+    jwt_secret: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24  # 24 hours
+
+    # Google OAuth
+    google_client_id: str = ""
+    google_client_secret: str = ""
+
+    # CORS
+    cors_origins: list[str] = ["http://localhost:3000"]
+
+    # LiteLLM
+    litellm_api_base: str = "http://localhost:4000"
+    litellm_master_key: str = ""
+
+    # App
+    debug: bool = False
+    environment: str = "development"
+
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "case_sensitive": False,
+    }
+
+
+settings = Settings()

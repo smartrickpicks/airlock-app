@@ -1,0 +1,8 @@
+{
+  "apps/web/**/*.{ts,tsx}": ["eslint --fix", "prettier --write"],
+  "apps/api/**/*.py": [
+    "apps/api/.venv/bin/ruff check --fix",
+    "apps/api/.venv/bin/ruff format"
+  ],
+  "**/*.{md,json,yaml,yml}": ["prettier --write"]
+}

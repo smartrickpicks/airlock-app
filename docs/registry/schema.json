@@ -1,0 +1,6 @@
+{
+  "$schema": "./schema.schema.json",
+  "_description": "Canonical database schema registry. Agents MUST update this file when creating or modifying tables.",
+  "_lastUpdated": "2026-03-04",
+  "entities": []
+}

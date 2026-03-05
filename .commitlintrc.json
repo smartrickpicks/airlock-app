@@ -1,0 +1,38 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "scope-enum": [
+      2,
+      "always",
+      [
+        "web",
+        "api",
+        "shared-types",
+        "docs",
+        "shell",
+        "contracts",
+        "crm",
+        "tasks",
+        "calendar",
+        "documents",
+        "admin",
+        "triage",
+        "patch-workflow",
+        "record-inspector",
+        "ai-agent",
+        "notifications",
+        "search",
+        "vault-hierarchy",
+        "batch-processing",
+        "feature-control-plane",
+        "workflow-engine",
+        "security",
+        "onboarding",
+        "roles",
+        "ci",
+        "docker",
+        "deps"
+      ]
+    ]
+  }
+}

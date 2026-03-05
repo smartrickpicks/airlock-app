@@ -1,0 +1,26 @@
+{
+  "name": "airlock",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "test:api": "cd apps/api && pytest tests/ -v",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,yaml}\"",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "turbo": "^2.4",
+    "prettier": "^3.5",
+    "husky": "^9.1",
+    "lint-staged": "^15.4",
+    "@commitlint/cli": "^19.6",
+    "@commitlint/config-conventional": "^19.6"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

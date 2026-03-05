@@ -1,0 +1,218 @@
+# Airlock Glossary — Canonical Vocabulary
+
+> **Status:** LOCKED
+> **Last Updated:** 2026-03-04
+> **Rule:** All agents MUST use these terms. Banned synonyms trigger pre-commit lint failures.
+
+## Core Concepts
+
+### Module
+
+A top-level functional domain. Modules are the primary organizational unit — analogous to Discord "servers."
+
+- **Examples:** Contracts, CRM, Tasks, Calendar, Documents
+- **DO NOT USE:** server, workspace, app, area, section
+
+### Vault
+
+A workflow instance within a module. Each vault tracks a single entity through its lifecycle.
+
+- **Examples:** A specific distribution contract, a counterparty record, a task
+- **DO NOT USE:** channel, workstream, room, item, record, case, ticket
+
+### Chamber
+
+A lifecycle stage within a vault. Vaults progress through chambers sequentially.
+
+- **Stages (in order):** Discover → Build → Review → Ship
+- **Colors:** Discover = red, Build = yellow, Review = purple, Ship = green
+- **DO NOT USE:** phase, step, stage, category, status, workflow state
+
+### Gate
+
+A checkpoint between chambers. Gates enforce quality requirements before a vault can advance.
+
+- **Examples:** "All required fields extracted" (Discover → Build gate)
+- **DO NOT USE:** checkpoint, milestone, barrier, approval, blocker
+
+### View
+
+A screen or interface within a chamber. Each chamber has one or more views.
+
+- **Examples:** Triage (Discover view), Record Inspector (Build view)
+- **DO NOT USE:** page, panel, station, screen, tab
+
+### Triptych
+
+The three-panel layout used for vault detail views. Named after the three-panel art form.
+
+- **Panels:** Signal (left) | Orchestrate (center) | Control (right)
+- **DO NOT USE:** layout, split, panels, columns, panes
+
+### Signal
+
+The left panel of the Triptych. Displays the event feed — immutable chronological record of vault activity.
+
+- **Contains:** Extraction events, patches, approvals, AI observations, comments
+- **DO NOT USE:** feed, events, sidebar, activity, timeline
+
+### Orchestrate
+
+The center panel of the Triptych. The primary workspace where users perform actions.
+
+- **Contains:** Field cards, document viewer, form editor, approval actions
+- **DO NOT USE:** main, workspace, content, editor, body
+
+### Control
+
+The right panel of the Triptych. Contextual information and metadata about the vault.
+
+- **Contains:** Vault metadata, related entities, audit trail, attachments
+- **DO NOT USE:** context, sidebar, info, details, properties
+
+### Active Vaults
+
+The list of recently accessed or pinned vaults, shown in the module sidebar.
+
+- **Analogous to:** Discord's channel list within a server
+- **DO NOT USE:** recent channels, favorites, pinned items, quick access
+
+---
+
+## Roles
+
+### Builder
+
+Creates and assembles vault content. Operates primarily in Discover and Build chambers.
+
+- **Can:** Create vaults, extract data, edit fields, generate documents
+- **Cannot:** Approve patches, promote to Ship
+
+### Gatekeeper
+
+Reviews and approves vault content. Operates primarily in the Review chamber.
+
+- **Can:** Approve/reject patches, run preflight checks, add review notes
+- **Cannot:** Self-approve their own changes (Separation of Duties enforced)
+
+### Owner
+
+Promotes and publishes vault content. Operates primarily in the Ship chamber.
+
+- **Can:** Promote vaults through gates, publish final outputs, archive vaults
+- **Cannot:** Self-promote without gatekeeper approval
+
+### Designer
+
+Configures module templates, extraction rules, and generation configs.
+
+- **Scope:** Module-level configuration, not individual vault operations
+
+### Viewer
+
+Read-only access to vault data within their authorized modules.
+
+- **Can:** View vault content, event feeds, and reports
+- **Cannot:** Modify any vault data
+
+---
+
+## Architecture Concepts
+
+### Overlay
+
+The admin interface. An overlay is NOT a module — it sits above the module layer.
+
+- **Contains:** Workspace settings, user management, billing, system config
+- **DO NOT USE:** admin module, settings module
+
+### Event
+
+An immutable record of an action taken in a vault. Events are append-only.
+
+- **Types:** extraction, patch, approval, rejection, promotion, comment, ai_observation
+- **Storage:** PostgreSQL with JSONB payload, never modified after creation
+
+### Patch
+
+A proposed change to vault data. Patches require approval through the Gate system.
+
+- **Lifecycle:** Draft → Submitted → Approved/Rejected → Applied
+- **DO NOT USE:** edit, change, update, modification
+
+### Extraction
+
+The process of pulling structured data from unstructured documents (contracts, emails, PDFs).
+
+- **Engines:** 7 extractors in the extraction engine (text, date, currency, entity, table, clause, metadata)
+- **Output:** Field-level data with confidence scores
+
+### Preflight
+
+Quality validation that runs before a vault can pass through a gate.
+
+- **Checks:** Required fields, confidence thresholds, risk scoring, SLA compliance
+- **Output:** Pass/fail with detailed checklist
+
+### Generation
+
+Creating documents from templates using vault data and clause library.
+
+- **Input:** Vault fields + trigger-matched clauses from clause_library_v2.json
+- **Output:** Assembled contract document with all variables interpolated
+
+---
+
+## Technical Terms
+
+### ULID
+
+Universally Unique Lexicographically Sortable Identifier. Used as primary keys in PostgreSQL.
+
+- **Format:** 26-character string (e.g., `01ARZ3NDEKTSV4RRFFQ69G5FAV`)
+- **Advantage:** Sortable by creation time, no sequential guessing
+
+### RLS (Row-Level Security)
+
+PostgreSQL-enforced tenant isolation. Every table row has a `workspace_id` column.
+
+- **Effect:** Queries automatically filtered to the current workspace
+- **DO NOT USE:** tenant filter, workspace filter (RLS is the mechanism)
+
+### DEK / KEK
+
+Data Encryption Key / Key Encryption Key. Envelope encryption pattern.
+
+- **DEK:** Encrypts actual data (per-vault or per-table)
+- **KEK:** Encrypts the DEK (managed by KMS)
+
+### Crypto-shredding
+
+Destroying an encryption key to render all data it encrypted permanently unrecoverable.
+
+- **Use case:** GDPR right-to-erasure, workspace deletion
+
+---
+
+## Banned Terms Quick Reference
+
+| ❌ DO NOT USE | ✅ USE INSTEAD |
+|---------------|----------------|
+| channel | Vault |
+| workstream | Vault |
+| server | Module |
+| workspace (as domain) | Module |
+| phase | Chamber |
+| step | Chamber |
+| stage | Chamber |
+| checkpoint | Gate |
+| milestone | Gate |
+| page | View |
+| panel (as View) | View |
+| layout (as Triptych) | Triptych |
+| feed (as Signal) | Signal |
+| main (as Orchestrate) | Orchestrate |
+| sidebar (as Control) | Control |
+| recent channels | Active Vaults |
+| admin module | Overlay |
+| edit/change (as Patch) | Patch |

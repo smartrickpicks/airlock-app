@@ -1,0 +1,92 @@
+/* Airlock OLED Dark Theme — Design Tokens
+ *
+ * All colors referenced via CSS custom properties.
+ * Never use raw hex/rgb values in components — always reference these tokens.
+ *
+ * Chamber colors:
+ *   Discover = red    (#EF4444)
+ *   Build    = yellow (#EAB308)
+ *   Review   = purple (#A855F7)
+ *   Ship     = green  (#22C55E)
+ */
+
+:root {
+  /* === Surface Palette (OLED Dark) === */
+  --surface-base: #000000;
+  --surface-raised: #0A0A0A;
+  --surface-overlay: #141414;
+  --surface-sunken: #050505;
+  --surface-border: #1E1E1E;
+  --surface-border-subtle: #141414;
+
+  /* === Chamber Colors === */
+  --chamber-discover: #EF4444;
+  --chamber-discover-muted: #991B1B;
+  --chamber-build: #EAB308;
+  --chamber-build-muted: #854D0E;
+  --chamber-review: #A855F7;
+  --chamber-review-muted: #6B21A8;
+  --chamber-ship: #22C55E;
+  --chamber-ship-muted: #166534;
+
+  /* === Accent Colors === */
+  --accent-primary: #3B82F6;
+  --accent-primary-hover: #2563EB;
+  --accent-secondary: #6366F1;
+  --accent-danger: #EF4444;
+  --accent-warning: #F59E0B;
+  --accent-success: #22C55E;
+
+  /* === Text Colors === */
+  --text-primary: #F5F5F5;
+  --text-secondary: #A3A3A3;
+  --text-muted: #525252;
+  --text-inverse: #0A0A0A;
+
+  /* === Typography === */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* === Spacing Scale === */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 0.75rem;   /* 12px */
+  --space-lg: 1rem;      /* 16px */
+  --space-xl: 1.5rem;    /* 24px */
+  --space-2xl: 2rem;     /* 32px */
+  --space-3xl: 3rem;     /* 48px */
+
+  /* === Border Radius === */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+
+  /* === Z-Index Scale === */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+
+  /* === Triptych Layout === */
+  --triptych-signal-width: 320px;
+  --triptych-control-width: 320px;
+  --triptych-signal-min: 240px;
+  --triptych-control-min: 240px;
+
+  /* === Module Bar === */
+  --module-bar-width: 72px;
+
+  /* === Sidebar === */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 0px;
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+}
