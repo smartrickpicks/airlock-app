@@ -1,6 +1,6 @@
 """Smoke tests for ORM model imports and table names."""
 
-from src.models import User, UserModuleRole, Workspace
+from src.models import User, UserModuleRole, Vault, Workspace
 
 
 def test_user_tablename():
@@ -15,10 +15,15 @@ def test_user_module_role_tablename():
     assert UserModuleRole.__tablename__ == "user_module_roles"
 
 
+def test_vault_tablename():
+    assert Vault.__tablename__ == "vaults"
+
+
 def test_all_models_importable():
     """Verify all models can be imported from src.models."""
-    from src.models import User, UserModuleRole, Workspace
+    from src.models import User, UserModuleRole, Vault, Workspace
 
     assert User is not None
     assert Workspace is not None
     assert UserModuleRole is not None
+    assert Vault is not None
