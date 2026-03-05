@@ -40,6 +40,7 @@ export default function TriptychLayout({
   children,
   title = "",
   breadcrumb = "",
+  vaultId,
 }: TriptychLayoutProps) {
   // Triptych state
   const {
@@ -118,6 +119,7 @@ export default function TriptychLayout({
               openSignalOverlay();
             }
           }}
+          vaultId={vaultId}
         />
       </div>
 
@@ -141,6 +143,7 @@ export default function TriptychLayout({
               width={signalWidth}
               collapsed={false}
               onOverlayToggle={closeSignalOverlay}
+              vaultId={vaultId}
             />
           </div>
         </>
