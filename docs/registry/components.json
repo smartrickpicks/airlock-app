@@ -141,6 +141,34 @@
       "path": "src/components/molecules/Modal.tsx",
       "description": "Reusable modal overlay with title, close button, escape key, and backdrop click",
       "milestone": "M14"
+    },
+    {
+      "name": "ProfileSettings",
+      "level": "organism",
+      "path": "src/components/organisms/ProfileSettings.tsx",
+      "description": "User profile editor with name, email, avatar, timezone",
+      "milestone": "M15"
+    },
+    {
+      "name": "AppearanceSettings",
+      "level": "organism",
+      "path": "src/components/organisms/AppearanceSettings.tsx",
+      "description": "Theme, font size, sidebar width, reduced motion, high contrast toggles",
+      "milestone": "M15"
+    },
+    {
+      "name": "FeatureFlags",
+      "level": "organism",
+      "path": "src/components/organisms/FeatureFlags.tsx",
+      "description": "Feature Control Plane toggle grid — cycle disabled/beta/enabled per flag",
+      "milestone": "M15"
+    },
+    {
+      "name": "MembersTable",
+      "level": "organism",
+      "path": "src/components/organisms/MembersTable.tsx",
+      "description": "Workspace member table with role dropdowns and status indicators",
+      "milestone": "M15"
     }
   ]
 }
