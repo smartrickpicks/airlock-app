@@ -26,12 +26,24 @@ export default function LeadsTable({ leads }: LeadsTableProps) {
       <table className="w-full">
         <thead>
           <tr className="border-b border-surface-border-subtle bg-surface-overlay">
-            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">Lead</th>
-            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">Source</th>
-            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">Score</th>
-            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">Stage</th>
-            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">Assigned</th>
-            <th className="px-4 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">Age</th>
+            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              Lead
+            </th>
+            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              Source
+            </th>
+            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              Score
+            </th>
+            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              Stage
+            </th>
+            <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              Assigned
+            </th>
+            <th className="px-4 py-2 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+              Age
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -43,9 +55,13 @@ export default function LeadsTable({ leads }: LeadsTableProps) {
                 className="border-b border-surface-border-subtle cursor-pointer hover:bg-surface-overlay transition-colors duration-fast"
               >
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-text-primary">{lead.name}</div>
+                  <div className="text-sm font-medium text-text-primary">
+                    {lead.name}
+                  </div>
                   {lead.matchStatus !== "matched" && (
-                    <div className={`text-[10px] ${MATCH_BADGE[lead.matchStatus]}`}>
+                    <div
+                      className={`text-[10px] ${MATCH_BADGE[lead.matchStatus]}`}
+                    >
                       ({lead.matchStatus})
                     </div>
                   )}
@@ -54,17 +70,23 @@ export default function LeadsTable({ leads }: LeadsTableProps) {
                   {LEAD_SOURCE_LABELS[lead.source]}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`font-mono text-sm ${scoreColor(lead.score)}`}>
+                  <span
+                    className={`font-mono text-sm ${scoreColor(lead.score)}`}
+                  >
                     {lead.score !== null ? lead.score : "—"}
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold text-surface-base ${stageConfig.color}`}>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold text-surface-base ${stageConfig.color}`}
+                  >
                     {stageConfig.label}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-xs text-text-secondary">
-                  {lead.assignedRep || <span className="text-text-muted">—</span>}
+                  {lead.assignedRep || (
+                    <span className="text-text-muted">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right text-xs text-text-muted">
                   {lead.ageDays === 0 ? "Today" : `${lead.ageDays}d`}
