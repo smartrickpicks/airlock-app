@@ -169,6 +169,13 @@
       "path": "src/components/organisms/MembersTable.tsx",
       "description": "Workspace member table with role dropdowns and status indicators",
       "milestone": "M15"
+    },
+    {
+      "name": "CommandPalette",
+      "level": "organism",
+      "path": "src/components/organisms/CommandPalette.tsx",
+      "description": "Cmd+K search overlay with Fuse.js fuzzy search, keyboard navigation, and module-aware results",
+      "milestone": "M16"
     }
   ]
 }
