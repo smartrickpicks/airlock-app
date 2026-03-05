@@ -1,18 +1,22 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 /**
- * CRM catch-all route — react-admin integration.
- * SSR is disabled for this route (react-admin is client-side only).
- * The CrmApp component is loaded via dynamic import in src/features/crm/.
+ * CRM catch-all route — redirects unknown CRM paths to /crm/accounts.
+ * Will be replaced with react-admin integration when API is live.
  */
-export default function CrmPage() {
+export default function CrmCatchAllPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/crm/accounts");
+  }, [router]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-1">CRM</h1>
-      <p className="text-text-secondary">
-        Vault hierarchy as CRM — react-admin integration
-      </p>
-      {/* TODO: dynamic import CrmApp from @/features/crm/CrmApp */}
+    <div className="flex h-full items-center justify-center">
+      <span className="text-sm text-text-muted">Redirecting...</span>
     </div>
   );
 }
