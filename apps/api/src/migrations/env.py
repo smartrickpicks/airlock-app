@@ -11,7 +11,7 @@ if config.config_file_name is not None:
 
 # Import Base and all models so Alembic can detect them
 from src.db import Base  # noqa: E402
-from src.models import User, UserModuleRole, Workspace  # noqa: E402, F401
+from src.models import User, UserModuleRole, Vault, VaultMember, Workspace  # noqa: E402, F401
 
 target_metadata = Base.metadata
 
