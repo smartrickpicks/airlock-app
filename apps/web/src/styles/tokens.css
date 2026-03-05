@@ -8,16 +8,18 @@
  *   Build    = yellow (#EAB308)
  *   Review   = purple (#A855F7)
  *   Ship     = green  (#22C55E)
+ *
+ * Source of truth: docs/specs/shell/theme.md
  */
 
 :root {
-  /* === Surface Palette (OLED Dark) === */
-  --surface-base: #000000;
-  --surface-raised: #0A0A0A;
-  --surface-overlay: #141414;
-  --surface-sunken: #050505;
-  --surface-border: #1E1E1E;
-  --surface-border-subtle: #141414;
+  /* === Surface Palette (Spec-Aligned OLED Dark) === */
+  --surface-base: #0B0E14;
+  --surface-raised: #0F1219;
+  --surface-overlay: #151923;
+  --surface-sunken: #080A0F;
+  --surface-border: #1E2330;
+  --surface-border-subtle: #161B25;
 
   /* === Chamber Colors === */
   --chamber-discover: #EF4444;
@@ -29,23 +31,30 @@
   --chamber-ship: #22C55E;
   --chamber-ship-muted: #166534;
 
+  /* === Gate Colors (aliases for semantic use) === */
+  --gate-red: #EF4444;
+  --gate-yellow: #EAB308;
+  --gate-purple: #A855F7;
+  --gate-green: #22C55E;
+  --gate-amber: #F59E0B;
+
   /* === Accent Colors === */
-  --accent-primary: #3B82F6;
-  --accent-primary-hover: #2563EB;
+  --accent-primary: #00D1FF;
+  --accent-primary-hover: #00B8E6;
   --accent-secondary: #6366F1;
   --accent-danger: #EF4444;
   --accent-warning: #F59E0B;
   --accent-success: #22C55E;
 
   /* === Text Colors === */
-  --text-primary: #F5F5F5;
-  --text-secondary: #A3A3A3;
-  --text-muted: #525252;
-  --text-inverse: #0A0A0A;
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-inverse: #0B0E14;
 
   /* === Typography === */
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  --font-sans: var(--font-fira-sans), "Fira Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-fira-code), "Fira Code", monospace;
 
   /* === Spacing Scale === */
   --space-xs: 0.25rem;   /* 4px */
@@ -57,9 +66,10 @@
   --space-3xl: 3rem;     /* 48px */
 
   /* === Border Radius === */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.375rem; /* 6px */
+  --radius-lg: 0.625rem; /* 10px */
+  --radius-xl: 0.75rem;  /* 12px */
   --radius-full: 9999px;
 
   /* === Z-Index Scale === */
@@ -73,15 +83,17 @@
   --z-tooltip: 600;
 
   /* === Triptych Layout === */
-  --triptych-signal-width: 320px;
-  --triptych-control-width: 320px;
-  --triptych-signal-min: 240px;
-  --triptych-control-min: 240px;
+  --triptych-signal-width: 280px;
+  --triptych-control-width: 300px;
+  --triptych-signal-min: 200px;
+  --triptych-control-min: 200px;
+  --triptych-orchestrate-min: 400px;
+  --triptych-collapsed-width: 80px;
 
   /* === Module Bar === */
   --module-bar-width: 72px;
 
-  /* === Sidebar === */
+  /* === Sidebar (Sub-Panel) === */
   --sidebar-width: 240px;
   --sidebar-collapsed-width: 0px;
 
@@ -89,4 +101,5 @@
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
+  --transition-panel: 300ms ease-in-out;
 }

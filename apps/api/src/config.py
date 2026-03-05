@@ -12,10 +12,11 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://localhost:6379/0"
 
-    # Auth
+    # Auth — per spec: 15-min access tokens + 7-day refresh tokens
     jwt_secret: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
-    jwt_expire_minutes: int = 60 * 24  # 24 hours
+    jwt_access_expire_minutes: int = 15
+    jwt_refresh_expire_days: int = 7
 
     # Google OAuth
     google_client_id: str = ""
