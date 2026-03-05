@@ -1,6 +1,7 @@
 "use client";
 
 import type { CrmDeal } from "@/lib/mock-crm";
+import ProgressBar from "@/components/atoms/ProgressBar";
 
 interface DealCardProps {
   deal: CrmDeal;
@@ -40,17 +41,7 @@ export default function DealCard({ deal }: DealCardProps) {
         Stage: {deal.daysInStage}d
       </div>
 
-      <div className="mt-2 flex items-center gap-2">
-        <div className="h-1 flex-1 rounded-full bg-surface-overlay overflow-hidden">
-          <div
-            className="h-full rounded-full bg-accent-primary"
-            style={{ width: `${deal.progressPercent}%` }}
-          />
-        </div>
-        <span className="text-[10px] text-text-muted">
-          {deal.progressPercent}%
-        </span>
-      </div>
+      <ProgressBar value={deal.progressPercent} showLabel className="mt-2" />
 
       {deal.nextTask && (
         <div className="mt-1.5 text-xs text-text-secondary">

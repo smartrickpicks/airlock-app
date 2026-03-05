@@ -7,6 +7,8 @@ import {
   MODULE_BADGE_CONFIG,
   TASK_TYPE_LABELS,
 } from "@/lib/mock-tasks";
+import FilterPills from "@/components/molecules/FilterPills";
+import SortHeader from "@/components/molecules/SortHeader";
 
 interface TasksTableProps {
   tasks: Task[];
@@ -67,7 +69,7 @@ const QUICK_FILTERS = [
   { label: "Unassigned", value: "unassigned" },
   { label: "Overdue", value: "overdue" },
   { label: "Blockers", value: "blockers" },
-] as const;
+];
 
 export default function TasksTable({
   tasks,
@@ -79,11 +81,12 @@ export default function TasksTable({
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [activeQuickFilter, setActiveQuickFilter] = useState("all");
 
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) {
+  const toggleSort = (key: string) => {
+    const k = key as SortKey;
+    if (sortKey === k) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
-      setSortKey(key);
+      setSortKey(k);
       setSortDir("asc");
     }
   };
@@ -117,59 +120,65 @@ export default function TasksTable({
     }
   });
 
-  const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
-    <th
-      className="cursor-pointer px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted hover:text-text-primary"
-      onClick={() => toggleSort(field)}
-    >
-      {label}
-      {sortKey === field && (
-        <span className="ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
-      )}
-    </th>
-  );
-
   return (
     <div className="flex flex-col gap-4">
-      {/* Quick filter pills */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {QUICK_FILTERS.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => {
-              setActiveQuickFilter(f.value);
-              onFilterChange?.(f.value, f.value);
-            }}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-              activeQuickFilter === f.value
-                ? "bg-accent-primary text-text-inverse"
-                : "bg-surface-overlay text-text-secondary hover:bg-surface-border hover:text-text-primary"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      <FilterPills
+        filters={QUICK_FILTERS}
+        activeValue={activeQuickFilter}
+        onChange={(v) => {
+          setActiveQuickFilter(v);
+          onFilterChange?.(v, v);
+        }}
+      />
 
-      {/* Table */}
       <div className="overflow-x-auto rounded-lg border border-surface-border">
         <table className="w-full">
           <thead className="bg-surface-overlay">
             <tr>
-              <SortHeader label="Title" field="title" />
-              <SortHeader label="Module" field="moduleType" />
+              <SortHeader
+                label="Title"
+                field="title"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Module"
+                field="moduleType"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
               <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Vault
               </th>
               <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Type
               </th>
-              <SortHeader label="Severity" field="severity" />
+              <SortHeader
+                label="Severity"
+                field="severity"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
               <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Assigned
               </th>
-              <SortHeader label="Due" field="dueAt" />
-              <SortHeader label="Created" field="createdAt" />
+              <SortHeader
+                label="Due"
+                field="dueAt"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Created"
+                field="createdAt"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border">
@@ -193,7 +202,6 @@ export default function TasksTable({
                     key={task.id}
                     className="transition-colors hover:bg-surface-overlay/50"
                   >
-                    {/* Title */}
                     <td className="px-3 py-2.5">
                       <div className="flex items-center gap-2">
                         <span
@@ -204,7 +212,6 @@ export default function TasksTable({
                         </span>
                       </div>
                     </td>
-                    {/* Module */}
                     <td className="px-3 py-2.5">
                       <span
                         className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${mod.color}`}
@@ -212,15 +219,12 @@ export default function TasksTable({
                         {mod.label}
                       </span>
                     </td>
-                    {/* Vault */}
                     <td className="px-3 py-2.5 text-xs text-text-muted">
                       {task.vaultName || "—"}
                     </td>
-                    {/* Type */}
                     <td className="px-3 py-2.5 text-xs text-text-secondary">
                       {TASK_TYPE_LABELS[task.taskType]}
                     </td>
-                    {/* Severity */}
                     <td className="px-3 py-2.5">
                       <span
                         className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${sev.color}`}
@@ -228,13 +232,11 @@ export default function TasksTable({
                         {sev.label}
                       </span>
                     </td>
-                    {/* Assigned */}
                     <td className="px-3 py-2.5 text-xs text-text-secondary">
                       {task.assignedToName || (
                         <span className="italic text-text-muted">—</span>
                       )}
                     </td>
-                    {/* Due */}
                     <td className="px-3 py-2.5">
                       {due ? (
                         <span className={`font-mono text-xs ${due.color}`}>
@@ -244,7 +246,6 @@ export default function TasksTable({
                         <span className="text-xs text-text-muted">—</span>
                       )}
                     </td>
-                    {/* Created */}
                     <td className="px-3 py-2.5 text-xs text-text-muted">
                       {formatRelativeDate(task.createdAt)}
                     </td>

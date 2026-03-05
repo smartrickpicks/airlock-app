@@ -3,16 +3,16 @@
 import { useEffect } from "react";
 import { useCalendarStore } from "@/stores/calendar.store";
 import MonthGrid from "@/components/organisms/MonthGrid";
-import { SOURCE_LABELS, type CalendarEventSource } from "@/lib/mock-calendar";
+import FilterPills from "@/components/molecules/FilterPills";
+import type { CalendarEventSource } from "@/lib/mock-calendar";
 
-const SOURCE_OPTIONS: { value: CalendarEventSource | "all"; label: string }[] =
-  [
-    { value: "all", label: "All Modules" },
-    { value: "contracts", label: "Contracts" },
-    { value: "tasks", label: "Tasks" },
-    { value: "crm", label: "CRM" },
-    { value: "calendar", label: "Calendar" },
-  ];
+const SOURCE_OPTIONS = [
+  { value: "all", label: "All Modules" },
+  { value: "contracts", label: "Contracts" },
+  { value: "tasks", label: "Tasks" },
+  { value: "crm", label: "CRM" },
+  { value: "calendar", label: "Calendar" },
+];
 
 export default function CalendarMonthPage() {
   const {
@@ -41,21 +41,11 @@ export default function CalendarMonthPage() {
             Dates from vaults and task due dates
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {SOURCE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setSourceFilter(opt.value)}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                sourceFilter === opt.value
-                  ? "bg-accent-primary text-text-inverse"
-                  : "bg-surface-overlay text-text-secondary hover:bg-surface-border hover:text-text-primary"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          filters={SOURCE_OPTIONS}
+          activeValue={sourceFilter}
+          onChange={(v) => setSourceFilter(v as CalendarEventSource | "all")}
+        />
       </div>
 
       {isLoading ? (

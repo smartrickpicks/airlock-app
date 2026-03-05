@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/atoms/Button";
 import type { ExtractionField } from "@/lib/mock-extractions";
 
 interface PatchEditorProps {
@@ -129,19 +130,17 @@ export default function PatchEditor({
 
       {/* Actions */}
       <div className="flex gap-2">
-        <button
+        <Button
+          variant="primary"
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="flex-1 rounded-md bg-accent-primary px-4 py-2 text-sm font-medium text-text-inverse transition-colors hover:bg-accent-primary-hover disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex-1"
         >
           Save Draft
-        </button>
-        <button
-          onClick={onCancel}
-          className="rounded-md border border-surface-border px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-overlay"
-        >
+        </Button>
+        <Button variant="secondary" onClick={onCancel}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

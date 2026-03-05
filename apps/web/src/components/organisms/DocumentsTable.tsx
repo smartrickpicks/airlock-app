@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  Document,
-  DocumentStatus,
-  FileFormat,
-} from "@/lib/mock-documents";
+import type { Document, FileFormat } from "@/lib/mock-documents";
 import {
   DOC_TYPE_LABELS,
   DOC_STATUS_CONFIG,
   FORMAT_ICONS,
   formatFileSize,
 } from "@/lib/mock-documents";
+import FilterPills from "@/components/molecules/FilterPills";
+import SortHeader from "@/components/molecules/SortHeader";
 
 interface DocumentsTableProps {
   documents: Document[];
@@ -46,7 +44,7 @@ const QUICK_FILTERS = [
   { label: "Templates", value: "templates" },
   { label: "Drafts", value: "drafts" },
   { label: "PDFs", value: "pdfs" },
-] as const;
+];
 
 export default function DocumentsTable({
   documents,
@@ -57,11 +55,12 @@ export default function DocumentsTable({
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) {
+  const toggleSort = (key: string) => {
+    const k = key as SortKey;
+    if (sortKey === k) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
-      setSortKey(key);
+      setSortKey(k);
       setSortDir("asc");
     }
   };
@@ -100,56 +99,62 @@ export default function DocumentsTable({
     }
   });
 
-  const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
-    <th
-      className="cursor-pointer px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted hover:text-text-primary"
-      onClick={() => toggleSort(field)}
-    >
-      {label}
-      {sortKey === field && (
-        <span className="ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
-      )}
-    </th>
-  );
-
   return (
     <div className="flex flex-col gap-4">
-      {/* Quick filter pills */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {QUICK_FILTERS.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setActiveFilter(f.value)}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-              activeFilter === f.value
-                ? "bg-accent-primary text-text-inverse"
-                : "bg-surface-overlay text-text-secondary hover:bg-surface-border hover:text-text-primary"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      <FilterPills
+        filters={QUICK_FILTERS}
+        activeValue={activeFilter}
+        onChange={setActiveFilter}
+      />
 
-      {/* Table */}
       <div className="overflow-x-auto rounded-lg border border-surface-border">
         <table className="w-full">
           <thead className="bg-surface-overlay">
             <tr>
-              <SortHeader label="Name" field="title" />
-              <SortHeader label="Format" field="fileFormat" />
+              <SortHeader
+                label="Name"
+                field="title"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Format"
+                field="fileFormat"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
               <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Type
               </th>
               <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Vault
               </th>
-              <SortHeader label="Status" field="status" />
-              <SortHeader label="Size" field="fileSizeBytes" />
+              <SortHeader
+                label="Status"
+                field="status"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Size"
+                field="fileSizeBytes"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
               <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 By
               </th>
-              <SortHeader label="Updated" field="updatedAt" />
+              <SortHeader
+                label="Updated"
+                field="updatedAt"
+                activeSortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
             </tr>
           </thead>
           <tbody className="divide-y divide-surface-border">
