@@ -1,6 +1,31 @@
 {
   "$schema": "./components.schema.json",
   "_description": "Canonical component registry. Agents MUST update this file when creating new components.",
-  "_lastUpdated": "2026-03-04",
-  "components": []
+  "_lastUpdated": "2026-03-05",
+  "components": [
+    {
+      "name": "EntityCard",
+      "level": "organism",
+      "path": "src/components/organisms/EntityCard.tsx",
+      "description": "Parent vault card with expand/collapse child vault table for Review Queue"
+    },
+    {
+      "name": "HandoffSignalPanel",
+      "level": "molecule",
+      "path": "src/components/molecules/HandoffSignalPanel.tsx",
+      "description": "Alert summary card for RFI/Correction/Anomaly handoff signals"
+    },
+    {
+      "name": "FilterBar",
+      "level": "molecule",
+      "path": "src/components/molecules/FilterBar.tsx",
+      "description": "Signal type pills + builder/entity dropdown filters"
+    },
+    {
+      "name": "ActivityFeed",
+      "level": "organism",
+      "path": "src/components/organisms/ActivityFeed.tsx",
+      "description": "Reverse-chronological event stream grouped by time period"
+    }
+  ]
 }
