@@ -39,7 +39,11 @@ function getRingColor(ms: number): string {
   return "stroke-gate-green";
 }
 
-export default function SLATimer({ deadline, paused, className }: SLATimerProps) {
+export default function SLATimer({
+  deadline,
+  paused,
+  className,
+}: SLATimerProps) {
   const [remaining, setRemaining] = useState<number | null>(
     deadline ? getTimeRemaining(deadline) : null,
   );
