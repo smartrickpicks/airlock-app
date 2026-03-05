@@ -99,6 +99,48 @@
       "path": "src/components/organisms/DocumentPreview.tsx",
       "description": "Side panel document preview with metadata grid and format icon",
       "milestone": "M13"
+    },
+    {
+      "name": "Button",
+      "level": "atom",
+      "path": "src/components/atoms/Button.tsx",
+      "description": "Shared button with primary, secondary, ghost, danger variants and sm/md/lg sizes",
+      "milestone": "M14"
+    },
+    {
+      "name": "EmptyState",
+      "level": "atom",
+      "path": "src/components/atoms/EmptyState.tsx",
+      "description": "Centered empty/loading state placeholder with optional icon",
+      "milestone": "M14"
+    },
+    {
+      "name": "ProgressBar",
+      "level": "atom",
+      "path": "src/components/atoms/ProgressBar.tsx",
+      "description": "Horizontal progress bar with color variants and optional percentage label",
+      "milestone": "M14"
+    },
+    {
+      "name": "FilterPills",
+      "level": "molecule",
+      "path": "src/components/molecules/FilterPills.tsx",
+      "description": "Horizontal pill toggle group for quick filters — extracted from 4 tables and 2 pages",
+      "milestone": "M14"
+    },
+    {
+      "name": "SortHeader",
+      "level": "molecule",
+      "path": "src/components/molecules/SortHeader.tsx",
+      "description": "Clickable table column header with sort direction indicator",
+      "milestone": "M14"
+    },
+    {
+      "name": "Modal",
+      "level": "molecule",
+      "path": "src/components/molecules/Modal.tsx",
+      "description": "Reusable modal overlay with title, close button, escape key, and backdrop click",
+      "milestone": "M14"
     }
   ]
 }
