@@ -1,10 +1,18 @@
-export default function CalendarPage() {
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function CalendarRootPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/calendar/month");
+  }, [router]);
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-1">Calendar</h1>
-      <p className="text-text-secondary">
-        Schedule view — computed from vault dates (Schedule-X)
-      </p>
+    <div className="flex h-full items-center justify-center">
+      <span className="text-sm text-text-muted">Loading Calendar...</span>
     </div>
   );
 }
