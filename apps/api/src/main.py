@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
+from src.routes.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -40,10 +41,8 @@ def create_app() -> FastAPI:
     async def health_check() -> dict[str, str]:
         return {"status": "healthy", "service": "airlock-api"}
 
-    # Register routers here as they're created:
-    # app.include_router(vaults_router, prefix="/api/v1/vaults", tags=["vaults"])
-    # app.include_router(events_router, prefix="/api/v1/events", tags=["events"])
-    # app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+    # Register routers
+    app.include_router(auth_router)
 
     return app
 

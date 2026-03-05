@@ -10,6 +10,18 @@ interface User {
   avatarUrl?: string;
 }
 
+interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    avatar_url?: string;
+  };
+  org_role: OrgRole;
+}
+
 interface AuthState {
   /** Current authenticated user */
   user: User | null;
@@ -30,6 +42,8 @@ interface AuthState {
   setModuleRole: (module: string, role: ModuleRole) => void;
   /** Set the access token */
   setAccessToken: (token: string | null) => void;
+  /** Hydrate store from login API response */
+  hydrateFromLoginResponse: (response: LoginResponse) => void;
   /** Clear all auth state (logout) */
   logout: () => void;
 }
@@ -48,12 +62,44 @@ export const useAuthStore = create<AuthState>((set) => ({
       moduleRoles: { ...state.moduleRoles, [module]: role },
     })),
   setAccessToken: (token) => set({ accessToken: token }),
-  logout: () =>
+
+  hydrateFromLoginResponse: (response) => {
+    // Save tokens to localStorage
+    localStorage.setItem("airlock_access_token", response.access_token);
+    localStorage.setItem("airlock_refresh_token", response.refresh_token);
+
+    // Set cookie for middleware auth checks
+    document.cookie = `airlock_access_token=${response.access_token}; path=/; max-age=900; SameSite=Lax`;
+
+    // Update store state
+    set({
+      user: {
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.name,
+        avatarUrl: response.user.avatar_url,
+      },
+      orgRole: response.org_role,
+      accessToken: response.access_token,
+      isLoading: false,
+    });
+  },
+
+  logout: () => {
+    // Clear localStorage
+    localStorage.removeItem("airlock_access_token");
+    localStorage.removeItem("airlock_refresh_token");
+
+    // Clear cookie
+    document.cookie = "airlock_access_token=; path=/; max-age=0; SameSite=Lax";
+
+    // Reset store state
     set({
       user: null,
       orgRole: null,
       moduleRoles: {},
       accessToken: null,
       isLoading: false,
-    }),
+    });
+  },
 }));

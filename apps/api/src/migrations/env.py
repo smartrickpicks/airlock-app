@@ -9,9 +9,11 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Import all models here so Alembic can detect them
-# from src.models.vault import Vault  # noqa: F401
-target_metadata = None  # Set to Base.metadata when models are defined
+# Import Base and all models so Alembic can detect them
+from src.db import Base  # noqa: E402
+from src.models import User, UserModuleRole, Workspace  # noqa: E402, F401
+
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fira_Sans, Fira_Code } from "next/font/google";
 import "@/styles/globals.css";
-import ShellLayout from "@/components/templates/ShellLayout";
+import AuthProvider from "@/providers/AuthProvider";
 
 const firaSans = Fira_Sans({
   subsets: ["latin"],
@@ -33,7 +33,7 @@ export default function RootLayout({
       className={`dark ${firaSans.variable} ${firaCode.variable}`}
     >
       <body className="bg-surface-base text-text-primary min-h-screen">
-        <ShellLayout>{children}</ShellLayout>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
