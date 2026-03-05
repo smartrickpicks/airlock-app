@@ -71,6 +71,20 @@
       "path": "src/components/organisms/TasksKanban.tsx",
       "description": "4-column Kanban board (Open/In Progress/In Review/Resolved) with drag-and-drop",
       "milestone": "M11"
+    },
+    {
+      "name": "MonthGrid",
+      "level": "organism",
+      "path": "src/components/organisms/MonthGrid.tsx",
+      "description": "Calendar month grid with event dots, day navigation, prev/next month",
+      "milestone": "M12"
+    },
+    {
+      "name": "AgendaList",
+      "level": "organism",
+      "path": "src/components/organisms/AgendaList.tsx",
+      "description": "Chronological event list grouped by date with countdown and source badges",
+      "milestone": "M12"
     }
   ]
 }
