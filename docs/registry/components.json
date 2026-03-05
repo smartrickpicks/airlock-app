@@ -85,6 +85,20 @@
       "path": "src/components/organisms/AgendaList.tsx",
       "description": "Chronological event list grouped by date with countdown and source badges",
       "milestone": "M12"
+    },
+    {
+      "name": "DocumentsTable",
+      "level": "organism",
+      "path": "src/components/organisms/DocumentsTable.tsx",
+      "description": "Sortable document table with format icons, quick filter pills, and row selection",
+      "milestone": "M13"
+    },
+    {
+      "name": "DocumentPreview",
+      "level": "organism",
+      "path": "src/components/organisms/DocumentPreview.tsx",
+      "description": "Side panel document preview with metadata grid and format icon",
+      "milestone": "M13"
     }
   ]
 }
