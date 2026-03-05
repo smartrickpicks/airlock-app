@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { apiFetch } from "@/lib/api";
+import { MOCK_VAULTS } from "@/lib/mock-vaults";
 
 type VaultLevel = 1 | 2 | 3 | 4;
 type Chamber = "discover" | "build" | "review" | "ship";
@@ -90,11 +91,20 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         `/api/v1/vaults${qs ? `?${qs}` : ""}`,
       );
       set({ vaults: data.vaults, isLoading: false });
-    } catch (e) {
-      set({
-        error: e instanceof Error ? e.message : "Failed to fetch vaults",
-        isLoading: false,
-      });
+    } catch {
+      // API not running — use mock data for dev preview
+      let filtered = MOCK_VAULTS as Vault[];
+      if (params?.module_type)
+        filtered = filtered.filter((v) => v.module_type === params.module_type);
+      if (params?.vault_level)
+        filtered = filtered.filter((v) => v.vault_level === params.vault_level);
+      if (params?.chamber)
+        filtered = filtered.filter((v) => v.chamber === params.chamber);
+      if (params?.parent_vault_id)
+        filtered = filtered.filter(
+          (v) => v.parent_vault_id === params.parent_vault_id,
+        );
+      set({ vaults: filtered, isLoading: false, error: null });
     }
   },
 
@@ -103,10 +113,15 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     try {
       const data = await apiFetch<Vault>(`/api/v1/vaults/${vaultId}`);
       set({ selectedVault: data, isLoading: false });
-    } catch (e) {
+    } catch {
+      const mock =
+        (MOCK_VAULTS as Vault[]).find(
+          (v) => v.id === vaultId || v.slug === vaultId,
+        ) ?? null;
       set({
-        error: e instanceof Error ? e.message : "Failed to fetch vault",
+        selectedVault: mock,
         isLoading: false,
+        error: mock ? null : "Vault not found",
       });
     }
   },
