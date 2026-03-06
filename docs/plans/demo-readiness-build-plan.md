@@ -2,7 +2,7 @@
 
 > **Purpose**: Copy-paste-ready build plan. Two tracks: **Track A** (broad seeded demo) and **Track B** (single-contract intake lab). Track B is the authoritative proof path. Build in order.
 >
-> **Current state**: Frontend has 87 components, 23 Zustand stores, 20 mock data files. Backend has 4 route groups (auth, vaults, events, engines), 3 services, 3 engines (extraction, preflight, generation), 3 DB migrations. `python-multipart` is installed. No PDF parsing library yet. No document/upload routes. No file storage layer.
+> **Current state**: Frontend has 87 components, 23 Zustand stores, 20 mock data files. Backend has 4 route groups (auth, vaults, events, engines), 3 services, 3 engines (extraction, preflight, generation), 3 DB migrations. `python-multipart` is installed. No PDF parsing library yet. No document/upload API routes. No file storage layer. Demo-only upload modals exist (`DocumentUploadModal.tsx`, `InboundContractIntakeModal.tsx`) but have no real file handling — they are UI shells only.
 >
 > **Key shift from v1**: The first authoritative flow is **upload PDF → create vault → run engines**, not "generate contract → use metadata.generated_text." The generator is a secondary branch, not the starting proof path.
 
@@ -184,7 +184,9 @@ def extract_text_from_pdf(file_bytes: bytes) -> tuple[str, int]:
 
 **Goal**: Frontend has a drag-and-drop PDF upload zone that creates a document via the API.
 
-**Files to create**:
+**What exists**: `DocumentUploadModal.tsx` and `InboundContractIntakeModal.tsx` exist as demo-only UI shells. They have no real file handling. Either replace their internals or create a new component — the key is that the upload must call `POST /api/v1/documents/upload` and return a real `DocumentResponse`.
+
+**Files to create/modify**:
 - `apps/web/src/components/molecules/FileDropZone.tsx` — Drag-and-drop + click-to-browse component:
   - Accepts PDF files only (for now)
   - Shows upload progress
@@ -509,6 +511,16 @@ def extract_text_from_pdf(file_bytes: bytes) -> tuple[str, int]:
 - Patch editor loads extraction results, allows field edits, submits as patch
 
 **Validation**: Open vault in review → edit field → submit patch → approve (different user) → field updates.
+
+---
+
+## Critical Implementation Rule
+
+**Uploaded document text MUST replace the seeded-text path.** Specifically:
+
+- `extraction.store.ts` currently falls back to mock data from `mock-extractions.ts`. After Track B, it must read from `vault.metadata.extraction_result` (populated by `POST /api/v1/vaults/{id}/run-extraction` which reads `document.full_text`).
+- Any seeded demo text in `contract-engines.ts` or similar adapters must NOT be the source for the intake proof path. The proof path is: **uploaded PDF → pypdf parse → document.full_text → engines**. If the extraction/preflight engines still run against hardcoded strings, the intake lab hasn't proven anything.
+- `ContractEngineActionModal.tsx` exists but runs against seeded demo text. It should NOT be treated as authoritative for the intake path. The intake lab (B3) builds a new flow that uses real uploaded document text.
 
 ---
 
