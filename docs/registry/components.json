@@ -246,6 +246,34 @@
       "path": "src/components/organisms/EventBusMonitor.tsx",
       "description": "Event bus admin dashboard with queue health grid, event flow, DLQ, and routing table",
       "milestone": "M20"
+    },
+    {
+      "name": "ConversationListItem",
+      "level": "molecule",
+      "path": "src/components/molecules/ConversationListItem.tsx",
+      "description": "Single conversation row with type-specific icon, preview, time, and unread badge",
+      "milestone": "M21"
+    },
+    {
+      "name": "ConversationList",
+      "level": "organism",
+      "path": "src/components/organisms/ConversationList.tsx",
+      "description": "Searchable conversation list with module/global scope toggle",
+      "milestone": "M21"
+    },
+    {
+      "name": "ChatView",
+      "level": "organism",
+      "path": "src/components/organisms/ChatView.tsx",
+      "description": "Chat interface with message list, date separators, typing indicator, and composer",
+      "milestone": "M21"
+    },
+    {
+      "name": "MessengerDrawer",
+      "level": "organism",
+      "path": "src/components/organisms/MessengerDrawer.tsx",
+      "description": "340px slide-over drawer for Messenger dock tool with conversation list and chat views",
+      "milestone": "M21"
     }
   ]
 }
