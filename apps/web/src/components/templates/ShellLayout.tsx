@@ -4,7 +4,10 @@ import { useEffect, type ReactNode } from "react";
 import ModuleBar from "@/components/organisms/ModuleBar";
 import SubPanel from "@/components/organisms/SubPanel";
 import CommandPalette from "@/components/organisms/CommandPalette";
+import NotificationCenter from "@/components/organisms/NotificationCenter";
+import ToastContainer from "@/components/atoms/Toast";
 import { useSearchStore } from "@/stores/search.store";
+import { useNotificationStore } from "@/stores/notification.store";
 
 interface ShellLayoutProps {
   children: ReactNode;
@@ -12,6 +15,12 @@ interface ShellLayoutProps {
 
 export default function ShellLayout({ children }: ShellLayoutProps) {
   const toggle = useSearchStore((s) => s.toggle);
+  const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
+
+  // Load notifications on mount
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,6 +39,8 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
       <SubPanel />
       <main className="flex-1 overflow-hidden">{children}</main>
       <CommandPalette />
+      <NotificationCenter />
+      <ToastContainer />
     </div>
   );
 }

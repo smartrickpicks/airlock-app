@@ -8,10 +8,12 @@ import {
   Calendar,
   FolderOpen,
   Settings,
+  Bell,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { MODULES, type ModuleName } from "@/lib/constants";
 import { useModuleStore } from "@/stores/module.store";
+import { useNotificationStore } from "@/stores/notification.store";
 import ModuleIcon from "@/components/molecules/ModuleIcon";
 
 /** Map module icon string names to actual Lucide components */
@@ -26,6 +28,8 @@ const moduleIconMap: Record<string, LucideIcon> = {
 export default function ModuleBar() {
   const router = useRouter();
   const { activeModule, setActiveModule } = useModuleStore();
+  const toggleNotifications = useNotificationStore((s) => s.toggle);
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
 
   const moduleKeys = Object.keys(MODULES) as ModuleName[];
 
@@ -104,6 +108,25 @@ export default function ModuleBar() {
         >
           ?
         </div>
+
+        {/* Notification bell */}
+        <button
+          className="
+            relative
+            text-text-muted hover:text-text-primary
+            cursor-pointer
+            transition-colors duration-fast
+          "
+          aria-label="Notifications"
+          onClick={toggleNotifications}
+        >
+          <Bell size={20} />
+          {unreadCount() > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent-danger text-[8px] font-bold text-white">
+              {unreadCount() > 9 ? "9+" : unreadCount()}
+            </span>
+          )}
+        </button>
 
         {/* Settings gear */}
         <button
