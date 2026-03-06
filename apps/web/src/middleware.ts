@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/api", "/_next", "/favicon.ico"];
+const PUBLIC_PATHS = [
+  "/login",
+  "/api",
+  "/_next",
+  "/favicon.ico",
+  "/onboarding",
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Allow exact root (landing page)
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
 
   // Allow public paths
   if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
