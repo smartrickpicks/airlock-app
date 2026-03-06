@@ -8,6 +8,7 @@ import NotificationCenter from "@/components/organisms/NotificationCenter";
 import ToastContainer from "@/components/atoms/Toast";
 import { useSearchStore } from "@/stores/search.store";
 import { useNotificationStore } from "@/stores/notification.store";
+import { useRealtimeStore } from "@/stores/realtime.store";
 
 interface ShellLayoutProps {
   children: ReactNode;
@@ -16,11 +17,15 @@ interface ShellLayoutProps {
 export default function ShellLayout({ children }: ShellLayoutProps) {
   const toggle = useSearchStore((s) => s.toggle);
   const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
+  const connectRealtime = useRealtimeStore((s) => s.connect);
+  const disconnectRealtime = useRealtimeStore((s) => s.disconnect);
 
-  // Load notifications on mount
+  // Load notifications and connect realtime on mount
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+    connectRealtime();
+    return () => disconnectRealtime();
+  }, [fetchNotifications, connectRealtime, disconnectRealtime]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

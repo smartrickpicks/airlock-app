@@ -15,6 +15,8 @@ import { MODULES, type ModuleName } from "@/lib/constants";
 import { useModuleStore } from "@/stores/module.store";
 import { useNotificationStore } from "@/stores/notification.store";
 import ModuleIcon from "@/components/molecules/ModuleIcon";
+import ConnectionStatus from "@/components/atoms/ConnectionStatus";
+import PresenceAvatars from "@/components/molecules/PresenceAvatars";
 
 /** Map module icon string names to actual Lucide components */
 const moduleIconMap: Record<string, LucideIcon> = {
@@ -92,6 +94,12 @@ export default function ModuleBar() {
 
       {/* Bottom section: user avatar + settings */}
       <div className="pb-4 flex flex-col items-center gap-2">
+        {/* Presence avatars */}
+        <PresenceAvatars />
+
+        {/* Connection status */}
+        <ConnectionStatus />
+
         {/* Divider */}
         <div className="w-8 h-px bg-surface-border mx-auto" />
 
