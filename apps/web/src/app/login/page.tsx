@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { useAuthStore } from "@/stores/auth.store";
 import { apiFetch } from "@/lib/api";
@@ -17,9 +18,12 @@ interface AuthResponse {
   };
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { hydrateFromLoginResponse } = useAuthStore();
+
+  const nextUrl = searchParams.get("next") || "/";
 
   const handleGoogleSuccess = async (credentialResponse: {
     credential?: string;
@@ -36,7 +40,7 @@ export default function LoginPage() {
       });
 
       hydrateFromLoginResponse(data);
-      router.push("/");
+      router.push(nextUrl);
     } catch {
       // Login failed — Google login error is shown inline
     }
@@ -49,7 +53,7 @@ export default function LoginPage() {
       });
 
       hydrateFromLoginResponse(data);
-      router.push("/");
+      router.push(nextUrl);
     } catch {
       // API not running — use client-side mock for dev preview
       const mockResponse: AuthResponse = {
@@ -63,7 +67,7 @@ export default function LoginPage() {
         },
       };
       hydrateFromLoginResponse(mockResponse);
-      router.push("/");
+      router.push(nextUrl);
     }
   };
 
@@ -73,7 +77,9 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-text-primary">Airlock</h1>
           <p className="mt-2 text-sm text-text-secondary">
-            Enterprise data operations platform
+            {nextUrl.includes("onboarding")
+              ? "Sign in to create your workspace"
+              : "Enterprise data operations platform"}
           </p>
         </div>
 
@@ -104,7 +110,30 @@ export default function LoginPage() {
             </>
           )}
         </div>
+
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => router.push("/")}
+            className="text-xs text-text-muted transition-colors hover:text-text-secondary"
+          >
+            Back to home
+          </button>
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-surface-base">
+          <div className="text-sm text-text-muted">Loading...</div>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }

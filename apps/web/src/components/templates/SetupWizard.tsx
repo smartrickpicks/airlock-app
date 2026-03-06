@@ -15,23 +15,39 @@ import {
   HardDrive,
   Upload,
   Globe,
+  Link2,
+  Loader2,
+  CheckCircle2,
+  Calendar,
+  FileText,
+  Mail,
+  LayoutGrid,
+  ArrowLeftRight,
+  MessageSquare,
+  Hash,
+  Reply,
+  FolderOpen,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import {
   MODULE_OPTIONS,
   INDUSTRY_OPTIONS,
   DATA_SOURCE_OPTIONS,
+  CONNECTOR_OPTIONS,
   WIZARD_STEPS,
   type WizardStep,
   type IndustryOption,
   type InviteeEntry,
   type DataSourceType,
+  type ConnectorType,
+  type ConnectorSelection,
 } from "@/lib/mock-onboarding";
 import type { LucideIcon } from "lucide-react";
 
 const STEP_ICONS: Record<WizardStep, LucideIcon> = {
   create_workspace: Building2,
   module_config: Blocks,
+  connect_tools: Link2,
   invite_team: UserPlus,
   connect_data: Database,
   ready: Rocket,
@@ -41,6 +57,18 @@ const DATA_SOURCE_ICONS: Record<DataSourceType, LucideIcon> = {
   google_drive: HardDrive,
   upload: Upload,
   api: Globe,
+};
+
+const CONNECTOR_FEATURE_ICONS: Record<string, LucideIcon> = {
+  "Calendar events alongside tasks": Calendar,
+  "Drive files attached to vaults": FileText,
+  "Email threads in context": Mail,
+  "Issues appear as Airlock tasks": LayoutGrid,
+  "Move cards here, status updates there": ArrowLeftRight,
+  "Custom field mapping": Database,
+  "Channel threads in vault detail": MessageSquare,
+  "Reply from Airlock": Reply,
+  "Mount channels to modules": FolderOpen,
 };
 
 interface SetupWizardProps {
@@ -55,6 +83,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     setWorkspaceName,
     setIndustry,
     toggleModule,
+    toggleConnector,
     addInvitee,
     removeInvitee,
     setDataSource,
@@ -131,6 +160,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               onToggle={toggleModule}
             />
           )}
+          {wizardStep === "connect_tools" && (
+            <StepConnectTools
+              connectors={setupState.connectors}
+              onToggle={toggleConnector}
+            />
+          )}
           {wizardStep === "invite_team" && (
             <StepInviteTeam
               invitees={setupState.invitees}
@@ -161,7 +196,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
           </button>
 
           <div className="flex items-center gap-2">
-            {wizardStep === "invite_team" || wizardStep === "connect_data" ? (
+            {wizardStep === "connect_tools" ||
+            wizardStep === "invite_team" ||
+            wizardStep === "connect_data" ? (
               <button
                 onClick={goNext}
                 className="rounded-md px-3 py-1.5 text-sm font-medium text-text-muted transition-colors hover:bg-surface-hover"
@@ -405,7 +442,136 @@ function StepInviteTeam({
   );
 }
 
-/* ─── Step 4: Connect Data ────────────────────────────────────── */
+/* ─── Step 3: Connect Tools ───────────────────────────────────── */
+
+function StepConnectTools({
+  connectors,
+  onToggle,
+}: {
+  connectors: ConnectorSelection[];
+  onToggle: (type: ConnectorType) => void;
+}) {
+  return (
+    <div>
+      <h3 className="mb-1 text-lg font-bold text-text-primary">
+        Connect your tools
+      </h3>
+      <p className="mb-6 text-sm text-text-secondary">
+        Bring your existing tools into Airlock. Data syncs automatically.
+      </p>
+
+      <div className="space-y-3">
+        {CONNECTOR_OPTIONS.map((option) => {
+          const selection = connectors.find((c) => c.type === option.type);
+          const isEnabled = selection?.enabled ?? false;
+          const status = selection?.status ?? "idle";
+
+          return (
+            <div
+              key={option.type}
+              className={`rounded-xl border transition-all ${
+                isEnabled
+                  ? status === "connected"
+                    ? "border-accent-success/40 bg-accent-success/5"
+                    : "border-accent-primary/40 bg-accent-primary/5"
+                  : "border-surface-border bg-surface-sunken hover:border-surface-border/80"
+              }`}
+            >
+              {/* Header */}
+              <button
+                onClick={() => onToggle(option.type)}
+                className="flex w-full items-center gap-3 px-4 py-3 text-left"
+              >
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                    isEnabled
+                      ? status === "connected"
+                        ? "bg-accent-success/10"
+                        : "bg-accent-primary/10"
+                      : "bg-surface-hover"
+                  }`}
+                >
+                  {status === "connecting" ? (
+                    <Loader2
+                      size={18}
+                      className="animate-spin text-accent-primary"
+                    />
+                  ) : status === "connected" ? (
+                    <CheckCircle2 size={18} className="text-accent-success" />
+                  ) : (
+                    <Link2
+                      size={18}
+                      className={
+                        isEnabled ? "text-accent-primary" : "text-text-muted"
+                      }
+                    />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-text-primary">
+                      {option.name}
+                    </p>
+                    {status === "connected" && (
+                      <span className="rounded-full bg-accent-success/10 px-2 py-0.5 text-[10px] font-medium text-accent-success">
+                        Connected
+                      </span>
+                    )}
+                    {status === "connecting" && (
+                      <span className="rounded-full bg-accent-primary/10 px-2 py-0.5 text-[10px] font-medium text-accent-primary">
+                        Connecting...
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-text-muted">
+                    {option.description}
+                  </p>
+                </div>
+                <span className="text-xs text-text-muted">
+                  {option.setupTime}
+                </span>
+              </button>
+
+              {/* Features (shown when enabled) */}
+              {isEnabled && (
+                <div className="border-t border-surface-border/50 px-4 pb-3 pt-2">
+                  <div className="space-y-1.5">
+                    {option.features.map((feature) => {
+                      const FeatureIcon =
+                        CONNECTOR_FEATURE_ICONS[feature] || Check;
+                      return (
+                        <div
+                          key={feature}
+                          className="flex items-center gap-2 text-xs text-text-secondary"
+                        >
+                          <FeatureIcon
+                            size={12}
+                            className={
+                              status === "connected"
+                                ? "text-accent-success"
+                                : "text-text-muted"
+                            }
+                          />
+                          {feature}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-4 text-center text-xs text-text-muted">
+        You can add more connectors later in Admin &gt; Connectors
+      </p>
+    </div>
+  );
+}
+
+/* ─── Step 5: Connect Data ────────────────────────────────────── */
 
 function StepConnectData({
   selected,
@@ -493,11 +659,14 @@ function StepReady({
 }: {
   state: {
     enabledModules: string[];
+    connectors: ConnectorSelection[];
     invitees: InviteeEntry[];
     dataSource: DataSourceType | null;
     loadDemoData: boolean;
   };
 }) {
+  const connectedTools = state.connectors.filter((c) => c.enabled);
+
   return (
     <div className="text-center">
       <div className="mb-4 flex justify-center">
@@ -512,6 +681,16 @@ function StepReady({
 
       <div className="mb-6 space-y-1.5 text-sm text-text-secondary">
         <p>{state.enabledModules.length} modules enabled</p>
+        {connectedTools.length > 0 && (
+          <p>
+            {connectedTools
+              .map(
+                (c) => CONNECTOR_OPTIONS.find((o) => o.type === c.type)?.name,
+              )
+              .join(", ")}{" "}
+            connected
+          </p>
+        )}
         <p>
           {state.invitees.length} team member
           {state.invitees.length !== 1 ? "s" : ""} invited

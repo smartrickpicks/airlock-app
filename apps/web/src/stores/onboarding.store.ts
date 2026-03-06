@@ -4,6 +4,7 @@ import type {
   WizardStep,
   IndustryOption,
   DataSourceType,
+  ConnectorType,
   UserChecklistItemId,
   AdminChecklistItemId,
   ChecklistItem,
@@ -14,6 +15,7 @@ import {
   USER_CHECKLIST_ITEMS,
   ADMIN_CHECKLIST_ITEMS,
   MODULE_OPTIONS,
+  CONNECTOR_OPTIONS,
 } from "@/lib/mock-onboarding";
 
 const LS_KEY_USER_CHECKLIST = "airlock_user_checklist";
@@ -68,6 +70,11 @@ interface OnboardingState {
   toggleModule: (moduleId: string) => void;
   addInvitee: (entry: InviteeEntry) => void;
   removeInvitee: (index: number) => void;
+  toggleConnector: (connectorType: ConnectorType) => void;
+  setConnectorStatus: (
+    connectorType: ConnectorType,
+    status: "idle" | "connecting" | "connected" | "error",
+  ) => void;
   setDataSource: (source: DataSourceType | null) => void;
   setLoadDemoData: (load: boolean) => void;
   resetWizard: () => void;
@@ -84,6 +91,11 @@ const defaultSetupState: WorkspaceSetupState = {
   enabledModules: MODULE_OPTIONS.filter((m) => m.defaultEnabled).map(
     (m) => m.id,
   ),
+  connectors: CONNECTOR_OPTIONS.map((c) => ({
+    type: c.type,
+    enabled: false,
+    status: "idle" as const,
+  })),
   invitees: [],
   dataSource: null,
   loadDemoData: false,
@@ -163,6 +175,36 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
         invitees: get().setupState.invitees.filter((_, i) => i !== index),
       },
     }),
+
+  toggleConnector: (connectorType) => {
+    const connectors = get().setupState.connectors.map((c) =>
+      c.type === connectorType
+        ? {
+            ...c,
+            enabled: !c.enabled,
+            status: !c.enabled ? ("connecting" as const) : ("idle" as const),
+          }
+        : c,
+    );
+    set({ setupState: { ...get().setupState, connectors } });
+
+    // Simulate OAuth connection (in production, this triggers real OAuth flow)
+    if (connectors.find((c) => c.type === connectorType)?.enabled) {
+      setTimeout(() => {
+        const updated = get().setupState.connectors.map((c) =>
+          c.type === connectorType ? { ...c, status: "connected" as const } : c,
+        );
+        set({ setupState: { ...get().setupState, connectors: updated } });
+      }, 1500);
+    }
+  },
+
+  setConnectorStatus: (connectorType, status) => {
+    const connectors = get().setupState.connectors.map((c) =>
+      c.type === connectorType ? { ...c, status } : c,
+    );
+    set({ setupState: { ...get().setupState, connectors } });
+  },
 
   setDataSource: (source) =>
     set({ setupState: { ...get().setupState, dataSource: source } }),

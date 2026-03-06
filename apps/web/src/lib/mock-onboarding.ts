@@ -5,9 +5,12 @@ export type OnboardingPhase = "day1" | "week1" | "week2plus";
 export type WizardStep =
   | "create_workspace"
   | "module_config"
+  | "connect_tools"
   | "invite_team"
   | "connect_data"
   | "ready";
+
+export type ConnectorType = "jira" | "google_workspace" | "slack";
 
 export type IndustryOption =
   | "music"
@@ -55,10 +58,17 @@ export interface InviteeEntry {
   role: "builder" | "gatekeeper" | "owner";
 }
 
+export interface ConnectorSelection {
+  type: ConnectorType;
+  enabled: boolean;
+  status: "idle" | "connecting" | "connected" | "error";
+}
+
 export interface WorkspaceSetupState {
   workspaceName: string;
   industry: IndustryOption | "";
   enabledModules: string[];
+  connectors: ConnectorSelection[];
   invitees: InviteeEntry[];
   dataSource: DataSourceType | null;
   loadDemoData: boolean;
@@ -255,13 +265,60 @@ export const DATA_SOURCE_OPTIONS: {
   },
 ];
 
+/* ─── Connector Options ───────────────────────────────────────── */
+
+export interface ConnectorOption {
+  type: ConnectorType;
+  name: string;
+  description: string;
+  features: string[];
+  setupTime: string;
+}
+
+export const CONNECTOR_OPTIONS: ConnectorOption[] = [
+  {
+    type: "google_workspace",
+    name: "Google Workspace",
+    description: "Calendar, Drive, Gmail — unified in your workspace",
+    features: [
+      "Calendar events alongside tasks",
+      "Drive files attached to vaults",
+      "Email threads in context",
+    ],
+    setupTime: "2 min",
+  },
+  {
+    type: "jira",
+    name: "Jira",
+    description: "Tasks and boards sync bi-directionally",
+    features: [
+      "Issues appear as Airlock tasks",
+      "Move cards here, status updates there",
+      "Custom field mapping",
+    ],
+    setupTime: "3 min",
+  },
+  {
+    type: "slack",
+    name: "Slack",
+    description: "Relevant conversations, right where you need them",
+    features: [
+      "Channel threads in vault detail",
+      "Reply from Airlock",
+      "Mount channels to modules",
+    ],
+    setupTime: "2 min",
+  },
+];
+
 /* ─── Wizard Step Config ───────────────────────────────────────── */
 
 export const WIZARD_STEPS: { id: WizardStep; label: string; number: number }[] =
   [
     { id: "create_workspace", label: "Create Workspace", number: 1 },
     { id: "module_config", label: "Modules", number: 2 },
-    { id: "invite_team", label: "Invite Team", number: 3 },
-    { id: "connect_data", label: "Data Source", number: 4 },
-    { id: "ready", label: "Ready", number: 5 },
+    { id: "connect_tools", label: "Connect Tools", number: 3 },
+    { id: "invite_team", label: "Invite Team", number: 4 },
+    { id: "connect_data", label: "Data Source", number: 5 },
+    { id: "ready", label: "Ready", number: 6 },
   ];
