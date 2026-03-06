@@ -10,12 +10,14 @@ import {
   Settings,
   Bell,
   Bot,
+  MessageCircle,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { MODULES, type ModuleName } from "@/lib/constants";
 import { useModuleStore } from "@/stores/module.store";
 import { useNotificationStore } from "@/stores/notification.store";
 import { useOttoStore } from "@/stores/otto.store";
+import { useMessengerStore } from "@/stores/messenger.store";
 import ModuleIcon from "@/components/molecules/ModuleIcon";
 import ConnectionStatus from "@/components/atoms/ConnectionStatus";
 import PresenceAvatars from "@/components/molecules/PresenceAvatars";
@@ -35,6 +37,8 @@ export default function ModuleBar() {
   const toggleNotifications = useNotificationStore((s) => s.toggle);
   const unreadCount = useNotificationStore((s) => s.unreadCount);
   const toggleOtto = useOttoStore((s) => s.toggleDrawer);
+  const toggleMessenger = useMessengerStore((s) => s.toggleDrawer);
+  const messengerUnread = useMessengerStore((s) => s.totalUnread);
 
   const moduleKeys = Object.keys(MODULES) as ModuleName[];
 
@@ -119,6 +123,26 @@ export default function ModuleBar() {
         >
           ?
         </div>
+
+        {/* Messenger */}
+        <button
+          className="
+            relative
+            text-text-muted hover:text-accent-primary
+            cursor-pointer
+            transition-colors duration-fast
+          "
+          aria-label="Messenger"
+          title="Messenger (Cmd+M)"
+          onClick={toggleMessenger}
+        >
+          <MessageCircle size={20} />
+          {messengerUnread() > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent-error text-[8px] font-bold text-white">
+              {messengerUnread() > 9 ? "9+" : messengerUnread()}
+            </span>
+          )}
+        </button>
 
         {/* Otto AI */}
         <button
