@@ -96,8 +96,8 @@ export default function ControlPanel({
   if (collapsed) {
     return (
       <div
-        className="flex flex-col items-center pt-4 gap-3 border-l border-surface-border h-full flex-shrink-0" style={{ background: "var(--panel-control-bg)", width }}
-        style={{ width }}
+        className="flex flex-col items-center pt-4 gap-3 border-l border-surface-border h-full flex-shrink-0"
+        style={{ background: "var(--panel-control-bg)", width }}
       >
         {collapsedIcons.map((item) => {
           const IconComponent = item.icon;
