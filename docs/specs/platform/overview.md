@@ -244,17 +244,43 @@ The research document uses generic SaaS terms. Here's the mapping to Airlock voc
 | Channel/Room | **Vault** | Workflow instance, NOT a chat room |
 | Role (Owner/Admin/Manager/Member/Guest) | **Org role** + **Module role** | Org: member/lead/director/executive. Module: builder/gatekeeper/owner/designer/viewer |
 | Component | **View** / **Triptych panel** | KanbanBoard = a View rendered in the Orchestrate panel |
-| Tool | **MCP tool** | Correct, keep as-is |
-| Engine | **MCP server** | A server that provides tools, resources, and optionally UI |
-| Integration | **Connector** | In admin spec, the Connectors section |
+| Tool | **MCP tool** | Correct internally. User-facing: just "action" or the verb itself |
+| Engine | **Branded name** | Each engine gets a product name (Vortex, Otto, etc.). "Engine" is the generic internal term. Never show "MCP server" to users. |
+| Integration | **Connector** | In admin spec, the Connectors section. User sees branded names. |
 
-### Decisions Required
+### Decisions — LOCKED (2026-03-06)
 
-| # | Question | Options | Recommendation |
+| # | Decision | Resolution | Notes |
 |---|---|---|---|
-| D1 | Are customer sub-areas (Engineering, Sales) Modules or something new? | (a) They're Modules with workspace-scoped config (b) New concept: "Team" or "Space" | **(a)** — Modules already have per-workspace config. Don't add a concept. |
-| D2 | Does the marketplace live inside Admin Overlay or as a standalone route? | (a) Admin > Connectors > Marketplace tab (b) Top-level `/marketplace` route | **(a)** — Keep admin as single config surface. Marketplace is just a filtered view of available engines. |
-| D3 | Do we use "Engine" or "MCP Server" in the UI? | (a) Engine (user-friendly) (b) MCP Server (technical) (c) Connector (current spec) | **(a)** — Users see "Engine." Developers see "MCP Server." Admin shows both. |
+| D1 | Sub-areas are Modules, not a new concept | **LOCKED: (a)** | Modules with workspace-scoped config. No new concept. But add "department" as a user dimension (see below). |
+| D2 | Marketplace lives in Admin Overlay | **LOCKED: (a) → then (b)** | Start as Admin > Connectors > Marketplace tab. Phase 2: expose user-facing config for non-admins (Discord integrations model — admin enables, users configure their own). |
+| D3 | Branded names, not "MCP Server" | **LOCKED: branded** | Each tool gets its own product name (e.g., Vortex for doc ingestion). "MCP" is the transport layer, not the brand. Airlock wraps MCP with its own adapter protocol. Internal docs say "engine," user-facing says the branded name. |
+
+### Department Dimension (New Consideration)
+
+Everyone follows the four chambers regardless of department. But different departments have different views into the same chambers:
+
+```
+Chambers are the CONSTANT axis:  Discover > Build > Review > Ship
+Departments are the VARIABLE axis: Sales, Marketing, Finance, Engineering, Legal, Ops
+
+Example: A contract vault...
+  - Sales sees it in Discover (pipeline) and Build (deal assembly)
+  - Legal sees it in Review (approval, redline)
+  - Finance sees it in Ship (execution, payment terms)
+  - Engineering may not see it at all
+```
+
+**Implementation:** Department is a user attribute (alongside org_role and module_roles). The context server uses department to filter which vaults, views, and tools a user sees within each chamber. This is NOT a new navigation concept — it's a filter on the existing module/chamber model.
+
+```
+User dimensions:
+  1. org_role:       member | lead | director | executive
+  2. module_roles:   builder | gatekeeper | owner | designer | viewer (per module)
+  3. department:     sales | marketing | finance | legal | engineering | ops | ... (NEW)
+```
+
+**Deferred to Phase 2:** Department-based view filtering. Phase 1 uses role-based filtering only.
 
 ---
 
@@ -327,12 +353,38 @@ CREATE TABLE usage_events (
 
 ## Implementation Priority
 
-### Now (Phase 1 — Dogfood)
-1. MCP server registry in admin (Connectors section) — **design spec done**
-2. Tool permission matrix — **design spec done**
-3. Skill creator — **design spec done**
-4. Google Workspace MCP server integration
-5. Contract lifecycle through all 4 chambers
+### Now (Phase 1 — Dogfood, 6-8 weeks)
+
+See `docs/specs/platform/connector-roadmap.md` for detailed Phase 1 connector plan.
+
+**Week 1-2: Context server + canonical model**
+1. Stand up context MCP server (orgs, users, workspaces, roles, connector configs)
+2. Define canonical JSON schemas: Task, Event, MessageThread, Channel, Document
+3. Build adapter layer interface (engines call adapters, adapters call MCP servers)
+4. Admin overlay Connectors section — **design spec done**
+
+**Week 2-3: Jira connector**
+1. Fork community Jira MCP server, wrap in Airlock adapter
+2. Canonical mapping: Task ↔ Jira Issue, TaskBoard ↔ Jira Board/Project
+3. Board/kanban UI renders canonical Tasks, card moves fire `transition_issue`
+4. Tool permission matrix — **design spec done**
+
+**Week 3-4: Google Workspace connector**
+1. Adapt Google Workspace MCP server (Gmail, Calendar, Drive)
+2. "My Day" view: tasks + calendar + key emails in one triptych
+3. Per-user OAuth, context server manages auth state + scopes
+
+**Week 4-5: Slack connector**
+1. Wire Slack MCP server (channels, messages, threads)
+2. "Linked thread" in vault detail — see relevant Slack context, reply from Airlock
+3. Context server controls which Slack channels mount into which modules
+
+**Week 5-8: Hardening + admin**
+1. Drift detection (Airlock ↔ Jira/Calendar status mismatches)
+2. Reconciliation tools ("Fix mismatched statuses", "Re-link item")
+3. Admin UI for connector mappings and scopes
+4. Skill creator — **design spec done**
+5. Otto AI with Vibe Prospecting tools
 
 ### Next (Phase 2 — Multi-tenant)
 1. Onboarding wizard (7-step)
@@ -340,6 +392,7 @@ CREATE TABLE usage_events (
 3. Feature flag → tier enforcement
 4. Usage metering middleware
 5. Workspace provisioning API
+6. Department-based view filtering
 
 ### Later (Phase 3 — Platform)
 1. Super-admin panel
