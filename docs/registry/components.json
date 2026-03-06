@@ -125,7 +125,7 @@
       "name": "FilterPills",
       "level": "molecule",
       "path": "src/components/molecules/FilterPills.tsx",
-      "description": "Horizontal pill toggle group for quick filters — extracted from 4 tables and 2 pages",
+      "description": "Horizontal pill toggle group for quick filters \u2014 extracted from 4 tables and 2 pages",
       "milestone": "M14"
     },
     {
@@ -160,7 +160,7 @@
       "name": "FeatureFlags",
       "level": "organism",
       "path": "src/components/organisms/FeatureFlags.tsx",
-      "description": "Feature Control Plane toggle grid — cycle disabled/beta/enabled per flag",
+      "description": "Feature Control Plane toggle grid \u2014 cycle disabled/beta/enabled per flag",
       "milestone": "M15"
     },
     {
@@ -176,6 +176,20 @@
       "path": "src/components/organisms/CommandPalette.tsx",
       "description": "Cmd+K search overlay with Fuse.js fuzzy search, keyboard navigation, and module-aware results",
       "milestone": "M16"
+    },
+    {
+      "name": "Toast",
+      "level": "atom",
+      "path": "src/components/atoms/Toast.tsx",
+      "description": "Toast notification system with auto-dismiss, severity variants, enter animation, and stacking",
+      "milestone": "M17"
+    },
+    {
+      "name": "NotificationCenter",
+      "level": "organism",
+      "path": "src/components/organisms/NotificationCenter.tsx",
+      "description": "Slide-in notification panel with category filters, unread indicators, mark-read, and navigate actions",
+      "milestone": "M17"
     }
   ]
 }
