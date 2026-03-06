@@ -204,6 +204,20 @@
       "path": "src/components/molecules/PresenceAvatars.tsx",
       "description": "Stacked user avatars with online/away/busy status dots for workspace presence",
       "milestone": "M18"
+    },
+    {
+      "name": "OttoChat",
+      "level": "organism",
+      "path": "src/components/organisms/OttoChat.tsx",
+      "description": "AI chat interface with message bubbles, markdown rendering, quick suggestions, and streaming simulation",
+      "milestone": "M19"
+    },
+    {
+      "name": "OttoDrawer",
+      "level": "organism",
+      "path": "src/components/organisms/OttoDrawer.tsx",
+      "description": "Slide-in drawer wrapper for OttoChat accessible via Cmd+J or ModuleBar bot icon",
+      "milestone": "M19"
     }
   ]
 }
