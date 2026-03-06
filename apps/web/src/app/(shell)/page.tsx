@@ -20,6 +20,21 @@ const CHAMBER_LABELS: Record<string, string> = {
   ship: "Ship",
 };
 
+/** Static Tailwind classes — must not be dynamically constructed (purge) */
+const CHAMBER_BORDER: Record<string, string> = {
+  discover: "border-t-chamber-discover",
+  build: "border-t-chamber-build",
+  review: "border-t-chamber-review",
+  ship: "border-t-chamber-ship",
+};
+
+const CHAMBER_TEXT: Record<string, string> = {
+  discover: "text-chamber-discover",
+  build: "text-chamber-build",
+  review: "text-chamber-review",
+  ship: "text-chamber-ship",
+};
+
 function formatTimeAgo(isoDate: string): string {
   const diff = Date.now() - new Date(isoDate).getTime();
   const minutes = Math.floor(diff / 60000);
@@ -78,95 +93,101 @@ export default function Home() {
   const totalVaults = vaults.length;
 
   return (
-    <main className="flex-1 overflow-y-auto p-6">
+    <main className="flex-1 overflow-y-auto bg-surface-sunken">
       {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
-      <div className="mx-auto max-w-4xl">
+
+      {/* Page header — raised surface creates visual lift above sunken bg */}
+      <div className="border-b border-surface-border bg-surface-raised px-8 py-5">
+        <h1 className="text-xl font-semibold text-text-primary">
+          {user ? `Good morning, ${user.name.split(" ")[0]}` : "Home"}
+        </h1>
+        <p className="mt-0.5 text-sm text-text-secondary">
+          {totalVaults} active contracts across {CHAMBERS.length} chambers
+        </p>
+      </div>
+
+      <div className="mx-auto max-w-5xl space-y-8 px-8 py-6">
         {/* Onboarding checklist */}
-        <div className="mb-6">
-          <OnboardingChecklist />
-        </div>
+        <OnboardingChecklist />
 
-        {/* Greeting */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-text-primary">
-            {user ? `Welcome, ${user.name}` : "Welcome to Airlock"}
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            {totalVaults} active contracts across {CHAMBERS.length} chambers
-          </p>
-        </div>
-
-        {/* Chamber status cards */}
-        <div className="mb-8 grid grid-cols-4 gap-4">
-          {CHAMBERS.map((chamber) => (
-            <button
-              key={chamber}
-              onClick={() => router.push("/contracts/triage")}
-              className="rounded-lg border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:border-accent-primary/30 hover:bg-surface-overlay"
-            >
-              <div className="flex items-center gap-2">
-                <GateDot gate={chamber} />
-                <span className="text-sm font-medium capitalize text-text-secondary">
-                  {CHAMBER_LABELS[chamber]}
-                </span>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-text-primary">
-                {chamberCounts[chamber]}
-              </p>
-            </button>
-          ))}
-        </div>
+        {/* Chamber pipeline cards */}
+        <section>
+          <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-muted">
+            Pipeline
+          </h2>
+          <div className="grid grid-cols-4 gap-3">
+            {CHAMBERS.map((chamber) => (
+              <button
+                key={chamber}
+                onClick={() => router.push("/contracts/triage")}
+                className={`rounded-lg border border-surface-border bg-surface-raised border-t-2 ${CHAMBER_BORDER[chamber]} p-4 text-left transition-colors hover:bg-surface-overlay`}
+              >
+                <div className="mb-3 flex items-center gap-2">
+                  <GateDot gate={chamber} />
+                  <span
+                    className={`text-xs font-semibold uppercase tracking-wider ${CHAMBER_TEXT[chamber]}`}
+                  >
+                    {CHAMBER_LABELS[chamber]}
+                  </span>
+                </div>
+                <p className="text-3xl font-bold text-text-primary">
+                  {chamberCounts[chamber]}
+                </p>
+                <p className="mt-1 text-[11px] text-text-muted">
+                  {chamberCounts[chamber] === 1 ? "vault" : "vaults"}
+                </p>
+              </button>
+            ))}
+          </div>
+        </section>
 
         {/* Recent activity */}
-        <div className="rounded-lg border border-surface-border bg-surface-raised">
-          <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
-            <h2 className="text-sm font-semibold text-text-primary">
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[11px] font-semibold uppercase tracking-widest text-text-muted">
               Recent Activity
             </h2>
-            <span className="text-xs text-text-muted">
+            <span className="text-[11px] text-text-muted">
               {events.length} events
             </span>
           </div>
-          <div className="divide-y divide-surface-border">
+          <div className="overflow-hidden rounded-lg border border-surface-border bg-surface-raised">
             {events.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-text-muted">
+              <p className="px-4 py-8 text-center text-sm text-text-muted">
                 No recent activity
               </p>
             ) : (
-              events.slice(0, 10).map((event) => (
-                <div
-                  key={event.id}
-                  className="flex items-center justify-between px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-overlay">
-                      <GateDot
-                        gate={
-                          (event.payload.chamber as
-                            | "discover"
-                            | "build"
-                            | "review"
-                            | "ship") || "discover"
-                        }
-                      />
+              <div className="divide-y divide-surface-border">
+                {events.slice(0, 10).map((event) => {
+                  const chamber = (
+                    (event.payload.chamber as string) || "discover"
+                  ) as "discover" | "build" | "review" | "ship";
+                  return (
+                    <div
+                      key={event.id}
+                      className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-surface-overlay"
+                    >
+                      <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-surface-sunken">
+                        <GateDot gate={chamber} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm text-text-primary">
+                          {eventSummary(event)}
+                        </p>
+                        <p className="text-xs text-text-muted">
+                          {event.event_type.replace(/_/g, " ")}
+                        </p>
+                      </div>
+                      <span className="flex-shrink-0 font-mono text-[11px] text-text-muted">
+                        {formatTimeAgo(event.created_at)}
+                      </span>
                     </div>
-                    <div>
-                      <p className="text-sm text-text-primary">
-                        {eventSummary(event)}
-                      </p>
-                      <p className="text-xs text-text-muted">
-                        {event.event_type.replace(/_/g, " ")}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="font-mono text-xs text-text-muted">
-                    {formatTimeAgo(event.created_at)}
-                  </span>
-                </div>
-              ))
+                  );
+                })}
+              </div>
             )}
           </div>
-        </div>
+        </section>
       </div>
     </main>
   );

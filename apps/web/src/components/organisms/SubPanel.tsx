@@ -81,8 +81,8 @@ export default function SubPanel() {
   return (
     <>
       <aside className="flex h-full w-[240px] flex-shrink-0 flex-col overflow-hidden border-r border-surface-border bg-surface-raised">
-        {/* Module header */}
-        <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-surface-border px-4">
+        {/* Module header — subtle top accent border anchors the panel */}
+        <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-surface-border border-t-2 border-t-accent-primary px-4">
           <span className="text-[15px] font-semibold text-text-primary">
             {currentModule.label}
           </span>
