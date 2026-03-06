@@ -274,6 +274,41 @@
       "path": "src/components/organisms/MessengerDrawer.tsx",
       "description": "340px slide-over drawer for Messenger dock tool with conversation list and chat views",
       "milestone": "M21"
+    },
+    {
+      "name": "MeetingCard",
+      "level": "molecule",
+      "path": "src/components/molecules/MeetingCard.tsx",
+      "description": "Meeting entry card with date, participants, status badge, and action buttons (upcoming/past variants)",
+      "milestone": "M22"
+    },
+    {
+      "name": "MeetingSummaryCard",
+      "level": "molecule",
+      "path": "src/components/molecules/MeetingSummaryCard.tsx",
+      "description": "AI meeting summary display with bullets, key decisions, action items, topics, and sentiment",
+      "milestone": "M22"
+    },
+    {
+      "name": "MeetingsPanel",
+      "level": "organism",
+      "path": "src/components/organisms/MeetingsPanel.tsx",
+      "description": "Meetings tab for vault Control panel with upcoming/past meeting lists and action buttons",
+      "milestone": "M22"
+    },
+    {
+      "name": "PrepBriefPanel",
+      "level": "organism",
+      "path": "src/components/organisms/PrepBriefPanel.tsx",
+      "description": "Pre-meeting intelligence brief with attendee profiles, related meetings, vaults, tasks, and topic threads",
+      "milestone": "M22"
+    },
+    {
+      "name": "TranscriptViewer",
+      "level": "organism",
+      "path": "src/components/organisms/TranscriptViewer.tsx",
+      "description": "Post-meeting transcript viewer with summary/transcript tabs, search, speaker labels, and action item highlighting",
+      "milestone": "M22"
     }
   ]
 }
