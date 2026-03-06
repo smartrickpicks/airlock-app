@@ -23,7 +23,12 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const { hydrateFromLoginResponse } = useAuthStore();
 
-  const nextUrl = searchParams.get("next") || "/";
+  const DEFAULT_AUTHENTICATED_ROUTE = "/contracts/triage";
+  const rawNext = searchParams.get("next");
+  const nextUrl =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
+      ? rawNext
+      : DEFAULT_AUTHENTICATED_ROUTE;
 
   const handleGoogleSuccess = async (credentialResponse: {
     credential?: string;
