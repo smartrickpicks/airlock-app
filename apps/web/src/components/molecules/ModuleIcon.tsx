@@ -44,8 +44,8 @@ export default function ModuleIcon({
             cursor-pointer
             ${
               isActive
-                ? "bg-surface-overlay text-accent-primary"
-                : "bg-surface-raised text-text-muted hover:bg-surface-overlay hover:text-text-primary"
+                ? "bg-surface-overlay text-accent-primary scale-105 shadow-[inset_0_0_16px_rgba(0,209,255,0.12),0_0_12px_rgba(0,209,255,0.08)]"
+                : "bg-surface-raised text-text-muted hover:bg-surface-overlay hover:text-text-primary hover:scale-105"
             }
           `}
           aria-label={label}

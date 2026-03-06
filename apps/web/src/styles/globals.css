@@ -40,3 +40,47 @@
     background: var(--text-muted);
   }
 }
+
+/* ── Motion Layer ───────────────────────────────────────────────────────── */
+
+/* GateDot pulse — references --glow-current set inline per chamber */
+@keyframes gate-pulse {
+  0%, 100% { box-shadow: var(--glow-current); opacity: 1; }
+  50%       { box-shadow: none; opacity: 0.65; }
+}
+
+/* List item entrance — stagger via animation-delay on each child */
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Triptych Signal panel — enters from left edge */
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Triptych Control panel — enters from right edge */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Modal / Drawer / CommandPalette entrance */
+@keyframes scale-fade-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Skeleton shimmer — child div sweeps across parent */
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* Panel background ambient drift — very slow, nearly imperceptible */
+@keyframes ambient-drift {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}

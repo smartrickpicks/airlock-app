@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Inbox, FileCheck, Users, Zap, Activity } from "lucide-react";
 import GateDot from "@/components/atoms/GateDot";
@@ -10,6 +10,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useVaultStore } from "@/stores/vault.store";
 import { useEventStore } from "@/stores/event.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
+import { useInView } from "@/hooks/useInView";
 import type { VaultEvent } from "@/stores/event.store";
 
 const CHAMBERS = ["discover", "build", "review", "ship"] as const;
@@ -120,6 +121,14 @@ export default function Home() {
     {} as Record<string, number>,
   );
 
+  // Scroll-triggered entrance refs
+  const { ref: signalCardsRef, isInView: signalCardsInView } = useInView();
+  const { ref: queueRef, isInView: queueInView } = useInView();
+  const { ref: pipelineRef, isInView: pipelineInView } = useInView();
+  const { ref: myQueueRef, isInView: myQueueInView } = useInView();
+  const { ref: commandStatsRef, isInView: commandStatsInView } = useInView();
+  const { ref: recentEventsRef, isInView: recentEventsInView } = useInView();
+
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
@@ -139,12 +148,14 @@ export default function Home() {
 
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {/* Alert cards */}
-          {SIGNAL_CARDS.map((card) => {
+          <div ref={signalCardsRef as React.RefObject<HTMLDivElement>} className="space-y-2">
+          {SIGNAL_CARDS.map((card, i) => {
             const Icon = card.icon;
             return (
               <div
                 key={card.label}
-                className={`rounded-lg border border-surface-border border-l-2 ${card.border} bg-surface-raised px-3 py-2.5`}
+                className={`rounded-lg border border-surface-border border-l-2 ${card.border} bg-surface-raised px-3 py-2.5 ${signalCardsInView ? "animate-fade-slide-up" : "opacity-0"}`}
+                style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Icon size={13} className={card.accent} />
@@ -156,6 +167,7 @@ export default function Home() {
               </div>
             );
           })}
+          </div>
 
           {/* Recommended Queue */}
           <div className="mt-4">
@@ -167,12 +179,13 @@ export default function Home() {
                 {Math.min(vaults.length, 3)} high signal
               </span>
             </div>
-            <div className="space-y-1">
-              {vaults.slice(0, 3).map((vault) => (
+            <div ref={queueRef as React.RefObject<HTMLDivElement>} className="space-y-1">
+              {vaults.slice(0, 3).map((vault, i) => (
                 <button
                   key={vault.id}
                   onClick={() => router.push(`/contracts/${vault.slug}`)}
-                  className="w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-left hover:bg-surface-overlay transition-colors"
+                  className={`w-full rounded-lg border border-surface-border bg-surface-raised px-3 py-2 text-left hover:bg-surface-overlay transition-colors ${queueInView ? "animate-fade-slide-up" : "opacity-0"}`}
+                  style={{ animationDelay: `${i * 70}ms` }}
                 >
                   <p className="text-sm font-medium text-text-primary truncate">{vault.name}</p>
                   <p className="text-xs text-text-muted mt-0.5">
@@ -219,12 +232,13 @@ export default function Home() {
             <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-muted">
               Pipeline
             </h2>
-            <div className="grid grid-cols-4 gap-3">
-              {CHAMBERS.map((chamber) => (
+            <div ref={pipelineRef as React.RefObject<HTMLDivElement>} className="grid grid-cols-4 gap-3">
+              {CHAMBERS.map((chamber, i) => (
                 <button
                   key={chamber}
                   onClick={() => router.push("/contracts/triage")}
-                  className={`rounded-lg border border-surface-border bg-surface-raised border-t-2 ${CHAMBER_BORDER[chamber]} p-4 text-left transition-colors hover:bg-surface-overlay`}
+                  className={`rounded-lg border border-surface-border bg-surface-raised border-t-2 ${CHAMBER_BORDER[chamber]} p-4 text-left transition-colors hover:bg-surface-overlay ${pipelineInView ? "animate-fade-slide-up" : "opacity-0"}`}
+                  style={{ animationDelay: `${i * 80}ms` }}
                 >
                   <div className="mb-3 flex items-center gap-2">
                     <GateDot gate={chamber} />
@@ -250,20 +264,21 @@ export default function Home() {
             <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-muted">
               My Queue
             </h2>
-            <div className="overflow-hidden rounded-lg border border-surface-border bg-surface-raised divide-y divide-surface-border">
+            <div ref={myQueueRef as React.RefObject<HTMLDivElement>} className="overflow-hidden rounded-lg border border-surface-border bg-surface-raised divide-y divide-surface-border">
               {events.length === 0 ? (
                 <p className="px-4 py-8 text-center text-sm text-text-muted">
                   Nothing in your queue
                 </p>
               ) : (
-                events.slice(0, 5).map((event) => {
+                events.slice(0, 5).map((event, i) => {
                   const chamber = (
                     (event.payload.chamber as string) || "discover"
                   ) as "discover" | "build" | "review" | "ship";
                   return (
                     <div
                       key={event.id}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-surface-overlay transition-colors cursor-pointer"
+                      className={`flex items-center gap-3 px-4 py-3 hover:bg-surface-overlay transition-colors cursor-pointer ${myQueueInView ? "animate-fade-slide-up" : "opacity-0"}`}
+                      style={{ animationDelay: `${i * 60}ms` }}
                     >
                       <GateDot gate={chamber} />
                       <div className="min-w-0 flex-1">
@@ -296,7 +311,7 @@ export default function Home() {
 
         <div className="flex-1 overflow-y-auto p-3 space-y-4">
           {/* Stats */}
-          <div className="space-y-2">
+          <div ref={commandStatsRef as React.RefObject<HTMLDivElement>} className="space-y-2">
             {[
               {
                 label: "Active Vaults",
@@ -316,12 +331,13 @@ export default function Home() {
                 value: events.length,
                 icon: Zap,
               },
-            ].map((stat) => {
+            ].map((stat, i) => {
               const Icon = stat.icon;
               return (
                 <div
                   key={stat.label}
-                  className="flex items-center justify-between rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5"
+                  className={`flex items-center justify-between rounded-lg border border-surface-border bg-surface-raised px-3 py-2.5 ${commandStatsInView ? "animate-fade-slide-up" : "opacity-0"}`}
+                  style={{ animationDelay: `${i * 70}ms` }}
                 >
                   <div className="flex items-center gap-2">
                     <Icon size={13} className="text-panel-control" />
@@ -340,15 +356,16 @@ export default function Home() {
                 Recent Events
               </span>
             </div>
-            <div className="space-y-1">
-              {events.slice(0, 6).map((event) => {
+            <div ref={recentEventsRef as React.RefObject<HTMLDivElement>} className="space-y-1">
+              {events.slice(0, 6).map((event, i) => {
                 const chamber = (
                   (event.payload.chamber as string) || "discover"
                 ) as "discover" | "build" | "review" | "ship";
                 return (
                   <div
                     key={event.id}
-                    className="flex items-start gap-2 rounded-lg px-2 py-2 hover:bg-surface-overlay transition-colors cursor-pointer"
+                    className={`flex items-start gap-2 rounded-lg px-2 py-2 hover:bg-surface-overlay transition-colors cursor-pointer ${recentEventsInView ? "animate-fade-slide-up" : "opacity-0"}`}
+                    style={{ animationDelay: `${i * 55}ms` }}
                   >
                     <div className="mt-0.5 flex-shrink-0">
                       <GateDot gate={chamber} />

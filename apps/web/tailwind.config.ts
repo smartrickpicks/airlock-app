@@ -102,6 +102,45 @@ const config: Config = {
         toast: "500",
         tooltip: "600",
       },
+      animation: {
+        "gate-pulse":    "gate-pulse 2.4s ease-in-out infinite",
+        "fade-slide-up": "fade-slide-up 300ms ease-out both",
+        "slide-in-left": "slide-in-left 280ms ease-out both",
+        "slide-in-right":"slide-in-right 280ms ease-out both",
+        "scale-fade-in": "scale-fade-in 200ms ease-out both",
+        "shimmer":       "shimmer 1.6s linear infinite",
+        "ambient-drift": "ambient-drift 12s ease-in-out infinite alternate",
+      },
+      keyframes: {
+        "gate-pulse": {
+          "0%, 100%": { boxShadow: "var(--glow-current)", opacity: "1" },
+          "50%":      { boxShadow: "none", opacity: "0.65" },
+        },
+        "fade-slide-up": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to:   { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-in-left": {
+          from: { opacity: "0", transform: "translateX(-16px)" },
+          to:   { opacity: "1", transform: "translateX(0)" },
+        },
+        "slide-in-right": {
+          from: { opacity: "0", transform: "translateX(16px)" },
+          to:   { opacity: "1", transform: "translateX(0)" },
+        },
+        "scale-fade-in": {
+          from: { opacity: "0", transform: "scale(0.97)" },
+          to:   { opacity: "1", transform: "scale(1)" },
+        },
+        "shimmer": {
+          from: { transform: "translateX(-100%)" },
+          to:   { transform: "translateX(100%)" },
+        },
+        "ambient-drift": {
+          "0%":   { backgroundPosition: "0% 50%" },
+          "100%": { backgroundPosition: "100% 50%" },
+        },
+      },
     },
   },
   plugins: [],

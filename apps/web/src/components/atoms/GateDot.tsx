@@ -21,15 +21,23 @@ const gateGlowMap: Record<Gate, string> = {
   ship: "shadow-glow-ship",
 };
 
+const gateGlowVarMap: Record<Gate, string> = {
+  discover: "var(--glow-discover)",
+  build:    "var(--glow-build)",
+  review:   "var(--glow-review)",
+  ship:     "var(--glow-ship)",
+};
+
 export default function GateDot({ gate, glow, className }: GateDotProps) {
   return (
     <span
       className={`
         inline-block rounded-full flex-shrink-0
         ${gateColorMap[gate]}
-        ${glow ? gateGlowMap[gate] : ""}
+        ${glow ? `${gateGlowMap[gate]} animate-gate-pulse` : ""}
         ${className ?? "w-2 h-2"}
       `}
+      style={glow ? ({ "--glow-current": gateGlowVarMap[gate] } as React.CSSProperties) : undefined}
       aria-label={`${gate} gate`}
     />
   );

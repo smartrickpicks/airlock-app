@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useTriptychStore } from "@/stores/triptych.store";
 import { useResizable } from "@/hooks/useResizable";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -80,6 +80,10 @@ export default function TriptychLayout({
     onResize: setControlWidth,
   });
 
+  // One-shot entrance animation — fires only on first mount
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   const isArtifactFocus = viewState === "artifact-focus";
   const isGateLock = viewState === "gate-lock";
 
@@ -98,11 +102,12 @@ export default function TriptychLayout({
     <div className="flex h-full overflow-hidden relative">
       {/* === Signal Panel (left) — cyan identity === */}
       <div
-        className="transition-all flex-shrink-0 border-t-2 border-t-panel-signal"
+        className={`transition-all flex-shrink-0 border-t-2 border-t-panel-signal ${!mounted ? "animate-slide-in-left" : ""}`}
         style={{
           width: signalVisible ? signalWidth : COLLAPSED_WIDTH,
           transitionDuration: "300ms",
           transitionTimingFunction: "ease-in-out",
+          willChange: !mounted ? "transform, opacity" : undefined,
         }}
       >
         <SignalPanel
@@ -164,11 +169,12 @@ export default function TriptychLayout({
 
       {/* === Control Panel (right) — indigo identity === */}
       <div
-        className="transition-all flex-shrink-0 border-t-2 border-t-panel-control"
+        className={`transition-all flex-shrink-0 border-t-2 border-t-panel-control ${!mounted ? "animate-slide-in-right" : ""}`}
         style={{
           width: controlVisible ? controlWidth : COLLAPSED_WIDTH,
           transitionDuration: "300ms",
           transitionTimingFunction: "ease-in-out",
+          willChange: !mounted ? "transform, opacity" : undefined,
         }}
       >
         <ControlPanel
