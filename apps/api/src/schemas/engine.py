@@ -70,3 +70,20 @@ class GenerationResponse(BaseModel):
     form_values: dict[str, Any]
     metadata: dict[str, Any] | None = None
     variation_details: dict[str, Any] | None = None
+
+
+class AnalyzeResponse(BaseModel):
+    filename: str
+    page_count: int
+    full_text_length: int
+    doc_mode: str
+    gate_color: str
+    gate_reasons: list[str]
+    health_score: dict[str, Any]
+    opportunities_readiness: dict[str, Any] | None = None
+    schedule_readiness: dict[str, Any] | None = None
+    financials_readiness: dict[str, Any] | None = None
+    entity_resolution: dict[str, Any] | None = None
+    contract_classification: dict[str, Any] | None = None
+    extracted_fields: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    field_summary: dict[str, int] = Field(default_factory=dict)

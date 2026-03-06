@@ -10,6 +10,7 @@ import {
   LayoutGrid,
   Plus,
   PlusCircle,
+  ScanSearch,
 } from "lucide-react";
 import SearchInput from "@/components/atoms/SearchInput";
 import CreateVaultModal from "@/components/molecules/CreateVaultModal";
@@ -31,6 +32,7 @@ const pinnedByModule: Record<
       path: "/contracts/triage",
     },
     { icon: PlusCircle, label: "Generator", path: "/contracts/generator" },
+    { icon: ScanSearch, label: "Analyze Contract", path: "/contracts/analyze" },
   ],
   crm: [{ icon: GitBranch, label: "Pipeline", path: "/crm/pipeline" }],
   tasks: [{ icon: LayoutGrid, label: "Board", path: "/tasks/board" }],

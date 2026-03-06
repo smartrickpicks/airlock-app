@@ -17,6 +17,8 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "python-multipart>=0.0.18",
     "redis>=5.2.0",
+    "pdfplumber>=0.11.0",
+    "cffi>=2.0.0",
     "pydantic-ai>=0.0.30",
     "google-auth>=2.0.0",
 ]
