@@ -190,6 +190,20 @@
       "path": "src/components/organisms/NotificationCenter.tsx",
       "description": "Slide-in notification panel with category filters, unread indicators, mark-read, and navigate actions",
       "milestone": "M17"
+    },
+    {
+      "name": "ConnectionStatus",
+      "level": "atom",
+      "path": "src/components/atoms/ConnectionStatus.tsx",
+      "description": "WebSocket connection indicator with colored dot and reconnecting pulse animation",
+      "milestone": "M18"
+    },
+    {
+      "name": "PresenceAvatars",
+      "level": "molecule",
+      "path": "src/components/molecules/PresenceAvatars.tsx",
+      "description": "Stacked user avatars with online/away/busy status dots for workspace presence",
+      "milestone": "M18"
     }
   ]
 }
