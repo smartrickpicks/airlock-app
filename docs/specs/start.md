@@ -36,6 +36,9 @@
 | **Google Meet Integration** | `/CRM/`                 | (none yet)                     | BRAINSTORM | Google Meet SDK embedded in CRM — call transcription, AI meeting summaries, auto-generated action items                                                                         |
 | **Custom Roles**            | `/Roles/`               | (none yet)                     | BRAINSTORM | Discord-style custom role creation with granular permission catalog, drag-to-reorder hierarchy, multi-role per user                                                             |
 | **Security & Architecture** | `/Security/`            | (none)                         | SPECCED    | Cipher-first middleware, 70-question inventory (MVP+enterprise), 13-doc TOC, 6 agent-governance artifacts                                                                       |
+| **Platform Architecture**   | `/Platform/`            | (none)                         | SPECCED    | Free shell + paid engine, MCP context server as config surface, three-layer model (platform/org/user), feature flags = entitlements, two-phase build (dogfood → multi-tenant)    |
+| **Turnkey Onboarding**      | `/Onboarding/`          | (none)                         | SPECCED    | 7-phase zero-to-production flow (133 min stakeholder time), onboarding wizard overlay, Google/JIRA auto-sync, progressive disclosure                                             |
+| **MCP Registry & Skills**   | `/Admin/`               | (none)                         | SPECCED    | Admin Connectors expansion (AI Providers, MCP Servers, Integrations), tool permission matrix, skill creator via Otto conversation, pixel-level design spec                       |
 
 ## Status Legend
 
@@ -73,6 +76,10 @@
 24. **Google Meet built-in:** Google Meet SDK in CRM vault detail pages. Click to call, AI transcribes, action items auto-populate in task board.
 25. **Custom roles (Discord-style):** Admins create unlimited custom roles with granular permission checkboxes. Drag-to-reorder hierarchy. Multiple roles per user (additive). System base roles (Builder/Gatekeeper/Owner/Designer/Viewer) remain as defaults.
 26. **Calibration with context:** Every calibration slider shows plain-English impact description: "What happens if I raise this? What happens if I lower it?" Live preview of affected document counts where possible.
+27. **Free shell + paid engine:** Shell (Next.js frontend) is free/open. Revenue from hosted MCP servers (engines) providing AI, domain logic, integrations, compute. Feature flags = tier entitlements.
+28. **MCP context server as config surface:** All org configuration (roles, journeys, layouts, permissions) stored as MCP resources in an org-scoped context server. Shell is just an MCP client that renders what the context server returns.
+29. **Two-phase build:** Phase 1 = dogfood (we are org #1, prove model with real data). Phase 2 = multi-tenant (extract config into template, onboarding wizard, Stripe billing). Phase 3 = platform (super-admin to manage customer orgs).
+30. **Feature flags = marketplace entitlements:** The Feature Control Plane's 27 flags gain a `tier` field (free/pro/enterprise). Flag resolution checks workspace subscription tier. Marketplace engines get their own flags.
 
 ## Master Plan File
 
