@@ -309,6 +309,41 @@
       "path": "src/components/organisms/TranscriptViewer.tsx",
       "description": "Post-meeting transcript viewer with summary/transcript tabs, search, speaker labels, and action item highlighting",
       "milestone": "M22"
+    },
+    {
+      "name": "WorkflowNode",
+      "level": "molecule",
+      "path": "src/components/molecules/WorkflowNode.tsx",
+      "description": "Custom React Flow node with category-colored styling, icon mapping, and branch handle support",
+      "milestone": "M23"
+    },
+    {
+      "name": "WorkflowNodeSidebar",
+      "level": "molecule",
+      "path": "src/components/molecules/WorkflowNodeSidebar.tsx",
+      "description": "Draggable node palette sidebar grouped by category with search filtering",
+      "milestone": "M23"
+    },
+    {
+      "name": "WorkflowCanvas",
+      "level": "organism",
+      "path": "src/components/organisms/WorkflowCanvas.tsx",
+      "description": "React Flow canvas with node palette sidebar, dark-themed controls, minimap, and smoothstep edges",
+      "milestone": "M23"
+    },
+    {
+      "name": "WorkflowList",
+      "level": "organism",
+      "path": "src/components/organisms/WorkflowList.tsx",
+      "description": "Workflow table with category filter pills, status badges, run counts, and builder launch",
+      "milestone": "M23"
+    },
+    {
+      "name": "WorkflowBuilder",
+      "level": "template",
+      "path": "src/components/templates/WorkflowBuilder.tsx",
+      "description": "Full workflow builder layout with toolbar, canvas, and status bar",
+      "milestone": "M23"
     }
   ]
 }

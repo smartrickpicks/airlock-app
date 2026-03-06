@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { label: "Members", href: "/admin/members" },
   { label: "Feature Flags", href: "/admin/features" },
   { label: "Event Bus", href: "/admin/event-bus" },
+  { label: "Workflows", href: "/admin/workflows" },
 ];
 
 export default function AdminPage() {
