@@ -1,0 +1,163 @@
+{
+  "version": "v1",
+  "description": "Boolean/toggle field detection config. 5 true boolean fields that act as toggle parents (when false/no, their children become not_applicable). Derived from conditional_toggles.json and field_meta.json definitions.",
+  "fields": {
+    "OPP_PHYSICAL_DISTRIBUTION": {
+      "field_key": "physical_distribution__c",
+      "enabled": true,
+      "is_toggle_parent": true,
+      "children": ["OPP_PHYSICAL_SPLIT", "OPP_PHYSICAL_SPLIT_EX_USA"],
+      "scoped_categories": ["distribution"],
+      "yes_signals": [
+        "physical distribution",
+        "physical copies",
+        "physical format",
+        "CDs and vinyl",
+        "tangible copies",
+        "physical media",
+        "compact disc",
+        "vinyl records",
+        "physical product",
+        "manufactured copies",
+        "physical sales"
+      ],
+      "no_signals": [
+        "digital only",
+        "digital distribution only",
+        "excludes physical",
+        "no physical",
+        "excluding physical",
+        "digital-only",
+        "streaming only"
+      ],
+      "search_zones": ["definitions", "financial"],
+      "default_if_absent": "No",
+      "confidence_when_found": 80,
+      "confidence_default": 80
+    },
+    "OPP_INCLUDE_CPA": {
+      "field_key": "include_cpa__c",
+      "enabled": true,
+      "is_toggle_parent": true,
+      "children": [
+        "OPP_CPA_INITIAL_TERM",
+        "OPP_CPA_RENEWAL_TERM",
+        "OPP_CPA_SPLIT",
+        "OPP_CPA_TERM_PERIOD"
+      ],
+      "scoped_categories": ["distribution", "publishing"],
+      "yes_signals": [
+        "channel partnership",
+        "CPA",
+        "channel partner agreement",
+        "content monetization and channel partnership",
+        "CMA/CPA",
+        "includes CPA",
+        "channel partnership agreement"
+      ],
+      "no_signals": [
+        "does not include CPA",
+        "excludes CPA",
+        "CMA only",
+        "no channel partnership",
+        "without CPA",
+        "excluding channel partnership"
+      ],
+      "search_zones": ["definitions"],
+      "default_if_absent": "FALSE",
+      "confidence_when_found": 92,
+      "confidence_default": 90
+    },
+    "OPP_USE_HOLDBACK_LANGUAGE": {
+      "field_key": "use_holdback_language__c",
+      "enabled": true,
+      "is_toggle_parent": true,
+      "children": ["OPP_HOLDBACK_AMOUNT", "OPP_NUMBER_OF_HOLDBACK_DAYS"],
+      "scoped_categories": ["distribution"],
+      "yes_signals": [
+        "holdback",
+        "hold back",
+        "hold-back",
+        "holdback period",
+        "holdback clause",
+        "reserve against returns",
+        "reserve for returns",
+        "holdback reserve"
+      ],
+      "no_signals": [
+        "no holdback",
+        "without holdback",
+        "no hold back",
+        "no reserve"
+      ],
+      "search_zones": ["definitions", "financial"],
+      "default_if_absent": "FALSE",
+      "confidence_when_found": 80,
+      "confidence_default": 75
+    },
+    "OPP_BACK_CATALOG": {
+      "field_key": "back_catalog__c",
+      "enabled": true,
+      "is_toggle_parent": true,
+      "children": [
+        "OPP_BACK_CATALOG_DISTRIBUTION_FEE",
+        "OPP_BACK_CATALOG_SPLIT",
+        "OPP_BACK_CATALOG_TYPE"
+      ],
+      "scoped_categories": ["distribution"],
+      "yes_signals": [
+        "back catalog",
+        "back catalogue",
+        "existing catalog",
+        "existing masters",
+        "prior recordings",
+        "previously released",
+        "previously recorded",
+        "existing sound recordings",
+        "back-catalog"
+      ],
+      "no_signals": [
+        "no back catalog",
+        "new recordings only",
+        "excludes back catalog",
+        "front catalog only",
+        "new masters only",
+        "without back catalog"
+      ],
+      "search_zones": ["definitions"],
+      "default_if_absent": "FALSE",
+      "confidence_when_found": 85,
+      "confidence_default": 70
+    },
+    "ADDON_MATCHING": {
+      "field_key": "matching__c",
+      "enabled": true,
+      "is_toggle_parent": true,
+      "children": [
+        "ADDON_MATCHING_PERIOD_DAYS_",
+        "ADDON_THIRD_PARTY_AGREEMENT_COMPLETION_PERIOD_"
+      ],
+      "scoped_categories": ["distribution", "license", "recording"],
+      "yes_signals": [
+        "matching rights",
+        "right to match",
+        "matching",
+        "match any offer",
+        "right of first refusal",
+        "right to match any",
+        "matching right",
+        "matching opportunity"
+      ],
+      "no_signals": [
+        "no matching rights",
+        "without matching",
+        "excludes matching",
+        "no right to match"
+      ],
+      "search_zones": ["definitions"],
+      "default_if_absent": "FALSE",
+      "confidence_when_found": 85,
+      "confidence_default": 70
+    }
+  }
+}

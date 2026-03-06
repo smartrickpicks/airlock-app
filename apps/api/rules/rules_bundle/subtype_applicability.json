@@ -1,0 +1,409 @@
+{
+  "version": "v1",
+  "description": "Field applicability by contract category and subtype. Sparse overlay: global default applies unless overridden at category or subtype level.",
+  "applicability_values": ["required", "conditional", "not_applicable"],
+  "defaults": {
+    "_global": "required"
+  },
+  "categories": {
+    "distribution": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_AMENDING": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "not_applicable",
+        "OPP_TERMINATION_DATE": "not_applicable",
+        "OPP_TERMINATION_NOTICE_DATE": "not_applicable",
+        "OPP_TERMINATION_TYPE": "not_applicable",
+        "OPP_WRITER_PRINT_SPLIT": "not_applicable"
+      },
+      "subtypes": {
+        "Distribution": {
+          "field_overrides": {
+            "OPP_CMA_INITIAL_TERM": "not_applicable",
+            "OPP_CMA_RENEWAL_TERM": "not_applicable",
+            "OPP_CMA_SPLIT": "not_applicable",
+            "OPP_CMA_TERM_PERIOD": "not_applicable",
+            "OPP_CMA_TYPES": "not_applicable",
+            "OPP_CPA_INITIAL_TERM": "not_applicable",
+            "OPP_CPA_RENEWAL_TERM": "not_applicable",
+            "OPP_CPA_SPLIT": "not_applicable",
+            "OPP_CPA_TERM_PERIOD": "not_applicable",
+            "OPP_INCLUDE_CPA": "not_applicable"
+          }
+        },
+        "Sync": {
+          "field_overrides": {
+            "OPP_CMA_INITIAL_TERM": "not_applicable",
+            "OPP_CMA_RENEWAL_TERM": "not_applicable",
+            "OPP_CMA_SPLIT": "not_applicable",
+            "OPP_CMA_TERM_PERIOD": "not_applicable",
+            "OPP_CMA_TYPES": "not_applicable",
+            "OPP_CPA_INITIAL_TERM": "not_applicable",
+            "OPP_CPA_RENEWAL_TERM": "not_applicable",
+            "OPP_CPA_SPLIT": "not_applicable",
+            "OPP_CPA_TERM_PERIOD": "not_applicable",
+            "OPP_INCLUDE_CPA": "not_applicable"
+          }
+        },
+        "CMA": {
+          "field_overrides": {
+            "OPP_CPA_INITIAL_TERM": "not_applicable",
+            "OPP_CPA_RENEWAL_TERM": "not_applicable",
+            "OPP_CPA_SPLIT": "not_applicable",
+            "OPP_CPA_TERM_PERIOD": "not_applicable",
+            "OPP_INCLUDE_CPA": "not_applicable"
+          }
+        },
+        "CPA": {
+          "field_overrides": {
+            "OPP_CMA_INITIAL_TERM": "not_applicable",
+            "OPP_CMA_RENEWAL_TERM": "not_applicable",
+            "OPP_CMA_SPLIT": "not_applicable",
+            "OPP_CMA_TERM_PERIOD": "not_applicable",
+            "OPP_CMA_TYPES": "not_applicable",
+            "OPP_INCLUDE_CPA": "required"
+          }
+        },
+        "CMA/CPA": {
+          "field_overrides": {
+            "OPP_INCLUDE_CPA": "required"
+          }
+        },
+        "Label Ventures": {
+          "field_overrides": {
+            "OPP_CMA_INITIAL_TERM": "not_applicable",
+            "OPP_CMA_RENEWAL_TERM": "not_applicable",
+            "OPP_CMA_SPLIT": "not_applicable",
+            "OPP_CMA_TERM_PERIOD": "not_applicable",
+            "OPP_CMA_TYPES": "not_applicable",
+            "OPP_CPA_INITIAL_TERM": "not_applicable",
+            "OPP_CPA_RENEWAL_TERM": "not_applicable",
+            "OPP_CPA_SPLIT": "not_applicable",
+            "OPP_CPA_TERM_PERIOD": "not_applicable",
+            "OPP_INCLUDE_CPA": "not_applicable",
+            "OPP_JV_DISTRIBUTION_FEE": "required",
+            "OPP_JV_OPERATING_BUDGET": "required"
+          }
+        },
+        "Profit Participation Agreement": {
+          "field_overrides": {
+            "OPP_CMA_INITIAL_TERM": "not_applicable",
+            "OPP_CMA_RENEWAL_TERM": "not_applicable",
+            "OPP_CMA_SPLIT": "not_applicable",
+            "OPP_CMA_TERM_PERIOD": "not_applicable",
+            "OPP_CMA_TYPES": "not_applicable",
+            "OPP_CPA_INITIAL_TERM": "not_applicable",
+            "OPP_CPA_RENEWAL_TERM": "not_applicable",
+            "OPP_CPA_SPLIT": "not_applicable",
+            "OPP_CPA_TERM_PERIOD": "not_applicable",
+            "OPP_INCLUDE_CPA": "not_applicable",
+            "OPP_PROFIT_SHARE": "required"
+          }
+        }
+      }
+    },
+    "license": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_AMENDING": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "not_applicable",
+        "OPP_TERMINATION_DATE": "not_applicable",
+        "OPP_TERMINATION_NOTICE_DATE": "not_applicable",
+        "OPP_TERMINATION_PERIOD": "not_applicable",
+        "OPP_TERMINATION_TYPE": "not_applicable",
+        "OPP_CMA_INITIAL_TERM": "not_applicable",
+        "OPP_CMA_RENEWAL_TERM": "not_applicable",
+        "OPP_CMA_SPLIT": "not_applicable",
+        "OPP_CMA_TERM_PERIOD": "not_applicable",
+        "OPP_CMA_TYPES": "not_applicable",
+        "OPP_CPA_INITIAL_TERM": "not_applicable",
+        "OPP_CPA_RENEWAL_TERM": "not_applicable",
+        "OPP_CPA_SPLIT": "not_applicable",
+        "OPP_CPA_TERM_PERIOD": "not_applicable",
+        "OPP_INCLUDE_CPA": "not_applicable",
+        "OPP_JV_DISTRIBUTION_FEE": "not_applicable",
+        "OPP_JV_OPERATING_BUDGET": "not_applicable",
+        "OPP_PHYSICAL_DISTRIBUTION": "not_applicable",
+        "OPP_PHYSICAL_SPLIT": "not_applicable",
+        "OPP_PHYSICAL_SPLIT_EX_USA": "not_applicable",
+        "OPP_LICENSING_RIGHTS": "required"
+      },
+      "subtypes": {
+        "Pub Admin": {
+          "field_overrides": {
+            "OPP_PUBLISHING_RIGHTS": "required",
+            "OPP_WRITER_PRINT_SPLIT": "conditional"
+          }
+        },
+        "Co-Pub": {
+          "field_overrides": {
+            "OPP_PUBLISHING_RIGHTS": "required",
+            "OPP_WRITER_PRINT_SPLIT": "required"
+          }
+        }
+      }
+    },
+    "recording": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_AMENDING": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "not_applicable",
+        "OPP_TERMINATION_DATE": "not_applicable",
+        "OPP_TERMINATION_NOTICE_DATE": "not_applicable",
+        "OPP_TERMINATION_PERIOD": "not_applicable",
+        "OPP_TERMINATION_TYPE": "not_applicable",
+        "OPP_CMA_INITIAL_TERM": "not_applicable",
+        "OPP_CMA_RENEWAL_TERM": "not_applicable",
+        "OPP_CMA_SPLIT": "not_applicable",
+        "OPP_CMA_TERM_PERIOD": "not_applicable",
+        "OPP_CMA_TYPES": "not_applicable",
+        "OPP_CPA_INITIAL_TERM": "not_applicable",
+        "OPP_CPA_RENEWAL_TERM": "not_applicable",
+        "OPP_CPA_SPLIT": "not_applicable",
+        "OPP_CPA_TERM_PERIOD": "not_applicable",
+        "OPP_INCLUDE_CPA": "not_applicable",
+        "OPP_PUBLISHING_RIGHTS": "not_applicable",
+        "OPP_WRITER_PRINT_SPLIT": "not_applicable",
+        "OPP_AFFILIATION": "not_applicable",
+        "OPP_LICENSING_RIGHTS": "not_applicable",
+        "OPP_MASTERNUMBER": "required",
+        "OPP_EXISTING_MASTER_RECORDINGS": "required"
+      },
+      "subtypes": {
+        "Label Ventures": {
+          "field_overrides": {
+            "OPP_JV_DISTRIBUTION_FEE": "required",
+            "OPP_JV_OPERATING_BUDGET": "required"
+          }
+        },
+        "Profit Participation Agreement": {
+          "field_overrides": {
+            "OPP_PROFIT_SHARE": "required"
+          }
+        }
+      }
+    },
+    "publishing": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_AMENDING": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "not_applicable",
+        "OPP_TERMINATION_DATE": "not_applicable",
+        "OPP_TERMINATION_NOTICE_DATE": "not_applicable",
+        "OPP_TERMINATION_PERIOD": "not_applicable",
+        "OPP_TERMINATION_TYPE": "not_applicable",
+        "OPP_JV_DISTRIBUTION_FEE": "not_applicable",
+        "OPP_JV_OPERATING_BUDGET": "not_applicable",
+        "OPP_PHYSICAL_DISTRIBUTION": "not_applicable",
+        "OPP_PHYSICAL_SPLIT": "not_applicable",
+        "OPP_PHYSICAL_SPLIT_EX_USA": "not_applicable",
+        "OPP_EXISTING_MASTER_RECORDINGS": "not_applicable",
+        "OPP_MASTERNUMBER": "not_applicable",
+        "OPP_PUBLISHING_RIGHTS": "required",
+        "OPP_WRITER_PRINT_SPLIT": "required",
+        "OPP_AFFILIATION": "conditional"
+      },
+      "subtypes": {
+        "CMA": {
+          "field_overrides": {
+            "OPP_CMA_INITIAL_TERM": "required",
+            "OPP_CMA_RENEWAL_TERM": "conditional",
+            "OPP_CMA_SPLIT": "required",
+            "OPP_CMA_TERM_PERIOD": "required",
+            "OPP_CMA_TYPES": "required"
+          }
+        },
+        "CPA": {
+          "field_overrides": {
+            "OPP_CPA_INITIAL_TERM": "required",
+            "OPP_CPA_RENEWAL_TERM": "conditional",
+            "OPP_CPA_SPLIT": "required",
+            "OPP_CPA_TERM_PERIOD": "required",
+            "OPP_INCLUDE_CPA": "required"
+          }
+        },
+        "CMA/CPA": {
+          "field_overrides": {
+            "OPP_CMA_INITIAL_TERM": "required",
+            "OPP_CMA_SPLIT": "required",
+            "OPP_CMA_TERM_PERIOD": "required",
+            "OPP_CMA_TYPES": "required",
+            "OPP_CPA_INITIAL_TERM": "required",
+            "OPP_CPA_SPLIT": "required",
+            "OPP_CPA_TERM_PERIOD": "required",
+            "OPP_INCLUDE_CPA": "required"
+          }
+        }
+      }
+    },
+    "management": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_AMENDING": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "not_applicable",
+        "OPP_TERMINATION_DATE": "not_applicable",
+        "OPP_TERMINATION_NOTICE_DATE": "not_applicable",
+        "OPP_TERMINATION_PERIOD": "not_applicable",
+        "OPP_TERMINATION_TYPE": "not_applicable",
+        "OPP_CMA_INITIAL_TERM": "not_applicable",
+        "OPP_CMA_RENEWAL_TERM": "not_applicable",
+        "OPP_CMA_SPLIT": "not_applicable",
+        "OPP_CMA_TERM_PERIOD": "not_applicable",
+        "OPP_CMA_TYPES": "not_applicable",
+        "OPP_CPA_INITIAL_TERM": "not_applicable",
+        "OPP_CPA_RENEWAL_TERM": "not_applicable",
+        "OPP_CPA_SPLIT": "not_applicable",
+        "OPP_CPA_TERM_PERIOD": "not_applicable",
+        "OPP_INCLUDE_CPA": "not_applicable",
+        "OPP_PUBLISHING_RIGHTS": "not_applicable",
+        "OPP_WRITER_PRINT_SPLIT": "not_applicable",
+        "OPP_LICENSING_RIGHTS": "not_applicable",
+        "OPP_PHYSICAL_DISTRIBUTION": "not_applicable",
+        "OPP_PHYSICAL_SPLIT": "not_applicable",
+        "OPP_PHYSICAL_SPLIT_EX_USA": "not_applicable",
+        "OPP_EXISTING_MASTER_RECORDINGS": "not_applicable",
+        "OPP_MASTERNUMBER": "not_applicable"
+      },
+      "subtypes": {}
+    },
+    "service": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_AMENDING": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "not_applicable",
+        "OPP_TERMINATION_DATE": "not_applicable",
+        "OPP_TERMINATION_NOTICE_DATE": "not_applicable",
+        "OPP_TERMINATION_PERIOD": "not_applicable",
+        "OPP_TERMINATION_TYPE": "not_applicable",
+        "OPP_CMA_INITIAL_TERM": "not_applicable",
+        "OPP_CMA_RENEWAL_TERM": "not_applicable",
+        "OPP_CMA_SPLIT": "not_applicable",
+        "OPP_CMA_TERM_PERIOD": "not_applicable",
+        "OPP_CMA_TYPES": "not_applicable",
+        "OPP_CPA_INITIAL_TERM": "not_applicable",
+        "OPP_CPA_RENEWAL_TERM": "not_applicable",
+        "OPP_CPA_SPLIT": "not_applicable",
+        "OPP_CPA_TERM_PERIOD": "not_applicable",
+        "OPP_INCLUDE_CPA": "not_applicable",
+        "OPP_PUBLISHING_RIGHTS": "not_applicable",
+        "OPP_WRITER_PRINT_SPLIT": "not_applicable",
+        "OPP_LICENSING_RIGHTS": "not_applicable",
+        "OPP_PHYSICAL_DISTRIBUTION": "not_applicable",
+        "OPP_PHYSICAL_SPLIT": "not_applicable",
+        "OPP_PHYSICAL_SPLIT_EX_USA": "not_applicable",
+        "OPP_EXISTING_MASTER_RECORDINGS": "not_applicable",
+        "OPP_MASTERNUMBER": "not_applicable"
+      },
+      "subtypes": {}
+    },
+    "amendment": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_AMENDING": "required",
+        "OPP_CMA_INITIAL_TERM": "not_applicable",
+        "OPP_CMA_RENEWAL_TERM": "not_applicable",
+        "OPP_CMA_SPLIT": "not_applicable",
+        "OPP_CMA_TERM_PERIOD": "not_applicable",
+        "OPP_CMA_TYPES": "not_applicable",
+        "OPP_CPA_INITIAL_TERM": "not_applicable",
+        "OPP_CPA_RENEWAL_TERM": "not_applicable",
+        "OPP_CPA_SPLIT": "not_applicable",
+        "OPP_CPA_TERM_PERIOD": "not_applicable",
+        "OPP_INCLUDE_CPA": "not_applicable",
+        "OPP_PHYSICAL_DISTRIBUTION": "not_applicable",
+        "OPP_PHYSICAL_SPLIT": "not_applicable",
+        "OPP_PHYSICAL_SPLIT_EX_USA": "not_applicable",
+        "OPP_USE_HOLDBACK_LANGUAGE": "not_applicable",
+        "OPP_HOLDBACK_AMOUNT": "not_applicable",
+        "OPP_NUMBER_OF_HOLDBACK_DAYS": "not_applicable",
+        "OPP_JV_DISTRIBUTION_FEE": "not_applicable",
+        "OPP_JV_OPERATING_BUDGET": "not_applicable",
+        "OPP_PUBLISHING_RIGHTS": "not_applicable",
+        "OPP_WRITER_PRINT_SPLIT": "not_applicable",
+        "OPP_LICENSING_RIGHTS": "not_applicable",
+        "OPP_AFFILIATION": "not_applicable",
+        "OPP_EXISTING_MASTER_RECORDINGS": "not_applicable",
+        "OPP_MASTERNUMBER": "not_applicable",
+        "OPP_TERMINATION_DATE": "not_applicable",
+        "OPP_TERMINATION_NOTICE_DATE": "not_applicable",
+        "OPP_TERMINATION_PERIOD": "not_applicable",
+        "OPP_TERMINATION_TYPE": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "not_applicable",
+        "OPP_BACK_CATALOG": "not_applicable",
+        "OPP_BACK_CATALOG_DISTRIBUTION_FEE": "not_applicable",
+        "OPP_BACK_CATALOG_SPLIT": "not_applicable",
+        "OPP_BACK_CATALOG_TYPE": "not_applicable"
+      },
+      "subtypes": {}
+    },
+    "termination": {
+      "field_overrides": {
+        "ACCT_BILLING_GEOCODE_ACCURACY": "not_applicable",
+        "ACCT_BILLING_LATITUDE": "not_applicable",
+        "ACCT_BILLING_LONGITUDE": "not_applicable",
+        "OPP_WHAT_ARE_WE_TERMINATING": "required",
+        "OPP_TERMINATION_DATE": "required",
+        "OPP_TERMINATION_NOTICE_DATE": "conditional",
+        "OPP_TERMINATION_PERIOD": "conditional",
+        "OPP_TERMINATION_TYPE": "required",
+        "OPP_CMA_INITIAL_TERM": "not_applicable",
+        "OPP_CMA_RENEWAL_TERM": "not_applicable",
+        "OPP_CMA_SPLIT": "not_applicable",
+        "OPP_CMA_TERM_PERIOD": "not_applicable",
+        "OPP_CMA_TYPES": "not_applicable",
+        "OPP_CPA_INITIAL_TERM": "not_applicable",
+        "OPP_CPA_RENEWAL_TERM": "not_applicable",
+        "OPP_CPA_SPLIT": "not_applicable",
+        "OPP_CPA_TERM_PERIOD": "not_applicable",
+        "OPP_INCLUDE_CPA": "not_applicable",
+        "OPP_PHYSICAL_DISTRIBUTION": "not_applicable",
+        "OPP_PHYSICAL_SPLIT": "not_applicable",
+        "OPP_PHYSICAL_SPLIT_EX_USA": "not_applicable",
+        "OPP_USE_HOLDBACK_LANGUAGE": "not_applicable",
+        "OPP_HOLDBACK_AMOUNT": "not_applicable",
+        "OPP_NUMBER_OF_HOLDBACK_DAYS": "not_applicable",
+        "OPP_BACK_CATALOG": "not_applicable",
+        "OPP_BACK_CATALOG_DISTRIBUTION_FEE": "not_applicable",
+        "OPP_BACK_CATALOG_SPLIT": "not_applicable",
+        "OPP_BACK_CATALOG_TYPE": "not_applicable",
+        "OPP_FRONT_CATALOG_SPLIT": "not_applicable",
+        "OPP_PUBLISHING_RIGHTS": "not_applicable",
+        "OPP_WRITER_PRINT_SPLIT": "not_applicable",
+        "OPP_LICENSING_RIGHTS": "not_applicable",
+        "OPP_EXISTING_MASTER_RECORDINGS": "not_applicable",
+        "OPP_MASTERNUMBER": "not_applicable",
+        "OPP_AFFILIATION": "not_applicable"
+      },
+      "subtypes": {}
+    }
+  },
+  "approval_flags": [
+    {
+      "check_code": "OPP_FRONT_CATALOG_SPLIT",
+      "conditions": [
+        { "operator": "EXISTS" },
+        { "operator": "NOT_IN", "value": ["80/20", "85/15", "70/30", "50/50"] }
+      ],
+      "message": "Requires Approval: Non-standard split ({value} detected)"
+    },
+    {
+      "check_code": "OPP_ADVANCE_DETAILS",
+      "conditions": [{ "operator": "EXISTS" }],
+      "message": "Requires Approval: Advance detected"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "template_id": "talent-actor-standard-v1",
+  "contract_type": "talent-actor",
+  "display_name": "Talent Agreement (Actor)",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. ENGAGEMENT AND ROLE",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "2. TERM AND SCHEDULE",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "3. COMPENSATION",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "residuals",
+      "title": "3.1 RESIDUALS AND BACKEND",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "talent_billing",
+      "title": "4. CREDIT AND BILLING",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "guild",
+      "title": "5. GUILD PROVISIONS",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "6. RIGHTS AND OBLIGATIONS",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "perks",
+      "title": "7. PERKS AND ACCOMMODATIONS",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "8. TERMINATION",
+      "order": 10,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "9. GOVERNING LAW",
+      "order": 11,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": [
+    "OPP_CONTRACT_TYPE",
+    "OPP_DAY_RATE",
+    "OPP_GUILD_AFFILIATION"
+  ]
+}

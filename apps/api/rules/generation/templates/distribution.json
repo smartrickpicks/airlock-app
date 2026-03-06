@@ -1,0 +1,78 @@
+{
+  "template_id": "distribution-standard-v1",
+  "contract_type": "distribution",
+  "display_name": "Distribution Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate",
+      "default_clause": "DIST-RECITALS-STANDARD"
+    },
+    {
+      "id": "scope",
+      "title": "1. SCOPE OF AGREEMENT",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "territory",
+      "title": "2. TERRITORY",
+      "order": 3,
+      "type": "conditional"
+    },
+    { "id": "term", "title": "3. TERM", "order": 4, "type": "conditional" },
+    {
+      "id": "compensation",
+      "title": "4. COMPENSATION",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "5. RIGHTS AND OBLIGATIONS",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "restrictions",
+      "title": "5.1 RESTRICTIONS",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "6. TERMINATION",
+      "order": 8,
+      "type": "boilerplate",
+      "default_clause": "DIST-TERMINATION-STANDARD"
+    },
+    {
+      "id": "termination_addl",
+      "title": "6.1 ADDITIONAL TERMINATION PROVISIONS",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "7. GOVERNING LAW",
+      "order": 10,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate",
+      "default_clause": "GENERIC-SIGNATURE-BLOCK"
+    }
+  ],
+  "required_fields": [
+    "OPP_CONTRACT_TYPE",
+    "OPP_TERRITORY",
+    "OPP_TERM_LENGTH",
+    "OPP_BACK_CATALOG_RATE",
+    "OPP_NEW_RELEASE_RATE"
+  ]
+}

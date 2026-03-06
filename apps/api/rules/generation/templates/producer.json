@@ -1,0 +1,62 @@
+{
+  "template_id": "producer-standard-v1",
+  "contract_type": "producer",
+  "display_name": "Producer Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. SCOPE OF SERVICES",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "2. COMPENSATION",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "creative_control",
+      "title": "3. CREATIVE CONTROL",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "4. TERM",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "5. RIGHTS AND CREDIT",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "6. TERMINATION",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "7. GOVERNING LAW",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": ["OPP_CONTRACT_TYPE", "OPP_PRODUCER_FEE"]
+}

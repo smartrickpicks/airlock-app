@@ -1,0 +1,1511 @@
+{
+  "version": "v1",
+  "description": "Maps contract language to canonical Salesforce enum values. Includes picklist fields and term-duration fields (picklist-shaped). Used by PicklistExtractor with rapidfuzz matching.",
+  "ACCT_ACCOUNT_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Agency",
+      "Artist",
+      "Band",
+      "Brand",
+      "Musician",
+      "Producer",
+      "Manager",
+      "Publisher",
+      "Label",
+      "Distributor",
+      "Record Label",
+      "Other"
+    ],
+    "synonyms": {
+      "Agency": [
+        "agency",
+        "talent agency",
+        "booking agency",
+        "management agency"
+      ],
+      "Artist": ["artist", "recording artist", "solo artist", "the artist"],
+      "Band": ["band", "group", "musical group", "ensemble"],
+      "Brand": ["brand", "corporate", "brand partner"],
+      "Musician": ["musician", "instrumentalist", "session musician"],
+      "Producer": [
+        "producer",
+        "record producer",
+        "music producer",
+        "beat maker"
+      ],
+      "Manager": [
+        "manager",
+        "management",
+        "artist manager",
+        "personal manager"
+      ],
+      "Publisher": ["publisher", "music publisher", "publishing company"],
+      "Label": ["label", "record label", "record company"],
+      "Distributor": ["distributor", "distribution company"]
+    }
+  },
+  "ACCT_STATE_OF_FORMATION": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Alabama",
+      "Alaska",
+      "Arizona",
+      "Arkansas",
+      "California",
+      "Colorado",
+      "Connecticut",
+      "Delaware",
+      "Florida",
+      "Georgia",
+      "Hawaii",
+      "Idaho",
+      "Illinois",
+      "Indiana",
+      "Iowa",
+      "Kansas",
+      "Kentucky",
+      "Louisiana",
+      "Maine",
+      "Maryland",
+      "Massachusetts",
+      "Michigan",
+      "Minnesota",
+      "Mississippi",
+      "Missouri",
+      "Montana",
+      "Nebraska",
+      "Nevada",
+      "New Hampshire",
+      "New Jersey",
+      "New Mexico",
+      "New York",
+      "North Carolina",
+      "North Dakota",
+      "Ohio",
+      "Oklahoma",
+      "Oregon",
+      "Pennsylvania",
+      "Rhode Island",
+      "South Carolina",
+      "South Dakota",
+      "Tennessee",
+      "Texas",
+      "Utah",
+      "Vermont",
+      "Virginia",
+      "Washington",
+      "West Virginia",
+      "Wisconsin",
+      "Wyoming",
+      "Outside USA"
+    ],
+    "synonyms": {
+      "California": ["california", "CA", "state of california"],
+      "New York": ["new york", "NY", "state of new york"],
+      "Delaware": ["delaware", "DE", "state of delaware"],
+      "Florida": ["florida", "FL", "state of florida"],
+      "Texas": ["texas", "TX", "state of texas"],
+      "Tennessee": ["tennessee", "TN", "state of tennessee"],
+      "Georgia": ["georgia", "GA", "state of georgia"],
+      "Illinois": ["illinois", "IL", "state of illinois"]
+    }
+  },
+  "ACCT_TYPE_OF_COMPANY": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Partnership",
+      "Limited Liability Partnership",
+      "Corporation",
+      "Limited Liability Company",
+      "Limited Company",
+      "Limited Partnership",
+      "Sole Proprietorship",
+      "Individual"
+    ],
+    "synonyms": {
+      "Corporation": [
+        "corporation",
+        "corp",
+        "corp.",
+        "inc",
+        "inc.",
+        "incorporated",
+        "a corporation"
+      ],
+      "Limited Liability Company": [
+        "limited liability company",
+        "LLC",
+        "L.L.C.",
+        "a limited liability company"
+      ],
+      "Limited Liability Partnership": [
+        "limited liability partnership",
+        "LLP",
+        "L.L.P."
+      ],
+      "Limited Partnership": ["limited partnership", "LP", "L.P."],
+      "Limited Company": ["limited company", "ltd", "ltd.", "limited"],
+      "Partnership": ["partnership", "general partnership", "GP"],
+      "Sole Proprietorship": [
+        "sole proprietorship",
+        "sole proprietor",
+        "individual doing business"
+      ],
+      "Individual": ["individual", "natural person", "individually"]
+    }
+  },
+  "OPP_ANYTHING_UNCROSSED": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "No",
+      "Whole Back Catalog",
+      "Asset: Might be a portion of Assets",
+      "Agreement",
+      "Percentage",
+      "Other"
+    ],
+    "synonyms": {
+      "No": ["no", "none", "nothing uncrossed", "fully cross-collateralized"],
+      "Whole Back Catalog": [
+        "whole back catalog",
+        "entire back catalog",
+        "all existing catalog",
+        "full back catalog uncrossed"
+      ],
+      "Agreement": ["agreement uncrossed", "the agreement", "this agreement"],
+      "Percentage": ["percentage", "percent uncrossed", "partial uncross"]
+    }
+  },
+  "OPP_BACK_CATALOG_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Null", "All", "Portion"],
+    "synonyms": {
+      "Null": ["null", "none", "no back catalog", "N/A"],
+      "All": [
+        "all",
+        "all existing",
+        "entire catalog",
+        "complete catalog",
+        "all previously released",
+        "all back catalog"
+      ],
+      "Portion": [
+        "portion",
+        "selected",
+        "certain masters",
+        "specified recordings",
+        "portion of",
+        "select catalog"
+      ]
+    }
+  },
+  "OPP_CMA_TYPES": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "YT Sound Recordings",
+      "YT Publishing",
+      "Mechanical License",
+      "SoundCloud"
+    ],
+    "synonyms": {
+      "YT Sound Recordings": [
+        "youtube sound recordings",
+        "YT sound recordings",
+        "youtube sound recording monetization"
+      ],
+      "YT Publishing": [
+        "youtube publishing",
+        "YT publishing",
+        "youtube composition monetization"
+      ],
+      "Mechanical License": [
+        "mechanical license",
+        "mechanical licensing",
+        "mechanical royalty monetization"
+      ],
+      "SoundCloud": ["soundcloud", "sound cloud", "soundcloud monetization"]
+    }
+  },
+  "OPP_CONTRACT_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "CMA",
+      "CMA/CPA",
+      "Co-Pub",
+      "CPA",
+      "Distribution",
+      "Distribution w/ CMA and CPA",
+      "Label Ventures",
+      "License",
+      "Profit Participation",
+      "Pub Admin",
+      "Recording"
+    ],
+    "synonyms": {
+      "Distribution": [
+        "distribution agreement",
+        "distribution deal",
+        "distribution contract",
+        "exclusive distribution"
+      ],
+      "Recording": [
+        "recording agreement",
+        "recording contract",
+        "exclusive recording",
+        "artist agreement"
+      ],
+      "License": [
+        "license agreement",
+        "licensing agreement",
+        "license deal",
+        "master license"
+      ],
+      "Pub Admin": [
+        "publishing administration",
+        "pub admin",
+        "publishing admin agreement"
+      ],
+      "Co-Pub": [
+        "co-publishing",
+        "co-pub",
+        "co-publishing agreement",
+        "copublishing"
+      ],
+      "CMA": [
+        "content monetization",
+        "CMA agreement",
+        "content monetization agreement"
+      ],
+      "CPA": [
+        "channel partnership",
+        "CPA agreement",
+        "channel partnership agreement"
+      ],
+      "CMA/CPA": ["CMA/CPA", "content monetization and channel partnership"],
+      "Label Ventures": [
+        "label ventures",
+        "joint venture",
+        "JV agreement",
+        "label venture agreement"
+      ],
+      "Profit Participation": [
+        "profit participation",
+        "profit share agreement",
+        "profit participation agreement"
+      ]
+    }
+  },
+  "OPP_EXCLUSIVITY": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Exclusive", "Non-Exclusive"],
+    "synonyms": {
+      "Exclusive": [
+        "exclusive",
+        "exclusively",
+        "exclusive rights",
+        "exclusive basis",
+        "sole and exclusive"
+      ],
+      "Non-Exclusive": [
+        "non-exclusive",
+        "nonexclusive",
+        "non exclusive",
+        "on a non-exclusive basis"
+      ]
+    }
+  },
+  "OPP_FREQUENCY": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Annually", "Semi-Annually", "Quarterly", "Monthly"],
+    "synonyms": {
+      "Monthly": [
+        "monthly",
+        "each month",
+        "per month",
+        "every month",
+        "on a monthly basis"
+      ],
+      "Quarterly": [
+        "quarterly",
+        "each quarter",
+        "per quarter",
+        "every three months",
+        "every 3 months",
+        "on a quarterly basis"
+      ],
+      "Semi-Annually": [
+        "semi-annually",
+        "semi-annual",
+        "twice per year",
+        "every six months",
+        "every 6 months",
+        "biannually",
+        "bi-annually"
+      ],
+      "Annually": [
+        "annually",
+        "annual",
+        "once per year",
+        "per annum",
+        "each year",
+        "every 12 months",
+        "on an annual basis"
+      ]
+    }
+  },
+  "OPP_INITIAL_TERM_LENGTH": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "45 days",
+      "1 month",
+      "2 months",
+      "3 months",
+      "4 months",
+      "6 months",
+      "8 months",
+      "9 months",
+      "1 year",
+      "18 months",
+      "2 years",
+      "3 years",
+      "4 years",
+      "5 years",
+      "7 years",
+      "10 years",
+      "Perpetual"
+    ],
+    "synonyms": {
+      "45 days": ["forty-five (45) days", "45 days"],
+      "1 month": ["one (1) month", "1 month", "30 days", "thirty (30) days"],
+      "2 months": ["two (2) months", "2 months", "60 days", "sixty (60) days"],
+      "3 months": [
+        "three (3) months",
+        "3 months",
+        "90 days",
+        "ninety (90) days"
+      ],
+      "6 months": ["six (6) months", "6 months", "180 days"],
+      "1 year": [
+        "one (1) year",
+        "1 year",
+        "twelve (12) months",
+        "12 months",
+        "365 days"
+      ],
+      "18 months": [
+        "eighteen (18) months",
+        "18 months",
+        "one and a half years"
+      ],
+      "2 years": [
+        "two (2) years",
+        "2 years",
+        "twenty-four (24) months",
+        "24 months"
+      ],
+      "3 years": [
+        "three (3) years",
+        "3 years",
+        "thirty-six (36) months",
+        "36 months"
+      ],
+      "5 years": [
+        "five (5) years",
+        "5 years",
+        "sixty (60) months",
+        "60 months"
+      ],
+      "7 years": ["seven (7) years", "7 years"],
+      "10 years": ["ten (10) years", "10 years"],
+      "Perpetual": [
+        "perpetual",
+        "in perpetuity",
+        "perpetuity",
+        "life of copyright",
+        "forever",
+        "for the full term of copyright"
+      ]
+    }
+  },
+  "OPP_RENEWAL_TERM_LENGTH": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "45 days",
+      "1 month",
+      "2 months",
+      "3 months",
+      "6 months",
+      "1 year",
+      "18 months",
+      "2 years",
+      "3 years",
+      "Automatic"
+    ],
+    "synonyms": {
+      "45 days": ["forty-five (45) days", "45 days"],
+      "1 month": ["one (1) month", "1 month"],
+      "3 months": ["three (3) months", "3 months"],
+      "6 months": ["six (6) months", "6 months"],
+      "1 year": ["one (1) year", "1 year", "twelve (12) months", "12 months"],
+      "2 years": ["two (2) years", "2 years"],
+      "Automatic": ["automatically renew", "auto-renew", "successive periods"]
+    }
+  },
+  "OPP_CMA_INITIAL_TERM": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "45 days",
+      "1 month",
+      "2 months",
+      "3 months",
+      "4 months",
+      "6 months",
+      "1 year",
+      "2 years"
+    ],
+    "synonyms": {
+      "1 year": ["one (1) year", "1 year", "twelve (12) months"],
+      "2 years": ["two (2) years", "2 years", "twenty-four (24) months"],
+      "6 months": ["six (6) months", "6 months"]
+    }
+  },
+  "OPP_CMA_RENEWAL_TERM": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "45 days",
+      "1 month",
+      "2 months",
+      "3 months",
+      "4 months",
+      "6 months",
+      "1 year"
+    ],
+    "synonyms": {}
+  },
+  "OPP_CMA_TERM_PERIOD": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "7 days",
+      "10 days",
+      "14 days",
+      "15 days",
+      "30 days",
+      "45 days",
+      "60 days",
+      "90 days"
+    ],
+    "synonyms": {
+      "30 days": ["thirty (30) days", "30 days"],
+      "60 days": ["sixty (60) days", "60 days"],
+      "90 days": ["ninety (90) days", "90 days"]
+    }
+  },
+  "OPP_CPA_INITIAL_TERM": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "45 days",
+      "1 month",
+      "2 months",
+      "3 months",
+      "4 months",
+      "6 months",
+      "1 year",
+      "2 years"
+    ],
+    "synonyms": {}
+  },
+  "OPP_CPA_RENEWAL_TERM": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "45 days",
+      "1 month",
+      "2 months",
+      "3 months",
+      "4 months",
+      "6 months",
+      "1 year"
+    ],
+    "synonyms": {}
+  },
+  "OPP_CPA_TERM_PERIOD": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "7 days",
+      "10 days",
+      "14 days",
+      "15 days",
+      "30 days",
+      "45 days",
+      "60 days",
+      "90 days"
+    ],
+    "synonyms": {}
+  },
+  "OPP_COLLECTION_PERIOD": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "1 month",
+      "3 months",
+      "6 months",
+      "8 months",
+      "9 months",
+      "18 months",
+      "1 year",
+      "2 years",
+      "3 years",
+      "5 years"
+    ],
+    "synonyms": {
+      "6 months": ["six (6) months", "6 months"],
+      "1 year": ["one (1) year", "1 year", "twelve (12) months"],
+      "2 years": ["two (2) years", "2 years"],
+      "3 years": ["three (3) years", "3 years"]
+    }
+  },
+  "OPP_EXPLOITATION_PERIOD": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "1 month",
+      "3 months",
+      "6 months",
+      "18 months",
+      "1 year",
+      "2 years",
+      "3 years",
+      "5 years",
+      "7 years",
+      "10 years",
+      "15 years",
+      "Perpetual"
+    ],
+    "synonyms": {
+      "Perpetual": [
+        "perpetual",
+        "in perpetuity",
+        "life of copyright",
+        "perpetuity"
+      ],
+      "5 years": ["five (5) years", "5 years"],
+      "10 years": ["ten (10) years", "10 years"]
+    }
+  },
+  "OPP_RETENTION_PERIOD": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "6 months",
+      "9 months",
+      "18 months",
+      "1 year",
+      "2 years",
+      "3 years",
+      "5 years",
+      "None"
+    ],
+    "synonyms": {
+      "None": ["none", "no retention", "N/A"],
+      "1 year": ["one (1) year", "1 year", "twelve (12) months"],
+      "2 years": ["two (2) years", "2 years"],
+      "3 years": ["three (3) years", "3 years"]
+    }
+  },
+  "OPP_TERMINATION_PERIOD": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "7 days",
+      "10 days",
+      "14 days",
+      "15 days",
+      "30 days",
+      "45 days",
+      "60 days",
+      "90 days"
+    ],
+    "synonyms": {
+      "30 days": ["thirty (30) days", "30 days", "thirty days"],
+      "60 days": ["sixty (60) days", "60 days", "sixty days"],
+      "90 days": ["ninety (90) days", "90 days", "ninety days"]
+    }
+  },
+  "OPP_LICENSING_RIGHTS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Exclusive", "Non-Exclusive"],
+    "synonyms": {
+      "Exclusive": [
+        "exclusive",
+        "exclusive license",
+        "exclusive rights",
+        "sole and exclusive"
+      ],
+      "Non-Exclusive": [
+        "non-exclusive",
+        "nonexclusive",
+        "non exclusive",
+        "non-exclusive license"
+      ]
+    }
+  },
+  "OPP_NEIGHBORING_RIGHTS_INCLUDED": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["No", "Yes Exclusive", "Yes Non-Exclusive"],
+    "synonyms": {
+      "No": [
+        "no",
+        "not included",
+        "excludes neighboring rights",
+        "without neighboring rights"
+      ],
+      "Yes Exclusive": [
+        "exclusive neighboring rights",
+        "neighboring rights exclusive",
+        "exclusive related rights"
+      ],
+      "Yes Non-Exclusive": [
+        "non-exclusive neighboring rights",
+        "neighboring rights non-exclusive",
+        "non-exclusive related rights"
+      ]
+    }
+  },
+  "OPP_NOTARY_STATE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["CA", "NY", "Other", "NULL"],
+    "synonyms": {
+      "CA": ["california", "CA", "state of california"],
+      "NY": ["new york", "NY", "state of new york"],
+      "NULL": ["null", "none", "N/A", "not notarized"]
+    }
+  },
+  "OPP_NUMBER_OF_OPTIONS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "one (1)",
+      "two (2)",
+      "three (3)",
+      "four (4)",
+      "five (5)"
+    ],
+    "synonyms": {
+      "one (1)": [
+        "one option",
+        "1 option",
+        "one (1) option",
+        "a single option"
+      ],
+      "two (2)": ["two options", "2 options", "two (2) options"],
+      "three (3)": ["three options", "3 options", "three (3) options"],
+      "four (4)": ["four options", "4 options"],
+      "five (5)": ["five options", "5 options"]
+    }
+  },
+  "OPP_OPTION_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "No Option",
+      "Single and Option",
+      "Album and Option",
+      "Single",
+      "Option",
+      "2nd Option"
+    ],
+    "synonyms": {
+      "No Option": ["no option", "without option", "no options"],
+      "Single and Option": [
+        "single plus option",
+        "single and option",
+        "single with option"
+      ],
+      "Album and Option": [
+        "album plus option",
+        "album and option",
+        "album with option",
+        "album option",
+        "for an album"
+      ],
+      "Single": ["single option", "for a single"]
+    }
+  },
+  "OPP_PAYING_THIRD_PARTY_COLLABORATORS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Yes", "No", "POST RECOUP", "PRIOR TO RECOUP"],
+    "synonyms": {
+      "Yes": [
+        "yes",
+        "label pays collaborators",
+        "company shall pay",
+        "label responsible for"
+      ],
+      "No": [
+        "no",
+        "artist pays",
+        "artist responsible for",
+        "not responsible for"
+      ],
+      "POST RECOUP": [
+        "post recoup",
+        "after recoupment",
+        "post-recoup",
+        "following recoupment"
+      ],
+      "PRIOR TO RECOUP": [
+        "prior to recoup",
+        "before recoupment",
+        "pre-recoup",
+        "irrespective of recoupment"
+      ]
+    }
+  },
+  "OPP_AFFILIATION": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "ASCAP",
+      "BMI",
+      "SESAC",
+      "PRS",
+      "SOCAN",
+      "GEMA",
+      "SACEM",
+      "SGAE",
+      "ACAM",
+      "ACDAM",
+      "ACUM",
+      "AEPI",
+      "AGADU",
+      "AGICOA"
+    ],
+    "synonyms": {
+      "ASCAP": [
+        "ASCAP",
+        "American Society of Composers",
+        "american society of composers authors and publishers"
+      ],
+      "BMI": ["BMI", "Broadcast Music Inc", "broadcast music incorporated"],
+      "SESAC": ["SESAC"],
+      "PRS": ["PRS", "PRS for Music", "Performing Right Society"],
+      "SOCAN": [
+        "SOCAN",
+        "Society of Composers Authors and Music Publishers of Canada"
+      ],
+      "GEMA": ["GEMA", "Gesellschaft für musikalische Aufführungs"],
+      "SACEM": [
+        "SACEM",
+        "Société des auteurs compositeurs et éditeurs de musique"
+      ]
+    }
+  },
+  "OPP_PRONOUN": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["his", "her", "their"],
+    "synonyms": {
+      "his": ["his", "he", "him", "himself"],
+      "her": ["her", "she", "herself", "hers"],
+      "their": ["their", "they", "them", "themselves", "its"]
+    }
+  },
+  "OPP_PUBLISHING_RIGHTS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["None", "Pub Admin", "CoPub"],
+    "synonyms": {
+      "None": [
+        "none",
+        "no publishing",
+        "excludes publishing",
+        "without publishing rights"
+      ],
+      "Pub Admin": [
+        "publishing administration",
+        "pub admin",
+        "publishing admin",
+        "administration agreement",
+        "administration deal"
+      ],
+      "CoPub": [
+        "co-publishing",
+        "copublishing",
+        "co-pub",
+        "co publishing agreement",
+        "co-publishing deal"
+      ]
+    }
+  },
+  "OPP_RECOUP_TERM": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Post recoup only",
+      "Later of X amount of years AND post recoup",
+      "X Number of years"
+    ],
+    "synonyms": {
+      "Post recoup only": [
+        "post recoup only",
+        "after full recoupment",
+        "upon recoupment",
+        "following recoupment only"
+      ],
+      "Later of X amount of years AND post recoup": [
+        "later of",
+        "whichever is later",
+        "the later of the initial term and recoupment"
+      ],
+      "X Number of years": [
+        "fixed term",
+        "regardless of recoupment",
+        "irrespective of recoupment"
+      ]
+    }
+  },
+  "OPP_RESTRICTIONS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "No Restrictions",
+      "Sample Licensing Restrictions",
+      "Sync Licensing Restrictions",
+      "Both (Sample and Sync Licensing)"
+    ],
+    "synonyms": {
+      "No Restrictions": [
+        "no restrictions",
+        "unrestricted",
+        "without restriction",
+        "no limitations"
+      ],
+      "Sample Licensing Restrictions": [
+        "sample licensing restrictions",
+        "sampling restrictions",
+        "restrictions on sampling"
+      ],
+      "Sync Licensing Restrictions": [
+        "sync licensing restrictions",
+        "synchronization restrictions",
+        "restrictions on sync"
+      ],
+      "Both (Sample and Sync Licensing)": [
+        "both",
+        "sample and sync restrictions",
+        "restrictions on sampling and sync"
+      ]
+    }
+  },
+  "OPP_SAMPLE_LICENSING_RESTRICTIONS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Needs Writer Approval", "Limits on Fees"],
+    "synonyms": {
+      "Needs Writer Approval": [
+        "writer approval",
+        "needs writer approval",
+        "writer consent",
+        "approval of writer",
+        "consent of the writer"
+      ],
+      "Limits on Fees": [
+        "limits on fees",
+        "fee limitations",
+        "fee cap",
+        "maximum fee"
+      ]
+    }
+  },
+  "OPP_SYNC_LICENSING_RESTRICTIONS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Needs Writer Approval",
+      "Restrictions on NSFW media",
+      "Restrictions on Controversial Figures and Entities"
+    ],
+    "synonyms": {
+      "Needs Writer Approval": [
+        "writer approval",
+        "needs writer approval",
+        "writer consent",
+        "consent of the writer"
+      ],
+      "Restrictions on NSFW media": [
+        "NSFW",
+        "adult content",
+        "explicit content",
+        "pornographic",
+        "not safe for work"
+      ],
+      "Restrictions on Controversial Figures and Entities": [
+        "controversial figures",
+        "controversial entities",
+        "political figures",
+        "hate groups"
+      ]
+    }
+  },
+  "OPP_SUBTYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Album", "Single", "Buyout", "Period", "Video"],
+    "synonyms": {
+      "Album": ["album", "LP", "full-length", "long play"],
+      "Single": ["single", "single release"],
+      "Buyout": ["buyout", "buy-out", "purchase", "acquisition"],
+      "Period": ["period", "time period", "contract period"],
+      "Video": ["video", "music video", "visual"]
+    }
+  },
+  "OPP_TERMINATION_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Recoup Date / Effective Date",
+      "Initial Commercial Release of Catalog/Asset"
+    ],
+    "synonyms": {
+      "Recoup Date / Effective Date": [
+        "recoup date",
+        "effective date",
+        "from the effective date"
+      ],
+      "Initial Commercial Release of Catalog/Asset": [
+        "initial commercial release",
+        "first commercial release",
+        "date of release"
+      ]
+    }
+  },
+  "OPP_TERRITORIES": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "World",
+      "World Excluding",
+      "USA Only",
+      "North America",
+      "Europe",
+      "Asia"
+    ],
+    "synonyms": {
+      "World": [
+        "world",
+        "worldwide",
+        "the world",
+        "universe",
+        "global",
+        "throughout the world"
+      ],
+      "World Excluding": [
+        "world excluding",
+        "worldwide excluding",
+        "the world except",
+        "world except"
+      ],
+      "USA Only": [
+        "USA",
+        "United States",
+        "United States of America",
+        "US only"
+      ],
+      "North America": [
+        "north america",
+        "US and Canada",
+        "United States and Canada"
+      ],
+      "Europe": [
+        "europe",
+        "EU",
+        "European Union",
+        "EMEA",
+        "United Kingdom",
+        "UK"
+      ],
+      "Asia": ["asia", "Asia Pacific", "APAC"]
+    }
+  },
+  "OPP_TYPE_OF_SHARE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Artist", "Label"],
+    "synonyms": {
+      "Artist": [
+        "artist share",
+        "artist's share",
+        "artist portion",
+        "in favor of artist"
+      ],
+      "Label": [
+        "label share",
+        "label's share",
+        "company share",
+        "in favor of label",
+        "company's share"
+      ]
+    }
+  },
+  "OPP_WHAT_ARE_WE_AMENDING": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Terms", "Splits", "Deliverables", "Advances"],
+    "synonyms": {
+      "Terms": [
+        "terms",
+        "term modification",
+        "term amendment",
+        "extending the term"
+      ],
+      "Splits": [
+        "splits",
+        "split modification",
+        "revenue share",
+        "percentage change"
+      ],
+      "Deliverables": [
+        "deliverables",
+        "delivery schedule",
+        "master commitment",
+        "recording commitment"
+      ],
+      "Advances": [
+        "advances",
+        "advance modification",
+        "advance amount",
+        "advance schedule"
+      ]
+    }
+  },
+  "OPP_WHAT_ARE_WE_TERMINATING": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Full Termination", "Partial Termination"],
+    "synonyms": {
+      "Full Termination": [
+        "full termination",
+        "complete termination",
+        "terminate in full",
+        "termination of the entire agreement"
+      ],
+      "Partial Termination": [
+        "partial termination",
+        "partial",
+        "terminate in part",
+        "termination of certain assets"
+      ]
+    }
+  },
+  "OPP_PROCUREMENT_STATUS": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Exclusive", "Non-Exclusive", "Null"],
+    "synonyms": {
+      "Exclusive": [
+        "exclusive procurement",
+        "exclusive pitching",
+        "exclusive basis"
+      ],
+      "Non-Exclusive": [
+        "non-exclusive procurement",
+        "non-exclusive pitching",
+        "non-exclusive basis"
+      ],
+      "Null": ["null", "none", "no procurement", "N/A"]
+    }
+  },
+  "FIN_EVENT_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Beginning of Option",
+      "Delivery of existing masters",
+      "Delivery of project",
+      "Effective date",
+      "Execution of contract",
+      "Threshold Pass"
+    ],
+    "synonyms": {
+      "Beginning of Option": [
+        "beginning of option",
+        "option commencement",
+        "start of option period"
+      ],
+      "Delivery of existing masters": [
+        "delivery of existing masters",
+        "delivery of back catalog",
+        "upon delivery of existing"
+      ],
+      "Delivery of project": [
+        "delivery of project",
+        "upon delivery",
+        "delivery of album",
+        "delivery of masters"
+      ],
+      "Effective date": [
+        "effective date",
+        "on the effective date",
+        "as of the effective date"
+      ],
+      "Execution of contract": [
+        "execution",
+        "upon execution",
+        "signing",
+        "upon signing"
+      ],
+      "Threshold Pass": [
+        "threshold",
+        "upon reaching threshold",
+        "streaming threshold"
+      ]
+    }
+  },
+  "FIN_MIN_MAX": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Min Budget", "Max Budget"],
+    "synonyms": {
+      "Min Budget": [
+        "minimum budget",
+        "min budget",
+        "not less than",
+        "at least",
+        "minimum of"
+      ],
+      "Max Budget": [
+        "maximum budget",
+        "max budget",
+        "not more than",
+        "up to",
+        "maximum of",
+        "not to exceed"
+      ]
+    }
+  },
+  "FIN_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Option",
+      "Merchandising",
+      "Pitching",
+      "First Negotiation Rights",
+      "Matching Rights",
+      "Sync",
+      "Advance",
+      "Budget",
+      "Fee"
+    ],
+    "synonyms": {
+      "Option": ["option", "option exercise", "option period"],
+      "Merchandising": ["merchandising", "merch", "merchandise rights"],
+      "Pitching": ["pitching", "pitch", "procurement"],
+      "First Negotiation Rights": [
+        "first negotiation",
+        "right of first negotiation",
+        "first refusal"
+      ],
+      "Matching Rights": ["matching rights", "right to match", "matching"],
+      "Sync": ["sync", "synchronization", "sync licensing"],
+      "Advance": ["advance", "recoupable advance", "artist advance"],
+      "Budget": ["budget", "marketing budget", "operating budget"],
+      "Fee": ["fee", "service fee", "distribution fee", "admin fee"]
+    }
+  },
+  "FIN_MARKETING_ADVANCE_MUTUALLY_APPROVED": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Client Discretion",
+      "Label Discretion",
+      "Mutual Approval",
+      "No Approval Needed"
+    ],
+    "synonyms": {
+      "Client Discretion": [
+        "client discretion",
+        "artist discretion",
+        "at artist's discretion",
+        "artist's sole discretion"
+      ],
+      "Label Discretion": [
+        "label discretion",
+        "company discretion",
+        "at label's discretion",
+        "company's sole discretion"
+      ],
+      "Mutual Approval": [
+        "mutual approval",
+        "mutually approved",
+        "mutual consent",
+        "jointly approved",
+        "mutual agreement"
+      ],
+      "No Approval Needed": [
+        "no approval",
+        "without approval",
+        "at its discretion",
+        "sole discretion"
+      ]
+    }
+  },
+  "FIN_RECOUPABLE_": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Yes", "No", "N/A"],
+    "synonyms": {
+      "Yes": [
+        "recoupable",
+        "fully recoupable",
+        "recoupable advance",
+        "shall be recoupable"
+      ],
+      "No": [
+        "non-recoupable",
+        "not recoupable",
+        "non recoupable",
+        "shall not be recoupable"
+      ],
+      "N/A": ["n/a", "not applicable"]
+    }
+  },
+  "FIN_SUBTYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Album", "Single", "Buyout", "Period", "Video"],
+    "synonyms": {
+      "Album": ["album", "LP", "full-length album"],
+      "Single": ["single", "single release"],
+      "Buyout": ["buyout", "buy-out", "purchase"],
+      "Period": ["period", "contract period"],
+      "Video": ["video", "music video"]
+    }
+  },
+  "ADDON_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Option",
+      "Merchandising",
+      "Pitching",
+      "First Negotiation Rights",
+      "Matching Rights",
+      "Sync"
+    ],
+    "synonyms": {
+      "Option": ["option", "option period", "contract option"],
+      "Merchandising": ["merchandising", "merch rights", "merchandise"],
+      "Pitching": ["pitching", "procurement", "pitch rights"],
+      "First Negotiation Rights": [
+        "first negotiation",
+        "first refusal",
+        "right of first negotiation"
+      ],
+      "Matching Rights": ["matching", "right to match", "matching rights"],
+      "Sync": ["sync", "synchronization", "sync rights"]
+    }
+  },
+  "ADDON_EXCLUSIVITY": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Exclusive", "Non-Exclusive"],
+    "synonyms": {
+      "Exclusive": ["exclusive", "exclusively", "exclusive rights"],
+      "Non-Exclusive": ["non-exclusive", "nonexclusive", "non exclusive"]
+    }
+  },
+  "ADDON_EXERCISE_NOTICE": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "7 days",
+      "10 days",
+      "14 days",
+      "15 days",
+      "30 days",
+      "45 days",
+      "60 days",
+      "90 days"
+    ],
+    "synonyms": {
+      "30 days": ["thirty (30) days", "30 days"],
+      "60 days": ["sixty (60) days", "60 days"],
+      "90 days": ["ninety (90) days", "90 days"]
+    }
+  },
+  "ADDON_FEE_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["No Fee", "Fixed", "Up To"],
+    "synonyms": {
+      "No Fee": ["no fee", "without fee", "no additional fee"],
+      "Fixed": ["fixed fee", "flat fee", "fixed amount"],
+      "Up To": ["up to", "not to exceed", "maximum of"]
+    }
+  },
+  "ADDON_SUBTYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Album", "Single", "Buyout", "Period", "Video"],
+    "synonyms": {
+      "Album": ["album", "LP"],
+      "Single": ["single"],
+      "Buyout": ["buyout", "buy-out"],
+      "Period": ["period", "time period"],
+      "Video": ["video", "music video"]
+    }
+  },
+  "ADDON_TERM": {
+    "extraction_type": "term",
+    "enabled": true,
+    "canonical_options": [
+      "45 days",
+      "1 month",
+      "2 months",
+      "3 months",
+      "4 months",
+      "6 months",
+      "1 year",
+      "2 years",
+      "3 years"
+    ],
+    "synonyms": {
+      "1 year": ["one (1) year", "1 year", "twelve (12) months"],
+      "2 years": ["two (2) years", "2 years"],
+      "3 years": ["three (3) years", "3 years"]
+    }
+  },
+  "SCH_ALBUM_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["EP", "Single", "LP", "Compilation", "Mixtape"],
+    "synonyms": {
+      "EP": ["EP", "extended play", "extended-play", "mini album"],
+      "Single": ["single", "single release"],
+      "LP": ["LP", "long play", "full-length album", "album"],
+      "Compilation": ["compilation", "greatest hits", "best of"],
+      "Mixtape": ["mixtape", "mix tape"]
+    }
+  },
+  "SCH_RECORDTYPEID": {
+    "extraction_type": "picklist",
+    "enabled": false,
+    "canonical_options": [
+      "Distro & Sync - Existing Masters",
+      "Front Catalog + Remixes",
+      "Ownership",
+      "Schedule 1 - Catalog Acquisition - Masters",
+      "Schedule 2 - Catalog Acquisition - Compositions"
+    ],
+    "synonyms": {}
+  },
+  "OPP_CONTRACT_SUBTYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Standard",
+      "Remixer",
+      "Shiloh",
+      "Label Ventures",
+      "Sync",
+      "CMA",
+      "CPA",
+      "CMA/CPA",
+      "Distribution"
+    ],
+    "synonyms": {
+      "Standard": ["standard", "standard distribution", "standard deal"],
+      "Remixer": ["remixer", "remix agreement", "remix deal"],
+      "Sync": ["sync", "synchronization", "sync agreement"],
+      "Label Ventures": ["label ventures", "joint venture", "JV"]
+    }
+  },
+  "OPP_PHYSICAL_DISTRIBUTION": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": ["Yes", "No"],
+    "synonyms": {
+      "Yes": [
+        "yes",
+        "physical distribution",
+        "physical copies",
+        "CDs and vinyl",
+        "tangible copies"
+      ],
+      "No": ["no", "digital only", "no physical", "excludes physical"]
+    }
+  },
+  "SCH_TYPE": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "Option",
+      "Merchandising",
+      "Pitching",
+      "First Negotiation Rights",
+      "Matching Rights",
+      "Sync"
+    ],
+    "synonyms": {
+      "Option": ["option", "option period"],
+      "Merchandising": ["merchandising", "merch"],
+      "Pitching": ["pitching", "procurement"],
+      "First Negotiation Rights": ["first negotiation", "first refusal"],
+      "Matching Rights": ["matching", "right to match"],
+      "Sync": ["sync", "synchronization"]
+    }
+  },
+  "FIN_CURRENCY": {
+    "extraction_type": "picklist",
+    "enabled": true,
+    "canonical_options": [
+      "USD",
+      "EUR",
+      "GBP",
+      "CAD",
+      "AUD",
+      "JPY",
+      "INR",
+      "CHF"
+    ],
+    "synonyms": {
+      "USD": [
+        "USD",
+        "US dollars",
+        "United States dollars",
+        "U.S. dollars",
+        "american dollars",
+        "$"
+      ],
+      "EUR": ["EUR", "euros", "euro", "European"],
+      "GBP": ["GBP", "British pounds", "pounds sterling", "sterling", "£"],
+      "CAD": ["CAD", "Canadian dollars"],
+      "AUD": ["AUD", "Australian dollars"],
+      "JPY": ["JPY", "Japanese yen", "yen", "¥"],
+      "INR": ["INR", "Indian rupees", "rupees", "₹"],
+      "CHF": ["CHF", "Swiss francs", "francs"]
+    }
+  }
+}

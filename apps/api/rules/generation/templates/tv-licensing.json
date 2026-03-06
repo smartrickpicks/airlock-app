@@ -1,0 +1,80 @@
+{
+  "template_id": "tv-licensing-standard-v1",
+  "contract_type": "tv-licensing",
+  "display_name": "Television Licensing Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. GRANT OF LICENSE",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "territory",
+      "title": "2. TERRITORY",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "3. LICENSE PERIOD",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "4. LICENSE FEE AND COMPENSATION",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "broadcast_window",
+      "title": "5. BROADCAST WINDOWS",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "streaming",
+      "title": "6. DIGITAL AND STREAMING RIGHTS",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "7. RIGHTS AND OBLIGATIONS",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "episode_schedule",
+      "title": "8. EPISODE AND SEASON ORDER",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "9. TERMINATION",
+      "order": 10,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "10. GOVERNING LAW",
+      "order": 11,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": ["OPP_CONTRACT_TYPE", "OPP_TV_SERIES", "OPP_LICENSE_TYPE"]
+}

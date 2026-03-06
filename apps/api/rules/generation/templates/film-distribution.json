@@ -1,0 +1,78 @@
+{
+  "template_id": "film-distribution-standard-v1",
+  "contract_type": "film-distribution",
+  "display_name": "Film Distribution Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. GRANT OF DISTRIBUTION RIGHTS",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "territory",
+      "title": "2. TERRITORY",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "3. TERM",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "4. FINANCIAL TERMS",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "5. DISTRIBUTION RIGHTS AND OBLIGATIONS",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "restrictions",
+      "title": "5.1 HOLDBACKS AND WINDOWS",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "deliverables",
+      "title": "6. DELIVERY REQUIREMENTS",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "7. TERMINATION",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "8. GOVERNING LAW",
+      "order": 10,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": [
+    "OPP_CONTRACT_TYPE",
+    "OPP_FILM_TITLE",
+    "OPP_ADVANCE_AMOUNT"
+  ]
+}

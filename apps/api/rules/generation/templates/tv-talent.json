@@ -1,0 +1,74 @@
+{
+  "template_id": "tv-talent-standard-v1",
+  "contract_type": "tv-talent",
+  "display_name": "Television Talent Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. ENGAGEMENT",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "2. TERM AND OPTIONS",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "3. EPISODE FEE AND COMPENSATION",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "residuals",
+      "title": "3.1 RESIDUALS",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "talent_billing",
+      "title": "4. CREDIT AND BILLING",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "guild",
+      "title": "5. GUILD AND UNION PROVISIONS",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "6. EXCLUSIVITY AND RESTRICTIONS",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "7. TERMINATION",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "8. GOVERNING LAW",
+      "order": 10,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": ["OPP_CONTRACT_TYPE", "OPP_TV_SERIES", "OPP_EPISODE_FEE"]
+}

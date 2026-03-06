@@ -1,0 +1,78 @@
+{
+  "template_id": "license-standard-v1",
+  "contract_type": "license",
+  "display_name": "License Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate",
+      "default_clause": "LICENSE-RECITALS-STANDARD"
+    },
+    {
+      "id": "grant",
+      "title": "1. GRANT OF LICENSE",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "scope",
+      "title": "2. SCOPE OF LICENSE",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "territory",
+      "title": "3. TERRITORY",
+      "order": 4,
+      "type": "conditional"
+    },
+    { "id": "term", "title": "4. TERM", "order": 5, "type": "conditional" },
+    {
+      "id": "compensation",
+      "title": "5. COMPENSATION",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "restrictions",
+      "title": "6. RESTRICTIONS",
+      "order": 7,
+      "type": "boilerplate",
+      "default_clause": "LIC-RESTRICTIONS-STANDARD"
+    },
+    {
+      "id": "termination",
+      "title": "7. TERMINATION",
+      "order": 8,
+      "type": "boilerplate",
+      "default_clause": "DIST-TERMINATION-STANDARD"
+    },
+    {
+      "id": "termination_addl",
+      "title": "7.1 ADDITIONAL TERMINATION PROVISIONS",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "8. GOVERNING LAW",
+      "order": 10,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate",
+      "default_clause": "GENERIC-SIGNATURE-BLOCK"
+    }
+  ],
+  "required_fields": [
+    "OPP_CONTRACT_TYPE",
+    "OPP_TERRITORY",
+    "OPP_TERM_LENGTH",
+    "OPP_LICENSE_TYPE"
+  ]
+}

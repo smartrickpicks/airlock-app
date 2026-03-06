@@ -1,0 +1,2427 @@
+{
+  "version": "v1",
+  "description": "Per-field extraction config for all 154 check codes. Generated via LLM-as-Compiler from field_meta definitions and domain knowledge.",
+  "zone_names": ["definitions", "financial", "term", "territory"],
+  "entries": [
+    {
+      "check_code": "ACCT_ARTIST_NAME_PKA_OR_DBA",
+      "field_key": "artist_name_pka_or_dba__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": [
+        "professionally known as",
+        "p/k/a",
+        "d/b/a",
+        "doing business as",
+        "stage name"
+      ],
+      "secondary_anchors": [
+        "artist name",
+        "performing as",
+        "known as",
+        "the artist"
+      ],
+      "negative_anchors": ["company name", "legal name", "label name"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 200,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_BILLING_ADDRESS",
+      "field_key": "billing_address__c",
+      "extraction_type": "address",
+      "enabled": true,
+      "primary_anchors": [
+        "address",
+        "located at",
+        "principal place of business",
+        "principal office"
+      ],
+      "secondary_anchors": [
+        "residing at",
+        "offices at",
+        "with offices",
+        "having its principal"
+      ],
+      "negative_anchors": ["email address", "web address", "IP address"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+\\s+[A-Za-z][\\w\\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Suite|Ste|Floor|Fl)"
+    },
+    {
+      "check_code": "ACCT_BILLING_CITY",
+      "field_key": "billing_city__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["city of", "located in", "city:", "town of"],
+      "secondary_anchors": ["address", "principal place of business"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_BILLING_COUNTRY",
+      "field_key": "billing_country__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["country", "nation"],
+      "secondary_anchors": ["address", "jurisdiction"],
+      "negative_anchors": ["country of origin"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_BILLING_GEOCODE_ACCURACY",
+      "field_key": "billing_geocode_accuracy__c",
+      "extraction_type": "picklist",
+      "enabled": false,
+      "primary_anchors": ["billing geocode accuracy"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ACCT_BILLING_LATITUDE",
+      "field_key": "billing_latitude__c",
+      "extraction_type": "number",
+      "enabled": false,
+      "primary_anchors": ["billing latitude"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ACCT_BILLING_LONGITUDE",
+      "field_key": "billing_longitude__c",
+      "extraction_type": "number",
+      "enabled": false,
+      "primary_anchors": ["billing longitude"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ACCT_BILLING_ZIP_POSTAL_CODE",
+      "field_key": "billing_zip_postal_code__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["billing zip postal code"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_BILLING_STATE_PROVINCE",
+      "field_key": "billing_state_province__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["state of", "province of", "state:", "province:"],
+      "secondary_anchors": [
+        "incorporated in",
+        "organized under the laws of",
+        "registered in"
+      ],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_BILLING_STREET",
+      "field_key": "billing_street__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": [
+        "street",
+        "avenue",
+        "road",
+        "boulevard",
+        "principal place of business",
+        "registered office",
+        "address:"
+      ],
+      "secondary_anchors": ["address", "suite", "floor"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_ACCOUNT_NAME",
+      "field_key": "account_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": [
+        "between",
+        "by and between",
+        "this agreement is entered"
+      ],
+      "secondary_anchors": ["party", "hereinafter", "the company", "the label"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 300,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_ACCOUNT_TYPE",
+      "field_key": "account_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "type of entity",
+        "organized as",
+        "a corporation",
+        "limited liability"
+      ],
+      "secondary_anchors": ["company type", "business entity", "formed as"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 200,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ACCT_ARTIST_BIRTHDAY",
+      "field_key": "artist_birthday__c",
+      "extraction_type": "date",
+      "enabled": true,
+      "primary_anchors": ["date of birth", "born on", "birthday", "d.o.b"],
+      "secondary_anchors": ["age of artist", "is a minor", "legal guardian"],
+      "negative_anchors": ["effective date", "date signed"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 200,
+      "value_pattern": "\\d{1,2}[/\\-\\.]\\d{1,2}[/\\-\\.]\\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s*\\d{4}"
+    },
+    {
+      "check_code": "ACCT_COMPANY_NAME",
+      "field_key": "company_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["company", "corporation", "inc.", "llc", "ltd"],
+      "secondary_anchors": ["label", "distributor", "between"],
+      "negative_anchors": ["artist name", "stage name"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 300,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_LEGAL_NAME",
+      "field_key": "legal_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["legal name"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_STATE_OF_FORMATION",
+      "field_key": "state_of_formation__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "state of formation",
+        "organized under the laws of",
+        "formed in",
+        "incorporated in"
+      ],
+      "secondary_anchors": ["state of", "jurisdiction of formation"],
+      "negative_anchors": ["billing state", "state of residence"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 200,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ACCT_TYPE_OF_COMPANY",
+      "field_key": "type_of_company__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "limited liability company",
+        "corporation",
+        "partnership",
+        "sole proprietorship"
+      ],
+      "secondary_anchors": [
+        "organized as",
+        "type of entity",
+        "business entity"
+      ],
+      "negative_anchors": ["account type"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 200,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ACCT_YOUTUBE",
+      "field_key": "youtube__c",
+      "extraction_type": "url",
+      "enabled": true,
+      "primary_anchors": ["youtube.com", "youtube channel"],
+      "secondary_anchors": ["channel link", "channel url"],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": "https?://[^\\s]+"
+    },
+    {
+      "check_code": "ACCT_ARTISTS",
+      "field_key": "artists__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["artists"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "OPP_NUMBER_OF_HOLDBACK_DAYS",
+      "field_key": "number_of_holdback_days__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "holdback days",
+        "number of holdback days",
+        "hold back days"
+      ],
+      "secondary_anchors": ["holdback period", "days of holdback"],
+      "negative_anchors": ["holdback amount", "holdback language"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_ACQUIRED",
+      "field_key": "acquired__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "acquired",
+        "acquisition percentage",
+        "percentage acquired"
+      ],
+      "secondary_anchors": [
+        "purchase",
+        "catalog acquisition",
+        "ownership acquired"
+      ],
+      "negative_anchors": ["back catalog", "front catalog"],
+      "preferred_zones": ["financial", "definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_PERCENT_UNCROSSED",
+      "field_key": "percent_uncrossed__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "uncrossed",
+        "percent uncrossed",
+        "percentage uncrossed"
+      ],
+      "secondary_anchors": ["cross-collateralization", "uncross"],
+      "negative_anchors": ["anything uncrossed"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_ADMIN_FEE",
+      "field_key": "admin_fee__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "administration fee",
+        "admin fee",
+        "administrative fee"
+      ],
+      "secondary_anchors": ["administration charge", "admin percentage"],
+      "negative_anchors": ["distribution fee", "service fee"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_ADVANCE_DETAILS",
+      "field_key": "advance_details__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["advance", "advance payment", "advance amount"],
+      "secondary_anchors": [
+        "recoupable advance",
+        "non-recoupable",
+        "advance schedule"
+      ],
+      "negative_anchors": ["advance notice"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 600,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "OPP_ANYTHING_UNCROSSED",
+      "field_key": "anything_uncrossed__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["cross-collateralization", "cross collateralization"],
+      "secondary_anchors": ["uncross", "not cross-collateralized"],
+      "negative_anchors": ["percent uncrossed"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_ARTIST_INDUCEMENT",
+      "field_key": "artist_inducement__c",
+      "extraction_type": "boolean",
+      "enabled": true,
+      "primary_anchors": [
+        "inducement",
+        "artist inducement",
+        "inducement letter"
+      ],
+      "secondary_anchors": ["inducement agreement", "personal guarantee"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "(?:yes|no|true|false|included|excluded|n/a)"
+    },
+    {
+      "check_code": "OPP_BACK_CATALOG",
+      "field_key": "back_catalog__c",
+      "extraction_type": "boolean",
+      "enabled": true,
+      "primary_anchors": [
+        "back catalog",
+        "existing catalog",
+        "existing masters"
+      ],
+      "secondary_anchors": [
+        "prior recordings",
+        "previously released",
+        "back catalogue"
+      ],
+      "negative_anchors": ["front catalog", "new release"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "(?:yes|no|true|false|included|excluded|n/a)"
+    },
+    {
+      "check_code": "OPP_BACK_CATALOG_DISTRIBUTION_FEE",
+      "field_key": "back_catalog_distribution_fee__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "back catalog distribution fee",
+        "existing catalog fee",
+        "back catalog fee"
+      ],
+      "secondary_anchors": [
+        "distribution fee for back catalog",
+        "existing masters fee"
+      ],
+      "negative_anchors": ["front catalog", "new release", "frontline"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_BACK_CATALOG_SPLIT",
+      "field_key": "back_catalog_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "back catalog split",
+        "existing catalog split",
+        "back catalog revenue"
+      ],
+      "secondary_anchors": [
+        "back catalog",
+        "existing catalog",
+        "existing masters split",
+        "back catalog share",
+        "back catalog percentage",
+        "existing masters"
+      ],
+      "negative_anchors": [
+        "front catalog",
+        "new release",
+        "frontline",
+        "cover records"
+      ],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_BACK_CATALOG_TYPE",
+      "field_key": "back_catalog_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "back catalog type",
+        "existing catalog scope",
+        "all back catalog"
+      ],
+      "secondary_anchors": [
+        "all existing",
+        "portion of catalog",
+        "selected catalog"
+      ],
+      "negative_anchors": ["front catalog"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CMA_INITIAL_TERM",
+      "field_key": "cma_initial_term__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "CMA initial term",
+        "content monetization term",
+        "CMA period"
+      ],
+      "secondary_anchors": ["monetization initial term", "CMA duration"],
+      "negative_anchors": ["CPA term", "initial term", "renewal term"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CMA_RENEWAL_TERM",
+      "field_key": "cma_renewal_term__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["CMA renewal", "content monetization renewal"],
+      "secondary_anchors": ["CMA auto-renew", "monetization renewal"],
+      "negative_anchors": ["CPA renewal", "renewal term"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CMA_SPLIT",
+      "field_key": "cma_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "content monetization split",
+        "CMA split",
+        "monetization revenue"
+      ],
+      "secondary_anchors": [
+        "content monetization share",
+        "CMA percentage",
+        "monetization split"
+      ],
+      "negative_anchors": ["CPA split", "distribution split", "front catalog"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_CMA_TERM_PERIOD",
+      "field_key": "cma_term_period__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["CMA term period", "CMA notice period"],
+      "secondary_anchors": ["monetization notice", "CMA termination notice"],
+      "negative_anchors": ["CPA term period"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CMA_TYPES",
+      "field_key": "cma_types__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "content monetization type",
+        "CMA type",
+        "monetization services"
+      ],
+      "secondary_anchors": [
+        "YouTube sound recordings",
+        "YouTube publishing",
+        "mechanical license",
+        "SoundCloud"
+      ],
+      "negative_anchors": ["CPA type"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_COLLECTION_PERIOD",
+      "field_key": "collection_period__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "collection period",
+        "collection window",
+        "right to collect"
+      ],
+      "secondary_anchors": [
+        "continue to collect",
+        "collection rights",
+        "post-term collection"
+      ],
+      "negative_anchors": [
+        "exploitation period",
+        "retention period",
+        "initial term"
+      ],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CONTRACT_SUBTYPE",
+      "field_key": "contract_subtype__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["subtype", "agreement type", "deal type"],
+      "secondary_anchors": ["nature of", "classification"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CONTRACT_TYPE",
+      "field_key": "contract_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "distribution agreement",
+        "license agreement",
+        "recording agreement",
+        "publishing"
+      ],
+      "secondary_anchors": [
+        "this agreement",
+        "type of agreement",
+        "nature of agreement"
+      ],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_COVER_RECORDS_SPLIT",
+      "field_key": "cover_records_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": ["cover records", "cover version", "cover recording"],
+      "secondary_anchors": ["cover split", "cover percentage", "cover share"],
+      "negative_anchors": ["front catalog", "back catalog", "remix"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_CPA_INITIAL_TERM",
+      "field_key": "cpa_initial_term__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "CPA initial term",
+        "channel partnership term",
+        "CPA period"
+      ],
+      "secondary_anchors": ["partnership initial term", "CPA duration"],
+      "negative_anchors": ["CMA term", "initial term", "renewal term"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CPA_RENEWAL_TERM",
+      "field_key": "cpa_renewal_term__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["CPA renewal", "channel partnership renewal"],
+      "secondary_anchors": ["CPA auto-renew", "partnership renewal"],
+      "negative_anchors": ["CMA renewal", "renewal term"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_CPA_SPLIT",
+      "field_key": "cpa_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "channel partnership split",
+        "CPA split",
+        "channel partnership revenue"
+      ],
+      "secondary_anchors": [
+        "CPA share",
+        "CPA percentage",
+        "channel partnership share"
+      ],
+      "negative_anchors": ["CMA split", "distribution split", "front catalog"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_CPA_TERM_PERIOD",
+      "field_key": "cpa_term_period__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["CPA term period", "CPA notice period"],
+      "secondary_anchors": ["partnership notice", "CPA termination notice"],
+      "negative_anchors": ["CMA term period"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_DATE_SIGNED",
+      "field_key": "date_signed__c",
+      "extraction_type": "date",
+      "enabled": true,
+      "primary_anchors": [
+        "date signed",
+        "signed on",
+        "executed on",
+        "execution date",
+        "dated",
+        "dated:"
+      ],
+      "secondary_anchors": ["signature date", "as of the date", "dated as of"],
+      "negative_anchors": ["effective date", "termination date"],
+      "preferred_zones": [],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,2}[/\\-\\.]\\d{1,2}[/\\-\\.]\\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s*\\d{4}"
+    },
+    {
+      "check_code": "OPP_JV_DISTRIBUTION_FEE",
+      "field_key": "jv_distribution_fee__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "joint venture fee",
+        "JV distribution fee",
+        "distribution fee"
+      ],
+      "secondary_anchors": ["JV fee", "joint venture distribution"],
+      "negative_anchors": ["back catalog fee", "admin fee"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_DIVISION2",
+      "field_key": "division2__c",
+      "extraction_type": "lookup",
+      "enabled": false,
+      "primary_anchors": ["division2"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "OPP_PROFIT_SHARE",
+      "field_key": "profit_share__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "profit share",
+        "profit participation",
+        "profit split"
+      ],
+      "secondary_anchors": [
+        "net profit",
+        "profit percentage",
+        "profit sharing"
+      ],
+      "negative_anchors": ["front catalog", "back catalog", "distribution fee"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_EFFECTIVE_DATE",
+      "field_key": "effective_date__c",
+      "extraction_type": "date",
+      "enabled": true,
+      "primary_anchors": [
+        "effective date",
+        "effective as of",
+        "commencing on",
+        "commencing",
+        "commence on",
+        "as of"
+      ],
+      "secondary_anchors": [
+        "commencement date",
+        "start date",
+        "becomes effective"
+      ],
+      "negative_anchors": ["termination date", "date signed"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,2}[/\\-\\.]\\d{1,2}[/\\-\\.]\\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s*\\d{4}"
+    },
+    {
+      "check_code": "OPP_EXCLUDED_TERRITORIES",
+      "field_key": "excluded_territories__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": [
+        "excluded territories",
+        "excluding",
+        "world excluding"
+      ],
+      "secondary_anchors": ["except for", "other than", "not including"],
+      "negative_anchors": ["territory", "the territory"],
+      "preferred_zones": ["territory"],
+      "proximity_chars": 500,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "OPP_EXCLUSIVITY",
+      "field_key": "exclusivity__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["exclusive", "non-exclusive", "exclusivity"],
+      "secondary_anchors": [
+        "exclusive rights",
+        "exclusive basis",
+        "exclusive license"
+      ],
+      "negative_anchors": ["exclusive territory"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_EXISTING_MASTER_RECORDINGS",
+      "field_key": "existing_master_recordings__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "existing masters",
+        "existing master recordings",
+        "number of existing"
+      ],
+      "secondary_anchors": [
+        "back catalog count",
+        "prior recordings",
+        "delivered masters"
+      ],
+      "negative_anchors": ["new masters", "option masters"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_EXPLOITATION_PERIOD",
+      "field_key": "exploitation_period__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "exploitation period",
+        "exploitation rights",
+        "continue to exploit"
+      ],
+      "secondary_anchors": [
+        "post-term exploitation",
+        "sell-off period",
+        "wind-down"
+      ],
+      "negative_anchors": [
+        "collection period",
+        "retention period",
+        "initial term"
+      ],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_FRONT_CATALOG_SPLIT",
+      "field_key": "front_catalog_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "front catalog",
+        "new release",
+        "frontline split",
+        "front line"
+      ],
+      "secondary_anchors": [
+        "new masters",
+        "frontline share",
+        "new release split",
+        "distribution split"
+      ],
+      "negative_anchors": [
+        "back catalog",
+        "existing catalog",
+        "existing masters"
+      ],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_HOLDBACK_AMOUNT",
+      "field_key": "holdback_amount__c",
+      "extraction_type": "currency",
+      "enabled": true,
+      "primary_anchors": [
+        "holdback amount",
+        "holdback sum",
+        "hold back amount"
+      ],
+      "secondary_anchors": ["holdback", "hold back", "reserve amount"],
+      "negative_anchors": ["holdback days", "holdback language"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[$€£¥]\\s*[\\d,]+(?:\\.\\d{2})?|\\d[\\d,]+(?:\\.\\d{2})?\\s*(?:dollars|USD|EUR|GBP)"
+    },
+    {
+      "check_code": "OPP_INCLUDE_CPA",
+      "field_key": "include_cpa__c",
+      "extraction_type": "boolean",
+      "enabled": true,
+      "primary_anchors": [
+        "channel partnership",
+        "CPA",
+        "content monetization and channel partnership"
+      ],
+      "secondary_anchors": ["includes CPA", "CPA agreement", "channel partner"],
+      "negative_anchors": ["CMA only"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "(?:yes|no|true|false|included|excluded|n/a)"
+    },
+    {
+      "check_code": "OPP_INITIAL_TERM_LENGTH",
+      "field_key": "initial_term_length__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "initial term",
+        "initial period",
+        "term of this agreement"
+      ],
+      "secondary_anchors": ["term shall be", "period of", "duration of"],
+      "negative_anchors": [
+        "renewal term",
+        "option term",
+        "CMA term",
+        "CPA term"
+      ],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_JV_OPERATING_BUDGET",
+      "field_key": "jv_operating_budget__c",
+      "extraction_type": "currency",
+      "enabled": true,
+      "primary_anchors": [
+        "operating budget",
+        "JV budget",
+        "joint venture budget"
+      ],
+      "secondary_anchors": ["budget amount", "operating expenses"],
+      "negative_anchors": ["marketing budget", "advance"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[$€£¥]\\s*[\\d,]+(?:\\.\\d{2})?|\\d[\\d,]+(?:\\.\\d{2})?\\s*(?:dollars|USD|EUR|GBP)"
+    },
+    {
+      "check_code": "OPP_LICENSING_RIGHTS",
+      "field_key": "licensing_rights__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "licensing rights",
+        "license grant",
+        "exclusive license",
+        "non-exclusive license"
+      ],
+      "secondary_anchors": [
+        "license agreement",
+        "grant of rights",
+        "licensed rights"
+      ],
+      "negative_anchors": ["publishing rights", "sync rights"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_MECHANICAL_SPLIT",
+      "field_key": "mechanical_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "mechanical",
+        "mechanical royalty",
+        "mechanical split"
+      ],
+      "secondary_anchors": [
+        "mechanical share",
+        "mechanical percentage",
+        "mechanical revenue"
+      ],
+      "negative_anchors": ["performance", "sync", "print"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_NEIGHBORING_RIGHTS_INCLUDED",
+      "field_key": "neighboring_rights_included__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "neighboring rights",
+        "neighbouring rights",
+        "related rights"
+      ],
+      "secondary_anchors": ["performer rights", "phonogram rights"],
+      "negative_anchors": ["publishing rights", "sync rights"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_NO_OF_SOCIAL_POSTS",
+      "field_key": "no_of_social_posts__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "social posts",
+        "number of posts",
+        "social media posts"
+      ],
+      "secondary_anchors": [
+        "social media",
+        "posts required",
+        "deliverable posts"
+      ],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_NOTARY_STATE",
+      "field_key": "notary_state__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["notary", "notarized", "state of"],
+      "secondary_anchors": [
+        "notary public",
+        "sworn before",
+        "acknowledged before"
+      ],
+      "negative_anchors": ["state of formation"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_MASTERNUMBER",
+      "field_key": "masternumber__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "number of masters",
+        "master commitment",
+        "masters committed"
+      ],
+      "secondary_anchors": [
+        "total masters",
+        "deliverable masters",
+        "master recordings"
+      ],
+      "negative_anchors": ["option masters", "existing masters"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_NUMBER_OF_OPTIONS",
+      "field_key": "number_of_options__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["number of options", "option periods", "options"],
+      "secondary_anchors": [
+        "option to extend",
+        "renewal option",
+        "additional option"
+      ],
+      "negative_anchors": ["option type", "option master"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_NUMBER_OF_SINGLES",
+      "field_key": "number_of_singles__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "number of singles",
+        "singles committed",
+        "single releases"
+      ],
+      "secondary_anchors": ["singles", "single deliverables"],
+      "negative_anchors": ["number of masters", "number of albums"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_OPTION_MASTER_NUMBER",
+      "field_key": "option_master_number__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "option masters",
+        "masters per option",
+        "option master number"
+      ],
+      "secondary_anchors": ["option deliverables", "masters in option period"],
+      "negative_anchors": ["initial masters", "existing masters"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_OPTION_TYPE",
+      "field_key": "option_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["option type", "type of option", "option for"],
+      "secondary_anchors": [
+        "option period",
+        "option",
+        "album option",
+        "single option"
+      ],
+      "negative_anchors": ["number of options"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_OTHER_INCOME_SPLIT",
+      "field_key": "other_income_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "other income",
+        "miscellaneous income",
+        "other revenue"
+      ],
+      "secondary_anchors": ["all other", "other sources", "remaining income"],
+      "negative_anchors": [
+        "front catalog",
+        "back catalog",
+        "mechanical",
+        "performance"
+      ],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_PAYING_THIRD_PARTY_COLLABORATORS",
+      "field_key": "paying_third_party_collaborators__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "third party",
+        "collaborator",
+        "paying collaborators"
+      ],
+      "secondary_anchors": [
+        "third-party",
+        "co-writer",
+        "producer payment",
+        "featured artist payment"
+      ],
+      "negative_anchors": [],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_FREQUENCY",
+      "field_key": "frequency__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "payment frequency",
+        "accounting period",
+        "statements"
+      ],
+      "secondary_anchors": [
+        "quarterly",
+        "monthly",
+        "semi-annually",
+        "annually",
+        "payment schedule"
+      ],
+      "negative_anchors": ["release frequency"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_PAYMENT_INTERVAL",
+      "field_key": "payment_interval__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "payment interval",
+        "days to payment",
+        "payment within"
+      ],
+      "secondary_anchors": ["within days", "payment due", "net days"],
+      "negative_anchors": ["payment threshold", "payment frequency"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_PAYMENT_THRESHOLD",
+      "field_key": "payment_threshold__c",
+      "extraction_type": "currency",
+      "enabled": true,
+      "primary_anchors": [
+        "payment threshold",
+        "minimum payment",
+        "threshold amount"
+      ],
+      "secondary_anchors": ["minimum balance", "payment floor"],
+      "negative_anchors": ["streaming threshold"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_PERFORMANCE_SPLIT",
+      "field_key": "performance_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "performance royalty",
+        "performance split",
+        "public performance"
+      ],
+      "secondary_anchors": [
+        "performance share",
+        "performance percentage",
+        "performance revenue"
+      ],
+      "negative_anchors": ["mechanical", "sync", "print"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_PROCUREMENT_SPLIT",
+      "field_key": "procurement_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "procurement split",
+        "pitching procurement",
+        "procurement share"
+      ],
+      "secondary_anchors": ["procurement percentage", "procurement revenue"],
+      "negative_anchors": ["front catalog", "back catalog"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_PROCUREMENT_STATUS",
+      "field_key": "procurement_status__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["procurement", "pitching", "exclusive procurement"],
+      "secondary_anchors": [
+        "procurement rights",
+        "pitching rights",
+        "non-exclusive procurement"
+      ],
+      "negative_anchors": ["procurement split"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_AFFILIATION",
+      "field_key": "affiliation__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "PRO",
+        "performing rights organization",
+        "affiliated with"
+      ],
+      "secondary_anchors": [
+        "ASCAP",
+        "BMI",
+        "SESAC",
+        "PRS",
+        "SOCAN",
+        "GEMA",
+        "SACEM"
+      ],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_PRONOUN",
+      "field_key": "pronoun__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["hereinafter", "referred to as", "the artist"],
+      "secondary_anchors": ["his", "her", "their", "its"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 300,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_PUBLISHING_RIGHTS",
+      "field_key": "publishing_rights__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "publishing rights",
+        "publishing administration",
+        "co-publishing",
+        "pub admin"
+      ],
+      "secondary_anchors": [
+        "publishing agreement",
+        "publisher's share",
+        "writer's share"
+      ],
+      "negative_anchors": [
+        "sync rights",
+        "neighboring rights",
+        "licensing rights"
+      ],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_RELEASE_COMMITMENT_WINDOW",
+      "field_key": "release_commitment_window__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "release commitment",
+        "release window",
+        "days to release"
+      ],
+      "secondary_anchors": [
+        "release period",
+        "release obligation",
+        "commercial release within"
+      ],
+      "negative_anchors": ["release date"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "OPP_REMIX_SPLIT",
+      "field_key": "remix_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": ["remix split", "remix revenue", "remix share"],
+      "secondary_anchors": ["remix percentage", "remix royalty"],
+      "negative_anchors": ["front catalog", "back catalog", "cover records"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_RENEWAL_TERM_LENGTH",
+      "field_key": "renewal_term_length__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "renewal term",
+        "renewal period",
+        "automatically renew"
+      ],
+      "secondary_anchors": ["successive periods", "extended term", "renewal"],
+      "negative_anchors": ["initial term", "CMA term", "CPA term"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_RESTRICTIONS",
+      "field_key": "restrictions__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["restrictions", "restricted", "limitation"],
+      "secondary_anchors": [
+        "sample licensing",
+        "sync licensing",
+        "usage restrictions"
+      ],
+      "negative_anchors": ["territory restrictions"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_RETENTION_PERIOD",
+      "field_key": "retention_period__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "retention period",
+        "retention rights",
+        "post-term retention"
+      ],
+      "secondary_anchors": ["continue to retain", "retention", "keep rights"],
+      "negative_anchors": [
+        "exploitation period",
+        "collection period",
+        "initial term"
+      ],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_SAMPLE_LICENSING_RESTRICTIONS",
+      "field_key": "sample_licensing_restrictions__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "sample licensing",
+        "sample clearance",
+        "sampling restrictions"
+      ],
+      "secondary_anchors": [
+        "sample approval",
+        "sampling rights",
+        "use of samples"
+      ],
+      "negative_anchors": ["sync licensing"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_SUBTYPE",
+      "field_key": "subtype__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["album option", "single option"],
+      "secondary_anchors": ["buyout option", "period option", "video option"],
+      "negative_anchors": ["contract subtype"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_SYNC_LICENSING_RESTRICTIONS",
+      "field_key": "sync_licensing_restrictions__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "sync licensing",
+        "synchronization licensing",
+        "sync restrictions"
+      ],
+      "secondary_anchors": [
+        "sync approval",
+        "sync rights",
+        "synchronization rights"
+      ],
+      "negative_anchors": ["sample licensing"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_RECOUP_TERM",
+      "field_key": "recoup_term__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["recoup term", "post-recoup"],
+      "secondary_anchors": ["recoup", "recoupment period", "prior to recoup"],
+      "negative_anchors": ["retention period"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_TERMINATION_DATE",
+      "field_key": "termination_date__c",
+      "extraction_type": "date",
+      "enabled": true,
+      "primary_anchors": [
+        "termination date",
+        "terminated on",
+        "termination effective"
+      ],
+      "secondary_anchors": [
+        "end date",
+        "expiration date",
+        "expires on",
+        "expiry date"
+      ],
+      "negative_anchors": ["effective date", "date signed"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,2}[/\\-\\.]\\d{1,2}[/\\-\\.]\\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s*\\d{4}"
+    },
+    {
+      "check_code": "OPP_TERMINATION_NOTICE_DATE",
+      "field_key": "termination_notice_date__c",
+      "extraction_type": "date",
+      "enabled": true,
+      "primary_anchors": [
+        "termination notice",
+        "notice of termination",
+        "notice date"
+      ],
+      "secondary_anchors": ["written notice", "notice period"],
+      "negative_anchors": ["termination date", "effective date"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 300,
+      "value_pattern": "\\d{1,2}[/\\-\\.]\\d{1,2}[/\\-\\.]\\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s*\\d{4}"
+    },
+    {
+      "check_code": "OPP_TERMINATION_PERIOD",
+      "field_key": "termination_period__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "termination notice period",
+        "notice prior to",
+        "days prior to"
+      ],
+      "secondary_anchors": [
+        "written notice",
+        "advance notice",
+        "termination notice"
+      ],
+      "negative_anchors": ["termination date", "termination type"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_TERMINATION_TYPE",
+      "field_key": "termination_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "termination type",
+        "type of termination",
+        "mutual termination"
+      ],
+      "secondary_anchors": [
+        "partial termination",
+        "full termination",
+        "termination for cause"
+      ],
+      "negative_anchors": ["termination date", "termination period"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_TERRITORIES",
+      "field_key": "territories__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["territory", "territories", "the territory shall be"],
+      "secondary_anchors": [
+        "worldwide",
+        "world",
+        "universe",
+        "licensed territory"
+      ],
+      "negative_anchors": ["excluded territories"],
+      "preferred_zones": ["territory"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_TYPE_OF_SHARE",
+      "field_key": "type_of_share__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "type of share",
+        "share type",
+        "net receipts",
+        "gross revenue"
+      ],
+      "secondary_anchors": [
+        "artist share",
+        "label share",
+        "revenue share type"
+      ],
+      "negative_anchors": ["split", "percentage"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_USE_HOLDBACK_LANGUAGE",
+      "field_key": "use_holdback_language__c",
+      "extraction_type": "boolean",
+      "enabled": true,
+      "primary_anchors": ["holdback", "hold back", "hold-back"],
+      "secondary_anchors": [
+        "holdback period",
+        "holdback language",
+        "holdback clause"
+      ],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions", "financial"],
+      "proximity_chars": 500,
+      "value_pattern": "(?:yes|no|true|false|included|excluded|n/a)"
+    },
+    {
+      "check_code": "OPP_WHAT_ARE_WE_AMENDING",
+      "field_key": "what_are_we_amending__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["amendment", "amending", "hereby amended"],
+      "secondary_anchors": ["modification", "revised", "changed to"],
+      "negative_anchors": ["termination"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_WHAT_ARE_WE_TERMINATING",
+      "field_key": "what_are_we_terminating__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["termination", "terminating", "hereby terminated"],
+      "secondary_anchors": ["full termination", "partial termination"],
+      "negative_anchors": ["amendment"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_WRITER_PRINT_SPLIT",
+      "field_key": "writer_print_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "writer print split",
+        "print income",
+        "print royalty"
+      ],
+      "secondary_anchors": [
+        "print share",
+        "print percentage",
+        "writer share print"
+      ],
+      "negative_anchors": ["mechanical", "performance", "sync"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_YOUTUBE_CHANNEL_LINK",
+      "field_key": "youtube_channel_link__c",
+      "extraction_type": "url",
+      "enabled": true,
+      "primary_anchors": ["youtube.com", "youtube channel", "channel URL"],
+      "secondary_anchors": ["channel link", "youtube link"],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": "https?://[^\\s]+"
+    },
+    {
+      "check_code": "OPP_PHYSICAL_DISTRIBUTION",
+      "field_key": "physical_distribution__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "physical distribution",
+        "physical copies",
+        "CDs",
+        "vinyl"
+      ],
+      "secondary_anchors": [
+        "physical format",
+        "tangible copies",
+        "physical media"
+      ],
+      "negative_anchors": ["digital distribution", "streaming"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 500,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "OPP_PHYSICAL_SPLIT",
+      "field_key": "physical_split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "physical distribution split",
+        "physical split",
+        "physical revenue"
+      ],
+      "secondary_anchors": [
+        "CD split",
+        "vinyl split",
+        "physical share",
+        "physical percentage"
+      ],
+      "negative_anchors": ["digital", "streaming", "ex USA", "excluding USA"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "OPP_PHYSICAL_SPLIT_EX_USA",
+      "field_key": "physical_split_ex_usa__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "physical split outside USA",
+        "physical ex USA",
+        "physical excluding USA"
+      ],
+      "secondary_anchors": [
+        "physical distribution outside",
+        "international physical",
+        "physical split international"
+      ],
+      "negative_anchors": ["USA only", "domestic"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 500,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "FIN_TOTAL_AMOUNT",
+      "field_key": "total_amount__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["total amount"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "FIN_CURRENCY",
+      "field_key": "currency__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["currency"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "FIN_AMOUNT",
+      "field_key": "amount__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": ["amount", "sum of", "total of"],
+      "secondary_anchors": ["payment of", "advance of", "fee of"],
+      "negative_anchors": ["holdback amount", "budget amount"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "FIN_NOTES",
+      "field_key": "notes__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": [
+        "payment notes",
+        "financial notes",
+        "additional terms"
+      ],
+      "secondary_anchors": ["special conditions", "payment conditions"],
+      "negative_anchors": [],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 600,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "FIN_DAYS_TO_PAYMENT",
+      "field_key": "days_to_payment__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": ["days to payment", "within days", "net days"],
+      "secondary_anchors": ["payment within", "days after", "payment due"],
+      "negative_anchors": ["holdback days"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "FIN_EVENT_TYPE",
+      "field_key": "event_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["upon", "triggered by", "event", "payable upon"],
+      "secondary_anchors": [
+        "effective date",
+        "execution",
+        "delivery",
+        "commencement"
+      ],
+      "negative_anchors": [],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "FIN_MIN_MAX",
+      "field_key": "min_max__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["minimum budget", "maximum budget", "budget range"],
+      "secondary_anchors": ["not less than", "not more than", "up to"],
+      "negative_anchors": [],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "FIN_PAYEE",
+      "field_key": "payee__c",
+      "extraction_type": "lookup",
+      "enabled": false,
+      "primary_anchors": ["payee"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "FIN_RECOUP_THRESHOLD",
+      "field_key": "recoup_threshold__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "recoup threshold",
+        "recoupment threshold",
+        "recoup percentage"
+      ],
+      "secondary_anchors": ["recoup", "recoupable", "threshold"],
+      "negative_anchors": ["streaming threshold"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "FIN_STREAMING_THRESHOLD",
+      "field_key": "streaming_threshold__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "streaming threshold",
+        "stream count",
+        "streaming milestone"
+      ],
+      "secondary_anchors": ["streams", "plays threshold"],
+      "negative_anchors": ["recoup threshold", "payment threshold"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "FIN_SUBTYPE",
+      "field_key": "subtype__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["financial subtype", "payment subtype"],
+      "secondary_anchors": ["album", "single", "buyout", "period"],
+      "negative_anchors": ["contract subtype"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "FIN_THRESHOLD_NUMBER_OF_DAYS",
+      "field_key": "threshold_number_of_days__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": ["threshold number of days"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "FIN_TYPE",
+      "field_key": "type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["financial type", "type of payment", "advance type"],
+      "secondary_anchors": ["budget", "fee", "advance", "option exercise"],
+      "negative_anchors": ["contract type", "account type"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "FIN_MARKETING_ADVANCE_MUTUALLY_APPROVED",
+      "field_key": "marketing_advance_mutually_approved__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "marketing budget",
+        "marketing advance",
+        "mutually approved"
+      ],
+      "secondary_anchors": [
+        "marketing spend",
+        "mutual approval",
+        "marketing allocation"
+      ],
+      "negative_anchors": ["operating budget"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "FIN_AMOUNT_BREAKDOWN",
+      "field_key": "amount_breakdown__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["amount breakdown"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "FIN_RECOUPABLE_",
+      "field_key": "recoupable__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["recoupable", "non-recoupable", "recoupment"],
+      "secondary_anchors": [
+        "recoup",
+        "cross-collateralized",
+        "applied against"
+      ],
+      "negative_anchors": ["recoup term"],
+      "preferred_zones": ["financial"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "SCH_ALBUM_NAME",
+      "field_key": "album_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["album", "album title", "project title"],
+      "secondary_anchors": ["LP", "EP", "album name"],
+      "negative_anchors": ["artist name", "track name"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_ALBUM_TYPE",
+      "field_key": "album_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["album type", "release type", "project type"],
+      "secondary_anchors": ["EP", "single", "compilation", "LP"],
+      "negative_anchors": ["contract type"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_ARTIST_NAME",
+      "field_key": "artist_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["artist", "performing artist", "recording artist"],
+      "secondary_anchors": ["artist name", "featured artist"],
+      "negative_anchors": ["writer name", "company name"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_NAME",
+      "field_key": "name__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": ["track", "song", "recording", "master"],
+      "secondary_anchors": ["track title", "song title", "composition"],
+      "negative_anchors": ["album name", "artist name"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "SCH_ISRC",
+      "field_key": "isrc__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["ISRC", "international standard recording code"],
+      "secondary_anchors": ["recording code", "ISRC code"],
+      "negative_anchors": ["ISWC", "UPC"],
+      "preferred_zones": [],
+      "proximity_chars": 200,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_ISWC",
+      "field_key": "iswc__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["ISWC", "international standard musical work code"],
+      "secondary_anchors": ["work code", "composition code"],
+      "negative_anchors": ["ISRC", "UPC"],
+      "preferred_zones": [],
+      "proximity_chars": 200,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_RELEASE_DATE",
+      "field_key": "release_date__c",
+      "extraction_type": "date",
+      "enabled": true,
+      "primary_anchors": ["release date", "released on", "release schedule"],
+      "secondary_anchors": ["commercial release", "street date"],
+      "negative_anchors": ["effective date", "termination date"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": "\\d{1,2}[/\\-\\.]\\d{1,2}[/\\-\\.]\\d{2,4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s*\\d{4}"
+    },
+    {
+      "check_code": "SCH_REMIXER",
+      "field_key": "remixer__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["remixer", "remixed by", "remix artist"],
+      "secondary_anchors": ["remix", "remixed version"],
+      "negative_anchors": ["original artist"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_TYPE",
+      "field_key": "type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["schedule type", "catalog type"],
+      "secondary_anchors": ["existing masters", "front catalog", "ownership"],
+      "negative_anchors": ["contract type"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "SCH_UPC",
+      "field_key": "upc__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["UPC", "universal product code", "barcode"],
+      "secondary_anchors": ["product code", "UPC code"],
+      "negative_anchors": ["ISRC", "ISWC"],
+      "preferred_zones": [],
+      "proximity_chars": 200,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_WRITER_NAME",
+      "field_key": "writer_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["writer", "songwriter", "composer"],
+      "secondary_anchors": ["writer name", "composed by", "written by"],
+      "negative_anchors": ["artist name", "performer"],
+      "preferred_zones": [],
+      "proximity_chars": 300,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_RECORDTYPEID",
+      "field_key": "recordtypeid__c",
+      "extraction_type": "system",
+      "enabled": false,
+      "primary_anchors": ["recordtypeid"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_WRITER_NAME_",
+      "field_key": "writer_name__c",
+      "extraction_type": "text",
+      "enabled": false,
+      "primary_anchors": ["writer name"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "SCH_COMPOSITION_OWNERSHIP_",
+      "field_key": "composition_ownership__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "composition ownership",
+        "publishing share",
+        "writer share"
+      ],
+      "secondary_anchors": [
+        "composition split",
+        "ownership percentage",
+        "% of composition"
+      ],
+      "negative_anchors": ["master ownership"],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "SCH_MASTER_OWNERSHIP_",
+      "field_key": "master_ownership__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": [
+        "master ownership",
+        "recording ownership",
+        "sound recording ownership"
+      ],
+      "secondary_anchors": [
+        "master split",
+        "ownership of masters",
+        "% of masters"
+      ],
+      "negative_anchors": ["composition ownership"],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "ADDON_ADD_ONS",
+      "field_key": "add_ons__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["add ons"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ADDON_TYPE",
+      "field_key": "type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["add-on type", "additional rights", "option"],
+      "secondary_anchors": [
+        "merchandising",
+        "pitching",
+        "matching rights",
+        "first negotiation"
+      ],
+      "negative_anchors": ["contract type", "schedule type"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ADDON_NUMBER_OF_ALBUMS",
+      "field_key": "number_of_albums__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "number of albums",
+        "album commitment",
+        "albums per option"
+      ],
+      "secondary_anchors": ["album deliverables", "albums"],
+      "negative_anchors": ["number of masters", "number of singles"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ADDON_NUMBER_OF_MASTERS",
+      "field_key": "number_of_masters__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "number of masters",
+        "master commitment",
+        "masters per option"
+      ],
+      "secondary_anchors": ["master deliverables", "recordings"],
+      "negative_anchors": ["number of albums", "number of singles"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ADDON_EXCLUSIVITY",
+      "field_key": "exclusivity__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["exclusive", "non-exclusive", "exclusivity"],
+      "secondary_anchors": ["exclusive rights", "exclusive basis"],
+      "negative_anchors": [],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ADDON_EXERCISE_NOTICE",
+      "field_key": "exercise_notice__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": [
+        "exercise notice",
+        "option exercise",
+        "notice to exercise"
+      ],
+      "secondary_anchors": ["written notice", "exercise period"],
+      "negative_anchors": ["termination notice"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ADDON_FEE_TYPE",
+      "field_key": "fee_type__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["fee type"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ADDON_FEE",
+      "field_key": "fee__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": ["fee"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "ADDON_MIN_PLAY_TIME_IN_MINUTES",
+      "field_key": "min_play_time_in_minutes__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": ["min play time in minutes"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ADDON_SPLIT",
+      "field_key": "split__c",
+      "extraction_type": "percentage",
+      "enabled": true,
+      "primary_anchors": ["split"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d{1,3}\\s*/\\s*\\d{1,3}|\\d{1,3}(?:\\.\\d{1,2})?\\s*%"
+    },
+    {
+      "check_code": "ADDON_SUBTYPE",
+      "field_key": "subtype__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["subtype"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ADDON_TERM",
+      "field_key": "term__c",
+      "extraction_type": "picklist",
+      "enabled": true,
+      "primary_anchors": ["term"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "[A-Za-z][A-Za-z0-9\\s\\-/,()]+"
+    },
+    {
+      "check_code": "ADDON_EXCLUSIVE_NEGOTIATION_PERIOD_DAYS_",
+      "field_key": "exclusive_negotiation_period_days__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": ["exclusive negotiation period days"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ADDON_MATCHING_",
+      "field_key": "matching__c",
+      "extraction_type": "boolean",
+      "enabled": true,
+      "primary_anchors": ["matching"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "(?:yes|no|true|false|included|excluded|n/a)"
+    },
+    {
+      "check_code": "ADDON_MATCHING_PERIOD_DAYS_",
+      "field_key": "matching_period_days__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "matching period",
+        "days to match",
+        "matching window"
+      ],
+      "secondary_anchors": ["match within", "period to match"],
+      "negative_anchors": ["exercise notice"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ADDON_THIRD_PARTY_AGREEMENT_COMPLETION_PERIOD_",
+      "field_key": "third_party_agreement_completion_period__c",
+      "extraction_type": "number",
+      "enabled": true,
+      "primary_anchors": [
+        "third party agreement",
+        "completion period",
+        "third-party completion"
+      ],
+      "secondary_anchors": ["agreement completion", "third party period"],
+      "negative_anchors": ["matching period"],
+      "preferred_zones": ["term"],
+      "proximity_chars": 400,
+      "value_pattern": "\\d+(?:,\\d{3})*(?:\\.\\d+)?"
+    },
+    {
+      "check_code": "ADDON_MATCHING",
+      "field_key": "matching__c",
+      "extraction_type": "boolean",
+      "enabled": true,
+      "primary_anchors": ["matching rights", "right to match", "matching"],
+      "secondary_anchors": ["match any offer", "right of first refusal"],
+      "negative_anchors": ["first negotiation"],
+      "preferred_zones": ["definitions"],
+      "proximity_chars": 400,
+      "value_pattern": "(?:yes|no|true|false|included|excluded|n/a)"
+    },
+    {
+      "check_code": "ACCT_EMAIL",
+      "field_key": "email__c",
+      "extraction_type": "email",
+      "enabled": true,
+      "primary_anchors": ["email"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+    },
+    {
+      "check_code": "ACCT_LEGAL_FIRST_NAME",
+      "field_key": "legal_first_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["legal first name"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    },
+    {
+      "check_code": "ACCT_LEGAL_LAST_NAME",
+      "field_key": "legal_last_name__c",
+      "extraction_type": "text",
+      "enabled": true,
+      "primary_anchors": ["legal last name"],
+      "secondary_anchors": [],
+      "negative_anchors": [],
+      "preferred_zones": [],
+      "proximity_chars": 400,
+      "value_pattern": ".{3,200}"
+    }
+  ]
+}

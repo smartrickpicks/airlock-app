@@ -1,0 +1,80 @@
+{
+  "template_id": "co-publishing-standard-v1",
+  "contract_type": "co-publishing",
+  "display_name": "Co-Publishing Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. SCOPE OF AGREEMENT",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "territory",
+      "title": "2. TERRITORY",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "3. TERM",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "4. COMPENSATION AND SPLITS",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "mechanical",
+      "title": "4.1 MECHANICAL ROYALTIES",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "performance",
+      "title": "4.2 PERFORMANCE ROYALTIES",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "5. RIGHTS AND ADMINISTRATION",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "restrictions",
+      "title": "5.1 CO-PUBLISHER RESTRICTIONS",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "6. TERMINATION AND REVERSION",
+      "order": 10,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "7. GOVERNING LAW",
+      "order": 11,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": ["OPP_CONTRACT_TYPE", "OPP_CO_PUB_SPLIT"]
+}

@@ -1,0 +1,68 @@
+{
+  "template_id": "director-standard-v1",
+  "contract_type": "director",
+  "display_name": "Director Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. ENGAGEMENT AND PROJECT",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "2. TERM AND SCHEDULE",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "3. DIRECTOR FEE AND COMPENSATION",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "creative_control",
+      "title": "4. CREATIVE CONTROL AND FINAL CUT",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "talent_billing",
+      "title": "5. CREDIT AND BILLING",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "guild",
+      "title": "6. DGA PROVISIONS",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "7. TERMINATION",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "8. GOVERNING LAW",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": ["OPP_CONTRACT_TYPE", "OPP_FILM_TITLE", "OPP_DIRECTOR_FEE"]
+}

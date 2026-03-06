@@ -1,0 +1,68 @@
+{
+  "template_id": "sync-license-standard-v1",
+  "contract_type": "sync-license",
+  "display_name": "Synchronization License Agreement",
+  "sections": [
+    {
+      "id": "recitals",
+      "title": "RECITALS",
+      "order": 1,
+      "type": "boilerplate"
+    },
+    {
+      "id": "scope",
+      "title": "1. GRANT OF SYNCHRONIZATION LICENSE",
+      "order": 2,
+      "type": "conditional"
+    },
+    {
+      "id": "territory",
+      "title": "2. TERRITORY AND MEDIA",
+      "order": 3,
+      "type": "conditional"
+    },
+    {
+      "id": "term",
+      "title": "3. TERM",
+      "order": 4,
+      "type": "conditional"
+    },
+    {
+      "id": "compensation",
+      "title": "4. LICENSE FEE AND COMPENSATION",
+      "order": 5,
+      "type": "conditional"
+    },
+    {
+      "id": "rights",
+      "title": "5. RIGHTS AND RESTRICTIONS",
+      "order": 6,
+      "type": "conditional"
+    },
+    {
+      "id": "restrictions",
+      "title": "5.1 USE RESTRICTIONS",
+      "order": 7,
+      "type": "conditional"
+    },
+    {
+      "id": "termination",
+      "title": "6. TERMINATION",
+      "order": 8,
+      "type": "conditional"
+    },
+    {
+      "id": "governing",
+      "title": "7. GOVERNING LAW",
+      "order": 9,
+      "type": "conditional"
+    },
+    {
+      "id": "signatures",
+      "title": "SIGNATURES",
+      "order": 99,
+      "type": "boilerplate"
+    }
+  ],
+  "required_fields": ["OPP_CONTRACT_TYPE", "OPP_SYNC_FEE", "OPP_MEDIA_SCOPE"]
+}
