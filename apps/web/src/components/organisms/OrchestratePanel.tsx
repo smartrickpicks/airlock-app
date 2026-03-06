@@ -21,8 +21,11 @@ export default function OrchestratePanel({
 }: OrchestratePanelProps) {
   return (
     <div className="flex flex-col flex-1 overflow-hidden min-w-[400px]">
-      {/* Header bar */}
-      <div className="h-12 bg-surface-raised border-b border-surface-border px-4 flex items-center justify-between flex-shrink-0">
+      {/* Header bar — Orchestrate: neutral, slightly elevated */}
+      <div
+        className="h-12 border-b border-surface-border px-4 flex items-center justify-between flex-shrink-0"
+        style={{ background: "var(--surface-overlay)" }}
+      >
         {/* Left: breadcrumb + title */}
         <div className="flex items-center gap-1 min-w-0">
           {breadcrumb && (
@@ -40,7 +43,7 @@ export default function OrchestratePanel({
           )}
         </div>
 
-        {/* Right: action buttons slot (empty for now) */}
+        {/* Right: action buttons slot */}
         <div className="flex items-center gap-2 flex-shrink-0" />
       </div>
 

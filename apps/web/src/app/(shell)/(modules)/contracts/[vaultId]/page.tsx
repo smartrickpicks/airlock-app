@@ -53,6 +53,7 @@ export default function VaultDetailPage() {
             <GateDot
               gate={(selectedVault.chamber as Chamber) || "discover"}
               className="h-3 w-3"
+              glow
             />
             <div>
               <h2 className="text-lg font-semibold text-text-primary">

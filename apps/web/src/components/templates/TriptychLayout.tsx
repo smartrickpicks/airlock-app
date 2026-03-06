@@ -27,14 +27,16 @@ interface TriptychLayoutProps {
 /**
  * TriptychLayout — Three-panel workspace engine.
  *
+ * Panel identity (visual design):
+ *   Signal      = cyan top border  — data input, live events
+ *   Orchestrate = neutral / amber in Artifact Focus — work surface
+ *   Control     = indigo top border — metadata, decisions
+ *
  * Manages 4 view states:
  *   Standard        — Signal:280 | Orchestrate:flex-1 | Control:300
  *   Artifact Focus  — collapsed sides, Orchestrate ~90%
  *   Action Focus    — collapsed Signal, Orchestrate + Control expanded
  *   Gate Lock       — Standard + Governance bar, Control auto-selects Approvals
- *
- * Keyboard shortcuts are attached via useKeyboardShortcuts hook.
- * Panels are resizable via drag handles (useResizable hook).
  */
 export default function TriptychLayout({
   children,
@@ -42,7 +44,6 @@ export default function TriptychLayout({
   breadcrumb = "",
   vaultId,
 }: TriptychLayoutProps) {
-  // Triptych state
   const {
     signalVisible,
     controlVisible,
@@ -61,10 +62,8 @@ export default function TriptychLayout({
     setActiveControlTab,
   } = useTriptychStore();
 
-  // Activate keyboard shortcuts (Cmd+1/2/3/4, Escape)
   useKeyboardShortcuts();
 
-  // Signal panel resize handle
   const { onDragStart: onSignalDragStart } = useResizable({
     currentWidth: signalWidth,
     minWidth: 200,
@@ -73,7 +72,6 @@ export default function TriptychLayout({
     onResize: setSignalWidth,
   });
 
-  // Control panel resize handle
   const { onDragStart: onControlDragStart } = useResizable({
     currentWidth: controlWidth,
     minWidth: 200,
@@ -82,11 +80,9 @@ export default function TriptychLayout({
     onResize: setControlWidth,
   });
 
-  // Determine whether we're in Artifact Focus (amber glow on Orchestrate)
   const isArtifactFocus = viewState === "artifact-focus";
   const isGateLock = viewState === "gate-lock";
 
-  // Governance bar for Gate Lock mode
   const governanceBar = isGateLock ? (
     <GovernanceBar
       gateLabel="GATE REVIEW REQUIRED"
@@ -100,9 +96,9 @@ export default function TriptychLayout({
 
   return (
     <div className="flex h-full overflow-hidden relative">
-      {/* === Signal Panel (left) === */}
+      {/* === Signal Panel (left) — cyan identity === */}
       <div
-        className="transition-all flex-shrink-0"
+        className="transition-all flex-shrink-0 border-t-2 border-t-panel-signal"
         style={{
           width: signalVisible ? signalWidth : COLLAPSED_WIDTH,
           transitionDuration: "300ms",
@@ -123,21 +119,13 @@ export default function TriptychLayout({
         />
       </div>
 
-      {/* Signal overlay — floating panel when collapsed and clicked */}
+      {/* Signal overlay */}
       {!signalVisible && signalOverlayOpen && (
         <>
-          {/* Backdrop */}
+          <div className="fixed inset-0 z-overlay" onClick={closeSignalOverlay} />
           <div
-            className="fixed inset-0 z-overlay"
-            onClick={closeSignalOverlay}
-          />
-          {/* Overlay panel */}
-          <div
-            className="absolute top-0 bottom-0 z-overlay bg-surface-raised border-r border-surface-border shadow-xl"
-            style={{
-              left: COLLAPSED_WIDTH,
-              width: signalWidth,
-            }}
+            className="absolute top-0 bottom-0 z-overlay bg-surface-raised border-r border-surface-border border-t-2 border-t-panel-signal shadow-xl shadow-panel-signal/10"
+            style={{ left: COLLAPSED_WIDTH, width: signalWidth }}
           >
             <SignalPanel
               width={signalWidth}
@@ -149,15 +137,14 @@ export default function TriptychLayout({
         </>
       )}
 
-      {/* Signal resize handle (only when expanded) */}
       {signalVisible && <ResizeHandle onDragStart={onSignalDragStart} />}
 
-      {/* === Orchestrate Panel (center) === */}
+      {/* === Orchestrate Panel (center) — amber accent in artifact focus === */}
       <div
-        className={`flex-1 min-w-[400px] transition-all ${
+        className={`flex-1 min-w-[400px] transition-all border-t-2 ${
           isArtifactFocus
-            ? "ring-1 ring-gate-amber/30 shadow-[0_0_20px_rgba(245,158,11,0.1)]"
-            : ""
+            ? "border-t-gate-amber shadow-[0_0_32px_rgba(245,158,11,0.12)] ring-1 ring-gate-amber/20"
+            : "border-t-surface-border"
         }`}
         style={{
           transitionDuration: "300ms",
@@ -173,12 +160,11 @@ export default function TriptychLayout({
         </OrchestratePanel>
       </div>
 
-      {/* Control resize handle (only when expanded) */}
       {controlVisible && <ResizeHandle onDragStart={onControlDragStart} />}
 
-      {/* === Control Panel (right) === */}
+      {/* === Control Panel (right) — indigo identity === */}
       <div
-        className="transition-all flex-shrink-0"
+        className="transition-all flex-shrink-0 border-t-2 border-t-panel-control"
         style={{
           width: controlVisible ? controlWidth : COLLAPSED_WIDTH,
           transitionDuration: "300ms",
@@ -205,21 +191,13 @@ export default function TriptychLayout({
         />
       </div>
 
-      {/* Control overlay — floating panel when collapsed and clicked */}
+      {/* Control overlay */}
       {!controlVisible && controlOverlayOpen && (
         <>
-          {/* Backdrop */}
+          <div className="fixed inset-0 z-overlay" onClick={closeControlOverlay} />
           <div
-            className="fixed inset-0 z-overlay"
-            onClick={closeControlOverlay}
-          />
-          {/* Overlay panel */}
-          <div
-            className="absolute top-0 bottom-0 right-0 z-overlay bg-surface-raised border-l border-surface-border shadow-xl"
-            style={{
-              right: COLLAPSED_WIDTH,
-              width: controlWidth,
-            }}
+            className="absolute top-0 bottom-0 right-0 z-overlay bg-surface-raised border-l border-surface-border border-t-2 border-t-panel-control shadow-xl shadow-panel-control/10"
+            style={{ right: COLLAPSED_WIDTH, width: controlWidth }}
           >
             <ControlPanel
               width={controlWidth}
@@ -228,12 +206,7 @@ export default function TriptychLayout({
               activeTab={activeControlTab}
               onTabChange={(tab) =>
                 setActiveControlTab(
-                  tab as
-                    | "lifecycle"
-                    | "sla"
-                    | "approvals"
-                    | "audit"
-                    | "ai-agent",
+                  tab as "lifecycle" | "sla" | "approvals" | "audit" | "ai-agent",
                 )
               }
               vaultId={vaultId}

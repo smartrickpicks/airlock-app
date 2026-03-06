@@ -1,187 +1,101 @@
-# Theme
+# Airlock Visual Theme Spec
 
-## Summary
-
-Airlock's visual theme evolves the shared token system used across all four existing demos. The demos already share identical CSS tokens with minor naming variations. Airlock introduces an OLED-darker palette, a refined typography stack, and standardized effects for AI elements and governance indicators.
-
-## Palette Evolution
-
-The existing demos use a shared dark palette. Airlock shifts every surface darker toward true OLED black while increasing accent vibrancy.
-
-### Surface Colors
-
-| Purpose          | Demo Token   | Demo Value | Airlock Token       | Airlock Value | Delta        |
-| ---------------- | ------------ | ---------- | ------------------- | ------------- | ------------ |
-| Page background  | `--bg-page`  | #12161f    | `--airlock-bg`      | #0B0E14       | Darker       |
-| Panel / sidebar  | `--bg-panel` | #1a1f2e    | `--airlock-surface` | #0F1219       | Darker       |
-| Card / elevated  | `--bg-card`  | #1e2436    | `--airlock-card`    | #151923       | Darker       |
-| Border / divider | (varies)     | (varies)   | `--airlock-border`  | #1E2330       | Standardized |
-
-### Accent Colors
-
-| Purpose        | Demo Token      | Demo Value | Airlock Token    | Airlock Value | Delta                  |
-| -------------- | --------------- | ---------- | ---------------- | ------------- | ---------------------- |
-| Primary accent | `--accent-blue` | #0091ea    | `--airlock-cyan` | #00D1FF       | Brighter, shifted cyan |
-
-### Text Colors
-
-| Purpose                | Airlock Token     | Value   |
-| ---------------------- | ----------------- | ------- |
-| Primary text           | `--airlock-text`  | #E2E8F0 |
-| Secondary / muted text | `--airlock-muted` | #64748B |
-
-### Gate Colors
-
-Governance gate indicators use a fixed semantic palette. These colors are not configurable by theme.
-
-| State                     | Token           | Value   | Usage                                               |
-| ------------------------- | --------------- | ------- | --------------------------------------------------- |
-| Blocked / Critical        | `--gate-red`    | #EF4444 | Gate dots, alert borders, reject buttons            |
-| Warning / Needs Attention | `--gate-yellow` | #EAB308 | Gate dots, SLA warning borders                      |
-| In Review / Pending       | `--gate-purple` | #A855F7 | Gate dots, review status indicators                 |
-| Clear / Approved          | `--gate-green`  | #22C55E | Gate dots, approval indicators, health good         |
-| SLA Urgent / Amber alerts | `--gate-amber`  | #F59E0B | SLA countdown, urgency borders, Artifact Focus glow |
+> **Status:** SPECCED — OLED dark palette with panel identity, depth layers, and glow system.
+> **Source of truth for:** `src/styles/tokens.css`, `tailwind.config.ts`
 
 ---
 
-## Typography
+## The Problem We Solved
 
-### Font Stack
+The original surface palette had only 2% luminance difference between `surface-base`, `surface-raised`, and `surface-overlay`. On OLED panels this is imperceptible — everything merged into a single flat grey plane. Add identical headers on all three triptych panels and the UI becomes unreadable.
 
-| Role      | Font Family | Fallback                                                    | Usage                                                            |
-| --------- | ----------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
-| Monospace | Fira Code   | `monospace`                                                 | Timestamps, IDs, SLA countdowns, code blocks, health percentages |
-| UI Text   | Fira Sans   | `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | All labels, body text, headers, buttons, navigation              |
-
-### Type Scale
-
-| Element               | Font      | Size    | Weight                                        | Color                        |
-| --------------------- | --------- | ------- | --------------------------------------------- | ---------------------------- |
-| Module header         | Fira Sans | 15px    | 600 (semibold)                                | `--airlock-text`             |
-| Section header        | Fira Sans | 13px    | 600 (semibold)                                | `--airlock-text`             |
-| Group header          | Fira Sans | 11px    | 500 (medium), uppercase, letter-spacing 0.5px | `--airlock-muted`            |
-| Body text             | Fira Sans | 13px    | 400 (regular)                                 | `--airlock-text`             |
-| Secondary text        | Fira Sans | 12px    | 400 (regular)                                 | `--airlock-muted`            |
-| Timestamp             | Fira Code | 11px    | 400 (regular)                                 | `--airlock-muted`            |
-| SLA countdown (large) | Fira Code | 15px    | 700 (bold)                                    | Contextual (green/amber/red) |
-| Badge text            | Fira Sans | 10-11px | 700 (bold)                                    | White on red                 |
-| Button text           | Fira Sans | 13px    | 600 (semibold)                                | Contextual                   |
+**Root causes:**
+1. Surface levels too close in luminance
+2. No visual identity distinguishing the three triptych panels
+3. Chamber indicator dots (GateDot) too small and flat — read as noise
+4. Active states using flat `border-l-2` with no fill depth
+5. Borders nearly invisible against raised surfaces
 
 ---
 
-## Icon Set
+## Design Principles
 
-**Lucide React** is the sole icon library. No emojis in production UI.
-
-| Category     | Icons Used                                                         |
-| ------------ | ------------------------------------------------------------------ |
-| Module Bar   | FileText, Users, CheckSquare, Calendar, FolderOpen, Settings       |
-| Navigation   | ChevronDown, ChevronRight, Search, Plus, PlusCircle, AlertTriangle |
-| Control tabs | GitBranch, Clock, CheckCircle, ScrollText, Bot                     |
-| Actions      | Shield, X, Pin, ExternalLink, Copy, Archive, Trash                 |
-| Status       | Circle (filled, for gate dots), TrendingUp, TrendingDown           |
-
-Default icon size: 16px inline, 20px in headers, 24px in collapsed panel mode, 48px containers in Module Bar.
+| Principle | Implementation |
+|---|---|
+| **OLED-first** | True blacks (`#07090F`) as base. Surfaces must be perceivably different at arm's length. |
+| **Panel identity** | Each triptych panel has a unique color identity communicated through its top border and header tint. |
+| **Glow = significance** | Glows on GateDots signal "this is the thing you're working on." Used sparingly. |
+| **Gradient \!= decoration** | Active state gradients serve readability, not decoration. They create ground under selected items. |
+| **Tokens only** | No raw hex in components. Every color referenced via CSS custom property. |
 
 ---
 
-## Effects
+## Surface Depth Scale
 
-### AI Element Glow
-
-AI-generated content (suggestions, agent messages, automated insights) receives a subtle cyan glow to distinguish it from human-authored content.
-
-| Property    | Value                                                             |
-| ----------- | ----------------------------------------------------------------- |
-| Text shadow | `0 0 10px rgba(0, 209, 255, 0.3)`                                 |
-| Border      | Left 3px solid `--airlock-cyan` (#00D1FF) on AI signal cards      |
-| Background  | Slight cyan tint: `rgba(0, 209, 255, 0.03)` on AI message bubbles |
-
-The glow is intentionally subtle. It should be perceptible but not distracting.
-
-### Color-Coded Left Borders
-
-Signal cards, channel items, and status indicators use left borders to convey semantic meaning.
-
-| Context        | Border Width | Color Source                                                     |
-| -------------- | ------------ | ---------------------------------------------------------------- |
-| Signal cards   | 3px          | Card type color (see triptych.md Signal Card Left Border Colors) |
-| Active channel | 2px          | `--airlock-cyan`                                                 |
-| Active module  | 3px          | `--airlock-cyan`                                                 |
-
-### Gate Indicator Dots
-
-Small filled circles used in channel items, signal cards, and the Governance Bar.
-
-| Property | Value                                               |
-| -------- | --------------------------------------------------- |
-| Size     | 8px diameter                                        |
-| Shape    | Circle, filled                                      |
-| Color    | Gate color based on state (red/yellow/purple/green) |
-| Border   | None (sits directly on card background)             |
-
-### SLA Countdown
-
-| Property | Value                                                                    |
-| -------- | ------------------------------------------------------------------------ |
-| Font     | Fira Code                                                                |
-| Size     | 15px bold (Governance Bar), 13px regular (Control panel), 11px (inline)  |
-| Color    | Green (#22C55E) > 50%, Amber (#F59E0B) 25-50%, Red (#EF4444) < 25%       |
-| Pulse    | When < 10% remaining, gentle pulse animation (opacity 0.8-1.0, 2s cycle) |
+| Token | Value | Use |
+|---|---|---|
+| `--surface-sunken` | `#040609` | Deepest: code blocks, inset fields |
+| `--surface-base` | `#07090F` | Page background |
+| `--surface-raised` | `#0D1117` | Cards, panels (+4% luminance) |
+| `--surface-overlay` | `#161E2E` | Dropdowns, floating surfaces (+9%) |
+| `--surface-border` | `#222D42` | Dividers — clearly visible, not loud |
+| `--surface-border-subtle` | `#151D2E` | Hairlines within panels |
 
 ---
 
-## Transitions and Motion
+## Panel Identity System
 
-| Category           | Duration                | Easing      | Usage                                                    |
-| ------------------ | ----------------------- | ----------- | -------------------------------------------------------- |
-| Micro-interactions | 150ms                   | ease        | Hover states, button presses, icon color changes         |
-| Panel transitions  | 200-300ms               | ease-in-out | View state changes, panel resize, sidebar content switch |
-| Tooltip appear     | 300ms delay, 150ms fade | ease        | Module Bar tooltips, hover info                          |
-| Content crossfade  | 150ms                   | ease        | Panel content swaps during state changes                 |
-| Notification enter | 300ms                   | ease-out    | Signal cards sliding in                                  |
-| Collapse/expand    | 200ms                   | ease        | Channel groups, panel collapse to icon-only              |
+| Panel | Identity Color | Token | Semantic meaning |
+|---|---|---|---|
+| **Signal** | `#00D1FF` (cyan) | `--panel-signal-accent` | Live data, events, incoming information |
+| **Orchestrate** | `#F59E0B` (amber) | `--panel-orchestrate-accent` | Work surface (lit in Artifact Focus only) |
+| **Control** | `#6366F1` (indigo) | `--panel-control-accent` | Decisions, metadata, approvals |
+
+Each panel has: 2px colored top border + 4% color-tinted background + 6% color-tinted header row + colored label text.
 
 ---
 
-## Demo Shell Theming Strategy
+## GateDot Glow System
 
-### Problem
+| Mode | When | How |
+|---|---|---|
+| **Standard** (default) | Dense lists, sidebars | Flat colored circle |
+| **Glow** (`glow` prop) | Active vault header, single-item displays | Circle + radial box-shadow |
 
-All four existing demos share identical CSS tokens with slight naming differences. Each demo duplicates the full token set.
+Use glow on at most one item visible at a time. Never in tables or dense lists.
 
-### Solution
+---
 
-Extract a shared base and let Airlock override.
+## Active State Gradients
 
-| File                | Purpose                 | Contents                                                                                   |
-| ------------------- | ----------------------- | ------------------------------------------------------------------------------------------ |
-| `theme.base.css`    | Shared token foundation | All common tokens using demo naming (`--bg-page`, `--bg-panel`, etc.)                      |
-| `theme.airlock.css` | Airlock overrides       | Maps Airlock tokens (`--airlock-bg`, etc.) and overrides base values to the darker palette |
+All active/selected items use: `border-l-2 border-accent-primary` + gradient background fill.
 
-### Migration Path
 
-1. Extract `theme.base.css` from existing demo CSS (tokens only, no component styles)
-2. Each demo's existing CSS file imports `theme.base.css` and adds component-specific styles
-3. Airlock links `theme.base.css` then layers `theme.airlock.css` on top
-4. Component styles reference Airlock tokens (`--airlock-bg`) which resolve to the darker values
-5. Existing demos continue working unchanged -- their tokens remain in `theme.base.css`
 
-### Token Mapping
+---
 
-In `theme.airlock.css`, Airlock tokens are defined as overrides:
+## Anti-Patterns
 
-```
-/* Conceptual -- not implementation code */
---airlock-bg:      #0B0E14;    /* overrides --bg-page: #12161f */
---airlock-surface:  #0F1219;    /* overrides --bg-panel: #1a1f2e */
---airlock-card:     #151923;    /* overrides --bg-card: #1e2436 */
---airlock-cyan:     #00D1FF;    /* overrides --accent-blue: #0091ea */
-```
+| Don't | Do instead |
+|---|---|
+| Raw hex in components | Use CSS custom property tokens |
+| Multiple glowing GateDots in a list | Only active item glows |
+| All panels looking identical | Each has distinct top border color |
+| `border-l-2` alone for active state | Add gradient background too |
+| `box-shadow` directly in JSX | Use `shadow-glow-*` Tailwind utility |
 
-This approach ensures:
+---
 
-- Zero breaking changes to existing demos
-- Single source of truth for shared tokens
-- Clean override path for Airlock's darker palette
-- Future themes (light mode, high-contrast) follow the same pattern
+## Component Inventory
+
+| Component | Enhancement |
+|---|---|
+| `tokens.css` | Surface depth scale, glow tokens, panel identity, gradients |
+| `tailwind.config.ts` | `shadow-glow-*`, `colors.panel.*`, gradient utilities |
+| `GateDot.tsx` | `glow?: boolean` prop |
+| `TriptychLayout.tsx` | Colored top borders per panel |
+| `SignalPanel.tsx` | Cyan-tinted bg + cyan header label |
+| `ControlPanel.tsx` | Indigo-tinted bg + indigo tab bar |
+| `OrchestratePanel.tsx` | Elevated `surface-overlay` header |
+| `VaultItem.tsx` | Gradient active + glow GateDot when active |
+| `PinnedChannel.tsx` | Gradient active state |

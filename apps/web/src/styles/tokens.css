@@ -9,48 +9,88 @@
  *   Review   = purple (#A855F7)
  *   Ship     = green  (#22C55E)
  *
+ * Panel identity colors:
+ *   Signal      = cyan    (#00D1FF) — data input, live events
+ *   Orchestrate = amber   (#F59E0B) — work surface (only in Artifact Focus)
+ *   Control     = indigo  (#6366F1) — metadata, decisions
+ *
  * Source of truth: docs/specs/shell/theme.md
  */
 
 :root {
-  /* === Surface Palette (Spec-Aligned OLED Dark) === */
-  --surface-base: #0B0E14;
-  --surface-raised: #0F1219;
-  --surface-overlay: #151923;
-  --surface-sunken: #080A0F;
-  --surface-border: #1E2330;
-  --surface-border-subtle: #161B25;
+  /* === Surface Palette (OLED Dark — Distinct Depth Levels) ===
+   *
+   * Previous surfaces were within 2% luminance of each other — imperceptible
+   * on OLED panels. New values create a clear visual hierarchy:
+   *   base      = true black anchor
+   *   raised    = +4% luminance (cards, panels)
+   *   overlay   = +9% luminance (floating surfaces, dropdowns)
+   *   sunken    = below base (inset fields, code blocks)
+   *   border    = 50% more visible than before
+   */
+  --surface-base: #07090F;
+  --surface-raised: #0D1117;
+  --surface-overlay: #161E2E;
+  --surface-sunken: #040609;
+  --surface-border: #222D42;
+  --surface-border-subtle: #151D2E;
 
   /* === Chamber Colors === */
   --chamber-discover: #EF4444;
-  --chamber-discover-muted: #991B1B;
+  --chamber-discover-muted: #7F1D1D;
   --chamber-build: #EAB308;
-  --chamber-build-muted: #854D0E;
+  --chamber-build-muted: #713F12;
   --chamber-review: #A855F7;
-  --chamber-review-muted: #6B21A8;
+  --chamber-review-muted: #581C87;
   --chamber-ship: #22C55E;
-  --chamber-ship-muted: #166534;
+  --chamber-ship-muted: #14532D;
 
-  /* === Gate Colors (aliases for semantic use) === */
+  /* === Gate Colors (semantic aliases) === */
   --gate-red: #EF4444;
   --gate-yellow: #EAB308;
   --gate-purple: #A855F7;
   --gate-green: #22C55E;
   --gate-amber: #F59E0B;
 
+  /* === Gate Glow Shadows (for GateDot and active chamber indicators) === */
+  --glow-discover: 0 0 8px 2px rgba(239, 68, 68, 0.55), 0 0 20px 4px rgba(239, 68, 68, 0.18);
+  --glow-build:    0 0 8px 2px rgba(234, 179, 8, 0.55),  0 0 20px 4px rgba(234, 179, 8, 0.18);
+  --glow-review:   0 0 8px 2px rgba(168, 85, 247, 0.55), 0 0 20px 4px rgba(168, 85, 247, 0.18);
+  --glow-ship:     0 0 8px 2px rgba(34, 197, 94, 0.55),  0 0 20px 4px rgba(34, 197, 94, 0.18);
+  --glow-cyan:     0 0 8px 2px rgba(0, 209, 255, 0.50),  0 0 20px 4px rgba(0, 209, 255, 0.15);
+  --glow-indigo:   0 0 8px 2px rgba(99, 102, 241, 0.50), 0 0 20px 4px rgba(99, 102, 241, 0.15);
+
+  /* === Panel Identity === */
+  --panel-signal-accent: #00D1FF;
+  --panel-signal-bg: rgba(0, 209, 255, 0.04);
+  --panel-signal-header: rgba(0, 209, 255, 0.06);
+
+  --panel-control-accent: #6366F1;
+  --panel-control-bg: rgba(99, 102, 241, 0.04);
+  --panel-control-header: rgba(99, 102, 241, 0.06);
+
+  --panel-orchestrate-accent: #F59E0B;
+  --panel-orchestrate-focus-ring: rgba(245, 158, 11, 0.15);
+
   /* === Accent Colors === */
   --accent-primary: #00D1FF;
   --accent-primary-hover: #00B8E6;
   --accent-secondary: #6366F1;
+  --accent-brand: #00D1FF;
   --accent-danger: #EF4444;
   --accent-warning: #F59E0B;
   --accent-success: #22C55E;
+
+  /* === Gradient Utilities === */
+  --gradient-signal-active: linear-gradient(to right, rgba(0, 209, 255, 0.10) 0%, transparent 100%);
+  --gradient-control-active: linear-gradient(to right, rgba(99, 102, 241, 0.10) 0%, transparent 100%);
+  --gradient-vault-active: linear-gradient(to right, rgba(0, 209, 255, 0.08) 0%, transparent 85%);
 
   /* === Text Colors === */
   --text-primary: #E2E8F0;
   --text-secondary: #94A3B8;
   --text-muted: #64748B;
-  --text-inverse: #0B0E14;
+  --text-inverse: #07090F;
 
   /* === Typography === */
   --font-sans: var(--font-fira-sans), "Fira Sans", system-ui, -apple-system, sans-serif;

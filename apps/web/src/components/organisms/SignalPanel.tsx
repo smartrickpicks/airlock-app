@@ -108,11 +108,12 @@ export default function SignalPanel({
 
   return (
     <div
-      className="flex h-full flex-shrink-0 flex-col overflow-hidden border-r border-surface-border bg-surface-raised"
+      className="flex h-full flex-shrink-0 flex-col overflow-hidden border-r border-surface-border"
+      style={{ background: "var(--panel-signal-bg)" }}
       style={{ width }}
     >
-      <div className="flex h-10 flex-shrink-0 items-center px-4">
-        <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+      <div className="flex h-10 flex-shrink-0 items-center justify-between px-4" style={{ background: "var(--panel-signal-header)" }}>
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--panel-signal-accent)" }}>
           Signal
         </span>
       </div>

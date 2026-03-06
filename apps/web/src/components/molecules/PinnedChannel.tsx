@@ -24,13 +24,18 @@ export default function PinnedChannel({
         w-full h-9 px-3
         flex flex-row items-center gap-2
         rounded cursor-pointer
-        transition-colors duration-fast
+        transition-all duration-fast
         ${
           isActive
-            ? "bg-surface-overlay border-l-2 border-accent-primary"
-            : "bg-transparent hover:bg-surface-overlay"
+            ? "border-l-2 border-accent-primary"
+            : "border-l-2 border-transparent hover:bg-surface-overlay"
         }
       `}
+      style={
+        isActive
+          ? { background: "var(--gradient-signal-active)" }
+          : undefined
+      }
       aria-current={isActive ? "page" : undefined}
     >
       {/* Icon — 16px */}

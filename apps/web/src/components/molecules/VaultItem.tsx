@@ -39,18 +39,23 @@ export default function VaultItem({
         w-full mx-2 h-11 py-1.5 px-3
         flex flex-col justify-center
         rounded cursor-pointer
-        transition-colors duration-fast
+        transition-all duration-fast
         ${
           isActive
-            ? "bg-surface-overlay border-l-2 border-accent-primary"
-            : "bg-transparent hover:bg-surface-overlay"
+            ? "border-l-2 border-accent-primary"
+            : "border-l-2 border-transparent hover:bg-surface-overlay"
         }
       `}
+      style={
+        isActive
+          ? { background: "var(--gradient-vault-active)" }
+          : undefined
+      }
       aria-current={isActive ? "true" : undefined}
     >
       {/* Line 1: GateDot + Name + Health % */}
       <div className="flex items-center gap-1.5 w-full min-w-0">
-        <GateDot gate={gate} />
+        <GateDot gate={gate} glow={isActive} />
         <span className="text-[13px] text-text-primary truncate flex-1 text-left">
           {name}
         </span>

@@ -96,7 +96,7 @@ export default function ControlPanel({
   if (collapsed) {
     return (
       <div
-        className="flex flex-col items-center pt-4 gap-3 bg-surface-raised border-l border-surface-border h-full flex-shrink-0"
+        className="flex flex-col items-center pt-4 gap-3 border-l border-surface-border h-full flex-shrink-0" style={{ background: "var(--panel-control-bg)", width }}
         style={{ width }}
       >
         {collapsedIcons.map((item) => {
@@ -191,12 +191,12 @@ export default function ControlPanel({
   // Expanded mode
   return (
     <div
-      className="flex flex-col bg-surface-raised border-l border-surface-border h-full overflow-hidden flex-shrink-0"
-      style={{ width }}
+      className="flex flex-col border-l border-surface-border h-full overflow-hidden flex-shrink-0"
+      style={{ width, background: "var(--panel-control-bg)" }}
     >
       {/* Tab bar */}
       <div
-        className="h-10 bg-surface-raised border-b border-surface-border flex flex-shrink-0"
+        className="h-10 border-b border-surface-border flex flex-shrink-0" style={{ background: "var(--panel-control-header)" }}
         role="tablist"
         aria-label="Control panel tabs"
       >
