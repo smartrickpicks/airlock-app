@@ -344,6 +344,27 @@
       "path": "src/components/templates/WorkflowBuilder.tsx",
       "description": "Full workflow builder layout with toolbar, canvas, and status bar",
       "milestone": "M23"
+    },
+    {
+      "name": "OnboardingChecklist",
+      "level": "molecule",
+      "path": "src/components/molecules/OnboardingChecklist.tsx",
+      "description": "Getting started checklist widget with progress bar and dismissable items",
+      "milestone": "M24"
+    },
+    {
+      "name": "WelcomeModal",
+      "level": "organism",
+      "path": "src/components/organisms/WelcomeModal.tsx",
+      "description": "Role-specific 3-slide welcome modal with dot navigation for first-time users",
+      "milestone": "M24"
+    },
+    {
+      "name": "SetupWizard",
+      "level": "template",
+      "path": "src/components/templates/SetupWizard.tsx",
+      "description": "5-step workspace setup wizard with module config, team invites, and data source selection",
+      "milestone": "M24"
     }
   ]
 }
