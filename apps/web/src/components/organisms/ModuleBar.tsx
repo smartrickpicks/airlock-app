@@ -9,11 +9,13 @@ import {
   FolderOpen,
   Settings,
   Bell,
+  Bot,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { MODULES, type ModuleName } from "@/lib/constants";
 import { useModuleStore } from "@/stores/module.store";
 import { useNotificationStore } from "@/stores/notification.store";
+import { useOttoStore } from "@/stores/otto.store";
 import ModuleIcon from "@/components/molecules/ModuleIcon";
 import ConnectionStatus from "@/components/atoms/ConnectionStatus";
 import PresenceAvatars from "@/components/molecules/PresenceAvatars";
@@ -32,6 +34,7 @@ export default function ModuleBar() {
   const { activeModule, setActiveModule } = useModuleStore();
   const toggleNotifications = useNotificationStore((s) => s.toggle);
   const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const toggleOtto = useOttoStore((s) => s.toggleDrawer);
 
   const moduleKeys = Object.keys(MODULES) as ModuleName[];
 
@@ -116,6 +119,20 @@ export default function ModuleBar() {
         >
           ?
         </div>
+
+        {/* Otto AI */}
+        <button
+          className="
+            text-text-muted hover:text-accent-primary
+            cursor-pointer
+            transition-colors duration-fast
+          "
+          aria-label="Otto AI Assistant"
+          title="Otto (Cmd+J)"
+          onClick={toggleOtto}
+        >
+          <Bot size={20} />
+        </button>
 
         {/* Notification bell */}
         <button

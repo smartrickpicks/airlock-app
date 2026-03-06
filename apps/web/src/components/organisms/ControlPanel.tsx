@@ -9,6 +9,7 @@ import PatchStateBadge from "@/components/atoms/PatchStateBadge";
 import ApprovalChain from "@/components/organisms/ApprovalChain";
 import SLATimer from "@/components/molecules/SLATimer";
 import { usePatchStore } from "@/stores/patch.store";
+import OttoChat from "@/components/organisms/OttoChat";
 
 /** Tab definition with icon, label, and placeholder content */
 interface TabDef {
@@ -172,6 +173,12 @@ export default function ControlPanel({
                 No active SLA deadlines.
               </p>
             )}
+          </div>
+        );
+      case "ai-agent":
+        return (
+          <div className="-m-4 h-[calc(100%+2rem)]">
+            <OttoChat />
           </div>
         );
       default:
