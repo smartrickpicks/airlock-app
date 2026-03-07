@@ -16,6 +16,11 @@ const config: Config = {
           overlay: "var(--surface-overlay)",
           sunken: "var(--surface-sunken)",
           border: "var(--surface-border)",
+          // Glassmorphic variants (rgba, for backdrop-blur layers)
+          glass: "var(--surface-glass)",
+          "glass-toolbar": "var(--surface-glass-toolbar)",
+          "glass-border": "var(--surface-glass-border)",
+          "glass-highlight": "var(--surface-glass-highlight)",
         },
         // Chamber colors
         chamber: {

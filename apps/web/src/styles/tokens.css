@@ -82,6 +82,12 @@
   --z-toast: 500;
   --z-tooltip: 600;
 
+  /* === Glassmorphic Surfaces === */
+  --surface-glass: rgba(21, 25, 35, 0.72);
+  --surface-glass-toolbar: rgba(15, 18, 25, 0.88);
+  --surface-glass-border: rgba(30, 35, 48, 0.5);
+  --surface-glass-highlight: rgba(255, 255, 255, 0.04);
+
   /* === Triptych Layout === */
   --triptych-signal-width: 280px;
   --triptych-control-width: 300px;
