@@ -9,6 +9,8 @@ const NAV_ITEMS = [
   { label: "Appearance", href: "/admin/settings" },
   { label: "Members", href: "/admin/members" },
   { label: "Feature Flags", href: "/admin/features" },
+  { label: "Connectors", href: "/admin/connectors" },
+  { label: "Skills", href: "/admin/skills" },
   { label: "Event Bus", href: "/admin/event-bus" },
   { label: "Workflows", href: "/admin/workflows" },
 ];
