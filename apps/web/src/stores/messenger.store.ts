@@ -6,6 +6,7 @@ import {
   MOCK_MESSAGES,
   MOCK_REPLIES,
 } from "@/lib/mock-messenger";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface MessengerState {
   conversations: Conversation[];
@@ -60,11 +61,15 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
         isLoading: false,
       });
     } catch {
-      set({
-        conversations: MOCK_CONVERSATIONS,
-        messages: MOCK_MESSAGES,
-        isLoading: false,
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({ conversations: [], messages: {}, isLoading: false });
+      } else {
+        set({
+          conversations: MOCK_CONVERSATIONS,
+          messages: MOCK_MESSAGES,
+          isLoading: false,
+        });
+      }
     }
   },
 
@@ -74,8 +79,14 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
       activeConversationId: s.isDrawerOpen ? null : s.activeConversationId,
     })),
 
-  openDrawer: () => set({ isDrawerOpen: true }),
-  closeDrawer: () => set({ isDrawerOpen: false, activeConversationId: null }),
+  openDrawer: () =>
+    set((state) => (state.isDrawerOpen ? state : { isDrawerOpen: true })),
+  closeDrawer: () =>
+    set((state) =>
+      state.isDrawerOpen || state.activeConversationId
+        ? { isDrawerOpen: false, activeConversationId: null }
+        : state,
+    ),
 
   openConversation: (id) => {
     set({ activeConversationId: id });

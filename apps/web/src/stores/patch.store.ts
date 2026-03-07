@@ -6,6 +6,7 @@ import {
   type Patch,
   type PatchState,
 } from "@/lib/mock-patches";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface PatchStoreState {
   patches: Patch[];
@@ -41,8 +42,12 @@ export const usePatchStore = create<PatchStoreState>((set, get) => ({
       const data = await apiFetch<Patch[]>(`/api/v1/vaults/${vaultId}/patches`);
       set({ patches: data, isLoading: false });
     } catch {
-      const mock = MOCK_PATCHES[vaultId] ?? [];
-      set({ patches: mock, isLoading: false, error: null });
+      if (getWorkspaceMode() === "clean") {
+        set({ patches: [], isLoading: false, error: null });
+      } else {
+        const mock = MOCK_PATCHES[vaultId] ?? [];
+        set({ patches: mock, isLoading: false, error: null });
+      }
     }
   },
 

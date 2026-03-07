@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { apiFetch } from "@/lib/api";
 import { MOCK_EVENTS } from "@/lib/mock-events";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface VaultEvent {
   id: string;
@@ -41,11 +42,15 @@ export const useEventStore = create<EventState>((set) => ({
       );
       set({ events: data.events, isLoading: false });
     } catch {
-      // API not running — use mock data for dev preview
-      const filtered = (MOCK_EVENTS as VaultEvent[]).filter(
-        (e) => e.vault_id === vaultId,
-      );
-      set({ events: filtered, isLoading: false, error: null });
+      if (getWorkspaceMode() === "clean") {
+        set({ events: [], isLoading: false, error: null });
+      } else {
+        // API not running — use mock data for dev preview
+        const filtered = (MOCK_EVENTS as VaultEvent[]).filter(
+          (e) => e.vault_id === vaultId,
+        );
+        set({ events: filtered, isLoading: false, error: null });
+      }
     }
   },
 
@@ -55,12 +60,16 @@ export const useEventStore = create<EventState>((set) => ({
       const data = await apiFetch<EventListResponse>("/api/v1/events/recent");
       set({ events: data.events, isLoading: false });
     } catch {
-      // API not running — use mock data for dev preview
-      set({
-        events: MOCK_EVENTS as VaultEvent[],
-        isLoading: false,
-        error: null,
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({ events: [], isLoading: false, error: null });
+      } else {
+        // API not running — use mock data for dev preview
+        set({
+          events: MOCK_EVENTS as VaultEvent[],
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
 }));
