@@ -5,6 +5,7 @@ import type {
   NotificationCategory,
 } from "@/lib/mock-notifications";
 import { MOCK_NOTIFICATIONS } from "@/lib/mock-notifications";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 let toastCounter = 0;
 
@@ -66,8 +67,12 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     })),
 
   fetchNotifications: () => {
-    // Mock: load from static data. Will be replaced with API call.
-    set({ notifications: [...MOCK_NOTIFICATIONS] });
+    if (getWorkspaceMode() === "clean") {
+      set({ notifications: [] });
+    } else {
+      // Mock: load from static data. Will be replaced with API call.
+      set({ notifications: [...MOCK_NOTIFICATIONS] });
+    }
   },
 
   addToast: (toast) => {
