@@ -18,7 +18,10 @@ import { useVaultStore } from "@/stores/vault.store";
 import { useEventStore } from "@/stores/event.store";
 import { useNotificationStore } from "@/stores/notification.store";
 import { useShellStore } from "@/stores/shell.store";
-import { useOnboardingStore, getWorkspaceMode } from "@/stores/onboarding.store";
+import {
+  useOnboardingStore,
+  getWorkspaceMode,
+} from "@/stores/onboarding.store";
 import OnboardingChecklist from "@/components/molecules/OnboardingChecklist";
 import InboundContractIntakeModal from "@/components/organisms/InboundContractIntakeModal";
 import {
@@ -71,7 +74,9 @@ function FirstUploadView() {
   const router = useRouter();
   const workspaceName = useOnboardingStore((s) => s.setupState.workspaceName);
   const markFirstUploadDone = useOnboardingStore((s) => s.markFirstUploadDone);
-  const isOnboardingComplete = useOnboardingStore((s) => s.isOnboardingComplete);
+  const isOnboardingComplete = useOnboardingStore(
+    (s) => s.isOnboardingComplete,
+  );
   const checklistDismissed = useOnboardingStore((s) => s.checklistDismissed);
   const [intakeOpen, setIntakeOpen] = useState(false);
 
@@ -119,7 +124,10 @@ function FirstUploadView() {
                 onClick={() => setIntakeOpen(true)}
                 className="flex items-start gap-3 rounded-xl border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:bg-surface-overlay"
               >
-                <Plus size={18} className="mt-0.5 shrink-0 text-accent-primary" />
+                <Plus
+                  size={18}
+                  className="mt-0.5 shrink-0 text-accent-primary"
+                />
                 <div>
                   <div className="text-sm font-semibold text-text-primary">
                     Quick Demo Intake
@@ -135,7 +143,10 @@ function FirstUploadView() {
                 onClick={() => router.push("/documents/library")}
                 className="flex items-start gap-3 rounded-xl border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:bg-surface-overlay"
               >
-                <FolderOpen size={18} className="mt-0.5 shrink-0 text-accent-primary" />
+                <FolderOpen
+                  size={18}
+                  className="mt-0.5 shrink-0 text-accent-primary"
+                />
                 <div>
                   <div className="text-sm font-semibold text-text-primary">
                     Document Library
@@ -150,7 +161,10 @@ function FirstUploadView() {
                 onClick={() => markFirstUploadDone()}
                 className="flex items-start gap-3 rounded-xl border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:bg-surface-overlay"
               >
-                <ArrowRight size={18} className="mt-0.5 shrink-0 text-text-muted" />
+                <ArrowRight
+                  size={18}
+                  className="mt-0.5 shrink-0 text-text-muted"
+                />
                 <div>
                   <div className="text-sm font-semibold text-text-primary">
                     Skip to Dashboard
@@ -170,9 +184,21 @@ function FirstUploadView() {
               <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-4">
                 {[
                   { step: "1", label: "Parse", detail: "PDF text extraction" },
-                  { step: "2", label: "Preflight", detail: "Gate color + health score" },
-                  { step: "3", label: "Extract", detail: "Key field extraction" },
-                  { step: "4", label: "Vault", detail: "Lifecycle tracking begins" },
+                  {
+                    step: "2",
+                    label: "Preflight",
+                    detail: "Gate color + health score",
+                  },
+                  {
+                    step: "3",
+                    label: "Extract",
+                    detail: "Key field extraction",
+                  },
+                  {
+                    step: "4",
+                    label: "Vault",
+                    detail: "Lifecycle tracking begins",
+                  },
                 ].map((item) => (
                   <div key={item.step} className="flex items-start gap-2">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-primary/15 text-[10px] font-bold text-accent-primary">
@@ -182,7 +208,9 @@ function FirstUploadView() {
                       <div className="text-sm font-medium text-text-primary">
                         {item.label}
                       </div>
-                      <div className="text-xs text-text-muted">{item.detail}</div>
+                      <div className="text-xs text-text-muted">
+                        {item.detail}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -220,15 +248,23 @@ export default function Home() {
   const notifications = useNotificationStore((s) => s.notifications);
   const openTool = useShellStore((s) => s.openTool);
   const welcomeSeen = useOnboardingStore((s) => s.welcomeSeen);
-  const isOnboardingComplete = useOnboardingStore((s) => s.isOnboardingComplete);
+  const isOnboardingComplete = useOnboardingStore(
+    (s) => s.isOnboardingComplete,
+  );
   const checklistDismissed = useOnboardingStore((s) => s.checklistDismissed);
   const firstUploadDone = useOnboardingStore((s) => s.firstUploadDone);
-  const [selectedQueueId, setSelectedQueueId] = useState(MOCK_OPERATOR_QUEUE[0]?.id);
+  const [selectedQueueId, setSelectedQueueId] = useState(
+    MOCK_OPERATOR_QUEUE[0]?.id,
+  );
   const [bannerDismissed, setBannerDismissed] = useState(false);
-  const showBanner = !bannerDismissed && (!welcomeSeen || !isOnboardingComplete());
+  const showBanner =
+    !bannerDismissed && (!welcomeSeen || !isOnboardingComplete());
   const recommendedQueue = useMemo(
     () =>
-      MOCK_OPERATOR_QUEUE.filter((item) => item.urgency !== "normal").slice(0, 3),
+      MOCK_OPERATOR_QUEUE.filter((item) => item.urgency !== "normal").slice(
+        0,
+        3,
+      ),
     [],
   );
 
@@ -297,7 +333,9 @@ export default function Home() {
                   <div className="theme-section-label theme-label-signal">
                     Recommended Queue
                   </div>
-                  <span className="text-[11px] text-text-muted">{recommendedQueue.length} high signal</span>
+                  <span className="text-[11px] text-text-muted">
+                    {recommendedQueue.length} high signal
+                  </span>
                 </div>
                 <div className="mt-3 space-y-2">
                   {recommendedQueue.map((item) => (
@@ -309,8 +347,12 @@ export default function Home() {
                         router.push(item.href);
                       }}
                     >
-                      <div className="text-sm font-medium text-text-primary">{item.title}</div>
-                      <div className="mt-1 text-xs text-text-muted">{item.nextActionLabel}</div>
+                      <div className="text-sm font-medium text-text-primary">
+                        {item.title}
+                      </div>
+                      <div className="mt-1 text-xs text-text-muted">
+                        {item.nextActionLabel}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -343,7 +385,8 @@ export default function Home() {
                 Start Your First Workspace
               </h2>
               <p className="mt-1 max-w-xl text-sm text-text-secondary">
-                Set up your workspace, upload your first contract, and see how Airlock orchestrates the lifecycle.
+                Set up your workspace, upload your first contract, and see how
+                Airlock orchestrates the lifecycle.
               </p>
               <button
                 onClick={() => router.push("/onboarding")}
@@ -366,7 +409,9 @@ export default function Home() {
                   {user ? `Good morning, ${user.name}` : "Operator Hub"}
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm text-text-secondary">
-                  Your next moves arrive here by gate, message, workflow, and deadline. Stay in one operating surface, then jump into the right workspace only when you need depth.
+                  Your next moves arrive here by gate, message, workflow, and
+                  deadline. Stay in one operating surface, then jump into the
+                  right workspace only when you need depth.
                 </p>
               </div>
               <button
@@ -432,13 +477,16 @@ export default function Home() {
                       onClick={() => setSelectedQueueId(item.id)}
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <div className="text-sm font-medium text-text-primary">{item.title}</div>
+                        <div className="text-sm font-medium text-text-primary">
+                          {item.title}
+                        </div>
                         <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-[10px] font-medium text-text-secondary">
                           {item.workspace}
                         </span>
                       </div>
                       <div className="mt-1 text-xs text-text-muted">
-                        {item.accountLabel ?? "No account"} · {item.nextActionLabel}
+                        {item.accountLabel ?? "No account"} ·{" "}
+                        {item.nextActionLabel}
                       </div>
                     </button>
                   ))}
@@ -455,7 +503,8 @@ export default function Home() {
                       {selectedQueue.title}
                     </div>
                     <div className="mt-1 text-sm text-text-secondary">
-                      {selectedQueue.accountLabel ?? "No linked account"} · {selectedQueue.nextActionLabel}
+                      {selectedQueue.accountLabel ?? "No linked account"} ·{" "}
+                      {selectedQueue.nextActionLabel}
                     </div>
                   </div>
                   <button
@@ -496,10 +545,16 @@ export default function Home() {
                     {MOCK_OPERATOR_FEED.map((item) => (
                       <div key={item.id} className="theme-card rounded-xl p-3">
                         <div className="flex items-center justify-between gap-3">
-                          <div className="text-sm font-medium text-text-primary">{item.title}</div>
-                          <div className="text-[10px] text-text-muted">{item.timeLabel}</div>
+                          <div className="text-sm font-medium text-text-primary">
+                            {item.title}
+                          </div>
+                          <div className="text-[10px] text-text-muted">
+                            {item.timeLabel}
+                          </div>
                         </div>
-                        <div className="mt-1 text-xs text-text-secondary">{item.body}</div>
+                        <div className="mt-1 text-xs text-text-secondary">
+                          {item.body}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -527,7 +582,10 @@ export default function Home() {
             </div>
             <div className="mt-3 space-y-3">
               <MetricCard label="Active Vaults" value={`${totalVaults}`} />
-              <MetricCard label="Unread Alerts" value={`${unreadNotifications}`} />
+              <MetricCard
+                label="Unread Alerts"
+                value={`${unreadNotifications}`}
+              />
               <MetricCard label="Recent Events" value={`${events.length}`} />
             </div>
           </div>
@@ -590,7 +648,9 @@ function MetricCard({ label, value }: { label: string; value: string }) {
       <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
         {label}
       </div>
-      <div className="mt-1 text-lg font-semibold text-text-primary">{value}</div>
+      <div className="mt-1 text-lg font-semibold text-text-primary">
+        {value}
+      </div>
     </div>
   );
 }
