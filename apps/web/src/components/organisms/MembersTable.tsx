@@ -1,9 +1,12 @@
 "use client";
 
 import { useAdminStore } from "@/stores/admin.store";
+import PIProfileBadge from "@/components/atoms/PIProfileBadge";
 import {
   MEMBER_STATUS_CONFIG,
+  MOCK_PI_ASSESSMENTS,
   ORG_ROLE_LABELS,
+  type PIAssessment,
   type WorkspaceMember,
 } from "@/lib/mock-admin";
 
@@ -29,6 +32,11 @@ function moduleRoleSummary(roles: Record<string, string>): string {
 
 export default function MembersTable() {
   const { members, updateMemberRole } = useAdminStore();
+
+  const piByUserId = MOCK_PI_ASSESSMENTS.reduce<Record<string, PIAssessment>>(
+    (acc, a) => ({ ...acc, [a.userId]: a }),
+    {},
+  );
 
   return (
     <div className="space-y-6">
@@ -56,6 +64,9 @@ export default function MembersTable() {
               </th>
               <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Module Roles
+              </th>
+              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                PI Profile
               </th>
               <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Status
@@ -109,6 +120,18 @@ export default function MembersTable() {
                   </td>
                   <td className="px-4 py-3 text-xs text-text-secondary">
                     {moduleRoleSummary(member.moduleRoles)}
+                  </td>
+                  <td className="px-4 py-3">
+                    {piByUserId[member.id] ? (
+                      <PIProfileBadge
+                        piProfile={piByUserId[member.id].piProfile}
+                        metaArchetype={piByUserId[member.id].metaArchetype}
+                      />
+                    ) : (
+                      <span className="text-[10px] text-text-muted">
+                        Not assessed
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs font-medium ${statusCfg.color}`}>

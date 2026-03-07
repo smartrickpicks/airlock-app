@@ -23,6 +23,40 @@ export interface WorkspaceMember {
   joinedAt: string;
 }
 
+// ─── PI Personality Types ───────────────────────────────────────────
+
+export type PIProfile =
+  | "analyzer"
+  | "strategist"
+  | "specialist"
+  | "venturer"
+  | "scholar"
+  | "individualist"
+  | "captain"
+  | "persuader"
+  | "promoter"
+  | "maverick"
+  | "collaborator"
+  | "altruist"
+  | "adapter"
+  | "guardian"
+  | "controller"
+  | "operator"
+  | "artisan";
+
+export type MetaArchetype = "interpreter" | "enforcer" | "driver";
+
+export interface PIAssessment {
+  userId: string;
+  piProfile: PIProfile;
+  metaArchetype: MetaArchetype;
+  chamberAffinity: string[];
+  topAgenticRole: string;
+  runnerUpRole: string;
+  assessmentSource: "admin_assigned" | "self_reported" | "pi_verified";
+  assessedAt: string;
+}
+
 export type FeatureFlagStatus = "enabled" | "disabled" | "beta";
 
 export interface FeatureFlag {
@@ -94,6 +128,47 @@ export const ORG_ROLE_LABELS: Record<WorkspaceMember["orgRole"], string> = {
   lead: "Lead",
   director: "Director",
   executive: "Executive",
+};
+
+export const PI_PROFILE_LABELS: Record<PIProfile, string> = {
+  analyzer: "Analyzer",
+  strategist: "Strategist",
+  specialist: "Specialist",
+  venturer: "Venturer",
+  scholar: "Scholar",
+  individualist: "Individualist",
+  captain: "Captain",
+  persuader: "Persuader",
+  promoter: "Promoter",
+  maverick: "Maverick",
+  collaborator: "Collaborator",
+  altruist: "Altruist",
+  adapter: "Adapter",
+  guardian: "Guardian",
+  controller: "Controller",
+  operator: "Operator",
+  artisan: "Artisan",
+};
+
+export const META_ARCHETYPE_CONFIG: Record<
+  MetaArchetype,
+  { label: string; color: string; chamber: string }
+> = {
+  interpreter: {
+    label: "Interpreter",
+    color: "text-chamber-discover",
+    chamber: "Discover",
+  },
+  driver: {
+    label: "Driver",
+    color: "text-chamber-build",
+    chamber: "Build + Ship",
+  },
+  enforcer: {
+    label: "Enforcer",
+    color: "text-chamber-review",
+    chamber: "Review",
+  },
 };
 
 // ─── Mock Data ───────────────────────────────────────────────────────
@@ -382,5 +457,48 @@ export const MOCK_AUDIT_LOG: AuditLogEntry[] = [
     target: "Tom Gatekeeper",
     details: "Assigned gatekeeper role for Tasks module",
     timestamp: "2026-02-20T10:00:00Z",
+  },
+];
+
+export const MOCK_PI_ASSESSMENTS: PIAssessment[] = [
+  {
+    userId: "user_001",
+    piProfile: "captain",
+    metaArchetype: "driver",
+    chamberAffinity: ["build", "ship"],
+    topAgenticRole: "momentum_builder",
+    runnerUpRole: "team_orchestrator",
+    assessmentSource: "admin_assigned",
+    assessedAt: "2026-03-05T10:00:00Z",
+  },
+  {
+    userId: "user_002",
+    piProfile: "guardian",
+    metaArchetype: "enforcer",
+    chamberAffinity: ["review"],
+    topAgenticRole: "cold_route_guardian",
+    runnerUpRole: "verifier",
+    assessmentSource: "admin_assigned",
+    assessedAt: "2026-03-05T10:00:00Z",
+  },
+  {
+    userId: "user_003",
+    piProfile: "analyzer",
+    metaArchetype: "interpreter",
+    chamberAffinity: ["discover"],
+    topAgenticRole: "evidence_curator",
+    runnerUpRole: "drift_detective",
+    assessmentSource: "pi_verified",
+    assessedAt: "2026-03-04T14:00:00Z",
+  },
+  {
+    userId: "user_004",
+    piProfile: "specialist",
+    metaArchetype: "interpreter",
+    chamberAffinity: ["discover"],
+    topAgenticRole: "compliance_analyst",
+    runnerUpRole: "evidence_curator",
+    assessmentSource: "admin_assigned",
+    assessedAt: "2026-03-05T10:00:00Z",
   },
 ];

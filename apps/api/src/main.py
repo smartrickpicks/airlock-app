@@ -10,6 +10,7 @@ from src.config import settings
 from src.routes.auth import router as auth_router
 from src.routes.engines import router as engine_router
 from src.routes.events import router as event_router
+from src.routes.pi_assessments import router as pi_router
 from src.routes.vaults import router as vault_router
 
 
@@ -49,6 +50,7 @@ def create_app() -> FastAPI:
     app.include_router(vault_router)
     app.include_router(event_router)
     app.include_router(engine_router)
+    app.include_router(pi_router)
 
     return app
 
