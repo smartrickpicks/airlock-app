@@ -169,7 +169,7 @@ export default function DocumentsTable({
               </tr>
             ) : (
               sorted.map((doc) => {
-                const fmt = FORMAT_ICONS[doc.fileFormat] ?? { label: doc.fileFormat.toUpperCase(), color: "text-text-muted" };
+                const fmt = FORMAT_ICONS[doc.fileFormat] ?? { label: (doc.fileFormat ?? "unknown").toUpperCase(), color: "text-text-muted" };
                 const statusCfg = DOC_STATUS_CONFIG[doc.status];
                 const isSelected = doc.id === selectedId;
 

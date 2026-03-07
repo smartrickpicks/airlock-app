@@ -31,7 +31,7 @@ export default function DocumentPreview({
   document,
   onClose,
 }: DocumentPreviewProps) {
-  const fmt = FORMAT_ICONS[document.fileFormat];
+  const fmt = FORMAT_ICONS[document.fileFormat] ?? { label: (document.fileFormat ?? "unknown").toUpperCase(), color: "text-text-muted" };
   const statusCfg = DOC_STATUS_CONFIG[document.status];
   const canRender = TIPTAP_FORMATS.has(document.fileFormat);
 
