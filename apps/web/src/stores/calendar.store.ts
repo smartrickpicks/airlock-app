@@ -5,6 +5,8 @@ import {
   type CalendarEvent,
   type CalendarEventSource,
 } from "@/lib/mock-calendar";
+import { mergeDemoEvents } from "@/stores/demo-lifecycle.store";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 export type CalendarView = "month" | "week" | "agenda";
 
@@ -39,9 +41,17 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
       const data = await apiFetch<{ events: CalendarEvent[] }>(
         "/api/v1/calendar/events",
       );
-      set({ events: data.events, isLoading: false });
+      set({ events: mergeDemoEvents(data.events), isLoading: false });
     } catch {
-      set({ events: MOCK_CALENDAR_EVENTS, isLoading: false, error: null });
+      if (getWorkspaceMode() === "clean") {
+        set({ events: [], isLoading: false, error: null });
+      } else {
+        set({
+          events: mergeDemoEvents(MOCK_CALENDAR_EVENTS),
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
 
