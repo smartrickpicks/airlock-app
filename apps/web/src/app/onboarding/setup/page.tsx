@@ -10,6 +10,7 @@ export default function OnboardingSetupPage() {
   const [name, setName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const initTree = useCapabilityTreeStore((s) => s.initTree);
+  const saveNodeConfig = useCapabilityTreeStore((s) => s.saveNodeConfig);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -17,10 +18,12 @@ export default function OnboardingSetupPage() {
 
   function handleLaunch() {
     if (!name.trim()) return;
-    // Store workspace name in localStorage for now
-    localStorage.setItem("airlock_workspace_name", name.trim());
+    const trimmed = name.trim();
+    const slug = trimmed.toLowerCase().replace(/\s+/g, "-");
     // Reset capability tree to fresh state
     initTree(false);
+    // Pre-populate workspace node so the config panel reads it
+    saveNodeConfig("workspace", { name: trimmed, industry: "", slug });
     router.push("/admin");
   }
 
