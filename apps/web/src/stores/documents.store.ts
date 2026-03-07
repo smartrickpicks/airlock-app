@@ -7,6 +7,8 @@ import {
   type DocumentStatus,
   type FileFormat,
 } from "@/lib/mock-documents";
+import { mergeDemoDocuments } from "@/stores/demo-lifecycle.store";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface DocumentFilters {
   documentType: DocumentType | "all";
@@ -24,6 +26,7 @@ interface DocumentsState {
   selectedDocId: string | null;
 
   fetchDocuments: () => Promise<void>;
+  addDocument: (document: Document) => void;
   setFilter: <K extends keyof DocumentFilters>(
     key: K,
     value: DocumentFilters[K],
@@ -55,11 +58,36 @@ export const useDocumentsStore = create<DocumentsState>((set, get) => ({
       const data = await apiFetch<{ documents: Document[] }>(
         "/api/v1/documents",
       );
-      set({ documents: data.documents, isLoading: false });
+      set({
+        documents: mergeDemoDocuments(data.documents),
+        selectedDocId: mergeDemoDocuments(data.documents)[0]?.id ?? null,
+        isLoading: false,
+      });
     } catch {
-      set({ documents: MOCK_DOCUMENTS, isLoading: false, error: null });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          documents: [],
+          selectedDocId: null,
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        const merged = mergeDemoDocuments(MOCK_DOCUMENTS);
+        set({
+          documents: merged,
+          selectedDocId: merged[0]?.id ?? null,
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
+
+  addDocument: (document) =>
+    set((state) => ({
+      documents: [document, ...state.documents],
+      selectedDocId: document.id,
+    })),
 
   setFilter: (key, value) =>
     set((state) => ({ filters: { ...state.filters, [key]: value } })),

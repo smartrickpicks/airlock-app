@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { apiFetch } from "@/lib/api";
 import { MOCK_VAULTS } from "@/lib/mock-vaults";
+import { mergeDemoVaults } from "@/stores/demo-lifecycle.store";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 type VaultLevel = 1 | 2 | 3 | 4;
 type Chamber = "discover" | "build" | "review" | "ship";
@@ -90,21 +92,29 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const data = await apiFetch<VaultListResponse>(
         `/api/v1/vaults${qs ? `?${qs}` : ""}`,
       );
-      set({ vaults: data.vaults, isLoading: false });
+      set({ vaults: mergeDemoVaults(data.vaults), isLoading: false });
     } catch {
-      // API not running — use mock data for dev preview
-      let filtered = MOCK_VAULTS as Vault[];
-      if (params?.module_type)
-        filtered = filtered.filter((v) => v.module_type === params.module_type);
-      if (params?.vault_level)
-        filtered = filtered.filter((v) => v.vault_level === params.vault_level);
-      if (params?.chamber)
-        filtered = filtered.filter((v) => v.chamber === params.chamber);
-      if (params?.parent_vault_id)
-        filtered = filtered.filter(
-          (v) => v.parent_vault_id === params.parent_vault_id,
-        );
-      set({ vaults: filtered, isLoading: false, error: null });
+      if (getWorkspaceMode() === "clean") {
+        set({ vaults: [], isLoading: false, error: null });
+      } else {
+        // API not running — use mock data for dev preview
+        let filtered = mergeDemoVaults(MOCK_VAULTS as Vault[]);
+        if (params?.module_type)
+          filtered = filtered.filter(
+            (v) => v.module_type === params.module_type,
+          );
+        if (params?.vault_level)
+          filtered = filtered.filter(
+            (v) => v.vault_level === params.vault_level,
+          );
+        if (params?.chamber)
+          filtered = filtered.filter((v) => v.chamber === params.chamber);
+        if (params?.parent_vault_id)
+          filtered = filtered.filter(
+            (v) => v.parent_vault_id === params.parent_vault_id,
+          );
+        set({ vaults: filtered, isLoading: false, error: null });
+      }
     }
   },
 
@@ -114,15 +124,23 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const data = await apiFetch<Vault>(`/api/v1/vaults/${vaultId}`);
       set({ selectedVault: data, isLoading: false });
     } catch {
-      const mock =
-        (MOCK_VAULTS as Vault[]).find(
-          (v) => v.id === vaultId || v.slug === vaultId,
-        ) ?? null;
-      set({
-        selectedVault: mock,
-        isLoading: false,
-        error: mock ? null : "Vault not found",
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          selectedVault: null,
+          isLoading: false,
+          error: "Vault not found",
+        });
+      } else {
+        const mock =
+          mergeDemoVaults(MOCK_VAULTS as Vault[]).find(
+            (v) => v.id === vaultId || v.slug === vaultId,
+          ) ?? null;
+        set({
+          selectedVault: mock,
+          isLoading: false,
+          error: mock ? null : "Vault not found",
+        });
+      }
     }
   },
 

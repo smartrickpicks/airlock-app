@@ -6,6 +6,7 @@ import type {
   RealtimeEvent,
 } from "@/lib/mock-realtime";
 import { MOCK_PRESENCE, MOCK_REALTIME_EVENTS } from "@/lib/mock-realtime";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 type EventHandler = (event: RealtimeEvent) => void;
 
@@ -49,15 +50,27 @@ export const useRealtimeStore = create<RealtimeState>((set, get) => ({
 
     // Simulate connection delay
     setTimeout(() => {
-      set({
-        status: "connected",
-        presenceUsers: [...MOCK_PRESENCE],
-        recentEvents: [...MOCK_REALTIME_EVENTS],
-        subscriptions: new Set([
-          "notifications:*",
-          "presence:*",
-        ] as RealtimeTopic[]),
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          status: "connected",
+          presenceUsers: [],
+          recentEvents: [],
+          subscriptions: new Set([
+            "notifications:*",
+            "presence:*",
+          ] as RealtimeTopic[]),
+        });
+      } else {
+        set({
+          status: "connected",
+          presenceUsers: [...MOCK_PRESENCE],
+          recentEvents: [...MOCK_REALTIME_EVENTS],
+          subscriptions: new Set([
+            "notifications:*",
+            "presence:*",
+          ] as RealtimeTopic[]),
+        });
+      }
     }, 800);
   },
 

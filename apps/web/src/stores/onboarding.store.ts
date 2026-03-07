@@ -22,6 +22,9 @@ const LS_KEY_USER_CHECKLIST = "airlock_user_checklist";
 const LS_KEY_ONBOARDING_PHASE = "airlock_onboarding_phase";
 const LS_KEY_WELCOME_SEEN = "airlock_welcome_seen";
 const LS_KEY_CHECKLIST_DISMISSED = "airlock_checklist_dismissed";
+const LS_KEY_FIRST_UPLOAD_DONE = "airlock_first_upload_done";
+const LS_KEY_WORKSPACE_NAME = "airlock_workspace_name";
+const LS_KEY_WORKSPACE_MODE = "airlock_workspace_mode";
 
 function loadFromLS<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -79,6 +82,14 @@ interface OnboardingState {
   setLoadDemoData: (load: boolean) => void;
   resetWizard: () => void;
 
+  /* first upload tracking */
+  firstUploadDone: boolean;
+  markFirstUploadDone: () => void;
+
+  /* workspace mode */
+  workspaceMode: "clean" | "demo";
+  setWorkspaceMode: (mode: "clean" | "demo") => void;
+
   /* derived */
   userChecklistProgress: () => { completed: number; total: number };
   adminChecklistProgress: () => { completed: number; total: number };
@@ -109,9 +120,14 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
     USER_CHECKLIST_ITEMS,
   ),
   checklistDismissed: loadFromLS<boolean>(LS_KEY_CHECKLIST_DISMISSED, false),
+  firstUploadDone: loadFromLS<boolean>(LS_KEY_FIRST_UPLOAD_DONE, false),
+  workspaceMode: loadFromLS<"clean" | "demo">(LS_KEY_WORKSPACE_MODE, "demo"),
   adminChecklist: [...ADMIN_CHECKLIST_ITEMS],
   wizardStep: "create_workspace",
-  setupState: { ...defaultSetupState },
+  setupState: {
+    ...defaultSetupState,
+    workspaceName: loadFromLS<string>(LS_KEY_WORKSPACE_NAME, ""),
+  },
 
   setPhase: (phase) => {
     set({ phase });
@@ -136,6 +152,16 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
     saveToLS(LS_KEY_CHECKLIST_DISMISSED, true);
   },
 
+  markFirstUploadDone: () => {
+    set({ firstUploadDone: true });
+    saveToLS(LS_KEY_FIRST_UPLOAD_DONE, true);
+  },
+
+  setWorkspaceMode: (mode) => {
+    set({ workspaceMode: mode });
+    saveToLS(LS_KEY_WORKSPACE_MODE, mode);
+  },
+
   completeAdminItem: (id) => {
     set({
       adminChecklist: get().adminChecklist.map((item) =>
@@ -146,8 +172,10 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
 
   setWizardStep: (step) => set({ wizardStep: step }),
 
-  setWorkspaceName: (name) =>
-    set({ setupState: { ...get().setupState, workspaceName: name } }),
+  setWorkspaceName: (name) => {
+    set({ setupState: { ...get().setupState, workspaceName: name } });
+    saveToLS(LS_KEY_WORKSPACE_NAME, name);
+  },
 
   setIndustry: (industry) =>
     set({ setupState: { ...get().setupState, industry } }),
@@ -236,3 +264,7 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
 
   isOnboardingComplete: () => get().userChecklist.every((i) => i.completed),
 }));
+
+export function getWorkspaceMode(): "clean" | "demo" {
+  return useOnboardingStore.getState().workspaceMode;
+}

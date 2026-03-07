@@ -13,6 +13,7 @@ import {
   MOCK_FEATURE_FLAGS,
   MOCK_AUDIT_LOG,
 } from "@/lib/mock-admin";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface AdminState {
   // User preferences
@@ -61,13 +62,22 @@ export const useAdminStore = create<AdminState>((set) => ({
         isLoading: false,
       });
     } catch {
-      // API not available — use mock data
-      set({
-        members: MOCK_MEMBERS,
-        featureFlags: MOCK_FEATURE_FLAGS,
-        auditLog: MOCK_AUDIT_LOG,
-        isLoading: false,
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          members: [],
+          featureFlags: [],
+          auditLog: [],
+          isLoading: false,
+        });
+      } else {
+        // API not available — use mock data
+        set({
+          members: MOCK_MEMBERS,
+          featureFlags: MOCK_FEATURE_FLAGS,
+          auditLog: MOCK_AUDIT_LOG,
+          isLoading: false,
+        });
+      }
     }
   },
 

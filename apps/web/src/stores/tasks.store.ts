@@ -9,6 +9,8 @@ import {
   type TaskType,
   type ModuleType,
 } from "@/lib/mock-tasks";
+import { mergeDemoTasks } from "@/stores/demo-lifecycle.store";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface TaskFilters {
   status: TaskStatus | "all";
@@ -56,9 +58,17 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const data = await apiFetch<{ tasks: Task[] }>("/api/v1/tasks");
-      set({ tasks: data.tasks, isLoading: false });
+      set({ tasks: mergeDemoTasks(data.tasks), isLoading: false });
     } catch {
-      set({ tasks: MOCK_TASKS, isLoading: false, error: null });
+      if (getWorkspaceMode() === "clean") {
+        set({ tasks: [], isLoading: false, error: null });
+      } else {
+        set({
+          tasks: mergeDemoTasks(MOCK_TASKS),
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
 

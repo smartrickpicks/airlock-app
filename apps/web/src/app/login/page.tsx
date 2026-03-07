@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { useAuthStore } from "@/stores/auth.store";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 import { apiFetch } from "@/lib/api";
 
 interface AuthResponse {
@@ -45,6 +46,7 @@ function LoginForm() {
       });
 
       hydrateFromLoginResponse(data);
+      useOnboardingStore.getState().completeChecklistItem("login");
       router.push(nextUrl);
     } catch {
       // Login failed — Google login error is shown inline
@@ -52,6 +54,7 @@ function LoginForm() {
   };
 
   const handleDevLogin = async () => {
+    useOnboardingStore.getState().setWorkspaceMode("demo");
     try {
       const data = await apiFetch<AuthResponse>("/api/v1/auth/dev/login", {
         method: "POST",
@@ -72,8 +75,30 @@ function LoginForm() {
         },
       };
       hydrateFromLoginResponse(mockResponse);
+      useOnboardingStore.getState().completeChecklistItem("login");
       router.push(nextUrl);
     }
+  };
+
+  const handleCreateWorkspace = () => {
+    // Set clean workspace mode — no mock data
+    useOnboardingStore.getState().setWorkspaceMode("clean");
+
+    // Bypass auth with a clean dev user
+    const mockResponse: AuthResponse = {
+      access_token: "dev_clean_token",
+      refresh_token: "dev_clean_refresh",
+      user: {
+        id: "clean_user_001",
+        email: "workspace@airlock.local",
+        display_name: "Workspace Admin",
+        org_role: "executive",
+      },
+    };
+    hydrateFromLoginResponse(mockResponse);
+
+    // Go to setup wizard
+    router.push("/onboarding/setup");
   };
 
   return (
@@ -111,6 +136,12 @@ function LoginForm() {
                 className="w-full rounded border border-accent-primary bg-surface-overlay px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-border"
               >
                 Dev Login
+              </button>
+              <button
+                onClick={handleCreateWorkspace}
+                className="w-full rounded border border-accent-success bg-surface-overlay px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-border"
+              >
+                Create Workspace
               </button>
             </>
           )}
