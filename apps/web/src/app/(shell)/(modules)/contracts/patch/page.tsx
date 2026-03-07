@@ -16,7 +16,7 @@ export default function PatchPage() {
   const patches = MOCK_PATCHES[VAULT_ID] ?? [];
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="h-full overflow-y-auto flex flex-col gap-6 p-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>

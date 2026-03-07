@@ -33,7 +33,7 @@ export default function CalendarMonthPage() {
   const filteredEvents = getFilteredEvents();
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="h-full overflow-y-auto flex flex-col gap-6 p-6">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-xl font-semibold text-text-primary">Calendar</h1>

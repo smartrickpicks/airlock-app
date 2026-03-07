@@ -78,7 +78,7 @@ export default function Home() {
   const totalVaults = vaults.length;
 
   return (
-    <main className="flex-1 overflow-y-auto p-6">
+    <main className="h-full overflow-y-auto p-6">
       {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
       <div className="mx-auto max-w-4xl">
         {/* Onboarding checklist */}
