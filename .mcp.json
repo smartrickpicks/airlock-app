@@ -5,7 +5,55 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/Users/zacharyholwerda/Desktop/Airlock"
+        "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-docs"
+      ]
+    },
+    "airlock-config": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-config"
+      ]
+    },
+    "airlock-skills-library": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-skills-library"
+      ]
+    },
+    "airlock-playbooks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-playbooks"
+      ]
+    },
+    "airlock-coordination": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-coordination"
+      ]
+    },
+    "airlock-gen-ui": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-gen-ui"
+      ]
+    },
+    "airlock-ingestion": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zacharyholwerda/Desktop/Airlock/ingestion"
       ]
     }
   }
