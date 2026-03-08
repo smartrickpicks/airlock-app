@@ -3,6 +3,14 @@ import { create } from "zustand";
 type OrgRole = "architect" | "executive" | "director" | "lead" | "member";
 type ModuleRole = "builder" | "gatekeeper" | "owner" | "designer" | "viewer";
 
+/**
+ * User persona — describes how someone uses Airlock, independent of their org/module role.
+ *   Controller — business operator, uses the Airlock day-to-day
+ *   Maverick   — power configurator, builds and sells packs
+ *   Builder    — developer, extends the platform
+ */
+type Persona = "controller" | "maverick" | "builder";
+
 interface User {
   id: string;
   email: string;
@@ -29,6 +37,8 @@ interface AuthState {
   orgRole: OrgRole | null;
   /** Per-module role assignments */
   moduleRoles: Record<string, ModuleRole>;
+  /** User persona (controller/maverick/builder) — stub for marketplace */
+  persona: Persona | null;
   /** JWT access token */
   accessToken: string | null;
   /** Whether auth state is loading */
@@ -52,6 +62,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   orgRole: null,
   moduleRoles: {},
+  persona: null,
   accessToken: null,
   isLoading: true,
 
@@ -98,6 +109,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       user: null,
       orgRole: null,
       moduleRoles: {},
+      persona: null,
       accessToken: null,
       isLoading: false,
     });

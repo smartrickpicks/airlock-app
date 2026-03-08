@@ -246,9 +246,9 @@ export default function SubPanel() {
             {/* Capability Tree link */}
             <div className="px-1">
               <button
-                onClick={() => router.push("/admin")}
+                onClick={() => router.push("/admin/capability-tree")}
                 className={`flex w-full items-center gap-2.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  pathname === "/admin"
+                  pathname === "/admin/capability-tree"
                     ? "bg-accent-primary/10 text-accent-primary"
                     : "text-text-secondary hover:bg-surface-overlay/50 hover:text-text-primary"
                 }`}

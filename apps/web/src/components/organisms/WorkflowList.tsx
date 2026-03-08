@@ -24,10 +24,10 @@ export default function WorkflowList({ onOpenBuilder }: WorkflowListProps) {
   } = useWorkflowStore();
 
   useEffect(() => {
-    if (workflows.length === 0) {
+    if (!workflows || workflows.length === 0) {
       fetchWorkflows();
     }
-  }, [workflows.length, fetchWorkflows]);
+  }, [workflows, fetchWorkflows]);
 
   const categories: (WorkflowCategory | "all")[] = [
     "all",
@@ -48,8 +48,8 @@ export default function WorkflowList({ onOpenBuilder }: WorkflowListProps) {
         <div>
           <h2 className="text-lg font-bold text-text-primary">Workflows</h2>
           <p className="text-xs text-text-muted">
-            Visual automation builder — {workflows.length} workflow
-            {workflows.length !== 1 ? "s" : ""}
+            Visual automation builder — {workflows?.length ?? 0} workflow
+            {(workflows?.length ?? 0) !== 1 ? "s" : ""}
           </p>
         </div>
         <button className="flex items-center gap-1.5 rounded-md bg-accent-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-primary/80">
