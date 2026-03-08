@@ -365,6 +365,20 @@
       "path": "src/components/templates/SetupWizard.tsx",
       "description": "5-step workspace setup wizard with module config, team invites, and data source selection",
       "milestone": "M24"
+    },
+    {
+      "name": "CapabilityNode",
+      "level": "molecule",
+      "path": "src/components/molecules/CapabilityNode.tsx",
+      "description": "Custom React Flow node for workspace capability with configured/available/locked state indicators",
+      "milestone": "M25"
+    },
+    {
+      "name": "CapabilityTree",
+      "level": "organism",
+      "path": "src/components/organisms/CapabilityTree.tsx",
+      "description": "Interactive React Flow tree visualizing 13 workspace capability dependencies with configuration progress HUD",
+      "milestone": "M25"
     }
   ]
 }

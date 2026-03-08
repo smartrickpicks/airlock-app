@@ -8,6 +8,7 @@ import ProfileSettings from "@/components/organisms/ProfileSettings";
 import AppearanceSettings from "@/components/organisms/AppearanceSettings";
 
 const NAV_ITEMS = [
+  { label: "Dashboard", href: "/admin/dashboard" },
   { label: "Profile", href: "/admin" },
   { label: "Appearance", href: "/admin/settings" },
   { label: "Members", href: "/admin/members" },
