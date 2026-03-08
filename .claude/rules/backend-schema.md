@@ -2,10 +2,10 @@
 
 ## Before You Start
 
-1. Read the relevant spec in `docs/specs/<feature>/overview.md`
-2. Read `docs/concepts/00-glossary.mdx` for canonical vocabulary
+1. Read the relevant spec in `airlock-docs/specs/<feature>/overview.md` (via MCP)
+2. Read `airlock-docs/concepts/00-glossary.mdx` for canonical vocabulary (via MCP)
 3. Read `apps/api/CLAUDE.md` for backend conventions
-4. Check `docs/registry/schema.json` for existing entities
+4. Check `airlock-docs/registry/schema.json` for existing entities (via MCP)
 
 ## Architecture Layers
 
@@ -32,7 +32,7 @@ Route (HTTP) → Service (business logic) → Model (data access)
 2. Define Pydantic request/response schemas in the same file
 3. Create Alembic migration: `alembic revision --autogenerate -m "add <table>"`
 4. Verify migration is reversible (has both `upgrade()` and `downgrade()`)
-5. Update `docs/registry/schema.json` with the new entity
+5. Update `airlock-docs/registry/schema.json` with the new entity (via MCP)
 6. Regenerate OpenAPI spec → triggers TypeScript type generation
 
 ## Required Columns (Every Table)

@@ -18,7 +18,7 @@
       "apps/web/src/lib/mock-workflows.ts",
       "apps/web/src/stores/auth.store.ts",
       "apps/web/src/styles/tokens.css",
-      "docs/registry/components.json"
+      "airlock-docs/registry/components.json"
     ]
   },
   "known_type_errors": {

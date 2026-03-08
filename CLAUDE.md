@@ -8,7 +8,7 @@ Enterprise data operations platform. Discord-like interface for contract lifecyc
 - DO NOT use "Tasks", "Todo", "Dashboard", or "Home Page". Terms: **Triage** (the project management module), **Dispatch** (the global homepage View), **Triage Signals** (the Dispatch widget surfacing Triage items).
 - DO NOT create separate CRM database tables. The vault hierarchy IS the CRM.
 - DO NOT use `getServerSideProps` or Pages Router. This is **App Router** (Next.js 14).
-- DO NOT suggest alternatives to the locked tech stack (see `docs/specs/tech-stack/`).
+- DO NOT suggest alternatives to the locked tech stack (see `airlock-docs/specs/tech-stack/`).
 - DO NOT put business logic in route handlers. Use the `services/` layer.
 - DO NOT modify spec `overview.md` files without explicit permission.
 - DO NOT use raw color values. Use Tailwind tokens from `tokens.css`.
@@ -18,7 +18,7 @@ Enterprise data operations platform. Discord-like interface for contract lifecyc
 - `apps/web/` — Next.js 14 (App Router, TypeScript, Zustand, Tailwind)
 - `apps/api/` — FastAPI (Python, PostgreSQL 16, Redis 7)
 - `packages/shared-types/` — OpenAPI-generated TypeScript client
-- `docs/specs/` — Design specifications (source of truth for requirements)
+- `docs/plans/` — Implementation plans (app-specific)
 
 ## Vocabulary
 
@@ -60,7 +60,22 @@ Conventional commits: `feat(contracts): add triage board view`
 
 Scopes: web, api, shared-types, docs, shell, contracts, crm, triage, dispatch, calendar, documents, admin, ci, docker, deps
 
+## MCP Connections
+
+This repo is a **consumer** — it reads from all MCP servers, writes to none.
+
+| Repo                       | MCP Mode   | What It Provides                                  |
+| -------------------------- | ---------- | ------------------------------------------------- |
+| **airlock-docs**           | Read-only  | Specs, vocabulary, security sub-specs, registries |
+| **airlock-config**         | Read-only  | MCP registry, pack schema, default settings       |
+| **airlock-skills-library** | Read-only  | Skills, components, templates, moodboard          |
+| **airlock-playbooks**      | Read-only  | Deployment, prospecting, onboarding workflows     |
+| **airlock-coordination**   | Read-write | Agent session state, locks, task queue            |
+| **airlock-gen-ui**         | Read-write | Generative UI prompts, configs, output            |
+
+All repos live under `smartrickpicks/` on GitHub.
+
 ## Specs
 
-Read the relevant spec in `docs/specs/` BEFORE implementing any feature.
-See `docs/specs/start.md` for the master index.
+Read the relevant spec in `airlock-docs/specs/` (via MCP) BEFORE implementing any feature.
+See `airlock-docs/specs/start.md` for the master index.

@@ -35,8 +35,8 @@ When invoked with a task description, run the following **four gates in sequence
 
 _Only after user confirms Gate 1._
 
-1. Read the relevant spec: `docs/specs/<module>/overview.md`
-2. Check `docs/registry/components.json` for existing components to reuse
+1. Read the relevant spec: `airlock-docs/specs/<module>/overview.md` (via MCP)
+2. Check `airlock-docs/registry/components.json` for existing components to reuse (via MCP)
 3. Grep/Glob for files likely affected — list them with line counts
 4. Read key sections of those files to understand existing patterns
 5. Report findings in this format:
@@ -44,7 +44,7 @@ _Only after user confirms Gate 1._
 ```
 ## Research Findings
 
-**Spec:** docs/specs/<module>/overview.md — [key requirement]
+**Spec:** airlock-docs/specs/<module>/overview.md — [key requirement]
 **Existing components:** <list or "none relevant">
 **Files to touch:**
   - apps/web/src/... — [why]

@@ -2,10 +2,10 @@
 
 ## Before You Start
 
-1. Read the relevant spec in `docs/specs/<feature>/overview.md`
-2. Read `docs/concepts/00-glossary.mdx` for canonical vocabulary
+1. Read the relevant spec in `airlock-docs/specs/<feature>/overview.md` (via MCP)
+2. Read `airlock-docs/concepts/00-glossary.mdx` for canonical vocabulary (via MCP)
 3. Read `apps/web/CLAUDE.md` for frontend conventions
-4. Check `docs/registry/components.json` for existing components you can reuse
+4. Check `airlock-docs/registry/components.json` for existing components you can reuse (via MCP)
 
 ## Component Creation Checklist
 
@@ -15,7 +15,7 @@
 - [ ] One default export per file
 - [ ] Add `'use client'` directive if using hooks, state, or browser APIs
 - [ ] Use Tailwind tokens from `src/styles/tokens.css` — never raw color values
-- [ ] Update `docs/registry/components.json` with the new component entry
+- [ ] Update `airlock-docs/registry/components.json` with the new component entry (via MCP)
 
 ## Styling Rules
 
