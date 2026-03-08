@@ -6,7 +6,8 @@ type ModuleName =
   | "tasks"
   | "calendar"
   | "documents"
-  | "admin";
+  | "admin"
+  | "home";
 type ChamberName = "discover" | "build" | "review" | "ship";
 
 interface ModuleState {
@@ -40,6 +41,7 @@ export const useModuleStore = create<ModuleState>((set) => ({
     calendar: "/calendar",
     documents: "/documents",
     admin: "/admin",
+    home: "/",
   },
 
   setActiveModule: (module) =>

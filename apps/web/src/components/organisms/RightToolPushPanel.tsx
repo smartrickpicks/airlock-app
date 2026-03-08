@@ -45,7 +45,7 @@ export default function RightToolPushPanel() {
   );
   const notifications = filteredNotifications();
   const conversations = filteredConversations(
-    (activeModule as string) === "home" ? "contracts" : activeModule,
+    activeModule === "home" ? "contracts" : activeModule,
   );
 
   const title = useMemo(() => {

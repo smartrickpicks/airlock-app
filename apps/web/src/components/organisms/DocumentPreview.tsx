@@ -69,24 +69,18 @@ export default function DocumentPreview({
         </button>
       </div>
 
-      {/* Preview */}
-      {canRender ? (
-        <TipTapViewer />
-      ) : (
-        <div className="flex h-[300px] items-center justify-center rounded-xl border border-surface-glass-border bg-surface-glass backdrop-blur-xl">
-          <div className="text-center">
-            <span className={`text-3xl font-bold ${fmt.color}`}>
-              {fmt.label}
-            </span>
-            <p className="mt-2 text-sm text-text-muted">
-              PDF viewer coming soon
-            </p>
-            <p className="mt-1 text-xs text-text-muted">
-              {formatFileSize(document.fileSizeBytes)}
-            </p>
-          </div>
+      {/* Preview placeholder — TipTapViewer available for docs with real content */}
+      <div className="flex h-[300px] items-center justify-center rounded-xl border border-surface-glass-border bg-surface-glass backdrop-blur-xl">
+        <div className="text-center">
+          <span className={`text-3xl font-bold ${fmt.color}`}>{fmt.label}</span>
+          <p className="mt-2 text-sm text-text-muted">
+            {canRender ? "Document preview" : "PDF viewer"} coming soon
+          </p>
+          <p className="mt-1 text-xs text-text-muted">
+            {formatFileSize(document.fileSizeBytes)}
+          </p>
         </div>
-      )}
+      </div>
 
       {/* Metadata */}
       <div className="grid grid-cols-2 gap-3">

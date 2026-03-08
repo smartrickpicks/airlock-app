@@ -193,7 +193,7 @@ export default function SubPanel() {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const isAdmin = activeModule === "admin";
-  const isHome = (activeModule as string) === "home";
+  const isHome = activeModule === "home";
   const currentModule =
     isAdmin || isHome
       ? {

@@ -24,14 +24,13 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   useEffect(() => {
-    provisionDevAuth();
-
     // Skip onboarding if already completed
     if (localStorage.getItem("airlock_onboarding_complete") === "true") {
       router.replace("/");
       return;
     }
 
+    provisionDevAuth();
     router.replace("/onboarding/setup");
   }, [router]);
 
