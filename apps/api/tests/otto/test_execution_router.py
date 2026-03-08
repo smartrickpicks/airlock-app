@@ -38,8 +38,8 @@ def test_messenger_skips_deterministic_writes():
     router = ExecutionRouter(default_tier_config())
     state = _make_state(surface="messenger")
     result = router.route("I'm done, next step", state)
-    # "node_advance" is a write action — messenger can't execute writes
-    assert result.tier != "deterministic" or result.intent != "node_advance"
+    # "node_advance" is a write action — messenger must escalate to LLM tier
+    assert not (result.tier == "deterministic" and result.intent == "node_advance")
 
 
 def test_disabled_tier_skipped():

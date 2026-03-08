@@ -2,6 +2,7 @@
 
 import logging
 import time
+from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +83,6 @@ def is_otto_enabled() -> bool:
 
 # ─── Execution Tier Config ───────────────────────────────────────────
 
-from dataclasses import dataclass, field  # noqa: E402
-
 
 @dataclass
 class TierSettings:
@@ -134,12 +133,13 @@ def default_tier_config() -> ExecutionTierConfig:
 def validate_tier_config(config: ExecutionTierConfig) -> list[str]:
     """Validate tier config. Returns list of errors/warnings."""
     errors: list[str] = []
-    enabled = [t for t in config.fallback_order if config.tiers[t].enabled]
+    enabled = [t for t in config.fallback_order if t in config.tiers and config.tiers[t].enabled]
 
     if not enabled:
         errors.append("At least one execution tier must be enabled")
 
-    if config.tiers["local_llm"].enabled and not config.tiers["local_llm"].base_url:
+    local_llm = config.tiers.get("local_llm")
+    if local_llm and local_llm.enabled and not local_llm.base_url:
         errors.append("Local LLM enabled but no base_url configured")
 
     if enabled == ["deterministic"]:

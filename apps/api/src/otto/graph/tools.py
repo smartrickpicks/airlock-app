@@ -27,7 +27,7 @@ TOOL_AUTH: dict[str, dict] = {
     "run_preflight": {"min_role": "builder", "agents": ["vault"]},
     # Recipe tools (new)
     "get_recipe_progress": {"min_role": "member", "agents": ["recipe"]},
-    "advance_node": {"min_role": "member", "agents": ["recipe"]},
+    "advance_node": {"min_role": "builder", "agents": ["recipe"]},
     # Conductor tools (new)
     "list_recipes": {"min_role": "conductor", "agents": ["conductor"]},
     "get_recipe_detail": {"min_role": "conductor", "agents": ["conductor"]},

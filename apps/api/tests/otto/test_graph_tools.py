@@ -3,14 +3,21 @@
 from src.otto.graph.tools import get_tools_for_agent
 
 
-def test_recipe_agent_tools():
+def test_recipe_agent_tools_member():
     tools = get_tools_for_agent("recipe", org_role="member")
     names = {t["name"] for t in tools}
     assert "get_gate_status" in names
-    assert "advance_node" in names
     assert "get_recipe_progress" in names
-    # Conductor-only tools should NOT be present
+    assert "advance_node" not in names  # write-adjacent, requires builder
     assert "list_recipes" not in names
+
+
+def test_recipe_agent_tools_builder():
+    tools = get_tools_for_agent("recipe", org_role="builder")
+    names = {t["name"] for t in tools}
+    assert "get_gate_status" in names
+    assert "advance_node" in names  # builder can advance
+    assert "suggest_patch" in names  # builder can suggest patches
 
 
 def test_vault_agent_tools():

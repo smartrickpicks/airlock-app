@@ -70,7 +70,9 @@ def test_handle_node_advance_all_pass():
     # No gate conditions → auto-pass
     result = handle_node_advance(state)
     assert result.advanced is True
-    assert state.current_node_index == 3
+    # Handler does NOT mutate state — caller applies the advance
+    assert state.current_node_index == 2  # unchanged
+    assert result.metadata["next_node_index"] == 3
 
 
 def test_handle_node_advance_blocked():

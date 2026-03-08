@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import logging
+
 from src.otto.deps import OttoState
 from src.otto.deterministic import DeterministicResult
+
+logger = logging.getLogger(__name__)
 
 
 def handle_gate_status(state: OttoState) -> DeterministicResult:
@@ -20,12 +24,12 @@ def handle_gate_status(state: OttoState) -> DeterministicResult:
 def handle_field_summary(state: OttoState) -> DeterministicResult:
     """Format field pass/fail/review counts. No LLM needed."""
     ctx = state.vault_context or {}
-    p = ctx.get("pass_count", 0)
-    f = ctx.get("fail_count", 0)
-    r = ctx.get("review_count", 0)
-    total = p + f + r
+    pass_count = ctx.get("pass_count", 0)
+    fail_count = ctx.get("fail_count", 0)
+    review_count = ctx.get("review_count", 0)
+    total = pass_count + fail_count + review_count
 
-    text = f"**Fields:** {p}/{total} passing, {f} failures, {r} need review"
+    text = f"**Fields:** {pass_count}/{total} passing, {fail_count} failures, {review_count} need review"
     return DeterministicResult(intent="field_progress", text=text, metadata=ctx)
 
 
@@ -45,9 +49,14 @@ def handle_recipe_progress(state: OttoState) -> DeterministicResult:
 
 
 def handle_node_advance(state: OttoState) -> DeterministicResult:
-    """Check gate conditions and advance recipe node. Pure logic, no LLM."""
+    """Check gate conditions and report whether advancement is permitted.
+
+    Does NOT mutate state — the caller (graph orchestrator) is responsible
+    for committing the node index change when ``result.advanced is True``.
+    """
     node = state.current_node or {}
     conditions = node.get("gate_conditions", [])
+    current_index = state.current_node_index or 0
 
     results = []
     all_passed = True
@@ -67,31 +76,30 @@ def handle_node_advance(state: OttoState) -> DeterministicResult:
             threshold = condition.get("threshold", 1)
             passed = count >= threshold
         else:
-            # Unknown condition type — pass by default (lenient)
-            passed = True
+            # Unknown condition type — fail-closed for safety
+            logger.warning("Unknown gate condition type '%s' — blocking as fail-safe", ctype)
+            passed = False
 
         results.append({"condition": condition, "passed": passed})
         if not passed:
             all_passed = False
 
     if all_passed:
-        state.current_node_index = (state.current_node_index or 0) + 1
-        text = f"Step complete! Moving to step {state.current_node_index + 1}."
+        next_step = current_index + 2  # human-readable (1-based)
+        text = f"Step complete! Moving to step {next_step}."
         return DeterministicResult(
             intent="node_advance",
             text=text,
             advanced=True,
-            metadata={"results": results},
+            metadata={"results": results, "next_node_index": current_index + 1},
         )
-    else:
-        failing = [r for r in results if not r["passed"]]
-        descriptions = [str(r["condition"]) for r in failing]
-        text = "**Not ready yet.** Remaining conditions:\n" + "\n".join(
-            f"- {d}" for d in descriptions
-        )
-        return DeterministicResult(
-            intent="node_advance",
-            text=text,
-            advanced=False,
-            metadata={"results": results},
-        )
+
+    failing = [r for r in results if not r["passed"]]
+    descriptions = [str(r["condition"]) for r in failing]
+    text = "**Not ready yet.** Remaining conditions:\n" + "\n".join(f"- {d}" for d in descriptions)
+    return DeterministicResult(
+        intent="node_advance",
+        text=text,
+        advanced=False,
+        metadata={"results": results},
+    )
