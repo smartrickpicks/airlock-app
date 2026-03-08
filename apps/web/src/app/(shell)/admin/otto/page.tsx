@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Bot,
   Sparkles,
@@ -49,10 +50,16 @@ export default function AdminOttoPage() {
     (s) => s.nodeConfigs["ai_provider"],
   ) as { provider?: string; model?: string; apiKey?: string } | undefined;
 
-  const aiConnected = aiProviderState === "configured";
-  const providerLabel = aiConfig?.provider ?? "Not configured";
-  const modelLabel = aiConfig?.model ?? "—";
-  const hasKey = Boolean(aiConfig?.apiKey);
+  // Defer store-derived values until after hydration to avoid SSR mismatch
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const aiConnected = mounted && aiProviderState === "configured";
+  const providerLabel = mounted
+    ? (aiConfig?.provider ?? "Not configured")
+    : "Not configured";
+  const modelLabel = mounted ? (aiConfig?.model ?? "—") : "—";
+  const hasKey = mounted && Boolean(aiConfig?.apiKey);
 
   return (
     <div className="h-full overflow-y-auto p-6">
