@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type OrgRole = "member" | "lead" | "director" | "executive";
+type OrgRole = "architect" | "executive" | "director" | "lead" | "member";
 type ModuleRole = "builder" | "gatekeeper" | "owner" | "designer" | "viewer";
 
 interface User {

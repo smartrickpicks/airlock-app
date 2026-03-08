@@ -6,6 +6,8 @@ import type {
   FeatureFlag,
   FeatureFlagStatus,
   AuditLogEntry,
+  OrgRole,
+  ModuleRole,
 } from "@/lib/mock-admin";
 import {
   DEFAULT_PREFERENCES,
@@ -15,28 +17,20 @@ import {
 } from "@/lib/mock-admin";
 
 interface AdminState {
-  // User preferences
   preferences: UserPreferences;
-  // Workspace members
   members: WorkspaceMember[];
-  // Feature flags
   featureFlags: FeatureFlag[];
-  // Audit log
   auditLog: AuditLogEntry[];
-  // Loading states
   isLoading: boolean;
 
-  // Actions
   fetchAdmin: () => Promise<void>;
   updatePreference: <K extends keyof UserPreferences>(
     key: K,
     value: UserPreferences[K],
   ) => void;
   toggleFeatureFlag: (flagId: string, status: FeatureFlagStatus) => void;
-  updateMemberRole: (
-    memberId: string,
-    role: WorkspaceMember["orgRole"],
-  ) => void;
+  updateMemberRole: (memberId: string, role: OrgRole) => void;
+  updateMemberModuleRole: (memberId: string, module: string, role: ModuleRole) => void;
 }
 
 export const useAdminStore = create<AdminState>((set) => ({
@@ -87,6 +81,15 @@ export const useAdminStore = create<AdminState>((set) => ({
     set((state) => ({
       members: state.members.map((m) =>
         m.id === memberId ? { ...m, orgRole: role } : m,
+      ),
+    })),
+
+  updateMemberModuleRole: (memberId, module, role) =>
+    set((state) => ({
+      members: state.members.map((m) =>
+        m.id === memberId
+          ? { ...m, moduleRoles: { ...m.moduleRoles, [module]: role } }
+          : m,
       ),
     })),
 }));
