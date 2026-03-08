@@ -1,13 +1,14 @@
 """Add agent graph columns to otto_sessions.
 
-Revision ID: 010
+Revision ID: 011
+Revises: 010
 """
 
 import sqlalchemy as sa
 from alembic import op
 
-revision = "010"
-down_revision = "009"
+revision = "011"
+down_revision = "010"
 branch_labels = None
 depends_on = None
 
