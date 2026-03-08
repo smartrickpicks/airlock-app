@@ -107,6 +107,7 @@ export default function TipTapViewer({
   const [isEditing, setIsEditing] = useState(initialEditable);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },

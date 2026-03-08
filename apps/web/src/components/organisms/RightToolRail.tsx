@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Bell,
   Bot,
@@ -43,7 +44,11 @@ export default function RightToolRail() {
   const openOtto = useOttoStore((s) => s.openDrawer);
   const closeOtto = useOttoStore((s) => s.closeDrawer);
 
-  const isClean = getWorkspaceMode() === "clean";
+  // Defer localStorage read to avoid SSR hydration mismatch
+  const [isClean, setIsClean] = useState(true);
+  useEffect(() => {
+    setIsClean(getWorkspaceMode() === "clean");
+  }, []);
 
   const badgeCountFor = (id: RightToolId) => {
     if (isClean) return 0;

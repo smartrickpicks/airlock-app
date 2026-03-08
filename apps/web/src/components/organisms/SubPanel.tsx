@@ -202,7 +202,11 @@ export default function SubPanel() {
           icon: "Home",
         }
       : MODULES[activeModule];
-  const isClean = getWorkspaceMode() === "clean";
+  // Defer localStorage read to avoid SSR hydration mismatch
+  const [isClean, setIsClean] = useState(true);
+  useEffect(() => {
+    setIsClean(getWorkspaceMode() === "clean");
+  }, []);
   const progress = getProgress();
 
   // Derive dynamic badge counts from vault data

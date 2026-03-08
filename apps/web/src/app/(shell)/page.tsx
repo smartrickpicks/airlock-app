@@ -257,6 +257,11 @@ export default function Home() {
     MOCK_OPERATOR_QUEUE[0]?.id,
   );
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  // Defer localStorage read to avoid SSR hydration mismatch
+  const [isClean, setIsClean] = useState(true);
+  useEffect(() => {
+    setIsClean(getWorkspaceMode() === "clean");
+  }, []);
   const showBanner =
     !bannerDismissed && (!welcomeSeen || !isOnboardingComplete());
   const recommendedQueue = useMemo(
@@ -278,8 +283,6 @@ export default function Home() {
   if (!firstUploadDone) {
     return <FirstUploadView />;
   }
-
-  const isClean = getWorkspaceMode() === "clean";
 
   const chamberCounts = CHAMBERS.reduce(
     (acc, chamber) => {
