@@ -154,3 +154,110 @@ def dev_login(db: Session = Depends(get_db)) -> dict:  # noqa: B008
             "org_role": user.org_role,
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# Passkey (WebAuthn) routes
+# ---------------------------------------------------------------------------
+
+
+class PasskeyRegisterVerifyRequest(BaseModel):
+    credential: dict
+    device_name: str | None = None
+
+
+class PasskeyAuthenticateRequest(BaseModel):
+    email: str | None = None
+
+
+class PasskeyAuthenticateVerifyRequest(BaseModel):
+    credential: dict
+    session_key: str
+
+
+@router.post("/passkey/register/options")
+def passkey_register_options(
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Generate WebAuthn registration options (requires existing auth)."""
+    from src.services.passkey import get_registration_options
+
+    user = db.query(User).filter(User.id == current_user["sub"]).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return get_registration_options(user)
+
+
+@router.post("/passkey/register/verify")
+def passkey_register_verify(
+    body: PasskeyRegisterVerifyRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Verify WebAuthn registration and store credential."""
+    from src.services.passkey import verify_registration
+
+    user = db.query(User).filter(User.id == current_user["sub"]).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    credential = verify_registration(user, body.credential, db, body.device_name)
+    if not credential:
+        raise HTTPException(status_code=400, detail="Registration verification failed")
+
+    return {"status": "registered", "credential_id": credential.id}
+
+
+@router.post("/passkey/authenticate/options")
+def passkey_authenticate_options(
+    body: PasskeyAuthenticateRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+) -> dict:
+    """Generate WebAuthn authentication options (no auth required)."""
+    from src.services.passkey import get_authentication_options
+
+    return get_authentication_options(db, body.email)
+
+
+@router.post("/passkey/authenticate/verify")
+def passkey_authenticate_verify(
+    body: PasskeyAuthenticateVerifyRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+) -> dict:
+    """Verify WebAuthn authentication and return JWT pair."""
+    from src.services.passkey import verify_authentication
+
+    result = verify_authentication(body.credential, body.session_key, db)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Passkey authentication failed",
+        )
+    return result
+
+
+@router.get("/passkey/credentials")
+def passkey_list(
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """List user's registered passkeys."""
+    from src.services.passkey import list_credentials
+
+    return {"credentials": list_credentials(db, current_user["sub"])}
+
+
+@router.delete("/passkey/credentials/{credential_id}")
+def passkey_delete(
+    credential_id: str,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Remove a passkey."""
+    from src.services.passkey import delete_credential
+
+    success = delete_credential(db, current_user["sub"], credential_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Credential not found")
+    return {"status": "deleted"}

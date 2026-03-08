@@ -106,13 +106,13 @@ export const useOttoStore = create<OttoState>((set, get) => ({
       "ai_provider"
     ] as { provider?: string; apiKey?: string; model?: string } | undefined;
 
-    // If no vault or no API key, go straight to mock
-    if (!vaultId || !aiConfig?.apiKey) {
+    // If no API key configured at all, go straight to mock
+    if (!aiConfig?.apiKey) {
       setTimeout(() => streamMock(content, assistantId, set), 300);
       return;
     }
 
-    // Try real SSE endpoint
+    // Try real SSE endpoint — vault-scoped or general
     const abort = new AbortController();
     currentAbort = abort;
 
@@ -125,7 +125,11 @@ export const useOttoStore = create<OttoState>((set, get) => ({
       },
     };
 
-    fetch(`/api/v3/vaults/${vaultId}/otto/chat`, {
+    const endpoint = vaultId
+      ? `/api/v3/vaults/${vaultId}/otto/chat`
+      : `/api/v3/otto/chat`;
+
+    fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -175,9 +179,19 @@ export const useOttoStore = create<OttoState>((set, get) => ({
       .catch((err) => {
         if (err instanceof Error && err.name === "AbortError") return;
 
-        // Fallback to mock on any error
-        console.warn("Otto SSE unavailable, using mock:", err);
-        streamMock(content, assistantId, set);
+        // Show connection error instead of canned mock
+        console.warn("Otto SSE unavailable:", err);
+        const errorMsg =
+          "**Unable to reach Otto API**\n\n" +
+          "The backend server isn't responding. Make sure the API is running:\n" +
+          "```\ncd apps/api && uvicorn src.main:app --reload\n```\n\n" +
+          `*Error: ${err instanceof Error ? err.message : "Connection failed"}*`;
+        set((s) => ({
+          messages: s.messages.map((m) =>
+            m.id === assistantId ? { ...m, content: errorMsg } : m,
+          ),
+          isStreaming: false,
+        }));
         currentAbort = null;
       });
   },

@@ -176,7 +176,7 @@ const ADMIN_TIERS = [
 ];
 
 const ADMIN_PERSONAL = [
-  { label: "Profile", icon: User, route: "/admin/settings" },
+  { label: "Profile", icon: User, route: "/admin/profile" },
   { label: "Appearance", icon: Palette, route: "/admin/settings" },
   { label: "Audit Log", icon: ScrollText, route: "/admin/audit-log" },
 ];
@@ -187,7 +187,7 @@ export default function SubPanel() {
   const { activeModule, activeChamber, selectedVaultId, setSelectedVault } =
     useModuleStore();
   const { vaults, fetchVaults } = useVaultStore();
-  const nodeStates = useCapabilityTreeStore((s) => s.nodeStates);
+  const storeNodeStates = useCapabilityTreeStore((s) => s.nodeStates);
   const getProgress = useCapabilityTreeStore((s) => s.getProgress);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -201,13 +201,25 @@ export default function SubPanel() {
           path: isAdmin ? "/admin" : "/",
           icon: "Home",
         }
-      : MODULES[activeModule];
-  // Defer localStorage read to avoid SSR hydration mismatch
+      : ((
+          MODULES as Record<
+            string,
+            { label: string; icon: string; path: string }
+          >
+        )[activeModule] ?? { label: "Home", path: "/", icon: "Home" });
+  // Defer localStorage reads to avoid SSR hydration mismatch
   const [isClean, setIsClean] = useState(true);
+  const [progress, setProgress] = useState({
+    configured: 0,
+    total: 0,
+    percent: 0,
+  });
+  const [nodeStates, setNodeStates] = useState<Record<string, string>>({});
   useEffect(() => {
     setIsClean(getWorkspaceMode() === "clean");
-  }, []);
-  const progress = getProgress();
+    setProgress(getProgress());
+    setNodeStates(storeNodeStates);
+  }, [getProgress, storeNodeStates]);
 
   // Derive dynamic badge counts from vault data
   const discoverCount = vaults.filter((v) => v.chamber === "discover").length;
@@ -292,9 +304,9 @@ export default function SubPanel() {
             {/* Capability Tree link */}
             <div className="px-1">
               <button
-                onClick={() => router.push("/admin")}
+                onClick={() => router.push("/admin/capability-tree")}
                 className={`flex w-full items-center gap-2.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  pathname === "/admin"
+                  pathname === "/admin/capability-tree"
                     ? "bg-accent-primary/10 text-accent-primary"
                     : "text-text-secondary hover:bg-surface-overlay/50 hover:text-text-primary"
                 }`}

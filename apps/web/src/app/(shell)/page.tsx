@@ -262,6 +262,10 @@ export default function Home() {
   useEffect(() => {
     setIsClean(getWorkspaceMode() === "clean");
   }, []);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const showBanner =
     !bannerDismissed && (!welcomeSeen || !isOnboardingComplete());
   const recommendedQueue = useMemo(
@@ -299,7 +303,7 @@ export default function Home() {
   const unreadNotifications = notifications.filter((item) => !item.read).length;
 
   return (
-    <main className="theme-shell-canvas h-full overflow-y-auto p-6">
+    <div className="theme-shell-canvas h-full overflow-y-auto p-6">
       <div className="grid h-full gap-6 xl:grid-cols-[280px_minmax(0,1fr)_320px]">
         <section className="theme-panel-frame theme-panel-signal space-y-4 rounded-[28px] p-4">
           {!isClean && (
@@ -608,7 +612,7 @@ export default function Home() {
                     {eventSummary(event)}
                   </div>
                   <div className="mt-1 text-xs text-text-muted">
-                    {formatTimeAgo(event.created_at)}
+                    {mounted ? formatTimeAgo(event.created_at) : ""}
                   </div>
                 </button>
               ))}
@@ -616,7 +620,7 @@ export default function Home() {
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
 

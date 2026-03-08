@@ -11,6 +11,7 @@ from src.config import settings
 from src.event_bus.routes import router as event_bus_router
 from src.mcp.routes import router as mcp_router
 from src.messenger.routes import router as messenger_router
+from src.otto.routes import general_router as otto_general_router
 from src.otto.routes import router as otto_router
 from src.realtime.ws import websocket_endpoint
 from src.routes.auth import router as auth_router
@@ -59,6 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(event_router)
     app.include_router(engine_router)
     app.include_router(otto_router)
+    app.include_router(otto_general_router)
     app.include_router(event_bus_router)
     app.include_router(messenger_router)
     app.include_router(workflow_router)

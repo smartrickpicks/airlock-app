@@ -204,7 +204,7 @@ export default function ContractEngineActionModal({
             onClick={() => {
               if (didRun && vault) {
                 // Refresh extraction store + vault data so RecordInspector picks up new results
-                void useExtractionStore.getState().refetchExtraction(vault.id);
+                void useExtractionStore.getState().fetchExtraction(vault.id);
                 void useVaultStore.getState().fetchVault(vault.id);
                 setDidRun(false);
               }

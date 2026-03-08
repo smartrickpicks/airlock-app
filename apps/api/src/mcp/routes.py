@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from src.db import get_db
+from src.mcp.manifest import build_agent_manifest
 from src.mcp.schemas import (
     CreateMcpServerRequest,
     CreateSkillRequest,
@@ -124,3 +125,16 @@ def toggle_skill_endpoint(
     if not result:
         raise HTTPException(status_code=404, detail="Skill not found")
     return result
+
+
+# --- Agent Manifest ---
+
+
+@router.get("/agent-manifest")
+def get_agent_manifest(
+    db: Session = Depends(get_db),  # noqa: B008
+    user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Export workspace capability tree as W3C-aligned agent description manifest."""
+    workspace_id = user.get("workspace_id", "ws_dev")
+    return build_agent_manifest(db, workspace_id)

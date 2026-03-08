@@ -13,8 +13,8 @@ from sqlalchemy.orm import Session
 from src.config import settings
 from src.db import get_db
 from src.middleware.auth import get_current_user
-from src.otto.agent import build_system_prompt, generate_stub_response
-from src.otto.enrichment import build_vault_context
+from src.otto.agent import build_agent_context_prompt, build_system_prompt, generate_stub_response
+from src.otto.enrichment import build_user_agent_context, build_vault_context
 from src.otto.feature_gate import is_otto_enabled, otto_circuit_breaker
 from src.otto.session_service import (
     clear_session,
@@ -32,6 +32,7 @@ from src.otto.sse import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v3/vaults/{vault_id}/otto", tags=["otto"])
+general_router = APIRouter(prefix="/api/v3/otto", tags=["otto"])
 
 # Provider name → OpenAI-compatible base URL
 PROVIDER_BASE_URLS: dict[str, str] = {
@@ -52,6 +53,8 @@ class ChatRequest(BaseModel):
     message: str
     session_id: str | None = None
     provider_config: ProviderConfig | None = None
+    module: str | None = None  # contracts | crm | tasks | calendar | documents
+    chamber: str | None = None  # discover | build | review | ship
 
 
 def _resolve_provider(pc: ProviderConfig | None) -> tuple[str, str, str]:
@@ -139,8 +142,24 @@ def otto_chat(
     # Save user message
     save_message(db, session, role="user", content=request.message)
 
-    # Build enrichment context
-    ctx = build_vault_context(db, vault_id, workspace_id, user_id, user_role)
+    # Build enrichment context — try full agent context, fall back to vault context
+    agent_ctx = None
+    try:
+        agent_ctx = build_user_agent_context(
+            db,
+            vault_id,
+            workspace_id,
+            user_id,
+            user_role,
+            module=request.module or "contracts",
+            chamber=request.chamber or "discover",
+        )
+        ctx = agent_ctx.vault_context
+        system_prompt = build_agent_context_prompt(agent_ctx)
+    except Exception:
+        logger.warning("UserAgentContext build failed, falling back to VaultContext")
+        ctx = build_vault_context(db, vault_id, workspace_id, user_id, user_role)
+        system_prompt = build_system_prompt(ctx)
 
     # Resolve provider from request config or env
     base_url, api_key, model_name = _resolve_provider(request.provider_config)
@@ -182,7 +201,7 @@ def otto_chat(
                 )
                 agent = Agent(
                     model=model,
-                    system_prompt=build_system_prompt(ctx),
+                    system_prompt=system_prompt,
                 )
                 result = agent.run_sync(request.message)
                 full_response = result.data
@@ -248,3 +267,103 @@ def delete_session(
     if not success:
         raise HTTPException(status_code=404, detail="No session found")
     return {"status": "cleared"}
+
+
+# ─── Vault-less general chat ─────────────────────────────────────────
+
+OTTO_GENERAL_SYSTEM_PROMPT = """You are Otto, the AI assistant inside Airlock — an enterprise data operations platform \
+for contract lifecycle management.
+
+You are currently in general assistant mode (no vault selected). You can:
+- Answer questions about Airlock features and workflows
+- Help with platform navigation and configuration
+- Provide general guidance on contract management
+- Assist with admin and setup tasks
+
+You do NOT have vault-specific enrichment data in this mode. If the user asks about \
+specific contract data, suggest they open a vault first.
+
+Keep responses focused, helpful, and concise.
+"""
+
+
+@general_router.post("/chat")
+def otto_general_chat(
+    request: ChatRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+    user: dict = Depends(get_current_user),  # noqa: B008
+) -> StreamingResponse:
+    """General Otto chat without vault context — used from admin pages."""
+    if not is_otto_enabled():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Otto AI is temporarily unavailable",
+        )
+
+    # Resolve provider from request config or env
+    base_url, api_key, model_name = _resolve_provider(request.provider_config)
+
+    def stream_response() -> Generator[str, None, None]:
+        start_time = time.time()
+        full_response = ""
+
+        try:
+            try:
+                if not api_key:
+                    raise ValueError("No API key configured")  # noqa: TRY301
+
+                from pydantic_ai import Agent
+                from pydantic_ai.models.openai import OpenAIModel
+
+                model = OpenAIModel(
+                    model_name,
+                    base_url=base_url,
+                    api_key=api_key,
+                )
+                agent = Agent(
+                    model=model,
+                    system_prompt=OTTO_GENERAL_SYSTEM_PROMPT,
+                )
+                result = agent.run_sync(request.message)
+                full_response = result.data
+                logger.info("Otto general LLM response via %s/%s", base_url, model_name)
+
+            except Exception:
+                logger.info("LLM unavailable (provider=%s), using fallback", base_url)
+                full_response = (
+                    "**Otto** (general mode)\n\n"
+                    "I'm currently unable to connect to the AI provider. "
+                    "Please check your API key configuration in the Capability Tree.\n\n"
+                    "*Tip: Open a vault for enriched, context-aware analysis.*"
+                )
+
+            words = full_response.split(" ")
+            for i, word in enumerate(words):
+                token = word if i == 0 else " " + word
+                yield format_sse_text(token)
+
+            prompt_tokens = len(request.message.split()) * 2
+            completion_tokens = len(words)
+
+            yield format_sse_finish("stop", prompt_tokens, completion_tokens)
+            yield format_sse_done()
+
+            elapsed = time.time() - start_time
+            logger.info("Otto general response in %.1fs (%d tokens)", elapsed, completion_tokens)
+            otto_circuit_breaker.record_success()
+
+        except Exception:
+            logger.exception("Otto general streaming error")
+            otto_circuit_breaker.record_error()
+            yield format_sse_error("An internal error occurred. Please try again.")
+            yield format_sse_done()
+
+    return StreamingResponse(
+        stream_response(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )

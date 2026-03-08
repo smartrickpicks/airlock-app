@@ -12,7 +12,9 @@ from src.otto.deps import (
     FieldSummary,
     GateState,
     PatchSummary,
+    PermittedTool,
     PreflightSection,
+    UserAgentContext,
     VaultContext,
 )
 
@@ -220,4 +222,185 @@ def build_vault_context(
         user_id=user_id,
         user_role=user_role,
         **results,  # type: ignore[arg-type]
+    )
+
+
+def _resolve_module_role(
+    db: Session, user_id: str, workspace_id: str, module: str, org_role: str
+) -> str:
+    """Resolve user's module-specific role, falling back to org_role."""
+    try:
+        from src.models.user_module_role import UserModuleRole
+
+        role_record = (
+            db.query(UserModuleRole)
+            .filter(
+                UserModuleRole.user_id == user_id,
+                UserModuleRole.workspace_id == workspace_id,
+                UserModuleRole.module_id == module,
+            )
+            .first()
+        )
+        if role_record:
+            return role_record.module_role
+    except Exception:
+        logger.debug("Module role lookup unavailable, falling back to org_role")
+    return org_role
+
+
+def _resolve_permitted_tools(db: Session, workspace_id: str, module: str) -> list[PermittedTool]:
+    """Resolve tools available in this workspace/module context."""
+    try:
+        from src.mcp.models import McpServer
+        from src.models.mcp_permission import McpToolPermission
+
+        # Try permission-based resolution first (tool risk tiers)
+        permissions = (
+            db.query(McpToolPermission)
+            .filter(
+                McpToolPermission.workspace_id == workspace_id,
+                McpToolPermission.enabled.is_(True),
+            )
+            .all()
+        )
+        if permissions:
+            tools: list[PermittedTool] = []
+            for perm in permissions:
+                scope = perm.module_scope or [module]
+                if module in scope or "all" in scope:
+                    server = db.query(McpServer).filter(McpServer.id == perm.mcp_server_id).first()
+                    tools.append(
+                        PermittedTool(
+                            name=perm.tool_name,
+                            server=server.name if server else "unknown",
+                            risk_tier=perm.risk_tier,
+                            module_scope=scope,
+                        )
+                    )
+            return tools
+
+        # Fallback: read from MCP server capabilities list
+        servers = (
+            db.query(McpServer)
+            .filter(
+                McpServer.workspace_id == workspace_id,
+                McpServer.status == "active",
+            )
+            .all()
+        )
+        tools = []
+        for server in servers:
+            cap_list = server.capabilities if isinstance(server.capabilities, list) else []
+            for tool_def in cap_list:
+                if isinstance(tool_def, dict):
+                    tools.append(
+                        PermittedTool(
+                            name=tool_def.get("name", "unknown"),
+                            server=server.name,
+                            risk_tier=tool_def.get("risk_tier", "read"),
+                            module_scope=tool_def.get("module_scope", [module]),
+                        )
+                    )
+        return tools
+    except Exception:
+        logger.debug("Permitted tools lookup unavailable, returning empty list")
+        return []
+
+
+def _resolve_personal_connections(db: Session, user_id: str) -> list[str]:
+    """Resolve user's connected integrations from user_connections table."""
+    try:
+        from src.models.user_connection import UserConnection
+
+        connections = (
+            db.query(UserConnection)
+            .filter(
+                UserConnection.user_id == user_id,
+                UserConnection.status == "connected",
+                UserConnection.deleted_at.is_(None),
+            )
+            .all()
+        )
+        if connections:
+            return [c.provider for c in connections]
+
+        # Fallback: check user metadata
+        from src.models.user import User
+
+        user = db.query(User).filter(User.id == user_id).first()
+        if user and hasattr(user, "metadata_") and user.metadata_:
+            return user.metadata_.get("connected_integrations", [])
+    except Exception:
+        logger.debug("Personal connections lookup unavailable")
+    return []
+
+
+def _resolve_user_preferences(db: Session, user_id: str) -> dict:
+    """Resolve user response preferences from user metadata."""
+    defaults = {
+        "response_style": "concise",
+        "auto_approve_reads": True,
+        "notification_prefs": None,
+    }
+    try:
+        from src.models.user import User
+
+        user = db.query(User).filter(User.id == user_id).first()
+        if user and hasattr(user, "metadata_") and user.metadata_:
+            prefs = user.metadata_.get("otto_preferences", {})
+            return {
+                "response_style": prefs.get("response_style", defaults["response_style"]),
+                "auto_approve_reads": prefs.get(
+                    "auto_approve_reads", defaults["auto_approve_reads"]
+                ),
+                "notification_prefs": prefs.get("notification_prefs"),
+            }
+    except Exception:
+        logger.debug("User preferences lookup unavailable, using defaults")
+    return defaults
+
+
+def build_user_agent_context(
+    db: Session,
+    vault_id: str,
+    workspace_id: str,
+    user_id: str,
+    user_role: str,
+    module: str = "contracts",
+    chamber: str = "discover",
+) -> UserAgentContext:
+    """Build full UserAgentContext with identity, capabilities, and enrichment.
+
+    Wraps build_vault_context and resolves additional identity/capability data.
+    All resolution steps use try/except with fallbacks (graceful degradation).
+    """
+    # 1. Build core vault enrichment
+    vault_context = build_vault_context(db, vault_id, workspace_id, user_id, user_role)
+
+    # 2. Resolve module role
+    module_role = _resolve_module_role(db, user_id, workspace_id, module, user_role)
+
+    # 3. Resolve permitted tools
+    permitted_tools = _resolve_permitted_tools(db, workspace_id, module)
+
+    # 4. Resolve personal connections
+    personal_connections = _resolve_personal_connections(db, user_id)
+
+    # 5. Resolve user preferences
+    prefs = _resolve_user_preferences(db, user_id)
+
+    return UserAgentContext(
+        user_id=user_id,
+        workspace_id=workspace_id,
+        org_role=user_role,
+        module_role=module_role,
+        vault_id=vault_id,
+        module=module,
+        chamber=chamber,
+        permitted_tools=permitted_tools,
+        personal_connections=personal_connections,
+        vault_context=vault_context,
+        response_style=prefs["response_style"],
+        auto_approve_reads=prefs["auto_approve_reads"],
+        notification_prefs=prefs.get("notification_prefs"),
     )

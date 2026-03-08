@@ -2,7 +2,7 @@
 
 import logging
 
-from src.otto.deps import VaultContext
+from src.otto.deps import UserAgentContext, VaultContext
 from src.otto.feature_gate import OTTO_CALIBRATION
 
 logger = logging.getLogger(__name__)
@@ -58,6 +58,97 @@ def build_system_prompt(ctx: VaultContext) -> str:
         review_count=review_count,
         open_patches=open_patches,
         user_role=ctx.user_role,
+    )
+
+
+OTTO_AGENT_SYSTEM_PROMPT = """You are Otto, the AI assistant inside Airlock — an enterprise data operations platform \
+for contract lifecycle management.
+
+Your role:
+- Help analysts understand vault data, identify issues, and propose corrections
+- Always cite enrichment sources when referencing data
+- Never take autonomous actions — always propose and let humans approve
+- Keep responses focused and actionable
+
+Behavioral rules:
+- Propose patches as drafts (never auto-apply)
+- Self-approval is blocked (AI-drafted patches need different user approval)
+- Maximum {max_tool_calls} tool calls per message
+- Reference vault context: gate status, health score, field summary
+
+## User Identity
+- User: {user_id} (org role: {org_role}, module role: {module_role})
+- Module: {module} — Chamber: {chamber}
+- Vault: {vault_id}
+
+## Vault Status
+- Gate: {gate_color} (health: {health_score})
+- Fields: {pass_count} pass, {fail_count} fail, {review_count} review
+- Open patches: {open_patches}
+
+## Tool Authorization
+{tool_block}
+
+## Response Style
+Respond in a {response_style} manner. {style_guidance}
+"""
+
+
+def build_agent_context_prompt(ctx: UserAgentContext) -> str:
+    """Build system prompt with full agent context (identity + capabilities + enrichment)."""
+    gate_color = "unknown"
+    health_score = 0.0
+    pass_count = fail_count = review_count = 0
+    open_patches = 0
+
+    vc = ctx.vault_context
+    if vc.gate_state:
+        gate_color = vc.gate_state.gate_color
+        health_score = vc.gate_state.health_score
+    if vc.field_summary:
+        pass_count = vc.field_summary.pass_count
+        fail_count = vc.field_summary.fail_count
+        review_count = vc.field_summary.review_count
+    if vc.patch_summary:
+        open_patches = vc.patch_summary.open
+
+    # Build tool authorization block
+    if ctx.permitted_tools:
+        tool_lines = []
+        for tool in ctx.permitted_tools:
+            scope = ", ".join(tool.module_scope) if tool.module_scope else "all"
+            tool_lines.append(
+                f"- {tool.name} ({tool.server}) — risk: {tool.risk_tier}, scope: {scope}"
+            )
+        tool_block = "\n".join(tool_lines)
+    else:
+        tool_block = "No external tools authorized for this session."
+
+    # Style guidance based on preference
+    style_map = {
+        "concise": "Keep answers brief and actionable — bullet points preferred.",
+        "detailed": "Provide thorough explanations with examples and reasoning.",
+        "technical": "Use precise technical language; include data references and field names.",
+    }
+    style_guidance = style_map.get(ctx.response_style, style_map["concise"])
+
+    return OTTO_AGENT_SYSTEM_PROMPT.format(
+        max_tool_calls=OTTO_CALIBRATION["otto.max_tool_calls"],
+        user_id=ctx.user_id,
+        org_role=ctx.org_role,
+        module_role=ctx.module_role,
+        module=ctx.module,
+        chamber=ctx.chamber,
+        vault_id=ctx.vault_id,
+        gate_color=gate_color,
+        health_score=health_score,
+        pass_count=pass_count,
+        fail_count=fail_count,
+        review_count=review_count,
+        open_patches=open_patches,
+        tool_block=tool_block,
+        response_style=ctx.response_style,
+        style_guidance=style_guidance,
     )
 
 

@@ -24,6 +24,52 @@ export type LeadSource =
 
 export type AccountSegment = "enterprise" | "mid_market" | "smb";
 
+export type StakeholderRole =
+  | "champion"
+  | "decision_maker"
+  | "legal"
+  | "finance"
+  | "procurement"
+  | "evaluator"
+  | "influencer";
+
+export interface AccountMemoryEntry {
+  id: string;
+  channelType: string;
+  direction: string;
+  visibility: string;
+  title: string;
+  body: string;
+  actorName: string;
+  createdAt: string;
+  targetLabel?: string;
+  workflowName?: string;
+  approvalState?: string;
+}
+
+export interface AccountArtifact {
+  id: string;
+  label: string;
+  type: string;
+  status: string;
+  updatedAt: string;
+}
+
+export interface AccountMemoryWorkspaceData {
+  label: string;
+  conceptBadge?: string;
+  primaryOwnerName: string;
+  pendingApprovals: number;
+  openActionItems: number;
+  nextRecommendedAction: string;
+  stakeholderGap?: string;
+  thread: AccountMemoryEntry[];
+  stakeholders: unknown[];
+  stakeholderGroups: unknown[];
+  artifacts: AccountArtifact[];
+  aiAssist: { id: string; title: string; detail: string; confidence: string }[];
+}
+
 export interface CrmContact {
   id: string;
   name: string;
@@ -42,6 +88,9 @@ export interface CrmAccount {
   totalValue: number;
   contacts: CrmContact[];
   lastContact: string;
+  currentChamber?: string;
+  contractReadiness?: string;
+  accountMemory?: AccountMemoryWorkspaceData;
 }
 
 export interface CrmDeal {
@@ -82,7 +131,11 @@ function hoursAgo(n: number): string {
 
 // ─── Pipeline Stage Config ───────────────────────────────────────
 
-export const PIPELINE_STAGES: { id: PipelineStage; label: string; color: string }[] = [
+export const PIPELINE_STAGES: {
+  id: PipelineStage;
+  label: string;
+  color: string;
+}[] = [
   { id: "prospecting", label: "Prospecting", color: "bg-accent-primary" },
   { id: "discovery", label: "Discovery", color: "bg-accent-secondary" },
   { id: "proposal", label: "Proposal", color: "bg-chamber-review" },
@@ -98,7 +151,10 @@ export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
   referral: "Referral",
 };
 
-export const LEAD_STAGE_CONFIG: Record<LeadStage, { label: string; color: string }> = {
+export const LEAD_STAGE_CONFIG: Record<
+  LeadStage,
+  { label: string; color: string }
+> = {
   new: { label: "New", color: "bg-text-muted" },
   mql: { label: "MQL", color: "bg-accent-primary" },
   sal: { label: "SAL", color: "bg-accent-secondary" },
@@ -123,9 +179,27 @@ export const MOCK_CRM_ACCOUNTS: CrmAccount[] = [
     dealCount: 2,
     totalValue: 180000,
     contacts: [
-      { id: "cnt_001", name: "Jack Chen", role: "Biz Dev", interactionCount: 12, lastInteraction: hoursAgo(0.2) },
-      { id: "cnt_002", name: "Sarah Kim", role: "Legal", interactionCount: 5, lastInteraction: daysAgo(3) },
-      { id: "cnt_003", name: "Mike Torres", role: "CFO", interactionCount: 1, lastInteraction: daysAgo(1) },
+      {
+        id: "cnt_001",
+        name: "Jack Chen",
+        role: "Biz Dev",
+        interactionCount: 12,
+        lastInteraction: hoursAgo(0.2),
+      },
+      {
+        id: "cnt_002",
+        name: "Sarah Kim",
+        role: "Legal",
+        interactionCount: 5,
+        lastInteraction: daysAgo(3),
+      },
+      {
+        id: "cnt_003",
+        name: "Mike Torres",
+        role: "CFO",
+        interactionCount: 1,
+        lastInteraction: daysAgo(1),
+      },
     ],
     lastContact: hoursAgo(0.2),
   },
@@ -138,8 +212,20 @@ export const MOCK_CRM_ACCOUNTS: CrmAccount[] = [
     dealCount: 1,
     totalValue: 85000,
     contacts: [
-      { id: "cnt_004", name: "Sarah Kim", role: "Billing", interactionCount: 3, lastInteraction: daysAgo(2) },
-      { id: "cnt_005", name: "Tom Barker", role: "Ops", interactionCount: 1, lastInteraction: daysAgo(5) },
+      {
+        id: "cnt_004",
+        name: "Sarah Kim",
+        role: "Billing",
+        interactionCount: 3,
+        lastInteraction: daysAgo(2),
+      },
+      {
+        id: "cnt_005",
+        name: "Tom Barker",
+        role: "Ops",
+        interactionCount: 1,
+        lastInteraction: daysAgo(5),
+      },
     ],
     lastContact: daysAgo(2),
   },
@@ -152,7 +238,13 @@ export const MOCK_CRM_ACCOUNTS: CrmAccount[] = [
     dealCount: 1,
     totalValue: 240000,
     contacts: [
-      { id: "cnt_006", name: "Rachel Adams", role: "VP Partnerships", interactionCount: 8, lastInteraction: daysAgo(14) },
+      {
+        id: "cnt_006",
+        name: "Rachel Adams",
+        role: "VP Partnerships",
+        interactionCount: 8,
+        lastInteraction: daysAgo(14),
+      },
     ],
     lastContact: daysAgo(14),
   },
@@ -165,8 +257,20 @@ export const MOCK_CRM_ACCOUNTS: CrmAccount[] = [
     dealCount: 1,
     totalValue: 180000,
     contacts: [
-      { id: "cnt_007", name: "Daniele Leoni", role: "A&R", interactionCount: 15, lastInteraction: daysAgo(1) },
-      { id: "cnt_008", name: "Marco Bianchi", role: "Legal", interactionCount: 4, lastInteraction: daysAgo(7) },
+      {
+        id: "cnt_007",
+        name: "Daniele Leoni",
+        role: "A&R",
+        interactionCount: 15,
+        lastInteraction: daysAgo(1),
+      },
+      {
+        id: "cnt_008",
+        name: "Marco Bianchi",
+        role: "Legal",
+        interactionCount: 4,
+        lastInteraction: daysAgo(7),
+      },
     ],
     lastContact: daysAgo(1),
   },
@@ -179,7 +283,13 @@ export const MOCK_CRM_ACCOUNTS: CrmAccount[] = [
     dealCount: 1,
     totalValue: 60000,
     contacts: [
-      { id: "cnt_009", name: "Alex Turner", role: "CEO", interactionCount: 2, lastInteraction: daysAgo(3) },
+      {
+        id: "cnt_009",
+        name: "Alex Turner",
+        role: "CEO",
+        interactionCount: 2,
+        lastInteraction: daysAgo(3),
+      },
     ],
     lastContact: daysAgo(3),
   },
@@ -367,3 +477,27 @@ export const MOCK_CRM_REPS = [
   "David Park",
   "Marcus Webb",
 ];
+
+export const CHAMBER_LABELS: Record<string, string> = {
+  discover: "Discover",
+  build: "Build",
+  review: "Review",
+  ship: "Ship",
+};
+
+export const CONTRACT_READINESS_LABELS: Record<string, string> = {
+  not_started: "Not Started",
+  in_progress: "In Progress",
+  ready: "Ready",
+  blocked: "Blocked",
+};
+
+export const STAKEHOLDER_ROLE_LABELS: Record<StakeholderRole, string> = {
+  champion: "Champion",
+  decision_maker: "Decision Maker",
+  legal: "Legal",
+  finance: "Finance",
+  procurement: "Procurement",
+  evaluator: "Evaluator",
+  influencer: "Influencer",
+};
