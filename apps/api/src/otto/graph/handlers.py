@@ -57,6 +57,16 @@ def handle_node_advance(state: OttoState) -> DeterministicResult:
     node = state.current_node or {}
     conditions = node.get("gate_conditions", [])
     current_index = state.current_node_index or 0
+    total = state.total_recipe_nodes
+
+    # Bounds check: already at or past the last node
+    if total is not None and current_index >= total - 1:
+        return DeterministicResult(
+            intent="node_advance",
+            text="**Recipe complete.** All steps finished.",
+            advanced=False,
+            metadata={"recipe_complete": True},
+        )
 
     results = []
     all_passed = True

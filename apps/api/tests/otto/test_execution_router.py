@@ -59,3 +59,37 @@ def test_all_disabled_returns_error():
     state = _make_state()
     result = router.route("hello", state)
     assert result.tier == "error"
+
+
+def test_simple_query_routes_to_local_llm():
+    """Short message without complexity keywords → local LLM when enabled."""
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    config.tiers["local_llm"].enabled = True
+    router = ExecutionRouter(config)
+    state = _make_state()
+    result = router.route("what time is it?", state)
+    assert result.tier == "local_llm"
+
+
+def test_complex_query_skips_local_llm():
+    """Message with 'why' keyword → falls through to cloud even with local enabled."""
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    config.tiers["local_llm"].enabled = True
+    router = ExecutionRouter(config)
+    state = _make_state()
+    result = router.route("why is the extraction failing?", state)
+    assert result.tier == "cloud_llm"
+
+
+def test_long_message_skips_local_llm():
+    """Message > 30 words → falls through to cloud."""
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    config.tiers["local_llm"].enabled = True
+    router = ExecutionRouter(config)
+    state = _make_state()
+    long_msg = " ".join(["word"] * 31)
+    result = router.route(long_msg, state)
+    assert result.tier == "cloud_llm"

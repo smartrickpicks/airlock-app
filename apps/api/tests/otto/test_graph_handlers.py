@@ -96,3 +96,33 @@ def test_handle_node_advance_blocked():
     result = handle_node_advance(state)
     assert result.advanced is False
     assert state.current_node_index == 2  # Not changed
+
+
+def test_handle_node_advance_recipe_complete():
+    """Advancing past the last node returns recipe complete."""
+    state = _make_state(
+        active_recipe_id="rcp_01",
+        current_node_index=7,  # last node (0-based) in 8-step recipe
+        total_recipe_nodes=8,
+        current_node={"type": "approve", "config": {}, "gate_conditions": []},
+    )
+    result = handle_node_advance(state)
+    assert result.advanced is False
+    assert result.metadata.get("recipe_complete") is True
+    assert "complete" in result.text.lower()
+
+
+def test_handle_node_advance_unknown_condition_blocks():
+    """Unknown gate condition types fail-closed."""
+    state = _make_state(
+        active_recipe_id="rcp_01",
+        current_node_index=2,
+        total_recipe_nodes=8,
+        current_node={
+            "type": "review",
+            "config": {},
+            "gate_conditions": [{"type": "unknown_type"}],
+        },
+    )
+    result = handle_node_advance(state)
+    assert result.advanced is False

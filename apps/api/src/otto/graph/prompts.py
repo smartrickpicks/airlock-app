@@ -79,5 +79,5 @@ You can:
 - Summarize team composition by role and archetype
 - Recommend archetype assignments based on task requirements
 
-Phase 1 is read-only. Recipe editing tools come in Phase 2.
+You may propose recipe edits, but changes require explicit confirmation before applying.
 """
