@@ -185,6 +185,10 @@ export default function ModuleBar() {
             transition-colors duration-fast
           "
           aria-label="Settings"
+          onClick={() => {
+            setActiveModule("admin");
+            router.push("/admin");
+          }}
         >
           <Settings size={20} />
         </button>

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type ModuleName = "contracts" | "crm" | "tasks" | "calendar" | "documents";
+type ModuleName = "contracts" | "crm" | "tasks" | "calendar" | "documents" | "admin";
 type ChamberName = "discover" | "build" | "review" | "ship";
 
 interface ModuleState {
@@ -33,6 +33,7 @@ export const useModuleStore = create<ModuleState>((set) => ({
     tasks: "/tasks",
     calendar: "/calendar",
     documents: "/documents",
+    admin: "/admin",
   },
 
   setActiveModule: (module) =>
