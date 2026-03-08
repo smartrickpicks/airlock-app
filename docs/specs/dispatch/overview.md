@@ -36,7 +36,7 @@ Dispatch renders the Triptych in **Signal-dominant mode**: Signal panel expands 
 │  │ [Drop file / ask / act]       │   │                │
 │  └───────────────────────────────┘   │                │
 │                                      │                │
-│  ┌─ Work Queue ──────────────────┐   │                │
+│  ┌─ Triage Signals ──────────────┐   │                │
 │  │ Other vaults awaiting action  │   │                │
 │  └───────────────────────────────┘   │                │
 │                                      │                │
@@ -239,6 +239,14 @@ The gate action area in Dispatch IS the skill render for the current node's acti
 | `TaskRunner` | signal | registry (M-pending) |
 | `OttoChat` | signal | registry (M19) |
 | `InterruptionBrief` | signal | new — "what changed while you were away" |
+
+---
+
+## Related Specs
+
+- `signal-panel-architecture.md` — Signal panel stack, Otto/Task Runner positioning, Messenger relationship (locked decisions from Otto Agent Graph handoff)
+- `docs/specs/ai-agent/` — Otto agent graph architecture
+- `docs/specs/roles/taxonomy.md` — Conductor config, skill renders, archetype system
 
 ---
 
