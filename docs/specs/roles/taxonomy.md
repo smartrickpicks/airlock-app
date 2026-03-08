@@ -102,19 +102,32 @@ Composable capabilities. Additive on top of archetype defaults. Conductor assign
 
 ### Skill catalog (v1)
 
-| Skill | Description | Default archetype affinity |
-|-------|-------------|---------------------------|
-| `entity-lookup` | Search and resolve entity references | Analyst, Architect |
-| `confidence-explainer` | Explain AI extraction confidence scores | Analyst, Guardian |
-| `flag-for-gatekeeper` | Raise a handoff signal to the Review queue | Guardian, Executor |
-| `field-suggestions` | AI-suggested values for incomplete fields | Executor, Analyst |
-| `lookup` | External data lookup (CRM, registry, etc.) | Connector, Analyst |
-| `entity-graph` | Visualize entity relationship network | Architect, Strategist |
-| `alias-mapper` | Map alternate names/spellings to canonical entities | Analyst, Architect |
-| `diff-view` | Side-by-side comparison of vault versions | Guardian, Gatekeeper |
-| `rfi-builder` | Compose and send a Request for Information | Connector, Guardian |
-| `stakeholder-map` | Identify and notify relevant stakeholders | Connector, Owner |
-| `gate-validator` | Run gate condition checks and surface results | Guardian, Conductor |
+| Skill | Description |
+|-------|-------------|
+| `entity-lookup` | Search and resolve entity references against known data |
+| `confidence-explainer` | Explain AI extraction confidence scores with reasoning |
+| `flag-for-gatekeeper` | Raise a handoff signal to the Review queue |
+| `field-suggestions` | AI-suggested values for incomplete fields |
+| `lookup` | External data lookup (CRM, registry, Spotify, ASCAP, etc.) |
+| `entity-graph` | Visualize entity relationship network |
+| `alias-mapper` | Map alternate names/spellings to canonical entities |
+| `diff-view` | Side-by-side comparison of vault versions |
+| `rfi-builder` | Compose and send a Request for Information |
+| `stakeholder-map` | Identify and notify relevant stakeholders |
+| `gate-validator` | Run gate condition checks and surface results |
+
+### Archetype default skill loadout (5–10 per archetype)
+
+Each archetype ships with a curated default set. Conductor can add or suppress per node.
+
+| Archetype | Default skills (in priority order) |
+|-----------|-----------------------------------|
+| **Analyst** | `entity-lookup` · `confidence-explainer` · `alias-mapper` · `diff-view` · `field-suggestions` · `entity-graph` · `gate-validator` |
+| **Strategist** | `entity-graph` · `stakeholder-map` · `diff-view` · `lookup` · `field-suggestions` · `confidence-explainer` |
+| **Executor** | `field-suggestions` · `flag-for-gatekeeper` · `gate-validator` · `rfi-builder` · `stakeholder-map` · `entity-lookup` |
+| **Connector** | `stakeholder-map` · `rfi-builder` · `lookup` · `entity-lookup` · `flag-for-gatekeeper` · `diff-view` |
+| **Guardian** | `gate-validator` · `diff-view` · `confidence-explainer` · `flag-for-gatekeeper` · `rfi-builder` · `alias-mapper` · `entity-lookup` |
+| **Architect** | `entity-graph` · `alias-mapper` · `gate-validator` · `entity-lookup` · `confidence-explainer` · `field-suggestions` · `stakeholder-map` |
 
 > **Muting pattern:** Conductor can suppress specific skills per chamber without changing the underlying archetype defaults. Example: suppress `flag-for-gatekeeper` in Ship to prevent blocking the publish flow.
 
@@ -270,6 +283,100 @@ Architect installs playbook
 | Archetype | User's behavioral profile (Analyst, Executor, etc.) | Persona, type, role |
 | Architect | Workspace creator — full control + Conductor in all modules | Admin, super admin, owner |
 | Conductor | Module-level AI/recipe configurator | Admin, manager, power user |
+
+---
+
+## Screen Matrix — Global vs Specialty
+
+Every screen is either **global** (all authenticated users) or **specialty** (gated by role, archetype, or playbook).
+
+### Global screens (all users regardless of role)
+
+| Screen | Path | Purpose |
+|--------|------|---------|
+| Home / Dashboard | `/` | Personalized by archetype — Executor sees task inbox, Analyst sees data summary, Strategist sees pipeline |
+| Vault list | `/(module)/` | Filtered by module role — Builder sees own vaults, Gatekeeper sees review queue |
+| Vault detail | `/(module)/[vaultId]` | Triptych — Signal (task runner) \| Orchestrate (work surface) \| Control (context) |
+| Notifications | `/notifications` | Role-aware — Gatekeeper sees RFIs, Owner sees SLA alerts |
+| Global search | `cmd+k` | Searches vaults, entities, people — results filtered by visibility |
+| Profile + archetype | `/profile` | Archetype selector, skill preferences, notification settings |
+
+### Specialty screens by Module Role
+
+| Screen | Path | Visible to |
+|--------|------|-----------|
+| Review Queue | `/contracts/review` | Gatekeeper |
+| Ship Queue | `/contracts/ship` | Owner |
+| RFI Inbox | `/signals/rfi` | Builder (receiving), Gatekeeper (sending) |
+| Analytics / Pipeline | `/(module)/analytics` | Owner, Architect |
+| Recipe Editor | `/admin/recipes/...` | Conductor |
+| Skill Library | `/admin/skills` | Conductor |
+| Chain Builder | `/admin/chains` | Conductor |
+| Playbook Catalog | `/admin/playbooks` | Architect, Conductor |
+| Member Management | `/admin/members` | Architect |
+| Invite Management | `/admin/invite` | Architect, Conductor |
+| Workspace Settings | `/admin/settings` | Architect |
+| Roles Config | `/admin/roles` | Architect |
+| Billing | `/admin/billing` | Architect, Billing |
+
+### Specialty screens by Archetype (UI Lens)
+
+Archetype modifies the *default view* on shared screens — same data, different rendering. Not separate routes.
+
+| Archetype | Home default | Vault list default | Vault detail default |
+|-----------|-------------|-------------------|---------------------|
+| **Analyst** | Confidence + data quality dashboard | Table, dense, sortable | Orchestrate-first, all fields visible |
+| **Strategist** | Pipeline timeline, pattern summary | Grouped by status/age | Signal-first, pattern highlights |
+| **Executor** | My tasks, next action, SLA countdown | Kanban, urgency-sorted | Signal-first, CTA prominent |
+| **Connector** | Activity feed, stakeholder pings | Card view, contact-rich | Control-first, stakeholder context |
+| **Guardian** | Risk flags, compliance status | Table, risk-sorted | Control-first, audit trail |
+| **Architect** | System health, config status | Schema/type grouped | Config surfaces visible |
+
+### Screens to build (not yet in codebase)
+
+Priority order — things that tie the taxonomy to the product:
+
+| Screen | Why it's needed | Depends on |
+|--------|----------------|-----------|
+| `Archetype onboarding Q&A` | Users can't get skill loadout without archetype assignment | Taxonomy |
+| `Playbook catalog + install` | Architects can't set up workspace without playbook UI | Taxonomy + recipes |
+| `Admin roles page (updated)` | Must reflect new 8-layer taxonomy, not old flat role list | Taxonomy |
+| `Admin members page` | Roster with org role + module roles + archetype per member | Taxonomy |
+| `Admin invite page` | Generate + manage role-scoped invite links | Invite tokens |
+| `Skill library browser` | Conductor discovery surface — the n8n node catalog | Skills catalog |
+| `Chain builder` | Connect playbooks into multi-team pipelines | Playbook chains |
+| `Home lens variants` | 6 archetype-specific dashboard layouts | Archetype system |
+
+---
+
+## Build Priorities
+
+### Priority 1 — Contract Review (full playbook, end-to-end)
+
+The first complete Airlock case study. All 4 chambers working, real vault lifecycle, task runner wired.
+
+**Scope:**
+- Vault types: Distribution Agreement, Publishing Deal
+- Roles: Builder (Discover + Build) → Gatekeeper (Review) → Owner (Ship)
+- Recipes: default nodes for each Role × Chamber combination
+- Task runner: Signal panel wired to recipe nodes
+- Invite links: 3 links generated (one per role) from workspace setup
+- Gate conditions: enforced — vault cannot advance without meeting conditions
+
+**Why first:** Proves the core thesis end-to-end. Builder creates a vault, fills it, Gatekeeper reviews it, Owner ships it. Every layer of the taxonomy gets exercised.
+
+### Priority 2 — CRM Prospecting (dogfood the Airlock case study)
+
+Use Airlock's own CRM module to run Airlock's sales pipeline. The product IS the case study.
+
+**Scope:**
+- Leads table with score, source, stage
+- Pipeline board (Sales Discovery playbook)
+- Contact enrichment (Connector + lookup skill)
+- Prospecting → Discovery vault chain: CRM lead → auto-create Sales Discovery vault
+- The Airlock pitch itself modeled as a vault moving through chambers
+
+**Why second:** Eating our own cooking. Real usage generates real feedback. The CRM prospecting flow also validates the Playbook Chain concept (CRM lead → Contract vault) end-to-end.
 
 ---
 
