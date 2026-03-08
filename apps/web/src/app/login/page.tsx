@@ -47,6 +47,12 @@ function LoginForm() {
 
       hydrateFromLoginResponse(data);
       useOnboardingStore.getState().completeChecklistItem("login");
+
+      // First-time user (no workspace) → onboarding
+      if (data.user.org_role === "member") {
+        router.push("/onboarding/setup");
+        return;
+      }
       router.push(nextUrl);
     } catch {
       // Login failed — Google login error is shown inline

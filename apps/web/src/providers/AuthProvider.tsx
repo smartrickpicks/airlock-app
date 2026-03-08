@@ -17,15 +17,17 @@ export default function AuthProvider({
   useEffect(() => {
     let token = localStorage.getItem("airlock_access_token");
 
-    // Auto-provision dev auth in development when no token exists
-    if (!token && process.env.NODE_ENV === "development") {
-      token = "dev_mock_token";
-      localStorage.setItem("airlock_access_token", token);
-      document.cookie = `airlock_access_token=${token}; path=/; max-age=86400; SameSite=Lax`;
-    }
-
     if (!token) {
       useAuthStore.getState().setUser(null);
+      // Redirect to login if not on a public route
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.startsWith("/login") &&
+        !window.location.pathname.startsWith("/landing") &&
+        window.location.pathname !== "/"
+      ) {
+        window.location.href = "/login";
+      }
       return;
     }
 
@@ -61,6 +63,13 @@ export default function AuthProvider({
         localStorage.removeItem("airlock_access_token");
         localStorage.removeItem("airlock_refresh_token");
         useAuthStore.getState().setUser(null);
+        // Redirect to login on auth failure
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.startsWith("/login")
+        ) {
+          window.location.href = "/login";
+        }
       });
   }, [setUser, setOrgRole, setAccessToken]);
 
