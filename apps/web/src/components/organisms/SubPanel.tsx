@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   AlertTriangle,
   Calendar,
@@ -10,10 +10,6 @@ import {
   LayoutGrid,
   Plus,
   PlusCircle,
-  BellRing,
-  Inbox,
-  Star,
-  Clock3,
   Building2,
   Brain,
   Database,
@@ -37,58 +33,28 @@ import CreateVaultModal from "@/components/molecules/CreateVaultModal";
 import ChamberLabel from "@/components/atoms/ChamberLabel";
 import PinnedChannel from "@/components/molecules/PinnedChannel";
 import VaultItem from "@/components/molecules/VaultItem";
-import { createDemoInboundContractIntake } from "@/lib/demo-lifecycle-actions";
 import { useModuleStore } from "@/stores/module.store";
 import { useVaultStore } from "@/stores/vault.store";
-import { getWorkspaceMode } from "@/stores/onboarding.store";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import { MODULES, CHAMBERS, type ChamberName } from "@/lib/constants";
 
 const pinnedByModule: Record<
   string,
-  {
-    icon: typeof AlertTriangle;
-    label: string;
-    path: string;
-    /** Dynamic badge key — resolved at render time from vault data */
-    badgeKey?: "discover_count" | "triage_count";
-  }[]
+  { icon: typeof AlertTriangle; label: string; path: string }[]
 > = {
-  home: [
-    { icon: Inbox, label: "My Queue", path: "/" },
-    { icon: BellRing, label: "Gate Alerts", path: "/" },
-    { icon: Star, label: "Favorites", path: "/" },
-    { icon: Clock3, label: "Recent Vaults", path: "/" },
-  ],
   contracts: [
-    {
-      icon: PlusCircle,
-      label: "Intake Lab",
-      path: "/contracts/intake",
-      badgeKey: "discover_count",
-    },
     {
       icon: AlertTriangle,
       label: "Triage Dashboard",
       path: "/contracts/triage",
-      badgeKey: "triage_count",
     },
     { icon: PlusCircle, label: "Generator", path: "/contracts/generator" },
   ],
-  crm: [
-    { icon: GitBranch, label: "Inbox", path: "/crm/inbox" },
-    { icon: GitBranch, label: "Qualify", path: "/crm/qualify" },
-    { icon: GitBranch, label: "Pipeline", path: "/crm/pipeline" },
-    { icon: GitBranch, label: "Contacts", path: "/crm/contacts" },
-    { icon: GitBranch, label: "Activity", path: "/crm/activity" },
-    { icon: GitBranch, label: "Health", path: "/crm/health" },
-    { icon: GitBranch, label: "Renewals", path: "/crm/renewals" },
-    { icon: GitBranch, label: "Onboarding", path: "/crm/onboarding" },
-  ],
+  crm: [{ icon: GitBranch, label: "Pipeline", path: "/crm/pipeline" }],
   tasks: [{ icon: LayoutGrid, label: "Board", path: "/tasks/board" }],
   calendar: [{ icon: Calendar, label: "Month View", path: "/calendar/month" }],
   documents: [
-    { icon: FolderOpen, label: "Library", path: "/documents/library" },
+    { icon: FolderOpen, label: "All Documents", path: "/documents/all" },
   ],
 };
 
@@ -129,6 +95,23 @@ const ADMIN_TIERS = [
       },
       { id: "members", label: "Members", icon: Users, route: "/admin/members" },
       { id: "roles", label: "Roles", icon: Shield, route: "/admin/roles" },
+    ],
+  },
+  {
+    label: "Configure",
+    nodes: [
+      {
+        id: "recipes",
+        label: "Recipes",
+        icon: GitBranch,
+        route: "/admin/recipes",
+      },
+      {
+        id: "playbooks",
+        label: "Playbooks",
+        icon: ScrollText,
+        route: "/admin/playbooks",
+      },
     ],
   },
   {
@@ -182,73 +165,29 @@ const ADMIN_PERSONAL = [
 ];
 
 export default function SubPanel() {
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
   const { activeModule, activeChamber, selectedVaultId, setSelectedVault } =
     useModuleStore();
   const { vaults, fetchVaults } = useVaultStore();
-  const storeNodeStates = useCapabilityTreeStore((s) => s.nodeStates);
+  const nodeStates = useCapabilityTreeStore((s) => s.nodeStates);
   const getProgress = useCapabilityTreeStore((s) => s.getProgress);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const isAdmin = pathname.startsWith("/admin");
-  const isHome = pathname === "/" || activeModule === "home";
-  const currentModule =
-    isAdmin || isHome
-      ? {
-          label: isAdmin ? "Admin" : "Home",
-          path: isAdmin ? "/admin" : "/",
-          icon: "Home",
-        }
-      : ((
-          MODULES as Record<
-            string,
-            { label: string; icon: string; path: string }
-          >
-        )[activeModule] ?? { label: "Home", path: "/", icon: "Home" });
-  // Defer localStorage reads to avoid SSR hydration mismatch
-  const [isClean, setIsClean] = useState(true);
-  const [progress, setProgress] = useState({
-    configured: 0,
-    total: 0,
-    percent: 0,
-  });
-  const [nodeStates, setNodeStates] = useState<Record<string, string>>({});
-  useEffect(() => {
-    setIsClean(getWorkspaceMode() === "clean");
-    setProgress(getProgress());
-    setNodeStates(storeNodeStates);
-  }, [getProgress, storeNodeStates]);
-
-  // Derive dynamic badge counts from vault data
-  const discoverCount = vaults.filter((v) => v.chamber === "discover").length;
-  const triageCount = vaults.filter(
-    (v) => v.chamber === "discover" || v.chamber === "build",
-  ).length;
-  const badgeCounts: Record<string, number> = {
-    discover_count: discoverCount,
-    triage_count: triageCount,
-  };
-
-  const pinned = (pinnedByModule[activeModule] || []).map((pin) => ({
-    ...pin,
-    badgeCount: isClean
-      ? undefined
-      : pin.badgeKey
-        ? badgeCounts[pin.badgeKey]
-        : undefined,
-  }));
+  const isAdmin = activeModule === "admin";
+  const currentModule = !isAdmin
+    ? MODULES[activeModule as keyof typeof MODULES]
+    : null;
+  const pinned = !isAdmin ? pinnedByModule[activeModule] || [] : [];
+  const progress = getProgress();
 
   // Fetch vaults for the active module (skip for admin)
   useEffect(() => {
-    if (isAdmin) return;
-    if (isHome) {
-      fetchVaults({ module_type: "contracts" });
-      return;
+    if (!isAdmin) {
+      fetchVaults({ module_type: activeModule });
     }
-    fetchVaults({ module_type: activeModule });
-  }, [activeModule, fetchVaults, isAdmin, isHome]);
+  }, [activeModule, fetchVaults, isAdmin]);
 
   // Group vaults by chamber
   const vaultsByChamber = CHAMBER_KEYS.reduce(
@@ -275,9 +214,9 @@ export default function SubPanel() {
         {isAdmin ? (
           <>
             {/* Admin header */}
-            <div className="theme-panel-main flex h-12 flex-shrink-0 items-center border-b border-surface-border px-4">
+            <div className="flex h-12 flex-shrink-0 items-center border-b border-surface-border px-4">
               <span className="text-[15px] font-semibold text-text-primary">
-                Admin
+                Control Panel
               </span>
             </div>
 
@@ -304,9 +243,9 @@ export default function SubPanel() {
             {/* Capability Tree link */}
             <div className="px-1">
               <button
-                onClick={() => router.push("/admin/capability-tree")}
+                onClick={() => router.push("/admin")}
                 className={`flex w-full items-center gap-2.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                  pathname === "/admin/capability-tree"
+                  pathname === "/admin"
                     ? "bg-accent-primary/10 text-accent-primary"
                     : "text-text-secondary hover:bg-surface-overlay/50 hover:text-text-primary"
                 }`}
@@ -366,19 +305,24 @@ export default function SubPanel() {
         ) : (
           <>
             {/* Module header */}
-            <div className="theme-panel-main flex h-12 flex-shrink-0 items-center justify-between border-b border-surface-border px-4">
+            <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-surface-border px-4">
               <span className="text-[15px] font-semibold text-text-primary">
-                {currentModule.label}
+                {currentModule!.label}
               </span>
               <button
                 className="rounded p-1 text-text-muted transition-colors duration-fast hover:bg-surface-overlay hover:text-text-primary"
                 aria-label="Create new vault"
                 onClick={() => setShowCreateModal(true)}
-                disabled={isHome}
               >
                 <Plus size={18} />
               </button>
             </div>
+
+            {/* Search */}
+            <SearchInput
+              className="mx-3 my-2"
+              placeholder={`Search ${currentModule!.label.toLowerCase()}...`}
+            />
 
             {/* Pinned channels */}
             <div className="px-1">
@@ -387,91 +331,50 @@ export default function SubPanel() {
                   key={pin.label}
                   icon={pin.icon}
                   label={pin.label}
-                  isActive={pathname === pin.path && pin.path !== "/"}
-                  badgeCount={pin.badgeCount}
+                  isActive={false}
                   onClick={() => handlePinnedClick(pin.path)}
                 />
               ))}
             </div>
 
+            <div className="mx-3 my-2 h-px bg-surface-border" />
+
             {/* Chamber groups with vaults */}
             <div className="flex-1 overflow-y-auto px-1">
-              {isHome ? (
-                <div className="space-y-4 px-2 py-2">
-                  <div className="theme-card rounded-xl p-3">
-                    <div className="theme-section-label theme-label-main">
-                      Operator Hub
-                    </div>
-                    <div className="mt-2 text-sm text-text-primary">
-                      Home is now your queue-first workspace. Open a signal,
-                      then jump into the right workspace without losing context.
-                    </div>
-                  </div>
-                  <div>
-                    <div className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                      Recent Contract Vaults
-                    </div>
-                    <div className="space-y-2">
-                      {vaults.slice(0, 6).map((vault) => (
-                        <VaultItem
-                          key={vault.id}
-                          name={vault.name}
-                          entity={
-                            (vault.metadata as Record<string, string>).entity ||
-                            ""
-                          }
-                          contractType={
-                            (vault.metadata as Record<string, string>)
-                              .contract_type || ""
-                          }
-                          gate={vault.chamber || "discover"}
-                          healthPercent={vault.health_score || 0}
-                          isActive={selectedVaultId === vault.id}
-                          onClick={() => {
-                            setSelectedVault(vault.id);
-                            router.push(`/contracts/${vault.slug}`);
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                CHAMBER_KEYS.map((key) => (
-                  <ChamberLabel
-                    key={key}
-                    label={CHAMBERS[key].label.toUpperCase()}
-                    chamber={key}
-                    count={vaultsByChamber[key].length}
-                    defaultCollapsed={key !== activeChamber}
-                  >
-                    {vaultsByChamber[key].length === 0 ? (
-                      <p className="px-4 py-2 text-xs text-text-muted">
-                        No vaults
-                      </p>
-                    ) : (
-                      vaultsByChamber[key].map((vault) => (
-                        <VaultItem
-                          key={vault.id}
-                          name={vault.name}
-                          entity={
-                            (vault.metadata as Record<string, string>).entity ||
-                            ""
-                          }
-                          contractType={
-                            (vault.metadata as Record<string, string>)
-                              .contract_type || ""
-                          }
-                          gate={vault.chamber || "discover"}
-                          healthPercent={vault.health_score || 0}
-                          isActive={selectedVaultId === vault.id}
-                          onClick={() => handleVaultClick(vault.id, vault.slug)}
-                        />
-                      ))
-                    )}
-                  </ChamberLabel>
-                ))
-              )}
+              {CHAMBER_KEYS.map((key) => (
+                <ChamberLabel
+                  key={key}
+                  label={CHAMBERS[key].label.toUpperCase()}
+                  chamber={key}
+                  count={vaultsByChamber[key].length}
+                  defaultCollapsed={key !== activeChamber}
+                >
+                  {vaultsByChamber[key].length === 0 ? (
+                    <p className="px-4 py-2 text-xs text-text-muted">
+                      No vaults
+                    </p>
+                  ) : (
+                    vaultsByChamber[key].map((vault) => (
+                      <VaultItem
+                        key={vault.id}
+                        name={vault.name}
+                        entity={
+                          (vault.metadata as Record<string, string>).entity ||
+                          ""
+                        }
+                        contractType={
+                          (vault.metadata as Record<string, string>)
+                            .contract_type || ""
+                        }
+                        gate={vault.chamber || "discover"}
+                        healthPercent={vault.health_score || 0}
+                        isActive={selectedVaultId === vault.id}
+                        onClick={() => handleVaultClick(vault.id, vault.slug)}
+                      />
+                    ))
+                  )}
+                </ChamberLabel>
+              ))}
             </div>
           </>
         )}
@@ -482,20 +385,7 @@ export default function SubPanel() {
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSubmit={(data) => {
-            if (activeModule === "contracts") {
-              const contract = createDemoInboundContractIntake({
-                accountName: data.entity,
-                ownerName: "Demo Operator",
-                contractTitle: data.name,
-                contractType: data.contractType,
-                fileName: `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`,
-                source: "Local Upload",
-              });
-              setSelectedVault(contract.vaultId);
-              router.push(`/contracts/${contract.vaultSlug}`);
-            } else {
-              console.log("Create vault:", data);
-            }
+            console.log("Create vault:", data);
             setShowCreateModal(false);
           }}
         />
