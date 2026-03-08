@@ -1,0 +1,24 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(48 46) rotate(90) scale(40 36)">
+      <stop stop-color="#35F0E3" stop-opacity="0.95"/>
+      <stop offset="0.55" stop-color="#21C7C7" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#0A101C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="shell" x1="24" y1="18" x2="72" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4FBFF"/>
+      <stop offset="1" stop-color="#B8CBD6"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="48" y1="14" x2="48" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E9F7FF"/>
+      <stop offset="1" stop-color="#97AEBE"/>
+    </linearGradient>
+  </defs>
+  <rect width="96" height="96" rx="24" fill="#040916"/>
+  <circle cx="48" cy="46" r="34" fill="url(#glow)"/>
+  <path d="M32 39.5V30C32 21.16 39.16 14 48 14C56.84 14 64 21.16 64 30V39.5" stroke="url(#steel)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M28 40C28 35.5817 31.5817 32 36 32H60C64.4183 32 68 35.5817 68 40V68C68 72.4183 64.4183 76 60 76H36C31.5817 76 28 72.4183 28 68V40Z" fill="url(#shell)"/>
+  <path d="M31 43C31 39.6863 33.6863 37 37 37H59C62.3137 37 65 39.6863 65 43V65C65 68.3137 62.3137 71 59 71H37C33.6863 71 31 68.3137 31 65V43Z" stroke="#D9EDF7" stroke-opacity="0.8" stroke-width="2"/>
+  <path d="M48 47C44.6863 47 42 49.6863 42 53C42 55.3916 43.4004 57.4561 45.4267 58.423L43.8 66H52.2L50.5733 58.423C52.5996 57.4561 54 55.3916 54 53C54 49.6863 51.3137 47 48 47Z" fill="#071426"/>
+  <path d="M48 34V70" stroke="#23DDD6" stroke-opacity="0.9" stroke-width="3" stroke-linecap="round"/>
+</svg>

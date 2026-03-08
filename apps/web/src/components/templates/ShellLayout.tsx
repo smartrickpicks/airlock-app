@@ -13,6 +13,8 @@ import { useNotificationStore } from "@/stores/notification.store";
 import { useRealtimeStore } from "@/stores/realtime.store";
 import { useOttoStore } from "@/stores/otto.store";
 import { useMessengerStore } from "@/stores/messenger.store";
+import RightToolPushPanel from "@/components/organisms/RightToolPushPanel";
+import RightToolRail from "@/components/organisms/RightToolRail";
 
 interface ShellLayoutProps {
   children: ReactNode;
@@ -60,6 +62,8 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
       <ModuleBar />
       <SubPanel />
       <main className="flex-1 overflow-hidden">{children}</main>
+      <RightToolPushPanel />
+      <RightToolRail />
       <CommandPalette />
       <NotificationCenter />
       <OttoDrawer />

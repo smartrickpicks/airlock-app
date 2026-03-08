@@ -16,6 +16,12 @@ class CreateVaultRequest(BaseModel):
     metadata: dict = Field(default_factory=dict)
 
 
+class CreateVaultFromDocumentRequest(BaseModel):
+    document_id: str
+    name: str = Field(..., min_length=1, max_length=500)
+    metadata: dict = Field(default_factory=dict)
+
+
 class UpdateVaultRequest(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=500)
     metadata: dict | None = None

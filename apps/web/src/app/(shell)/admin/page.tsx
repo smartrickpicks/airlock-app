@@ -1,51 +1,31 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAdminStore } from "@/stores/admin.store";
-import ProfileSettings from "@/components/organisms/ProfileSettings";
-import AppearanceSettings from "@/components/organisms/AppearanceSettings";
+import { useSearchParams } from "next/navigation";
+import CapabilityTree from "@/components/organisms/CapabilityTree";
+import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 
 export default function AdminPage() {
-  const { fetchAdmin } = useAdminStore();
+  const searchParams = useSearchParams();
+  const expandNode = useCapabilityTreeStore((s) => s.expandNode);
+  const initTree = useCapabilityTreeStore((s) => s.initTree);
 
+  // Demo mode via ?demo=true
   useEffect(() => {
-    fetchAdmin();
-  }, [fetchAdmin]);
+    if (searchParams.get("demo") === "true") {
+      initTree(true);
+    }
+  }, [searchParams, initTree]);
 
-  const handleResetWorkspace = () => {
-    // Clear all airlock localStorage keys
-    const keysToRemove = Object.keys(localStorage).filter((k) =>
-      k.startsWith("airlock_"),
-    );
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
+  // Auto-expand node via ?node=<id>
+  useEffect(() => {
+    const nodeId = searchParams.get("node");
+    if (nodeId) {
+      // Small delay to let tree render first
+      const t = setTimeout(() => expandNode(nodeId), 100);
+      return () => clearTimeout(t);
+    }
+  }, [searchParams, expandNode]);
 
-    // Clear auth cookie
-    document.cookie = "airlock_access_token=; path=/; max-age=0; SameSite=Lax";
-
-    // Hard refresh to clear all Zustand stores
-    window.location.href = "/login";
-  };
-
-  return (
-    <div className="h-full overflow-y-auto flex flex-col gap-6 p-6">
-      <ProfileSettings />
-      <AppearanceSettings />
-
-      {/* Developer Tools */}
-      <div className="rounded-2xl border border-accent-danger/20 bg-accent-danger/5 p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-accent-danger">
-          Developer Tools
-        </h2>
-        <p className="mt-2 text-sm text-text-secondary">
-          Reset all client-side workspace data and return to login.
-        </p>
-        <button
-          onClick={handleResetWorkspace}
-          className="mt-4 rounded-lg border border-accent-danger/40 bg-surface-overlay px-4 py-2 text-sm font-medium text-accent-danger transition-colors hover:bg-accent-danger/10"
-        >
-          Reset Workspace
-        </button>
-      </div>
-    </div>
-  );
+  return <CapabilityTree />;
 }

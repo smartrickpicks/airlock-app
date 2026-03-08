@@ -6,14 +6,18 @@ import {
   transformExtractionResults,
 } from "@/lib/contract-engines";
 import {
+  FALLBACK_ENTITY_RESOLUTION,
   FALLBACK_EXTRACTION,
+  MOCK_ENTITY_RESOLUTIONS,
   MOCK_EXTRACTIONS,
+  type EntityResolutionSummary,
   type VaultExtraction,
 } from "@/lib/mock-extractions";
 import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface ExtractionState {
   extraction: VaultExtraction | null;
+  entityResolution: EntityResolutionSummary | null;
   isLoading: boolean;
   error: string | null;
   heatmapEnabled: boolean;
@@ -25,6 +29,7 @@ interface ExtractionState {
 
 export const useExtractionStore = create<ExtractionState>((set) => ({
   extraction: null,
+  entityResolution: null,
   isLoading: false,
   error: null,
   heatmapEnabled: false,
@@ -62,8 +67,40 @@ export const useExtractionStore = create<ExtractionState>((set) => ({
         isLoading: false,
       });
     } catch {
+      // Check local vault store for extraction_result in metadata
+      // (set by intake flow when creating mock vaults offline)
+      const { useVaultStore } = await import("@/stores/vault.store");
+      const vaultState = useVaultStore.getState();
+      const localVault =
+        vaultState.selectedVault?.id === vaultId ||
+        vaultState.selectedVault?.slug === vaultId
+          ? vaultState.selectedVault
+          : vaultState.vaults.find(
+              (v) => v.id === vaultId || v.slug === vaultId,
+            );
+      const localExtraction = localVault?.metadata?.extraction_result as
+        | { results?: Record<string, unknown> }
+        | undefined;
+      if (localExtraction?.results) {
+        set({
+          extraction: transformExtractionResults(
+            localVault!.id,
+            localExtraction.results as Parameters<
+              typeof transformExtractionResults
+            >[1],
+          ),
+          isLoading: false,
+        });
+        return;
+      }
+
       if (getWorkspaceMode() === "clean") {
-        set({ extraction: null, isLoading: false, error: null });
+        set({
+          extraction: null,
+          entityResolution: null,
+          isLoading: false,
+          error: null,
+        });
       } else {
         const mock =
           MOCK_EXTRACTIONS[vaultId] ??
@@ -73,7 +110,15 @@ export const useExtractionStore = create<ExtractionState>((set) => ({
                 vault_id: vaultId,
               }
             : null);
-        set({ extraction: mock, isLoading: false, error: null });
+        const mockER =
+          MOCK_ENTITY_RESOLUTIONS[vaultId] ??
+          (vaultId.startsWith("vault_") ? FALLBACK_ENTITY_RESOLUTION : null);
+        set({
+          extraction: mock,
+          entityResolution: mockER,
+          isLoading: false,
+          error: null,
+        });
       }
     }
   },
@@ -82,5 +127,10 @@ export const useExtractionStore = create<ExtractionState>((set) => ({
     set((state) => ({ heatmapEnabled: !state.heatmapEnabled })),
 
   clearExtraction: () =>
-    set({ extraction: null, isLoading: false, error: null }),
+    set({
+      extraction: null,
+      entityResolution: null,
+      isLoading: false,
+      error: null,
+    }),
 }));

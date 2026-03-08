@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     # App
     debug: bool = False
     environment: str = "development"
+    uploads_dir: str = "uploads"
 
     model_config = {
         "env_file": ".env",

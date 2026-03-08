@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import GateDot from "@/components/atoms/GateDot";
 import RecordInspector from "@/components/organisms/RecordInspector";
+import AuditTrailFullScreen from "@/components/organisms/AuditTrailFullScreen";
 import { useVaultStore } from "@/stores/vault.store";
 import type { Chamber } from "@/stores/vault.store";
 
@@ -82,6 +83,8 @@ export default function VaultDetailPage() {
       <div className="flex-1 overflow-hidden">
         <RecordInspector vaultId={selectedVault.id} />
       </div>
+
+      <AuditTrailFullScreen />
     </div>
   );
 }

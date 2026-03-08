@@ -2,7 +2,10 @@
 
 > **Status:** DESIGN BRAINSTORM — ready for review
 > **Author:** Claude + Zach (2026-03-07)
-> **Depends on:** Extraction engine (`apps/api/src/engines/extraction/`), Turnkey flow (`docs/specs/onboarding/turnkey-flow.md` Phase 3), MCP Registry
+> **Extends:** Admin > Calibration section from `docs/specs/admin/overview.md`. Maps to Step 3 (Data Mapping) of `docs/specs/onboarding/turnkey-flow.md`.
+> **Depends on:** Extraction engine (`apps/api/src/engines/extraction/`), Turnkey flow (Step 3), MCP Registry
+>
+> **Vocabulary note:** This spec uses "Stage A/B/C" for calibration workflow steps. These are NOT Airlock Chambers (Discover/Build/Review/Ship). See `CLAUDE.md` for canonical vocabulary.
 > **Problem:** Extractions are loose and grabbing bad data. The 152-entry `extraction_anchors.json` was ported from OrcestrateOS but is not calibrated to each org's contract language, field naming, or CRM schema.
 
 ---
@@ -32,7 +35,7 @@ Upload PDF → OCR/parse → run 6 extractors against 152 hardcoded anchors → 
 
 ## Proposed Solution: Three-Phase Schema Onboarding
 
-### Phase A: Schema Import (the "what do you track?" step)
+### Stage A: Schema Import (the "what do you track?" step)
 
 **Goal:** Build the org's master field list from their existing source of truth.
 
@@ -70,7 +73,7 @@ interface OrgField {
    - describe("Account") → get all custom fields
    - describe("Contract") → get all custom fields
 4. Agent proposes: "Found 87 fields across 3 objects. Here's what I recommend tracking:"
-5. Admin reviews in Schema Playground (see Phase B)
+5. Admin reviews in Schema Playground (see Stage B)
 ```
 
 **Spreadsheet flow:**
@@ -85,7 +88,7 @@ interface OrgField {
 
 ---
 
-### Phase B: Schema Playground (the "map and tune" step)
+### Stage B: Schema Playground (the "map and tune" step)
 
 **Goal:** Interactive UI where the admin maps their fields to Airlock's extraction anchors, creates aliases, and previews extraction results.
 
@@ -208,7 +211,7 @@ Right panel shows extraction preview against a sample document:
 
 ---
 
-### Phase C: Calibration (the "dial it in" step)
+### Stage C: Calibration (the "dial it in" step)
 
 **Goal:** Iteratively improve extraction accuracy by running against real documents, collecting corrections, and tuning anchors/thresholds.
 
@@ -377,11 +380,11 @@ This maps directly to **Phase 3: Data Mapping** from `turnkey-flow.md`:
 
 ```
 Phase 3 (23 min estimated):
-  Step 3.1: Schema Mapping  →  Phase A (Schema Import) + Phase B (Schema Playground)
+  Step 3.1: Schema Mapping  →  Stage A (Schema Import) + Stage B (Schema Playground)
   Step 3.2: Chamber Config  →  (already specced, separate concern)
 
 Post-onboarding (ongoing):
-  Calibration  →  Phase C (runs after first real documents are uploaded)
+  Calibration  →  Stage C (runs after first real documents are uploaded)
 ```
 
 **Onboarding wizard integration:**

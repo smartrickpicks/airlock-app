@@ -154,7 +154,7 @@ export default function TriptychLayout({
 
       {/* === Orchestrate Panel (center) === */}
       <div
-        className={`flex-1 min-w-[400px] transition-all ${
+        className={`flex-1 min-w-[400px] overflow-hidden transition-all ${
           isArtifactFocus
             ? "ring-1 ring-gate-amber/30 shadow-[0_0_20px_rgba(245,158,11,0.1)]"
             : ""

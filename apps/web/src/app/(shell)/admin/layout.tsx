@@ -1,55 +1,46 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
-const NAV_ITEMS = [
-  { label: "Profile", href: "/admin" },
-  { label: "Appearance", href: "/admin/settings" },
-  { label: "Members", href: "/admin/members" },
-  { label: "Feature Flags", href: "/admin/features" },
-  { label: "Connectors", href: "/admin/connectors" },
-  { label: "Skills", href: "/admin/skills" },
-  { label: "Event Bus", href: "/admin/event-bus" },
-  { label: "Workflows", href: "/admin/workflows" },
-];
-
+/**
+ * Admin layout — renders the capability tree (full canvas) on /admin,
+ * and preserves the header + back-link for sub-pages like /admin/members.
+ */
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const isTreeRoot = pathname === "/admin";
 
+  if (isTreeRoot) {
+    // Full-canvas mode — tree fills entire area
+    return <div className="h-full w-full overflow-hidden">{children}</div>;
+  }
+
+  // Sub-page mode — minimal header with back link
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-shrink-0 px-6 pt-6">
-        <h1 className="text-xl font-semibold text-text-primary">
-          Admin & Settings
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Workspace configuration and personal preferences
-        </p>
+      <div className="flex-shrink-0 px-6 pt-4">
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-text-muted transition-colors hover:text-accent-primary"
+        >
+          <svg
+            className="h-3.5 w-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Capability Tree
+        </Link>
       </div>
-
-      <div className="mt-6 flex-shrink-0 px-6">
-        <div className="flex gap-1 border-b border-surface-border">
-          {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "border-b-2 border-accent-primary text-accent-primary"
-                    : "text-text-muted hover:text-text-primary"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
     </div>
   );

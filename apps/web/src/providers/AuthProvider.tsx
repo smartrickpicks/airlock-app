@@ -15,7 +15,15 @@ export default function AuthProvider({
   const { setUser, setOrgRole, setAccessToken } = useAuthStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("airlock_access_token");
+    let token = localStorage.getItem("airlock_access_token");
+
+    // Auto-provision dev auth in development when no token exists
+    if (!token && process.env.NODE_ENV === "development") {
+      token = "dev_mock_token";
+      localStorage.setItem("airlock_access_token", token);
+      document.cookie = `airlock_access_token=${token}; path=/; max-age=86400; SameSite=Lax`;
+    }
+
     if (!token) {
       useAuthStore.getState().setUser(null);
       return;

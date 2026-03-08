@@ -33,7 +33,7 @@ export default function DocumentsLibraryPage() {
             All documents across vaults and workspace
           </p>
         </div>
-        <span className="rounded-full bg-purple-500/20 px-3 py-1 text-xs font-medium text-purple-400">
+        <span className="rounded-full bg-accent-primary/15 px-3 py-1 text-xs font-medium text-accent-primary">
           Documents
         </span>
       </div>

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "airlock-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zacharyholwerda/Desktop/Airlock"
+      ]
+    }
+  }
+}

@@ -1,30 +1,33 @@
 # Turnkey Onboarding Flow — Zero to Production
 
 > **Status:** SPECCED
+> **Extends:** `docs/specs/onboarding/overview.md` — this spec adds the full enterprise provisioning flow. It does NOT replace or redefine the 5-step workspace setup wizard defined in the overview.
 > **Depends on:** Platform Architecture (`docs/specs/platform/overview.md`), Admin spec, MCP Registry Design
 > **Source research:** `docs/research/onboarding-flow.md`
 > **Target:** Stakeholder goes from "Start Your Workspace" → production-ready in <2 hours
+>
+> **Vocabulary note:** This spec uses "Step 0–7" for onboarding milestones. These are NOT Airlock Chambers (Discover/Build/Review/Ship). See `CLAUDE.md` for canonical vocabulary.
 
 ---
 
 ## Overview
 
-Seven phases take a stakeholder from zero to production. Each phase maps to existing Airlock admin UI sections, extended with onboarding wizard logic.
+Seven steps take a stakeholder from zero to production. Each step maps to existing Airlock admin UI sections, extended with onboarding wizard logic.
 
 ```
-Phase 0: Provision    (automated, <30s)
-Phase 1: Login+Config (13 min — auth, branding, integrations)
-Phase 2: Team         (22 min — user import, role mapping, workspaces)
-Phase 3: Data Mapping  (23 min — schema mapping, journey/chamber config)
-Phase 4: UI Config     (15 min — view selection, triptych layout, permissions)
-Phase 5: Testing       (32 min — invite test users, workflow simulation)
-Phase 6: Activation    (28 min — upgrade, rollout, automation)
-Phase 7: Extension     (ongoing — marketplace engines, custom skills)
+Step 0: Provision    (automated, <30s)
+Step 1: Login+Config (13 min — auth, branding, integrations)
+Step 2: Team         (22 min — user import, role mapping, workspaces)
+Step 3: Data Mapping  (23 min — schema mapping, journey/chamber config)
+Step 4: UI Config     (15 min — view selection, triptych layout, permissions)
+Step 5: Testing       (32 min — invite test users, workflow simulation)
+Step 6: Activation    (28 min — upgrade, rollout, automation)
+Step 7: Extension     (ongoing — marketplace engines, custom skills)
 ```
 
 ---
 
-## Phase 0: Provisioning (Automated)
+## Step 0: Provisioning (Automated)
 
 **Trigger:** "Start Your Workspace" CTA or sales-initiated invite
 
@@ -41,6 +44,7 @@ Phase 7: Extension     (ongoing — marketplace engines, custom skills)
 5. Send welcome email with SSO link
 
 **MCP resources created:**
+
 ```
 org://{ws_id}/config      → { name: "New Workspace", tier: "free" }
 org://{ws_id}/roles       → [owner, admin, manager, member, guest]
@@ -53,7 +57,7 @@ org://{ws_id}/permissions → [conservative-defaults]
 
 ---
 
-## Phase 1: Initial Login & Configuration
+## Step 1: Initial Login & Configuration
 
 ### Step 1.1: Authentication
 
@@ -62,6 +66,7 @@ org://{ws_id}/permissions → [conservative-defaults]
 Maps to: existing `apps/api/src/routes/auth.py` (Google OAuth flow)
 
 After auth, MCP context server resolves session:
+
 ```
 resolve_session(user_id, workspace_id) → {
   roles: ["executive"],
@@ -77,6 +82,7 @@ Shell renders: **Onboarding Wizard** (full-screen overlay, NOT the normal module
 **Admin screen: Overlay > Profile section (extends existing `ProfileSettings.tsx`)**
 
 Fields:
+
 - Workspace Name (existing)
 - Logo Upload (new — stored in object storage)
 - Timezone (existing)
@@ -91,6 +97,7 @@ MCP tool: `update_org_config(workspace_id, { name, logo_url, timezone, domain })
 This is the first time the admin sees the Connectors panel. During onboarding, it's presented as a wizard step with recommended integrations highlighted.
 
 **Wizard presentation:**
+
 ```
 Step 2 of 6: Connect Your Tools
 
@@ -115,6 +122,7 @@ Recommended for your team:
 After onboarding, this same UI lives in Admin > Connectors as the permanent config surface.
 
 **Google Workspace flow:**
+
 1. OAuth consent → Google Admin account
 2. Grant scopes (directory, gmail, drive, calendar)
 3. MCP context server registers Google Workspace MCP server
@@ -127,7 +135,7 @@ MCP tool: `register_mcp_server(workspace_id, { server_id: "google-workspace", se
 
 ---
 
-## Phase 2: Team Configuration
+## Step 2: Team Configuration
 
 ### Step 2.1: User Import & Role Mapping
 
@@ -136,10 +144,12 @@ MCP tool: `register_mcp_server(workspace_id, { server_id: "google-workspace", se
 During onboarding, the members table is pre-populated from Google sync. Admin assigns roles inline.
 
 **Bulk actions (new):**
+
 - Select Google Group → assign org role to all members
 - "Engineering Team" group → all get `member` role + added to relevant modules
 
 MCP tools:
+
 - `update_user_role(user_id, org_role)`
 - `bulk_assign_group_role(group_id, role, modules[])`
 
@@ -148,6 +158,7 @@ MCP tools:
 **Admin screen: Overlay > Modules section (currently NOT IMPLEMENTED)**
 
 Admin enables which modules are active for this workspace:
+
 - ☑ Contracts (default ON)
 - ☑ CRM (default ON)
 - ☑ Tasks (default ON)
@@ -158,7 +169,7 @@ Module activation → feature flag: `MODULE_CONTRACTS=enabled`, etc.
 
 ---
 
-## Phase 3: Data Mapping
+## Step 3: Data Mapping
 
 ### Step 3.1: Schema Mapping
 
@@ -167,11 +178,13 @@ Module activation → feature flag: `MODULE_CONTRACTS=enabled`, etc.
 For each enabled integration, admin maps external fields → Airlock core types.
 
 Core Airlock types (from canonical schema):
+
 - **Vault** — workflow instance (maps from: JIRA Epic, Salesforce Opportunity)
 - **Event** — immutable log entry (maps from: JIRA issue update, email received)
 - **Contact** — person in CRM vault hierarchy (maps from: Google Contact, JIRA user)
 
 Auto-mapping with confidence scores:
+
 ```
 JIRA Field       → Airlock Field       Confidence
 Summary          → vault.title         ● Auto-mapped
@@ -213,7 +226,7 @@ MCP tool: `update_journey(workspace_id, { journey_id, stages[] })`
 
 ---
 
-## Phase 4: UI Configuration
+## Step 4: UI Configuration
 
 ### Step 4.1: Triptych Layout Config
 
@@ -243,7 +256,7 @@ This is the same permission matrix from `mcp-registry-design.md` but applied to 
 
 ---
 
-## Phase 5: Testing
+## Step 5: Testing
 
 ### Step 5.1: Invite Test Users
 
@@ -265,6 +278,7 @@ Admin runs through a contract vault lifecycle end-to-end:
 6. Owner publishes → vault complete
 
 **Validation checklist:**
+
 - [ ] Each chamber transition logs to immutable events table
 - [ ] SoD enforced (builder cannot self-approve)
 - [ ] External sync works (Google Calendar event created for deadlines)
@@ -276,6 +290,7 @@ Admin runs through a contract vault lifecycle end-to-end:
 **Admin screen: Overlay > System Health (currently NOT IMPLEMENTED)**
 
 Dashboard showing:
+
 - MCP server connectivity (context, Google, JIRA, contract engine)
 - Sync lag per integration
 - Active sessions
@@ -283,7 +298,7 @@ Dashboard showing:
 
 ---
 
-## Phase 6: Activation
+## Step 6: Activation
 
 ### Step 6.1: Review & Subscribe (Phase 2 only)
 
@@ -313,6 +328,7 @@ Upgrade to Pro: $15/seat/month
 ### Step 6.2: Team Rollout
 
 Phased rollout strategy:
+
 1. Pilot group (already done — test users)
 2. Department leads (managers)
 3. Full org (all users)
@@ -324,19 +340,21 @@ Auto-generated announcement email template with personalized workspace links.
 **Admin screen: Overlay > Workflows (extends existing `WorkflowList.tsx`)**
 
 Post-launch automation examples:
+
 - Contract drift detection: `drive.watch → contracts.diff → comms.alert`
 - Deal pipeline auto-docs: `crm.on_stage_change → docs.generate → calendar.schedule`
 - Sync health monitoring: `jira.validate_sync → alerts.send`
 
 ---
 
-## Phase 7: Extension (Ongoing)
+## Step 7: Extension (Ongoing)
 
 ### Marketplace
 
 **New UI: Admin > Connectors > Marketplace tab (enterprise tier)**
 
 Browse and install third-party MCP engines. Each engine:
+
 1. Declares tools + resources in its manifest
 2. Optionally ships UI as MCP Apps (rendered in Orchestrate panel)
 3. Admin configures role × tool permissions after install
@@ -347,6 +365,7 @@ Browse and install third-party MCP engines. Each engine:
 **Admin screen: Overlay > Skills (from `mcp-registry-design.md`)**
 
 Admin or power users create skills via Otto conversation:
+
 1. Describe what the skill does in natural language
 2. Otto proposes tool chain from available MCP tools
 3. Admin sets role + module scope
@@ -373,6 +392,7 @@ The wizard is a **full-screen overlay** that appears on first admin login, repla
 ```
 
 **Steps:**
+
 1. Welcome + branding (→ ProfileSettings)
 2. Connect integrations (→ Connectors section)
 3. Import & assign team (→ MembersTable)
@@ -383,6 +403,7 @@ The wizard is a **full-screen overlay** that appears on first admin login, repla
 After completion, the wizard disappears and the normal module layout loads. Admin can always return to the same screens via Admin Overlay.
 
 **State tracking:**
+
 ```typescript
 // MCP resource: org://{ws_id}/config
 {
@@ -399,16 +420,16 @@ After completion, the wizard disappears and the normal module layout loads. Admi
 
 ## Time Budget
 
-| Phase | Stakeholder Time | Automated Time |
-|---|---|---|
-| 0. Provision | 0 min | 0.5 min |
-| 1. Login + Config | 13 min | 2 min |
-| 2. Team | 22 min | 1 min |
-| 3. Data Mapping | 23 min | 0 min |
-| 4. UI Config | 15 min | 0 min |
-| 5. Testing | 32 min | 0 min |
-| 6. Activation | 28 min | 1 min |
-| **Total** | **133 min** | **4.5 min** |
+| Step              | Stakeholder Time | Automated Time |
+| ----------------- | ---------------- | -------------- |
+| 0. Provision      | 0 min            | 0.5 min        |
+| 1. Login + Config | 13 min           | 2 min          |
+| 2. Team           | 22 min           | 1 min          |
+| 3. Data Mapping   | 23 min           | 0 min          |
+| 4. UI Config      | 15 min           | 0 min          |
+| 5. Testing        | 32 min           | 0 min          |
+| 6. Activation     | 28 min           | 1 min          |
+| **Total**         | **133 min**      | **4.5 min**    |
 
 Target: **under 2 hours 15 minutes** for a fully configured, production-ready workspace.
 
@@ -416,14 +437,14 @@ Target: **under 2 hours 15 minutes** for a fully configured, production-ready wo
 
 ## Mapping to Existing Admin UI Components
 
-| Onboarding Step | Existing Component | Status | Extension Needed |
-|---|---|---|---|
-| Branding | `ProfileSettings.tsx` | ✓ Built | Add logo upload, custom domain |
-| Integrations | — | ✗ Missing | Build full Connectors section (see `mcp-registry-design.md`) |
-| Members | `MembersTable.tsx` | ✓ Built | Add bulk role assignment, Google Group mapping |
-| Data Mapping | — | ✗ Missing | Build field mapping wizard |
-| Lifecycle Config | — | ✗ Missing | Build chamber lifecycle editor |
-| Layout Config | — | ✗ Missing | Build triptych layout editor |
-| System Health | — | ✗ Missing | Build health dashboard |
-| Billing | — | ✗ Missing | Build billing section (Phase 2) |
-| Onboarding Wizard | — | ✗ Missing | Build wizard overlay component |
+| Onboarding Step   | Existing Component    | Status    | Extension Needed                                             |
+| ----------------- | --------------------- | --------- | ------------------------------------------------------------ |
+| Branding          | `ProfileSettings.tsx` | ✓ Built   | Add logo upload, custom domain                               |
+| Integrations      | —                     | ✗ Missing | Build full Connectors section (see `mcp-registry-design.md`) |
+| Members           | `MembersTable.tsx`    | ✓ Built   | Add bulk role assignment, Google Group mapping               |
+| Data Mapping      | —                     | ✗ Missing | Build field mapping wizard                                   |
+| Lifecycle Config  | —                     | ✗ Missing | Build chamber lifecycle editor                               |
+| Layout Config     | —                     | ✗ Missing | Build triptych layout editor                                 |
+| System Health     | —                     | ✗ Missing | Build health dashboard                                       |
+| Billing           | —                     | ✗ Missing | Build billing section (Phase 2)                              |
+| Onboarding Wizard | —                     | ✗ Missing | Build wizard overlay component                               |

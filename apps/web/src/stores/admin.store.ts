@@ -62,22 +62,14 @@ export const useAdminStore = create<AdminState>((set) => ({
         isLoading: false,
       });
     } catch {
-      if (getWorkspaceMode() === "clean") {
-        set({
-          members: [],
-          featureFlags: [],
-          auditLog: [],
-          isLoading: false,
-        });
-      } else {
-        // API not available — use mock data
-        set({
-          members: MOCK_MEMBERS,
-          featureFlags: MOCK_FEATURE_FLAGS,
-          auditLog: MOCK_AUDIT_LOG,
-          isLoading: false,
-        });
-      }
+      // Admin data always falls back to mock — workspace needs members
+      // regardless of clean/demo mode
+      set({
+        members: MOCK_MEMBERS,
+        featureFlags: getWorkspaceMode() === "clean" ? [] : MOCK_FEATURE_FLAGS,
+        auditLog: getWorkspaceMode() === "clean" ? [] : MOCK_AUDIT_LOG,
+        isLoading: false,
+      });
     }
   },
 

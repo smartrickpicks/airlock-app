@@ -32,12 +32,13 @@ const pinnedByModule: Record<
     icon: typeof AlertTriangle;
     label: string;
     path: string;
-    badgeCount?: number;
+    /** Dynamic badge key — resolved at render time from vault data */
+    badgeKey?: "discover_count" | "triage_count";
   }[]
 > = {
   home: [
-    { icon: Inbox, label: "My Queue", path: "/", badgeCount: 7 },
-    { icon: BellRing, label: "Gate Alerts", path: "/", badgeCount: 3 },
+    { icon: Inbox, label: "My Queue", path: "/" },
+    { icon: BellRing, label: "Gate Alerts", path: "/" },
     { icon: Star, label: "Favorites", path: "/" },
     { icon: Clock3, label: "Recent Vaults", path: "/" },
   ],
@@ -46,40 +47,25 @@ const pinnedByModule: Record<
       icon: PlusCircle,
       label: "Intake Lab",
       path: "/contracts/intake",
-      badgeCount: 1,
+      badgeKey: "discover_count",
     },
     {
       icon: AlertTriangle,
       label: "Triage Dashboard",
       path: "/contracts/triage",
-      badgeCount: 5,
+      badgeKey: "triage_count",
     },
     { icon: PlusCircle, label: "Generator", path: "/contracts/generator" },
   ],
   crm: [
-    { icon: GitBranch, label: "Inbox", path: "/crm/inbox", badgeCount: 5 },
-    { icon: GitBranch, label: "Qualify", path: "/crm/qualify", badgeCount: 3 },
-    {
-      icon: GitBranch,
-      label: "Pipeline",
-      path: "/crm/pipeline",
-      badgeCount: 7,
-    },
+    { icon: GitBranch, label: "Inbox", path: "/crm/inbox" },
+    { icon: GitBranch, label: "Qualify", path: "/crm/qualify" },
+    { icon: GitBranch, label: "Pipeline", path: "/crm/pipeline" },
     { icon: GitBranch, label: "Contacts", path: "/crm/contacts" },
     { icon: GitBranch, label: "Activity", path: "/crm/activity" },
-    { icon: GitBranch, label: "Health", path: "/crm/health", badgeCount: 2 },
-    {
-      icon: GitBranch,
-      label: "Renewals",
-      path: "/crm/renewals",
-      badgeCount: 4,
-    },
-    {
-      icon: GitBranch,
-      label: "Onboarding",
-      path: "/crm/onboarding",
-      badgeCount: 1,
-    },
+    { icon: GitBranch, label: "Health", path: "/crm/health" },
+    { icon: GitBranch, label: "Renewals", path: "/crm/renewals" },
+    { icon: GitBranch, label: "Onboarding", path: "/crm/onboarding" },
   ],
   tasks: [{ icon: LayoutGrid, label: "Board", path: "/tasks/board" }],
   calendar: [{ icon: Calendar, label: "Month View", path: "/calendar/month" }],
@@ -99,17 +85,33 @@ export default function SubPanel() {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const currentModule =
-    activeModule === "home"
+    (activeModule as string) === "home"
       ? { label: "Home", path: "/", icon: "Home" }
       : MODULES[activeModule];
   const isClean = getWorkspaceMode() === "clean";
-  const pinned = (pinnedByModule[activeModule] || []).map((pin) =>
-    isClean ? { ...pin, badgeCount: undefined } : pin,
-  );
+
+  // Derive dynamic badge counts from vault data
+  const discoverCount = vaults.filter((v) => v.chamber === "discover").length;
+  const triageCount = vaults.filter(
+    (v) => v.chamber === "discover" || v.chamber === "build",
+  ).length;
+  const badgeCounts: Record<string, number> = {
+    discover_count: discoverCount,
+    triage_count: triageCount,
+  };
+
+  const pinned = (pinnedByModule[activeModule] || []).map((pin) => ({
+    ...pin,
+    badgeCount: isClean
+      ? undefined
+      : pin.badgeKey
+        ? badgeCounts[pin.badgeKey]
+        : undefined,
+  }));
 
   // Fetch vaults for the active module
   useEffect(() => {
-    if (activeModule === "home") {
+    if ((activeModule as string) === "home") {
       fetchVaults({ module_type: "contracts" });
       return;
     }
@@ -147,7 +149,7 @@ export default function SubPanel() {
             className="rounded p-1 text-text-muted transition-colors duration-fast hover:bg-surface-overlay hover:text-text-primary"
             aria-label="Create new vault"
             onClick={() => setShowCreateModal(true)}
-            disabled={activeModule === "home"}
+            disabled={(activeModule as string) === "home"}
           >
             <Plus size={18} />
           </button>
@@ -177,7 +179,7 @@ export default function SubPanel() {
 
         {/* Chamber groups with vaults */}
         <div className="flex-1 overflow-y-auto px-1">
-          {activeModule === "home" ? (
+          {(activeModule as string) === "home" ? (
             <div className="space-y-4 px-2 py-2">
               <div className="theme-card rounded-xl p-3">
                 <div className="theme-section-label theme-label-main">
@@ -262,8 +264,7 @@ export default function SubPanel() {
               contractTitle: data.name,
               contractType: data.contractType,
               fileName: `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`,
-              source: data.source,
-              contactName: data.counterparty || undefined,
+              source: "Local Upload",
             });
             setSelectedVault(contract.vaultId);
             router.push(`/contracts/${contract.vaultSlug}`);

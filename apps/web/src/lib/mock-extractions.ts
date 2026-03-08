@@ -39,7 +39,7 @@ export interface VaultExtraction {
 }
 
 function confidenceTier(c: number): ConfidenceTier {
-  if (c >= 0.75) return "HIGH";
+  if (c >= 0.8) return "HIGH";
   if (c >= 0.4) return "MED";
   return "LOW";
 }
@@ -308,4 +308,344 @@ function buildExtraction(
 export const MOCK_EXTRACTIONS: Record<string, VaultExtraction> = {
   vault_004: buildExtraction("vault_004", SONY_FIELDS),
   vault_006: buildExtraction("vault_006", SONY_FIELDS),
+};
+
+/** Generic fallback for vaults without dedicated mock data */
+export const FALLBACK_EXTRACTION: VaultExtraction = buildExtraction(
+  "vault_fallback",
+  SONY_FIELDS.map((f) => ({
+    ...f,
+    confidence: f.confidence * 0.8,
+    confidence_tier: confidenceTier(f.confidence * 0.8),
+  })),
+);
+
+/** Entity resolution summary from preflight engine */
+export interface EntityResolutionCheck {
+  code: string;
+  label: string;
+  status: "pass" | "review" | "fail";
+  value: string;
+  confidence: number;
+  vault_id?: string | null;
+}
+
+export interface EntityResolutionSummary {
+  status: "pass" | "review" | "fail";
+  checks: EntityResolutionCheck[];
+  summary: { passed: number; review: number; failed: number };
+  requires_manual_confirmation: boolean;
+  new_entry_detected: boolean;
+}
+
+export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
+  {
+    // Henderson MSA — discover chamber, both parties resolved
+    vault_001: {
+      status: "pass",
+      checks: [
+        {
+          code: "ENT_LEGAL_ENTITY",
+          label: "Legal Entity (CMG)",
+          status: "pass",
+          value: "Capitol Music Group",
+          confidence: 1.0,
+          vault_id: "V1",
+        },
+        {
+          code: "ENT_COUNTERPARTY",
+          label: "Counterparty",
+          status: "pass",
+          value: "Henderson Entertainment",
+          confidence: 1.0,
+          vault_id: "V4",
+        },
+        {
+          code: "ENT_SF_MATCH",
+          label: "CRM Match (Vault)",
+          status: "pass",
+          value: "Resolved via vault hierarchy",
+          confidence: 1.0,
+        },
+        {
+          code: "ENT_NEW_ENTRY",
+          label: "New Entry Detection",
+          status: "pass",
+          value: "No new entries",
+          confidence: 1.0,
+        },
+      ],
+      summary: { passed: 4, review: 0, failed: 0 },
+      requires_manual_confirmation: false,
+      new_entry_detected: false,
+    },
+    // Warner Distribution Q2 — discover chamber, fuzzy counterparty match
+    vault_002: {
+      status: "review",
+      checks: [
+        {
+          code: "ENT_LEGAL_ENTITY",
+          label: "Legal Entity (CMG)",
+          status: "pass",
+          value: "Capitol Music Group",
+          confidence: 1.0,
+          vault_id: "V1",
+        },
+        {
+          code: "ENT_COUNTERPARTY",
+          label: "Counterparty",
+          status: "review",
+          value: "Warner Music Group",
+          confidence: 0.82,
+        },
+        {
+          code: "ENT_SF_MATCH",
+          label: "CRM Match (Vault)",
+          status: "review",
+          value: "Pending vault resolution",
+          confidence: 0.3,
+        },
+        {
+          code: "ENT_NEW_ENTRY",
+          label: "New Entry Detection",
+          status: "review",
+          value: "New account",
+          confidence: 0.3,
+        },
+      ],
+      summary: { passed: 1, review: 3, failed: 0 },
+      requires_manual_confirmation: true,
+      new_entry_detected: true,
+    },
+    // Summit Publishing License — discover chamber, both resolved
+    vault_003: {
+      status: "pass",
+      checks: [
+        {
+          code: "ENT_LEGAL_ENTITY",
+          label: "Legal Entity (CMG)",
+          status: "pass",
+          value: "Capitol Music Group",
+          confidence: 1.0,
+          vault_id: "V1",
+        },
+        {
+          code: "ENT_COUNTERPARTY",
+          label: "Counterparty",
+          status: "pass",
+          value: "Summit Publishing",
+          confidence: 1.0,
+          vault_id: "V3",
+        },
+        {
+          code: "ENT_SF_MATCH",
+          label: "CRM Match (Vault)",
+          status: "pass",
+          value: "Resolved via vault hierarchy",
+          confidence: 1.0,
+        },
+        {
+          code: "ENT_NEW_ENTRY",
+          label: "New Entry Detection",
+          status: "pass",
+          value: "No new entries",
+          confidence: 1.0,
+        },
+      ],
+      summary: { passed: 4, review: 0, failed: 0 },
+      requires_manual_confirmation: false,
+      new_entry_detected: false,
+    },
+    // Sony-BigBooty Dist — build chamber, self resolved via division alias
+    vault_004: {
+      status: "pass",
+      checks: [
+        {
+          code: "ENT_LEGAL_ENTITY",
+          label: "Legal Entity (CMG)",
+          status: "pass",
+          value: "CMG Nashville",
+          confidence: 1.0,
+          vault_id: "V2",
+        },
+        {
+          code: "ENT_COUNTERPARTY",
+          label: "Counterparty",
+          status: "pass",
+          value: "Sony Music Entertainment",
+          confidence: 0.91,
+          vault_id: "V5",
+        },
+        {
+          code: "ENT_SF_MATCH",
+          label: "CRM Match (Vault)",
+          status: "pass",
+          value: "Resolved via vault hierarchy",
+          confidence: 1.0,
+        },
+        {
+          code: "ENT_NEW_ENTRY",
+          label: "New Entry Detection",
+          status: "pass",
+          value: "No new entries",
+          confidence: 1.0,
+        },
+      ],
+      summary: { passed: 4, review: 0, failed: 0 },
+      requires_manual_confirmation: false,
+      new_entry_detected: false,
+    },
+    // Atlantic Sync License — build chamber, self resolved, new counterparty
+    vault_005: {
+      status: "review",
+      checks: [
+        {
+          code: "ENT_LEGAL_ENTITY",
+          label: "Legal Entity (CMG)",
+          status: "pass",
+          value: "Capitol Music Group",
+          confidence: 1.0,
+          vault_id: "V1",
+        },
+        {
+          code: "ENT_COUNTERPARTY",
+          label: "Counterparty",
+          status: "review",
+          value: "Atlantic Records",
+          confidence: 0.0,
+        },
+        {
+          code: "ENT_SF_MATCH",
+          label: "CRM Match (Vault)",
+          status: "review",
+          value: "Pending vault resolution",
+          confidence: 0.3,
+        },
+        {
+          code: "ENT_NEW_ENTRY",
+          label: "New Entry Detection",
+          status: "review",
+          value: "New account",
+          confidence: 0.3,
+        },
+      ],
+      summary: { passed: 1, review: 3, failed: 0 },
+      requires_manual_confirmation: true,
+      new_entry_detected: true,
+    },
+    // Universal Amendment #3 — review chamber, self resolved, counterparty fuzzy
+    vault_006: {
+      status: "review",
+      checks: [
+        {
+          code: "ENT_LEGAL_ENTITY",
+          label: "Legal Entity (CMG)",
+          status: "pass",
+          value: "Capitol Music Group",
+          confidence: 1.0,
+          vault_id: "V1",
+        },
+        {
+          code: "ENT_COUNTERPARTY",
+          label: "Counterparty",
+          status: "review",
+          value: "Universal Music Publishing",
+          confidence: 0.85,
+        },
+        {
+          code: "ENT_SF_MATCH",
+          label: "CRM Match (Vault)",
+          status: "review",
+          value: "Pending vault resolution",
+          confidence: 0.3,
+        },
+        {
+          code: "ENT_NEW_ENTRY",
+          label: "New Entry Detection",
+          status: "review",
+          value: "New account",
+          confidence: 0.3,
+        },
+      ],
+      summary: { passed: 1, review: 3, failed: 0 },
+      requires_manual_confirmation: true,
+      new_entry_detected: true,
+    },
+    // BMG Catalog Transfer — ship chamber, both fully resolved
+    vault_007: {
+      status: "pass",
+      checks: [
+        {
+          code: "ENT_LEGAL_ENTITY",
+          label: "Legal Entity (CMG)",
+          status: "pass",
+          value: "Capitol Music Group",
+          confidence: 1.0,
+          vault_id: "V1",
+        },
+        {
+          code: "ENT_COUNTERPARTY",
+          label: "Counterparty",
+          status: "pass",
+          value: "BMG Rights Management",
+          confidence: 0.96,
+          vault_id: "V6",
+        },
+        {
+          code: "ENT_SF_MATCH",
+          label: "CRM Match (Vault)",
+          status: "pass",
+          value: "Resolved via vault hierarchy",
+          confidence: 1.0,
+        },
+        {
+          code: "ENT_NEW_ENTRY",
+          label: "New Entry Detection",
+          status: "pass",
+          value: "No new entries",
+          confidence: 1.0,
+        },
+      ],
+      summary: { passed: 4, review: 0, failed: 0 },
+      requires_manual_confirmation: false,
+      new_entry_detected: false,
+    },
+  };
+
+export const FALLBACK_ENTITY_RESOLUTION: EntityResolutionSummary = {
+  status: "review",
+  checks: [
+    {
+      code: "ENT_LEGAL_ENTITY",
+      label: "Legal Entity (CMG)",
+      status: "pass",
+      value: "Capitol Music Group",
+      confidence: 0.92,
+      vault_id: "V1",
+    },
+    {
+      code: "ENT_COUNTERPARTY",
+      label: "Counterparty",
+      status: "review",
+      value: "Pending extraction",
+      confidence: 0.0,
+    },
+    {
+      code: "ENT_SF_MATCH",
+      label: "CRM Match (Vault)",
+      status: "review",
+      value: "Pending vault resolution",
+      confidence: 0.3,
+    },
+    {
+      code: "ENT_NEW_ENTRY",
+      label: "New Entry Detection",
+      status: "review",
+      value: "New account",
+      confidence: 0.3,
+    },
+  ],
+  summary: { passed: 1, review: 3, failed: 0 },
+  requires_manual_confirmation: true,
+  new_entry_detected: true,
 };

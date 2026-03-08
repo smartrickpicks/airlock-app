@@ -111,17 +111,12 @@ export const useIntakeStore = create<IntakeState>((set, get) => ({
           "/api/v1/documents/upload",
           { method: "POST", body },
         );
-      } catch {
-        if (getWorkspaceMode() === "clean") {
-          set({
-            isUploading: false,
-            intakeStep: "failed",
-            error:
-              "Upload failed. Make sure the API server is running (uvicorn src.main:app --reload).",
-          });
-          return;
-        }
-        // API not running — simulate a parsed document from the local file
+      } catch (uploadError) {
+        // Log the actual error so we can debug — silent swallowing hides real issues
+        console.warn(
+          "[intake] Upload API failed, using mock fallback:",
+          uploadError,
+        );
         const mockText = `[Mock parsed content for: ${file.name}]\n\nThis is a simulated extraction. The API is not running. Upload a real PDF with the API active to get live parsed text.\n\nDistribution Agreement\nEffective Date: January 15, 2026\nTerritory: Worldwide\nExclusive: Yes\nDistribution Fee: 15%`;
         uploadResult = {
           document: {
@@ -209,17 +204,49 @@ export const useIntakeStore = create<IntakeState>((set, get) => ({
       metadata.contract_type = detectedType;
     }
 
-    const vault = await apiFetch<CreateVaultFromDocumentResponse>(
-      "/api/v1/vaults/from-document",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          document_id: state.document.id,
-          name,
-          metadata,
-        }),
-      },
-    );
+    let vault: Vault;
+    try {
+      vault = await apiFetch<CreateVaultFromDocumentResponse>(
+        "/api/v1/vaults/from-document",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            document_id: state.document.id,
+            name,
+            metadata,
+          }),
+        },
+      );
+    } catch {
+      // API not running — create a local mock vault
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      vault = {
+        id: `vault_mock_${Date.now()}`,
+        name,
+        slug,
+        module_type: "contracts",
+        vault_type: "contract",
+        vault_level: 4 as const,
+        parent_vault_id: null,
+        chamber: "discover",
+        gate: null,
+        health_score: state.preflight?.health_score?.calibrated_score
+          ? Math.round(state.preflight.health_score.calibrated_score * 100)
+          : 50,
+        workspace_id: "ws_default",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        archived_at: null,
+        metadata,
+      };
+
+      // Add to vault store so it appears in the sidebar
+      const { useVaultStore } = await import("@/stores/vault.store");
+      useVaultStore.getState().addVault(vault);
+    }
 
     set({ vault });
     return vault;

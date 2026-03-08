@@ -157,8 +157,11 @@ def _enrich_checks_with_evidence(checks: list[dict[str, Any]], full_text: str) -
 def _run_salesforce_match(
     extracted_headers: list[str], full_text: str = ""
 ) -> list[dict[str, Any]]:
+    """Deprecated — entity resolution now uses vault hierarchy matching.
+
+    Retained for backward compatibility with engine.py call sites.
+    """
     del extracted_headers, full_text
-    logger.debug("Salesforce matching is stubbed until DB connectivity is ported")
     return []
 
 
@@ -183,13 +186,70 @@ def _extract_parties(full_text: str) -> tuple[str | None, str | None]:
 
 
 def build_resolution_story(
-    sf_match_results: list[dict[str, Any]], full_text: str
+    sf_match_results: list[dict[str, Any]],
+    full_text: str,
+    self_vaults: list[dict[str, Any]] | None = None,
+    counterparty_vaults: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Build a lightweight entity-resolution story without DB matching."""
-    del sf_match_results
+    """Build entity-resolution story.
+
+    When self_vaults and counterparty_vaults are provided, uses the entity
+    resolver for vault-hierarchy matching with real confidence scores.
+    Otherwise, falls back to regex party extraction with review status.
+    """
+    del sf_match_results  # No longer used — vault hierarchy replaces SF matching
+
     party_a, party_b = _extract_parties(full_text)
+
+    # If vault data is available, use the entity resolver
+    if self_vaults is not None and counterparty_vaults is not None:
+        from src.services.entity_resolver import resolve_parties
+
+        resolution = resolve_parties(
+            party_a=party_a,
+            party_b=party_b,
+            self_vaults=self_vaults,
+            counterparty_vaults=counterparty_vaults,
+        )
+        legal = resolution["legal_entity"]
+        cp = resolution["counterparty"]
+
+        legal_entity_account = (
+            {
+                "name": legal["name"],
+                "match_status": legal["match_status"],
+                "confidence": legal["confidence"],
+                "vault_id": legal.get("vault_id"),
+            }
+            if legal["name"]
+            else None
+        )
+
+        counterparties: list[dict[str, Any]] = []
+        if cp["name"]:
+            counterparties.append(
+                {
+                    "name": cp["name"],
+                    "match_status": cp["match_status"],
+                    "confidence": cp["confidence"],
+                    "vault_id": cp.get("vault_id"),
+                }
+            )
+
+        return {
+            "legal_entity_account": legal_entity_account,
+            "counterparties": counterparties,
+            "unresolved_counterparties": (
+                [cp["name"]] if cp["match_status"] == "unresolved" and cp["name"] else []
+            ),
+            "requires_manual_confirmation": resolution["requires_manual_confirmation"],
+            "new_entry_detected": resolution["new_entry_detected"],
+            "primary_counterparty": counterparties[0] if counterparties else None,
+        }
+
+    # Fallback: regex-only extraction (no vault data)
     legal_entity_account = None
-    counterparties: list[dict[str, Any]] = []
+    counterparties = []
     unresolved_counterparties: list[str] = []
 
     if party_a:
@@ -204,7 +264,7 @@ def build_resolution_story(
             unresolved_counterparties.append(title_guess)
 
     new_entry_detected = not counterparties
-    story = {
+    story: dict[str, Any] = {
         "legal_entity_account": legal_entity_account,
         "counterparties": counterparties,
         "unresolved_counterparties": unresolved_counterparties,
@@ -228,13 +288,23 @@ def build_entity_resolution(
 
     legal = resolution_story.get("legal_entity_account")
     if legal:
+        match_status = legal.get("match_status", "review")
+        confidence = float(legal.get("confidence", 0))
+        # resolved -> pass, review stays review, unresolved -> fail
+        if match_status == "resolved" and confidence >= 0.80:
+            check_status = "pass"
+        elif match_status == "unresolved":
+            check_status = "fail"
+        else:
+            check_status = "review"
         checks.append(
             {
                 "code": "ENT_LEGAL_ENTITY",
                 "label": "Legal Entity (CMG)",
-                "status": "review",
+                "status": check_status,
                 "value": legal.get("name", ""),
-                "confidence": float(legal.get("confidence", 0)),
+                "confidence": confidence,
+                "vault_id": legal.get("vault_id"),
             }
         )
     else:
@@ -251,13 +321,22 @@ def build_entity_resolution(
     counterparties = resolution_story.get("counterparties") or []
     if counterparties:
         primary = counterparties[0]
+        match_status = primary.get("match_status", "review")
+        confidence = float(primary.get("confidence", 0))
+        if match_status == "resolved" and confidence >= 0.80:
+            check_status = "pass"
+        elif match_status == "unresolved":
+            check_status = "fail"
+        else:
+            check_status = "review"
         checks.append(
             {
                 "code": "ENT_COUNTERPARTY",
                 "label": "Counterparty",
-                "status": "review",
+                "status": check_status,
                 "value": primary.get("name", ""),
-                "confidence": float(primary.get("confidence", 0)),
+                "confidence": confidence,
+                "vault_id": primary.get("vault_id"),
             }
         )
     else:
@@ -272,13 +351,21 @@ def build_entity_resolution(
             }
         )
 
+    # ENT_SF_MATCH deprecated — vault hierarchy resolution replaces Salesforce matching.
+    # Auto-pass when both legal entity and counterparty are resolved; otherwise review.
+    _sf_resolved = (
+        legal
+        and legal.get("match_status") == "resolved"
+        and counterparties
+        and counterparties[0].get("match_status") == "resolved"
+    )
     checks.append(
         {
             "code": "ENT_SF_MATCH",
-            "label": "Salesforce Match",
-            "status": "fail" if not sf_match else "review",
-            "value": "New account - requires account creation" if not sf_match else "Review needed",
-            "confidence": 0.0 if not sf_match else 0.5,
+            "label": "CRM Match (Vault)",
+            "status": "pass" if _sf_resolved else "review",
+            "value": "Resolved via vault hierarchy" if _sf_resolved else "Pending vault resolution",
+            "confidence": 1.0 if _sf_resolved else 0.3,
         }
     )
     checks.append(

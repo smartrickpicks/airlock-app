@@ -11,6 +11,13 @@ export interface UserPreferences {
   highContrast: boolean;
 }
 
+export interface VaultMembership {
+  vaultId: string;
+  vaultName: string;
+  role: "builder" | "gatekeeper" | "owner" | "viewer";
+  chamber: string;
+}
+
 export interface WorkspaceMember {
   id: string;
   name: string;
@@ -18,6 +25,7 @@ export interface WorkspaceMember {
   avatarUrl?: string;
   orgRole: "member" | "lead" | "director" | "executive";
   moduleRoles: Record<string, string>;
+  vaultMemberships: VaultMembership[];
   status: "active" | "invited" | "deactivated";
   lastActiveAt: string;
   joinedAt: string;
@@ -119,6 +127,38 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
       calendar: "viewer",
       documents: "builder",
     },
+    vaultMemberships: [
+      {
+        vaultId: "vault_001",
+        vaultName: "Henderson MSA",
+        role: "owner",
+        chamber: "discover",
+      },
+      {
+        vaultId: "vault_004",
+        vaultName: "Sony-BigBooty Dist Agreement",
+        role: "owner",
+        chamber: "build",
+      },
+      {
+        vaultId: "vault_007",
+        vaultName: "BMG Catalog Transfer",
+        role: "owner",
+        chamber: "ship",
+      },
+      {
+        vaultId: "vault_002",
+        vaultName: "Warner Distribution Q2",
+        role: "builder",
+        chamber: "discover",
+      },
+      {
+        vaultId: "vault_003",
+        vaultName: "Summit Publishing License",
+        role: "builder",
+        chamber: "discover",
+      },
+    ],
     status: "active",
     lastActiveAt: "2026-03-05T14:30:00Z",
     joinedAt: "2025-11-01T09:00:00Z",
@@ -135,6 +175,26 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
       calendar: "viewer",
       documents: "gatekeeper",
     },
+    vaultMemberships: [
+      {
+        vaultId: "vault_004",
+        vaultName: "Sony-BigBooty Dist Agreement",
+        role: "gatekeeper",
+        chamber: "build",
+      },
+      {
+        vaultId: "vault_005",
+        vaultName: "Atlantic Sync License",
+        role: "gatekeeper",
+        chamber: "build",
+      },
+      {
+        vaultId: "vault_006",
+        vaultName: "Universal Amendment #3",
+        role: "gatekeeper",
+        chamber: "review",
+      },
+    ],
     status: "active",
     lastActiveAt: "2026-03-05T12:15:00Z",
     joinedAt: "2025-11-15T09:00:00Z",
@@ -151,6 +211,20 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
       calendar: "viewer",
       documents: "viewer",
     },
+    vaultMemberships: [
+      {
+        vaultId: "vault_001",
+        vaultName: "Henderson MSA",
+        role: "builder",
+        chamber: "discover",
+      },
+      {
+        vaultId: "vault_003",
+        vaultName: "Summit Publishing License",
+        role: "builder",
+        chamber: "discover",
+      },
+    ],
     status: "active",
     lastActiveAt: "2026-03-04T18:00:00Z",
     joinedAt: "2025-12-01T09:00:00Z",
@@ -167,6 +241,20 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
       calendar: "viewer",
       documents: "viewer",
     },
+    vaultMemberships: [
+      {
+        vaultId: "vault_006",
+        vaultName: "Universal Amendment #3",
+        role: "gatekeeper",
+        chamber: "review",
+      },
+      {
+        vaultId: "vault_007",
+        vaultName: "BMG Catalog Transfer",
+        role: "gatekeeper",
+        chamber: "ship",
+      },
+    ],
     status: "active",
     lastActiveAt: "2026-03-03T10:45:00Z",
     joinedAt: "2026-01-10T09:00:00Z",
@@ -177,6 +265,7 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
     email: "morgan@airlock.dev",
     orgRole: "member",
     moduleRoles: {},
+    vaultMemberships: [],
     status: "invited",
     lastActiveAt: "",
     joinedAt: "2026-03-01T09:00:00Z",
@@ -189,6 +278,14 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
     moduleRoles: {
       contracts: "viewer",
     },
+    vaultMemberships: [
+      {
+        vaultId: "vault_001",
+        vaultName: "Henderson MSA",
+        role: "viewer",
+        chamber: "discover",
+      },
+    ],
     status: "deactivated",
     lastActiveAt: "2026-02-15T16:00:00Z",
     joinedAt: "2025-11-20T09:00:00Z",

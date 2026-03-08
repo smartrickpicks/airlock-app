@@ -7,4 +7,11 @@ from src.models.vault import Vault
 from src.models.vault_member import VaultMember
 from src.models.workspace import Workspace
 
-__all__ = ["Event", "User", "UserModuleRole", "Vault", "VaultMember", "Workspace"]
+__all__ = [
+    "Event",
+    "User",
+    "UserModuleRole",
+    "Vault",
+    "VaultMember",
+    "Workspace",
+]

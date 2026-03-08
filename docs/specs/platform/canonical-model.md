@@ -1,4 +1,6 @@
-# Canonical Model — Phase 1 Core Types
+# Canonical Model — Tier 1 Core Types
+
+> **Vocabulary note:** This spec uses "Tier 1/2/3" for project milestones (dogfood → multi-tenant → platform). These are NOT Airlock Chambers. See `CLAUDE.md` for canonical vocabulary.
 
 > **Status:** SPECCED
 > **Decision:** LOCKED (2026-03-06)
@@ -21,9 +23,9 @@ The universal work item. Maps from: Jira Issue, native Airlock task, GitHub Issu
 
 ```typescript
 interface CanonicalTask {
-  id: string;                    // ULID (Airlock-generated)
-  external_id?: string;          // e.g., "ACME-123" (Jira key)
-  external_source?: string;      // "jira" | "native" | "github"
+  id: string; // ULID (Airlock-generated)
+  external_id?: string; // e.g., "ACME-123" (Jira key)
+  external_source?: string; // "jira" | "native" | "github"
 
   title: string;
   description?: string;
@@ -33,21 +35,21 @@ interface CanonicalTask {
   assigned_to?: CanonicalUserRef;
   reporter?: CanonicalUserRef;
 
-  board_id?: string;             // Which TaskBoard this belongs to
-  vault_id?: string;             // Linked vault (if task is vault-related)
+  board_id?: string; // Which TaskBoard this belongs to
+  vault_id?: string; // Linked vault (if task is vault-related)
 
   tags: string[];
-  effort?: number;               // Story points / effort estimate
-  due_date?: string;             // ISO 8601
+  effort?: number; // Story points / effort estimate
+  due_date?: string; // ISO 8601
 
   comments: CanonicalComment[];
   attachments: CanonicalAttachmentRef[];
 
-  metadata: Record<string, unknown>;  // Custom fields, connector-specific overflow
+  metadata: Record<string, unknown>; // Custom fields, connector-specific overflow
 
-  created_at: string;            // ISO 8601
+  created_at: string; // ISO 8601
   updated_at: string;
-  synced_at?: string;            // Last sync with external source
+  synced_at?: string; // Last sync with external source
 }
 
 type CanonicalTaskStatus =
@@ -74,7 +76,7 @@ Container for tasks. Maps from: Jira Board/Project, native board.
 ```typescript
 interface CanonicalTaskBoard {
   id: string;
-  external_id?: string;          // Jira project key
+  external_id?: string; // Jira project key
   external_source?: string;
 
   name: string;
@@ -82,7 +84,7 @@ interface CanonicalTaskBoard {
 
   columns: CanonicalBoardColumn[];
 
-  module: string;                // Which Airlock module owns this board
+  module: string; // Which Airlock module owns this board
   workspace_id: string;
 
   metadata: Record<string, unknown>;
@@ -91,7 +93,7 @@ interface CanonicalTaskBoard {
 interface CanonicalBoardColumn {
   id: string;
   label: string;
-  status: CanonicalTaskStatus;   // Maps column position → canonical status
+  status: CanonicalTaskStatus; // Maps column position → canonical status
   wip_limit?: number;
 }
 ```
@@ -103,16 +105,16 @@ A conversation. Maps from: Gmail thread, Slack thread, native message thread.
 ```typescript
 interface CanonicalMessageThread {
   id: string;
-  external_id?: string;          // Gmail thread ID, Slack thread ts
-  external_source?: string;      // "gmail" | "slack" | "native"
+  external_id?: string; // Gmail thread ID, Slack thread ts
+  external_source?: string; // "gmail" | "slack" | "native"
 
-  subject?: string;              // Email subject (null for Slack)
+  subject?: string; // Email subject (null for Slack)
   participants: CanonicalUserRef[];
 
   messages: CanonicalMessage[];
 
-  vault_id?: string;             // Linked vault (contextual relevance)
-  module?: string;               // Which module surfaced this thread
+  vault_id?: string; // Linked vault (contextual relevance)
+  module?: string; // Which module surfaced this thread
 
   unread_count: number;
   last_message_at: string;
@@ -125,8 +127,8 @@ interface CanonicalMessage {
   external_id?: string;
 
   author: CanonicalUserRef;
-  body: string;                  // Plain text or markdown
-  body_html?: string;            // Rich content (email)
+  body: string; // Plain text or markdown
+  body_html?: string; // Rich content (email)
 
   attachments: CanonicalAttachmentRef[];
 
@@ -134,15 +136,17 @@ interface CanonicalMessage {
 }
 ```
 
-### Channel
+### ConversationSpace
 
-A communication space (persistent). Maps from: Slack channel, native room.
+A persistent communication space. Maps from: Slack channel, native room.
+
+> **Naming:** Airlock uses "ConversationSpace" internally — never "channel" (reserved term, see `CLAUDE.md`). External Slack channels are mapped to ConversationSpaces via adapters.
 
 ```typescript
-interface CanonicalChannel {
+interface CanonicalConversationSpace {
   id: string;
-  external_id?: string;          // Slack channel ID
-  external_source?: string;      // "slack" | "native"
+  external_id?: string; // Slack channel ID
+  external_source?: string; // "slack" | "native"
 
   name: string;
   description?: string;
@@ -153,9 +157,9 @@ interface CanonicalChannel {
   members: CanonicalUserRef[];
   member_count: number;
 
-  // Where this channel appears in Airlock
-  mounted_module?: string;       // e.g., "crm"
-  mounted_vault_id?: string;     // e.g., specific deal vault
+  // Where this conversation space appears in Airlock
+  mounted_module?: string; // e.g., "crm"
+  mounted_vault_id?: string; // e.g., specific deal vault
 
   last_message_at?: string;
   unread_count: number;
@@ -171,15 +175,15 @@ A calendar entry. Maps from: Google Calendar event, task due date, vault deadlin
 ```typescript
 interface CanonicalEvent {
   id: string;
-  external_id?: string;          // Google Calendar event ID
-  external_source?: string;      // "google_calendar" | "computed" | "native"
+  external_id?: string; // Google Calendar event ID
+  external_source?: string; // "google_calendar" | "computed" | "native"
 
   title: string;
   description?: string;
   location?: string;
 
-  start: string;                 // ISO 8601
-  end: string;                   // ISO 8601
+  start: string; // ISO 8601
+  end: string; // ISO 8601
   all_day: boolean;
 
   attendees: CanonicalAttendee[];
@@ -187,11 +191,11 @@ interface CanonicalEvent {
 
   // For computed events (from vault dates, task due dates)
   source_type?: "vault_date" | "task_due" | "calendar" | "meeting";
-  source_id?: string;            // vault_id or task_id
+  source_id?: string; // vault_id or task_id
 
-  recurrence?: string;           // RRULE
+  recurrence?: string; // RRULE
 
-  calendar_id: string;           // Which calendar
+  calendar_id: string; // Which calendar
 
   status: "confirmed" | "tentative" | "cancelled";
 
@@ -211,14 +215,14 @@ A file or rich document. Maps from: Google Drive file, Google Doc, native upload
 ```typescript
 interface CanonicalDocument {
   id: string;
-  external_id?: string;          // Google Drive file ID
-  external_source?: string;      // "google_drive" | "native" | "upload"
+  external_id?: string; // Google Drive file ID
+  external_source?: string; // "google_drive" | "native" | "upload"
 
   name: string;
   mime_type: string;
   size_bytes?: number;
 
-  url?: string;                  // External link (Google Docs URL)
+  url?: string; // External link (Google Docs URL)
   thumbnail_url?: string;
 
   // Ownership
@@ -226,9 +230,9 @@ interface CanonicalDocument {
   shared_with: CanonicalUserRef[];
 
   // Airlock context
-  vault_id?: string;             // Attached to this vault
+  vault_id?: string; // Attached to this vault
   module?: string;
-  folder_path?: string;          // e.g., "/Contracts/Acme/"
+  folder_path?: string; // e.g., "/Contracts/Acme/"
 
   created_at: string;
   updated_at: string;
@@ -243,11 +247,11 @@ interface CanonicalDocument {
 
 ```typescript
 interface CanonicalUserRef {
-  id: string;                    // Airlock user ULID
+  id: string; // Airlock user ULID
   email: string;
   display_name: string;
   avatar_url?: string;
-  external_ids?: Record<string, string>;  // { jira: "...", google: "...", slack: "..." }
+  external_ids?: Record<string, string>; // { jira: "...", google: "...", slack: "..." }
 }
 
 interface CanonicalAttachmentRef {
@@ -255,14 +259,14 @@ interface CanonicalAttachmentRef {
   name: string;
   mime_type: string;
   size_bytes?: number;
-  url: string;                   // Download or preview URL
-  source: string;                // "google_drive" | "jira" | "native"
+  url: string; // Download or preview URL
+  source: string; // "google_drive" | "jira" | "native"
 }
 
 interface TaskFilters {
   board_id?: string;
   status?: CanonicalTaskStatus[];
-  assigned_to?: string;          // user ID
+  assigned_to?: string; // user ID
   vault_id?: string;
   tags?: string[];
   search?: string;
@@ -272,7 +276,7 @@ interface TaskFilters {
 
 interface EventFilters {
   calendar_ids?: string[];
-  start_after?: string;          // ISO 8601
+  start_after?: string; // ISO 8601
   start_before?: string;
   source_type?: string;
   limit?: number;
@@ -330,7 +334,7 @@ interface CreateEventInput {
   start: string;
   end: string;
   all_day?: boolean;
-  attendees?: string[];          // user IDs
+  attendees?: string[]; // user IDs
   calendar_id: string;
   recurrence?: string;
 }
@@ -358,22 +362,32 @@ interface CreateCommentInput {
 
 ## Relationship to Existing Models
 
-| Canonical Type | Existing Airlock Model | Relationship |
-|---|---|---|
-| `Task` | **NEW** | Does not exist yet. Phase 1 adds this. |
-| `TaskBoard` | **NEW** | Does not exist yet. Phase 1 adds this. |
-| `MessageThread` | **NEW** | Does not exist yet. Phase 1 adds this. |
-| `Channel` | **NEW** | Does not exist yet. Phase 1 adds this. |
-| `Event` | `events` table (existing) | Different concept! Existing `events` = immutable audit log. Canonical `Event` = calendar entry. Rename consideration: `AuditEvent` vs `CalendarEvent`. |
-| `Document` | **NEW** | Does not exist yet. Phase 1 adds this. |
-| `Vault` | `vaults` table (existing) | Canonical tasks/events/docs link to vaults via `vault_id`. |
-| `User` | `users` table (existing) | `CanonicalUserRef` is a lightweight projection of existing user model + `external_ids` for connector linking. |
+| Canonical Type      | Existing Airlock Model    | Relationship                                                                                                                                           |
+| ------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Task`              | **NEW**                   | Does not exist yet. Tier 1 adds this.                                                                                                                  |
+| `TaskBoard`         | **NEW**                   | Does not exist yet. Tier 1 adds this.                                                                                                                  |
+| `MessageThread`     | **NEW**                   | Does not exist yet. Tier 1 adds this.                                                                                                                  |
+| `ConversationSpace` | **NEW**                   | Does not exist yet. Tier 1 adds this. (Maps from Slack channels.)                                                                                      |
+| `Event`             | `events` table (existing) | Different concept! Existing `events` = immutable audit log. Canonical `Event` = calendar entry. Rename consideration: `AuditEvent` vs `CalendarEvent`. |
+| `Document`          | **NEW**                   | Does not exist yet. Tier 1 adds this.                                                                                                                  |
+| `Vault`             | `vaults` table (existing) | Canonical tasks/events/docs link to vaults via `vault_id`.                                                                                             |
+
+> **CRM = Vault Hierarchy.** There is NO separate CRM data model. The vault hierarchy IS the CRM:
+>
+> - Level 1 (Parent) = Account
+> - Level 2 (Division) = Business Unit
+> - Level 3 (Counterparty) = Contact/Deal
+> - Level 4 (Item) = Contract/Document
+>
+> External systems integrating with "CRM data" MUST use the vault hierarchy API (`/api/vaults?vault_level=1`) — never a separate CRM endpoint. See `docs/specs/vault-hierarchy/overview.md`.
+> | `User` | `users` table (existing) | `CanonicalUserRef` is a lightweight projection of existing user model + `external_ids` for connector linking. |
 
 ### Naming Collision: Event
 
 The existing `events` table stores immutable audit entries (extraction, patch, approval). The canonical `Event` type represents calendar events.
 
 **Resolution:** In code, use:
+
 - `AuditEvent` — existing immutable log entries (`apps/api/src/models/event.py`)
 - `CalendarEvent` — new canonical type for calendar entries
 - In the UI, "Event" always means calendar event. The audit log is called "Activity" or "History."
@@ -389,12 +403,13 @@ org://{ws_id}/schemas/
 ├── task.json           ← CanonicalTask JSON Schema
 ├── task-board.json     ← CanonicalTaskBoard JSON Schema
 ├── message-thread.json ← CanonicalMessageThread JSON Schema
-├── channel.json        ← CanonicalChannel JSON Schema
+├── conversation-space.json ← CanonicalConversationSpace JSON Schema
 ├── calendar-event.json ← CanonicalEvent JSON Schema
 └── document.json       ← CanonicalDocument JSON Schema
 ```
 
 These schemas are used by:
+
 1. **Adapters** — validate data before returning to engines
 2. **Context server** — validate write-through payloads
 3. **Shell** — TypeScript types generated from these schemas via OpenAPI codegen

@@ -10,6 +10,7 @@ import ApprovalChain from "@/components/organisms/ApprovalChain";
 import SLATimer from "@/components/molecules/SLATimer";
 import { usePatchStore } from "@/stores/patch.store";
 import OttoChat from "@/components/organisms/OttoChat";
+import AuditTrailPanel from "@/components/organisms/AuditTrailPanel";
 
 /** Tab definition with icon, label, and placeholder content */
 interface TabDef {
@@ -174,6 +175,14 @@ export default function ControlPanel({
               </p>
             )}
           </div>
+        );
+      case "audit":
+        return vaultId ? (
+          <AuditTrailPanel vaultId={vaultId} />
+        ) : (
+          <p className="text-sm text-text-muted">
+            Select a vault to view audit trail.
+          </p>
         );
       case "ai-agent":
         return (

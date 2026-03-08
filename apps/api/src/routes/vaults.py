@@ -6,12 +6,15 @@ from sqlalchemy.orm import Session
 from src.db import get_db
 from src.middleware.auth import get_current_user
 from src.schemas.vault import (
+    CreateVaultFromDocumentRequest,
     CreateVaultRequest,
     UpdateVaultRequest,
     VaultListResponse,
     VaultResponse,
 )
+from src.services.document import get_document
 from src.services.event import create_event
+from src.services.permissions import check_chamber_advance_permission
 from src.services.vault import (
     advance_chamber,
     archive_vault,
@@ -21,6 +24,7 @@ from src.services.vault import (
     list_vaults,
     update_vault,
 )
+from src.services.vault_membership import get_user_vault_role
 
 router = APIRouter(prefix="/api/v1/vaults", tags=["vaults"])
 
@@ -70,6 +74,63 @@ def create_vault_route(
         event_type="vault_created",
         actor_id=current_user.get("sub"),
         payload={"name": vault.name, "vault_type": vault.vault_type, "chamber": vault.chamber},
+    )
+    return _vault_to_response(vault)
+
+
+@router.post("/from-document", status_code=status.HTTP_201_CREATED)
+def create_vault_from_document_route(
+    body: CreateVaultFromDocumentRequest,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> VaultResponse:
+    """Create a vault linked to an uploaded document with extraction metadata."""
+    workspace_id = current_user.get("workspace_id", "")
+
+    # Validate document exists
+    doc = get_document(db, body.document_id, workspace_id)
+    if doc is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    # Detect contract type from metadata
+    contract_type = body.metadata.get("contract_type", "contract")
+
+    vault = create_vault(
+        db,
+        workspace_id=workspace_id,
+        name=body.name,
+        vault_type="contract",
+        vault_level=4,
+        module_type="contracts",
+        metadata=body.metadata,
+        creator_id=current_user.get("sub"),
+    )
+
+    # Compute health score from preflight if available
+    preflight = body.metadata.get("preflight_result")
+    if isinstance(preflight, dict):
+        score = preflight.get("health_score", {})
+        if isinstance(score, dict) and "calibrated_score" in score:
+            vault.health_score = round(score["calibrated_score"] * 100, 1)
+
+    # Link document to vault
+    doc.vault_id = vault.id
+    db.commit()
+    db.refresh(vault)
+
+    create_event(
+        db,
+        vault_id=vault.id,
+        workspace_id=vault.workspace_id,
+        event_type="vault_created",
+        actor_id=current_user.get("sub"),
+        payload={
+            "name": vault.name,
+            "vault_type": "contract",
+            "chamber": vault.chamber,
+            "contract_type": contract_type,
+            "document_id": body.document_id,
+        },
     )
     return _vault_to_response(vault)
 
@@ -163,11 +224,26 @@ def advance_chamber_route(
     current_user: dict = Depends(get_current_user),  # noqa: B008
     db: Session = Depends(get_db),  # noqa: B008
 ) -> VaultResponse:
-    """Advance a vault to the next chamber."""
+    """Advance a vault to the next chamber. Requires sufficient role."""
     workspace_id = current_user.get("workspace_id", "")
+    user_id = current_user.get("sub")
     vault = get_vault(db, vault_id, workspace_id)
     if vault is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found")
+
+    # Check role-based permission for chamber advancement
+    user_role = get_user_vault_role(db, user_id, vault_id, workspace_id)
+    if user_role is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No membership on this vault",
+        )
+    if not check_chamber_advance_permission(user_role, vault.chamber):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Role '{user_role}' cannot advance vault from '{vault.chamber}' chamber",
+        )
+
     try:
         vault = advance_chamber(db, vault)
     except ValueError as e:
@@ -177,7 +253,7 @@ def advance_chamber_route(
         vault_id=vault.id,
         workspace_id=vault.workspace_id,
         event_type="chamber_advanced",
-        actor_id=current_user.get("sub"),
+        actor_id=user_id,
         payload={"chamber": vault.chamber, "gate": vault.gate},
     )
     return _vault_to_response(vault)
@@ -189,18 +265,32 @@ def archive_vault_route(
     current_user: dict = Depends(get_current_user),  # noqa: B008
     db: Session = Depends(get_db),  # noqa: B008
 ) -> VaultResponse:
-    """Soft-delete a vault."""
+    """Soft-delete a vault. Requires owner role."""
     workspace_id = current_user.get("workspace_id", "")
+    user_id = current_user.get("sub")
     vault = get_vault(db, vault_id, workspace_id)
     if vault is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Vault not found")
+
+    user_role = get_user_vault_role(db, user_id, vault_id, workspace_id)
+    if user_role is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No membership on this vault",
+        )
+    if user_role != "owner":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only vault owners can archive",
+        )
+
     vault = archive_vault(db, vault)
     create_event(
         db,
         vault_id=vault.id,
         workspace_id=vault.workspace_id,
         event_type="vault_archived",
-        actor_id=current_user.get("sub"),
+        actor_id=user_id,
         payload={"name": vault.name},
     )
     return _vault_to_response(vault)

@@ -37,6 +37,9 @@ importers:
       "@xyflow/react":
         specifier: ^12.10.1
         version: 12.10.1(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      elkjs:
+        specifier: ^0.11.1
+        version: 0.11.1
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -1557,6 +1560,12 @@ packages:
     resolution:
       {
         integrity: sha512-5z3uFKBWjiNR44nFcYdkcXjKMbg5KXNdciu7mhTPo9tB7NbqSNP2sSnGR+fqknZSCwKkBN+oxiiajWs4dT6ORg==,
+      }
+
+  elkjs@0.11.1:
+    resolution:
+      {
+        integrity: sha512-zxxR9k+rx5ktMwT/FwyLdPCrq7xN6e4VGGHH8hA01vVYKjTFik7nHOxBnAYtrgYUB1RpAiLvA1/U2YraWxyKKg==,
       }
 
   emoji-regex@10.6.0:
@@ -5066,6 +5075,8 @@ snapshots:
   eastasianwidth@0.2.0: {}
 
   electron-to-chromium@1.5.307: {}
+
+  elkjs@0.11.1: {}
 
   emoji-regex@10.6.0: {}
 

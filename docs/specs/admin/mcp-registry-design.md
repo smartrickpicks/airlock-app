@@ -2,26 +2,33 @@
 
 > **Status:** DESIGN SPEC — ready for implementation
 > **Parent spec:** `docs/specs/admin/overview.md` (Connectors section)
+> **Placement:** MCP Registry lives under **Admin > Connectors** as a sub-section. It does NOT create a new top-level admin nav item. The admin overlay retains its canonical 9 sections; MCP Registry is accessed via the Connectors tab.
 > **Architecture plan:** `docs/plans/2026-03-06-mcp-registry-and-skills.md`
 > **Stack:** Next.js 14 App Router · Tailwind · CSS custom properties (tokens.css) · Fira Sans · Lucide React icons
+>
+> ### Feature Control Plane Integration
+>
+> - **Feature flag:** `mcp_registry.enabled` (default: `true` for dogfood)
+> - **Audit events:** `mcp.tool_registered`, `mcp.tool_removed`, `mcp.permission_granted`, `mcp.permission_revoked`
+> - **Circuit breaker:** MCP tool invocations respect the Feature Control Plane's failure detection and auto-disable thresholds
 
 ---
 
 ## Design System Applied
 
-| Token | Value | Usage |
-|---|---|---|
-| `--surface-base` | `#0B0E14` | Page/overlay background |
-| `--surface-raised` | `#0F1219` | Cards, section panels |
-| `--surface-overlay` | `#151923` | Row hovers, dropdowns |
-| `--surface-border` | `#1E2330` | Card borders, dividers |
-| `--accent-primary` | `#00D1FF` | Active state, primary CTA, links |
-| `--accent-success` | `#22C55E` | Connected / active status |
-| `--accent-warning` | `#F59E0B` | Pending / degraded |
-| `--accent-danger` | `#EF4444` | Error / disconnected |
-| `--text-primary` | `#E2E8F0` | Primary labels |
-| `--text-secondary` | `#94A3B8` | Meta text, descriptions |
-| `--text-muted` | `#64748B` | Placeholder, disabled |
+| Token               | Value     | Usage                            |
+| ------------------- | --------- | -------------------------------- |
+| `--surface-base`    | `#0B0E14` | Page/overlay background          |
+| `--surface-raised`  | `#0F1219` | Cards, section panels            |
+| `--surface-overlay` | `#151923` | Row hovers, dropdowns            |
+| `--surface-border`  | `#1E2330` | Card borders, dividers           |
+| `--accent-primary`  | `#00D1FF` | Active state, primary CTA, links |
+| `--accent-success`  | `#22C55E` | Connected / active status        |
+| `--accent-warning`  | `#F59E0B` | Pending / degraded               |
+| `--accent-danger`   | `#EF4444` | Error / disconnected             |
+| `--text-primary`    | `#E2E8F0` | Primary labels                   |
+| `--text-secondary`  | `#94A3B8` | Meta text, descriptions          |
+| `--text-muted`      | `#64748B` | Placeholder, disabled            |
 
 **Typography:** Fira Sans, 13px base, 1.5 line-height
 **Icons:** Lucide React SVG only — no emoji
@@ -52,6 +59,7 @@ The existing Connectors nav item in Workspace Admin expands into three sub-tabs.
 ```
 
 Sub-tabs are pill-style, same pattern as existing admin tab groups:
+
 - Active: `bg-[--surface-overlay] text-[--text-primary] border border-[--surface-border]`
 - Inactive: `text-[--text-secondary] hover:text-[--text-primary]`
 
@@ -156,6 +164,7 @@ status dot:
 ```
 
 **Test Connection feedback (inline, below button):**
+
 ```
 Testing...           → spinner + "Connecting to Anthropic..." text-muted
 Success              → ✓ green dot + "Connected · claude-sonnet-4-20250514 · latency 320ms"
@@ -197,6 +206,7 @@ The main surface for the MCP Registry.
 ```
 
 **Credit bar spec:**
+
 ```
 container: height 6px, border-radius full, background var(--surface-sunken), width 120px
 fill: height 6px, border-radius full
@@ -348,6 +358,7 @@ modules pill:
 ```
 
 **[Save Changes] button:**
+
 ```
 height: 36px, padding: 0 20px
 background: var(--accent-primary), color: var(--text-inverse)
@@ -636,6 +647,7 @@ Updated items:
 ```
 
 **Connectors group header spec:**
+
 ```
 Same as .nav-section-header:
   font-size: 9px, font-weight: 700, text-transform: uppercase
@@ -689,39 +701,42 @@ views/
 ```typescript
 // stores/mcp.store.ts
 interface McpState {
-  servers: WorkspaceMcpServer[]
-  selectedServerId: string | null
-  isDiscovering: boolean
-  discoverySteps: DiscoveryStep[]
+  servers: WorkspaceMcpServer[];
+  selectedServerId: string | null;
+  isDiscovering: boolean;
+  discoverySteps: DiscoveryStep[];
 
-  fetchServers: () => Promise<void>
-  discoverServer: (url: string, auth: McpAuthConfig) => Promise<void>
-  addServer: (server: McpServerInput) => Promise<void>
-  updateToolPermissions: (serverId: string, permissions: ToolPermission[]) => Promise<void>
-  removeServer: (serverId: string) => Promise<void>
+  fetchServers: () => Promise<void>;
+  discoverServer: (url: string, auth: McpAuthConfig) => Promise<void>;
+  addServer: (server: McpServerInput) => Promise<void>;
+  updateToolPermissions: (
+    serverId: string,
+    permissions: ToolPermission[],
+  ) => Promise<void>;
+  removeServer: (serverId: string) => Promise<void>;
 }
 
 // stores/skills.store.ts
 interface SkillsState {
-  skills: WorkspaceSkill[]
-  creatorConversation: SkillCreatorMessage[]
-  draftSkill: SkillDraft | null
-  isCreating: boolean
+  skills: WorkspaceSkill[];
+  creatorConversation: SkillCreatorMessage[];
+  draftSkill: SkillDraft | null;
+  isCreating: boolean;
 
-  fetchSkills: () => Promise<void>
-  sendCreatorMessage: (message: string) => Promise<void>
-  saveDraftSkill: (skill: SkillDraft) => Promise<void>
-  deleteSkill: (skillId: string) => Promise<void>
+  fetchSkills: () => Promise<void>;
+  sendCreatorMessage: (message: string) => Promise<void>;
+  saveDraftSkill: (skill: SkillDraft) => Promise<void>;
+  deleteSkill: (skillId: string) => Promise<void>;
 }
 
 // stores/connections.store.ts  (personal connections, extends auth.store)
 interface ConnectionsState {
-  personalConnections: UserConnection[]
-  orgConnections: WorkspaceMcpServer[]  // read from mcp.store filtered by user role
+  personalConnections: UserConnection[];
+  orgConnections: WorkspaceMcpServer[]; // read from mcp.store filtered by user role
 
-  fetchPersonalConnections: () => Promise<void>
-  connectProvider: (provider: string) => Promise<void>  // OAuth flow
-  disconnectProvider: (connectionId: string) => Promise<void>
+  fetchPersonalConnections: () => Promise<void>;
+  connectProvider: (provider: string) => Promise<void>; // OAuth flow
+  disconnectProvider: (connectionId: string) => Promise<void>;
 }
 ```
 
@@ -732,6 +747,7 @@ interface ConnectionsState {
 Every list needs an empty state variant.
 
 **MCP Servers — empty:**
+
 ```
 ┌────────────────────────────────────────────────┐
 │                                                │
@@ -746,6 +762,7 @@ Every list needs an empty state variant.
 ```
 
 **Skills — empty:**
+
 ```
         [sparkles icon 48px, text-muted]
         No custom skills yet

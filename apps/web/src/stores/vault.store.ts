@@ -66,6 +66,8 @@ interface VaultState {
   advanceChamber: (vaultId: string) => Promise<void>;
   /** Archive a vault */
   archiveVault: (vaultId: string) => Promise<void>;
+  /** Add a vault to the local list (for mock/offline intake) */
+  addVault: (vault: Vault) => void;
   /** Clear selected vault */
   clearSelectedVault: () => void;
 }
@@ -124,6 +126,14 @@ export const useVaultStore = create<VaultState>((set, get) => ({
       const data = await apiFetch<Vault>(`/api/v1/vaults/${vaultId}`);
       set({ selectedVault: data, isLoading: false });
     } catch {
+      // Always check locally-created vaults first (e.g. from intake)
+      const local =
+        get().vaults.find((v) => v.id === vaultId || v.slug === vaultId) ??
+        null;
+      if (local) {
+        set({ selectedVault: local, isLoading: false, error: null });
+        return;
+      }
       if (getWorkspaceMode() === "clean") {
         set({
           selectedVault: null,
@@ -185,6 +195,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         state.selectedVault?.id === vaultId ? null : state.selectedVault,
     }));
   },
+
+  addVault: (vault) => set((state) => ({ vaults: [vault, ...state.vaults] })),
 
   clearSelectedVault: () => set({ selectedVault: null, children: [] }),
 }));
