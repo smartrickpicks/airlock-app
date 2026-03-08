@@ -266,8 +266,10 @@ export const DEMO_CONFIGURED_NODES = [
   "data_source",
   "modules",
   "members",
+  "roles",
   "otto",
   "integrations",
+  "feature_flags",
 ];
 
 export const DEMO_CONFIGS: Record<string, Record<string, unknown>> = {
