@@ -17,8 +17,14 @@ export default function DocumentPreview({
   document,
   onClose,
 }: DocumentPreviewProps) {
-  const fmt = FORMAT_ICONS[document.fileFormat];
-  const statusCfg = DOC_STATUS_CONFIG[document.status];
+  const fmt = FORMAT_ICONS[document.fileFormat] ?? {
+    label: document.fileFormat?.toUpperCase() ?? "?",
+    color: "text-text-muted",
+  };
+  const statusCfg = DOC_STATUS_CONFIG[document.status] ?? {
+    label: document.status ?? "unknown",
+    color: "text-text-muted bg-text-muted",
+  };
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-raised p-4">
@@ -62,7 +68,9 @@ export default function DocumentPreview({
       <div className="grid grid-cols-2 gap-3">
         <MetaField
           label="Type"
-          value={DOC_TYPE_LABELS[document.documentType]}
+          value={
+            DOC_TYPE_LABELS[document.documentType] ?? document.documentType
+          }
         />
         <MetaField label="Status">
           <span className="flex items-center gap-1.5">

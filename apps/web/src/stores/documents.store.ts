@@ -58,9 +58,10 @@ export const useDocumentsStore = create<DocumentsState>((set, get) => ({
       const data = await apiFetch<{ documents: Document[] }>(
         "/api/v1/documents",
       );
+      const merged = mergeDemoDocuments(data.documents);
       set({
-        documents: mergeDemoDocuments(data.documents),
-        selectedDocId: mergeDemoDocuments(data.documents)[0]?.id ?? null,
+        documents: merged,
+        selectedDocId: merged[0]?.id ?? null,
         isLoading: false,
       });
     } catch {

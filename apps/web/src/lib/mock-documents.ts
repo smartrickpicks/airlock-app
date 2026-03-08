@@ -14,9 +14,18 @@ export type DocumentType =
   | "report"
   | "policy"
   | "template"
+  | "brief"
+  | "transcript"
   | "other";
 export type DocumentStatus = "draft" | "final" | "archived";
-export type FileFormat = "pdf" | "docx" | "xlsx" | "pptx" | "txt" | "md";
+export type FileFormat =
+  | "pdf"
+  | "docx"
+  | "xlsx"
+  | "pptx"
+  | "txt"
+  | "md"
+  | "csv";
 
 export interface Document {
   id: string;
@@ -34,6 +43,11 @@ export interface Document {
   version: number;
   createdAt: string;
   updatedAt: string;
+  relatedAccountId?: string | null;
+  relatedAccountName?: string | null;
+  sourceLabel?: string;
+  signatureState?: string;
+  lifecycleState?: string;
 }
 
 // --- Config ---
@@ -46,6 +60,8 @@ export const DOC_TYPE_LABELS: Record<DocumentType, string> = {
   report: "Report",
   policy: "Policy",
   template: "Template",
+  brief: "Brief",
+  transcript: "Transcript",
   other: "Other",
 };
 
@@ -68,6 +84,7 @@ export const FORMAT_ICONS: Record<
   pptx: { label: "PPTX", color: "text-amber-400" },
   txt: { label: "TXT", color: "text-text-muted" },
   md: { label: "MD", color: "text-text-secondary" },
+  csv: { label: "CSV", color: "text-chamber-ship" },
 };
 
 // --- Helpers ---

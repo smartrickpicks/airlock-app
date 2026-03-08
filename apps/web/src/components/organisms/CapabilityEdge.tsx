@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useId } from "react";
+import { memo } from "react";
 import { getSmoothStepPath, type EdgeProps } from "@xyflow/react";
 
 function CapabilityEdgeComponent({
@@ -13,7 +13,7 @@ function CapabilityEdgeComponent({
   targetPosition,
   data,
 }: EdgeProps) {
-  const gradientId = useId();
+  const gradientId = `grad-${id}`;
   const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,

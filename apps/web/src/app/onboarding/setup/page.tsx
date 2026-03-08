@@ -20,10 +20,17 @@ export default function OnboardingSetupPage() {
     if (!name.trim()) return;
     const trimmed = name.trim();
     const slug = trimmed.toLowerCase().replace(/\s+/g, "-");
-    // Reset capability tree to fresh state
+    // Clear stale localStorage and reset capability tree
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("airlock_capability_tree");
+    }
     initTree(false);
-    // Pre-populate workspace node so the config panel reads it
+    // Pre-populate workspace + data source (local file storage assumed)
     saveNodeConfig("workspace", { name: trimmed, industry: "", slug });
+    saveNodeConfig("data_source", {
+      type: "local",
+      label: "Local File Storage",
+    });
     router.push("/admin");
   }
 

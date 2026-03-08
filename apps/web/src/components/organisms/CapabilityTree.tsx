@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -13,11 +13,13 @@ import {
   type OnNodesChange,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { X } from "lucide-react";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import CapabilityNode from "@/components/organisms/CapabilityNode";
 import CapabilityEdgeComponent from "@/components/organisms/CapabilityEdge";
 
 export default function CapabilityTree() {
+  const [suggestDismissed, setSuggestDismissed] = useState(false);
   const {
     nodes,
     edges,
@@ -44,6 +46,15 @@ export default function CapabilityTree() {
 
   const progress = getProgress();
   const suggestedStep = getSuggestedStep();
+
+  // Reset dismiss when suggested step changes
+  const prevStepId = useRef(suggestedStep?.nodeId);
+  useEffect(() => {
+    if (suggestedStep?.nodeId !== prevStepId.current) {
+      setSuggestDismissed(false);
+      prevStepId.current = suggestedStep?.nodeId;
+    }
+  }, [suggestedStep?.nodeId]);
 
   return (
     <div className="relative h-full w-full">
@@ -93,7 +104,7 @@ export default function CapabilityTree() {
       </div>
 
       {/* Suggested next step — bottom center */}
-      {suggestedStep && (
+      {suggestedStep && !suggestDismissed && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-lg border border-accent-primary/30 bg-surface-overlay/90 px-4 py-3 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <div>
@@ -114,6 +125,12 @@ export default function CapabilityTree() {
               className="rounded bg-accent-primary px-3 py-1 text-xs font-semibold text-text-inverse"
             >
               Go
+            </button>
+            <button
+              onClick={() => setSuggestDismissed(true)}
+              className="flex h-5 w-5 items-center justify-center rounded text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"
+            >
+              <X size={12} />
             </button>
           </div>
         </div>
