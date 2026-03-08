@@ -108,25 +108,40 @@ Signal refreshes — no navigation required
 
 Otto's scope in Dispatch is the **current vault context**. Otto knows the active vault, chamber, recipe node, and gate. It does not have cross-vault agency from Dispatch (that's a separate Conductor-level capability).
 
-### Triage
+### Triage Signals
 
-Below Otto. The running list of everything waiting for you — across all vaults, all modules. This IS the Triage. Dispatch and Triage are not two different screens: Triage is the section of Dispatch that manages your outstanding work.
+Below Otto. Branded section of Dispatch that surfaces items from the **Triage module** into the Signal panel — the items waiting on *you*, right now, in urgency order.
 
-Shows all vaults where:
-- The current user is assigned
-- It is currently their turn to act (gate is waiting on them)
-- Ordered by: SLA urgency → chamber → last touched
+The name is intentional: these are *signals* from the Triage module pushing up into your attention. It sits in the Signal panel of the Triptych. The naming pattern extends to other modules: any module can surface a Signals section into Dispatch (Gate Signals, CRM Signals, etc. — future).
 
-Each entry shows:
+This is not the full Triage experience. "Open Triage →" routes to the full Triage module (Kanban board, table, agenda views — the Asana/Jira equivalent for Airlock, with full project management tooling).
+
+Each Triage Signal shows:
 - Vault name + entity
-- Chamber badge (color-coded)
-- Gate awaiting action
-- Time in queue / SLA countdown if applicable
-- Quick-action button for inline-satisfiable gates
+- Chamber badge (color-coded: Discover=red, Build=yellow, Review=purple, Ship=green)
+- Gate or task name awaiting action
+- Time in queue / SLA countdown
+- Quick-action button for inline-satisfiable items
 
-Clicking a Triage entry updates the Context Bar to that vault. Dispatch does not navigate away — it pulls the new vault's gate into the Gate Action Area.
+**Two interaction paths from a Triage Signal:**
+1. **Click → loads vault into Dispatch** — Context Bar updates, Gate Action Area renders the active gate. Work happens here. User never leaves Dispatch.
+2. **"Open in Triage →"** — routes to the full Triage module with that item focused. From Triage, clicking a task can route back to Dispatch with that vault loaded. The two screens route to each other.
 
-**Triage is computed, not stored.** It is a live SQL view: vaults where you are assigned, gate is open, and it is your turn. No separate "todo list" entity. The vault hierarchy IS the work queue. Triage is just the filter that surfaces your slice of it.
+**Data source:** Triage Signals reads from the same underlying data as the Triage module — no separate entity. Dispatch is the work surface; Triage is the project management view of the same data.
+
+---
+
+### The Signals Pattern
+
+Triage Signals establishes a pattern for how modules push into Dispatch:
+
+| Signal section | Source module | What surfaces |
+|---------------|---------------|---------------|
+| **Triage Signals** | Triage module | Tasks + gates assigned to you, by urgency |
+| *(future)* Gate Signals | Contracts | Cross-vault gate alerts, SLA breaches |
+| *(future)* CRM Signals | CRM | Hot leads, deal movement, follow-up due |
+
+The Signal panel in Dispatch is the aggregation point for everything pushing toward you. Each section is a module's "push surface." The Conductor can configure which signal sections appear and in what order.
 
 ---
 
@@ -219,8 +234,8 @@ The gate action area in Dispatch IS the skill render for the current node's acti
 | `DispatchView` | template | new |
 | `ContextBar` | signal | new |
 | `GateActionArea` | signal | new — wraps inline skill renders |
-| `TriageList` | signal | new — replaces WorkQueueList |
-| `TriageItem` | signal | new — replaces WorkQueueItem |
+| `TriageSignals` | signal | new — branded Signals section for Triage module items |
+| `TriageSignalItem` | signal | new — single Triage Signal row with quick-action |
 | `TaskRunner` | signal | registry (M-pending) |
 | `OttoChat` | signal | registry (M19) |
 | `InterruptionBrief` | signal | new — "what changed while you were away" |
