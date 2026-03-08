@@ -1,0 +1,31 @@
+{
+  "branch": "claude/otto-agentic-layer-33684",
+  "created": "2026-03-05T00:00:00Z",
+  "updated": "2026-03-08T12:00:00Z",
+  "status": "unified-canonical",
+  "owner": "zac",
+  "scope": {
+    "description": "Unified branch: Otto agentic layer + brand-crm features + roles taxonomy + enriched registry. This is the canonical branch — all other feature branches should be created from this.",
+    "merged_from": [
+      "claude/brand-crm-features-YAE4f (roles taxonomy, recipe system, components.json v2)",
+      "claude/review-demo-readiness-plan-Tt4Ai (original planning/design docs)"
+    ],
+    "owns": ["*"],
+    "high_risk_shared_files": [
+      "apps/web/src/lib/mock-crm.ts",
+      "apps/web/src/lib/mock-tasks.ts",
+      "apps/web/src/lib/mock-calendar.ts",
+      "apps/web/src/lib/mock-workflows.ts",
+      "apps/web/src/stores/auth.store.ts",
+      "apps/web/src/styles/tokens.css",
+      "docs/registry/components.json"
+    ]
+  },
+  "known_type_errors": {
+    "workflow.store.ts": "Pre-existing: WorkflowNodeType union needs additional trigger types (fixed in a7191ac)"
+  },
+  "build_status": {
+    "next_build": "passing",
+    "tsc_noEmit": "105 errors fixed in a7191ac, 0 remaining in app code (workflow.store.ts was in mock-workflows.ts)"
+  }
+}
