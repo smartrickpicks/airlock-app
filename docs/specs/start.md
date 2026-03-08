@@ -6,7 +6,8 @@
 | --------------------------- | ----------------------- | ------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Shell / Master Layout**   | `/Shell/`               | (none yet)                     | SPECCED    | Module bar + channel sidebar + Signal\|Orchestrate\|Control triptych                                                                                                            |
 | **Record Inspector**        | `/Record Inspector/`    | `dossier-demo.html`            | SPECCED    | Cards with drawers, grouped by section, tier 1 expanded by default                                                                                                              |
-| **Triage Dashboard**        | `/Triage/`              | `triage-demo.html`             | SPECCED    | Triage is home (drill-down to contracts), aggregates notifications                                                                                                              |
+| **Dispatch (Home View)**    | `/Dispatch/`          | (none yet)                     | SPECCED    | Global homepage: Signal-dominant Triptych, Context Bar, Gate Action Area, Otto chat, Triage section. Supersedes Triage Dashboard.                                               |
+| ~~Triage Dashboard~~        | ~~ ~~                   | ~~triage-demo.html~~           | RETIRED    | Superseded by Dispatch. Triage = section within Dispatch, not a standalone screen.                                                                                              |
 | **Contract Generator**      | `/ContractGenerator/`   | `contract-generator-demo.html` | SPECCED    | Two-pane builder+preview, 24 contract types (5 verticals), unified v2 clause library (188 clauses)                                                                              |
 | **Admin / Settings**        | `/Admin/`               | `admin-demo.html`              | SPECCED    | System overlay: Workspace Admin (9 sections) + Personal Settings (5 sections)                                                                                                   |
 | **Review Queue**            | `/OrgOverview/`         | `org-overview-demo.html`       | SPECCED    | Gatekeeper's cross-vault view: entity cards, handoff signals, activity feed                                                                                                     |
@@ -51,10 +52,10 @@
 2. **Default grouping:** Contracts grouped by entity/account (not by batch)
 3. **View state switching:** Automatic based on context (not manual toggles)
 4. **AI integration:** Both feed events (Signal panel) + dedicated tab (Control panel)
-5. **Triage as home:** Analysts start in Triage Dashboard, drill into vaults
+5. **Dispatch as home:** All roles land in Dispatch (Signal-dominant Triptych). Triage is the section that surfaces outstanding work.
 6. **Patch authoring:** Dedicated Action Focus state (full editor, not inline)
 7. **Entity disambiguation:** Inline in Signal panel (not modal, not CRM cross-link)
-8. **Notifications:** In-app only for POC. Triage Dashboard aggregates module-level notifications.
+8. **Notifications:** In-app only for POC. Dispatch/Triage section aggregates work-relevant alerts.
 9. **Feature Control Plane:** Every ported feature gets toggle, calibration, audit, failure flagging.
 10. **Theme:** Option B tokenized -- extract shared theme.base.css from demos, evolve to Airlock OLED palette.
 11. **Vault hierarchy IS the CRM:** No separate CRM tables. Vault tree (Parent > Division > Counterparty > Item) stores all relationship data.
