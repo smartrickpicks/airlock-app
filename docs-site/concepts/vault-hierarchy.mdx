@@ -1,0 +1,51 @@
+---
+title: Vault Hierarchy
+description: The vault tree is Airlock's core data model. It is also your CRM.
+---
+
+## Overview
+
+Every piece of data in Airlock lives inside a vault. Vaults are organized in a four-level tree:
+
+```
+Parent (e.g. Acme Records)
+  └── Division (e.g. Publishing Arm)
+        └── Counterparty (e.g. Summit Publishing)
+              └── Item (e.g. Distribution Agreement 2026)
+```
+
+This hierarchy is **not a CRM table alongside your data** — it **is** the CRM. The CRM module is simply a different view lens over the same vault tree.
+
+## Levels
+
+| Level | Description | Example |
+|---|---|---|
+| **Parent** | Top-level entity — a company or organization | Acme Records |
+| **Division** | A subdivision or business unit | Publishing Arm |
+| **Counterparty** | The other party to a contract or deal | Summit Publishing |
+| **Item** | A specific contract, deal, or work unit | Distribution Agreement |
+
+## Why the vault IS the CRM
+
+Traditional CLM tools keep contracts and CRM data in separate systems, requiring integrations and sync jobs. In Airlock:
+
+- Contacts, companies, and relationships are modeled as vault nodes
+- Contract items are always attached to the counterparty that signed them
+- Every interaction (email, call, note) is an event on the vault
+
+<Tip>
+  The CRM module browses levels 1–3 of the vault tree. The Contracts module browses level 4 (items).
+</Tip>
+
+## Vault States
+
+A vault is always in one of these states:
+
+| State | Description |
+|---|---|
+| **Active** | In progress, in a chamber |
+| **Completed** | Reached Ship gate successfully |
+| **Archived** | Removed from active views, not deleted |
+| **Blocked** | Stuck at a gate — SLA may be at risk |
+
+Vaults are **never hard-deleted**. Archiving sets a `deleted_at` timestamp (soft delete).

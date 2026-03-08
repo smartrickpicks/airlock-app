@@ -1,0 +1,27 @@
+---
+title: Pipeline
+description: Deal-stage kanban view across all active counterparties.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+The Pipeline view shows all active counterparties organized by deal stage — a kanban board where each card is a company with its attached contract vaults.
+
+## Columns
+
+Pipeline columns map to vault hierarchy levels and chamber state. Typical configuration:
+
+| Stage | Definition |
+|---|---|
+| Prospect | Counterparty node exists, no active vaults |
+| In Negotiation | Active vault in Discover or Build chamber |
+| In Review | Active vault in Review chamber |
+| Closed | Vault reached Ship gate |
+
+<Warning>
+  Pipeline stages are configured per workspace by an Admin. The stages above are defaults.
+</Warning>

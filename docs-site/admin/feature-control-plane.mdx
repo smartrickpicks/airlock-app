@@ -1,0 +1,40 @@
+---
+title: Feature Control Plane
+description: Toggle, calibrate, and audit every AI engine in Airlock.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+Every AI feature in Airlock is wrapped in the Feature Control Plane — a per-engine toggle and calibration system available to workspace admins.
+
+## Per-Engine Controls
+
+Each engine has four controls:
+
+| Control | Description |
+|---|---|
+| **Toggle** | Enable or disable the engine entirely |
+| **Calibration** | Adjust engine behavior with sliders (e.g. extraction confidence threshold) |
+| **Audit log** | Full history of every engine decision with input/output recorded |
+| **Failure flag** | Mark an engine as degraded — routes around it until cleared |
+
+## Calibration UX
+
+Every calibration slider shows a plain-English description of impact:
+
+> *"Raising this threshold means fewer fields auto-pass at the Discover gate — more will require manual review."*
+
+Where possible, a live count of affected documents is shown as you adjust the slider.
+
+## Engines covered
+
+- Extraction engine (Otto field extraction)
+- Confidence scoring
+- Gate auto-pass logic
+- Entity resolution
+- Batch processing pipeline
+- Notification triggers

@@ -1,0 +1,28 @@
+---
+title: Batch Processing
+description: Async pipeline for processing large document uploads. Semaphore-controlled, gate-aware.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+Batch processing handles bulk document uploads — a law firm uploading 200 contracts at once, for example. Jobs run asynchronously in the background with controlled concurrency.
+
+## Pipeline
+
+1. Documents uploaded → queued in BullMQ
+2. Semaphore(5) — maximum 5 documents processing simultaneously
+3. Each document: extraction → confidence scoring → gate evaluation
+4. Gates with no ambiguous fields auto-pass (system pass)
+5. Documents requiring human review are flagged in triage
+
+## Auto-system-pass
+
+When extraction confidence is high enough on all fields, the Discover gate passes automatically — no human review needed. This is configurable per workspace via the Feature Control Plane.
+
+## Monitoring
+
+Batch jobs are visible in Admin → Feature Control Plane → Batch Processing engine. Status, queue depth, and per-document progress are shown in real time.

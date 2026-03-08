@@ -1,0 +1,46 @@
+---
+title: Record Inspector
+description: Every field Otto extracted, organized into collapsible sections with confidence scores.
+---
+
+<Note>
+  **Build status:** In development. Spec complete.
+</Note>
+
+## Overview
+
+The Record Inspector lives in the Control panel of the Triptych. It displays every field extracted from a contract document, organized into sections, with confidence scores and edit controls.
+
+## Field Cards
+
+Each field is displayed as a card with:
+
+- **Field name** — canonical label from the extraction config
+- **Extracted value** — what Otto found in the document
+- **Confidence score** — 0–100, color-coded (green / amber / red)
+- **Source anchor** — the exact text span that was extracted from
+- **Edit control** — propose a patch directly from the card
+
+## Sections
+
+Fields are grouped into collapsible sections. Tier 1 sections (core deal terms) are expanded by default. Tier 2+ sections are collapsed.
+
+Example sections for a Distribution Agreement:
+- Deal Terms (Tier 1)
+- Territory & Rights (Tier 1)
+- Royalties & Advances (Tier 1)
+- Delivery Requirements (Tier 2)
+- Special Provisions (Tier 2)
+- Execution (Tier 2)
+
+## Confidence Thresholds
+
+| Score | Color | Meaning |
+|---|---|---|
+| 80–100 | Green | High confidence — auto-accepted at Discover gate |
+| 50–79 | Amber | Medium confidence — flagged for human review |
+| 0–49 | Red | Low confidence — must be manually verified before gate |
+
+## Entity Resolution
+
+When Otto extracts a company or person name that could match multiple records in the vault hierarchy, the field card shows an inline disambiguation UI — not a modal, not a CRM cross-link.

@@ -1,0 +1,44 @@
+---
+title: Chambers & Gates
+description: Every vault moves through four chambers. Gates are the checkpoints between them.
+---
+
+## The Four Chambers
+
+Airlock's contract lifecycle is divided into four chambers. Every vault starts in Discover and progresses to Ship.
+
+<CardGroup cols={2}>
+  <Card title="Discover" icon="magnifying-glass" color="#EF4444">
+    Initial intake and extraction. Otto reads the document and populates all fields. Gate passes when extraction confidence meets threshold.
+  </Card>
+  <Card title="Build" icon="hammer" color="#F59E0B">
+    Human review and enrichment. Builders inspect fields, propose patches, and resolve conflicts. Gate passes when all required fields are verified.
+  </Card>
+  <Card title="Review" icon="eye" color="#A855F7">
+    Gatekeeper approval. The review queue surfaces vaults awaiting sign-off. Gate passes when all approvers approve.
+  </Card>
+  <Card title="Ship" icon="rocket" color="#22C55E">
+    Final delivery. Contract is executed, filed, and linked to downstream systems.
+  </Card>
+</CardGroup>
+
+## Gates
+
+A gate is the checkpoint between two chambers. Gates can:
+
+- **Auto-pass** — when all machine-checkable conditions are met
+- **Require human approval** — when a gatekeeper must sign off
+- **Fail** — blocking the vault from advancing until resolved
+- **Be overridden** — by a Director or Executive org role
+
+## SLA Timers
+
+Every gate has an optional SLA timer. When a vault sits at a gate past its SLA:
+
+1. A signal appears in the vault's activity feed
+2. The triage dashboard flags the vault
+3. Escalation notifications are sent (if configured)
+
+<Info>
+  Gate configuration is per-workspace. Admins define which gates require human approval and what the SLA windows are.
+</Info>

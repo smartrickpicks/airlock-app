@@ -1,0 +1,46 @@
+---
+title: List Vaults
+description: GET /vaults — retrieve all vaults in the workspace.
+---
+
+<Note>
+  **Build status:** Not yet built.
+</Note>
+
+## Endpoint
+
+```
+GET /v1/vaults
+```
+
+## Query Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `module` | string | Filter by module (`contracts`, `crm`, `tasks`) |
+| `chamber` | string | Filter by chamber (`discover`, `build`, `review`, `ship`) |
+| `assignee_id` | string | Filter by assigned user ULID |
+| `limit` | integer | Max results (default: 50, max: 200) |
+| `cursor` | string | Pagination cursor from previous response |
+
+## Response
+
+```json
+{
+  "data": [
+    {
+      "id": "01HXYZ...",
+      "title": "Distribution Agreement — Acme × Summit",
+      "module": "contracts",
+      "chamber": "review",
+      "workspace_id": "01HABC...",
+      "created_at": "2026-03-01T10:00:00Z",
+      "updated_at": "2026-03-08T09:30:00Z"
+    }
+  ],
+  "meta": {
+    "total": 142,
+    "cursor": "01HXYZ_next..."
+  }
+}
+```

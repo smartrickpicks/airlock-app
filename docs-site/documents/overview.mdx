@@ -1,0 +1,38 @@
+---
+title: Documents
+description: Full document editing and viewing — TipTap editor, PDF.js viewer, and a custom template system.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+The Documents module gives every vault a document workspace. You can view source documents, edit generated contracts, and build templates.
+
+## Components
+
+| Component | Description |
+|---|---|
+| **TipTap Editor** | Rich text editor for contract authoring and annotations |
+| **PDF.js Viewer** | Native PDF rendering in the Orchestrate panel |
+| **Template System** | Custom block-based templates with variable substitution |
+
+## Supported Formats (MVP)
+
+- PDF (native viewer)
+- DOCX (converted for viewing and extraction)
+
+## Multi-format Support (Post-MVP)
+
+<Note>
+  Full multi-format support is post-MVP.
+</Note>
+
+Extended format support planned:
+- XLSX, PPTX
+- TXT, Markdown, EPUB
+- RTF, images
+
+Each format gets its own converter pipeline and per-format feature flags.

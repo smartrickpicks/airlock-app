@@ -1,0 +1,34 @@
+---
+title: Contracts
+description: The Contracts module manages the full lifecycle of every contract your team touches.
+---
+
+## Overview
+
+Contracts is Airlock's core module. Every contract — incoming, outgoing, or generated — lives here as a vault moving through four chambers.
+
+<CardGroup cols={2}>
+  <Card title="Triage Dashboard" icon="table-columns" href="/contracts/triage-dashboard">
+    Home view. All active vaults, filterable by chamber, assignee, and SLA status.
+  </Card>
+  <Card title="Record Inspector" icon="file-magnifying-glass" href="/contracts/record-inspector">
+    Every extracted field, grouped by section, with confidence scores and edit controls.
+  </Card>
+  <Card title="Patch Workflow" icon="code-pull-request" href="/contracts/patch-workflow">
+    Propose, review, and approve field changes with a full 12-state approval chain.
+  </Card>
+  <Card title="Contract Generator" icon="wand-magic-sparkles" href="/contracts/contract-generator">
+    Generate new contracts from 24 templates across 5 industry verticals.
+  </Card>
+</CardGroup>
+
+## How contracts move through chambers
+
+```
+DISCOVER → BUILD → REVIEW → SHIP
+```
+
+1. **Discover** — Document uploaded, Otto extracts all fields
+2. **Build** — Team reviews extraction, proposes patches, resolves conflicts
+3. **Review** — Gatekeeper approves the vault
+4. **Ship** — Contract is executed and filed

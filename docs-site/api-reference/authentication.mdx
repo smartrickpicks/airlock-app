@@ -1,0 +1,29 @@
+---
+title: Authentication
+description: How to authenticate with the Airlock API.
+---
+
+<Note>
+  **Build status:** Not yet built.
+</Note>
+
+## API Keys
+
+Generate a personal API key in **Personal Settings → API Keys**.
+
+```bash
+curl https://api.airlock.app/v1/vaults \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Token types
+
+| Type | Lifetime | Use case |
+|---|---|---|
+| Personal API key | Long-lived (revokable) | Server-to-server integrations |
+| Access token | 15 minutes | Client-side, short-lived |
+| Refresh token | 30 days | Exchange for new access tokens |
+
+## Workspace scope
+
+All API tokens are scoped to a single workspace. Cross-workspace requests require separate tokens.

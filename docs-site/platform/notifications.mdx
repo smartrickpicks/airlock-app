@@ -1,0 +1,34 @@
+---
+title: Notifications
+description: Two-level notification system — vault-level signals and module-level alerts.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+Airlock notifications operate at two levels:
+
+| Level | What triggers it | Where it surfaces |
+|---|---|---|
+| **Vault (Signal)** | Events on a specific vault | Signal panel activity feed |
+| **Module** | Cross-vault events needing attention | Triage Dashboard |
+
+## In-App Only (MVP)
+
+For the MVP, Airlock is in-app notifications only. Email and push notification channels are planned for post-MVP.
+
+## Triage as aggregator
+
+The Triage Dashboard is the primary inbox for module-level notifications. There is no separate notification center — instead, the dashboard badge counts and triage list surface what needs attention.
+
+## Notification triggers
+
+- Patch submitted for review
+- Gate blocked
+- SLA timer expired
+- Vault assigned to you
+- Comment mentioning you (`@handle`)
+- Otto completed an extraction run

@@ -1,0 +1,37 @@
+---
+title: Triage Dashboard
+description: The home view for the Contracts module — all active vaults in one place.
+---
+
+<Note>
+  **Build status:** In development. Spec complete.
+</Note>
+
+## Overview
+
+The Triage Dashboard is the default landing view for the Contracts module. It aggregates all active vaults across every chamber and surfaces what needs attention.
+
+## What you see
+
+- All active contract vaults, grouped by entity/account
+- Chamber badges (Discover / Build / Review / Ship) per vault
+- SLA timer — red when overdue, amber when at risk
+- Assignee avatars
+- Last event timestamp
+
+## Filtering
+
+| Filter | Options |
+|---|---|
+| Chamber | Discover, Build, Review, Ship |
+| Assignee | Any team member |
+| SLA status | On track, At risk, Overdue |
+| Entity | Parent company or counterparty name |
+
+## How it connects to notifications
+
+The Triage Dashboard is the primary aggregation point for all Contracts notifications. Instead of a separate notification inbox, signals surface directly in triage — making the dashboard your team's operational command center.
+
+<Info>
+  Default grouping is by entity/account, not by batch. Batches are visible as a filter but not the primary view.
+</Info>

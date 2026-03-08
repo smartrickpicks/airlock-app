@@ -1,0 +1,37 @@
+---
+title: Security
+description: Cipher-first middleware, Row-Level Security, and a 70-question security inventory.
+---
+
+<Note>
+  **Build status:** Specced. Architecture decisions captured.
+</Note>
+
+## Architecture
+
+Airlock is designed cipher-first:
+
+- **Row-Level Security (RLS)** — PostgreSQL RLS enforced via `workspace_id` on every table. Cross-tenant data leakage is impossible at the database level.
+- **Soft deletes** — No data is hard-deleted. All records have `deleted_at` timestamps.
+- **Audit log** — Every mutation is recorded in the events table (append-only).
+- **ULID primary keys** — No sequential IDs that expose record counts.
+
+## Authentication
+
+- JWT-based auth with short-lived access tokens
+- Refresh token rotation
+- OAuth 2.0 support for SSO (post-MVP)
+
+## API Security
+
+- All API routes require authentication
+- Role checks enforced at the service layer (not route handlers)
+- Rate limiting via Redis
+
+## Compliance Readiness
+
+Airlock was designed against a 70-question security inventory covering MVP and enterprise requirements. The full inventory and 13-document security architecture TOC are in `docs/specs/security/`.
+
+<Warning>
+  The full security documentation is internal. Contact your Airlock account team for enterprise security questionnaires.
+</Warning>

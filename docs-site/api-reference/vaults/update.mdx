@@ -1,0 +1,41 @@
+---
+title: Update Vault
+description: PATCH /vaults/:id — update vault metadata. Field changes go through the Patch Workflow.
+---
+
+<Note>
+  **Build status:** Not yet built.
+</Note>
+
+## Endpoint
+
+```
+PATCH /v1/vaults/:id
+```
+
+<Warning>
+  Field value changes must go through the Patch Workflow API — not this endpoint. This endpoint only updates top-level vault metadata (title, assignees, tags).
+</Warning>
+
+## Request Body
+
+```json
+{
+  "title": "Updated Title",
+  "metadata": {
+    "custom_tag": "urgent"
+  }
+}
+```
+
+## Response
+
+```json
+{
+  "data": {
+    "id": "01HXYZ...",
+    "title": "Updated Title",
+    "updated_at": "2026-03-08T13:00:00Z"
+  }
+}
+```
