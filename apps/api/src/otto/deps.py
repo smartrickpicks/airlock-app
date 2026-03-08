@@ -1,6 +1,9 @@
 """Otto VaultContext — dependency injection for PydanticAI agent."""
 
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Literal
 
 
 @dataclass
@@ -122,3 +125,59 @@ class UserAgentContext:
     response_style: str = "concise"  # "concise" | "detailed" | "technical"
     auto_approve_reads: bool = True
     notification_prefs: dict | None = None
+
+
+@dataclass
+class RecipeNode:
+    """A single node in a recipe sequence."""
+
+    type: str  # extraction | review | fill | tag | approve | notify | gate
+    config: dict
+    gate_conditions: list[dict]
+    description: str = ""
+
+
+@dataclass
+class OttoState:
+    """Shared typed state for the Otto agent graph.
+
+    Every node reads and writes to this. Passed through PydanticAI Graph's
+    GraphRunContext[OttoState].
+    """
+
+    # --- Identity ---
+    user_id: str
+    workspace_id: str
+    org_role: str  # owner | conductor | member
+    module_roles: dict[str, str]  # {"contracts": "gatekeeper", ...}
+    archetype: str | None = (
+        None  # analyst | strategist | executor | connector | guardian | architect
+    )
+
+    # --- Location ---
+    surface: Literal["task_runner", "messenger", "context_menu"] = "messenger"
+    module: str | None = None  # contracts | crm | triage | calendar | documents
+    chamber: str | None = None  # discover | build | review | ship
+    vault_id: str | None = None
+
+    # --- Recipe ---
+    active_recipe_id: str | None = None
+    current_node_index: int | None = None
+    current_node: dict | None = None  # {type, config, gate_conditions}
+    total_recipe_nodes: int | None = None
+
+    # --- Conversation ---
+    messages: list[dict] = field(default_factory=list)
+    session_id: str = ""
+
+    # --- Surface behavior ---
+    can_execute_actions: bool | None = None
+
+    # --- Enrichment (lazy-loaded) ---
+    vault_context: dict | None = None
+    recipe_context: dict | None = None
+    enrichment_cache: dict[str, tuple[dict, float]] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if self.can_execute_actions is None:
+            self.can_execute_actions = self.surface == "task_runner"
