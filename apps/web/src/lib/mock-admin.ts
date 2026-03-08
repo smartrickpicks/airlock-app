@@ -1,3 +1,273 @@
+// ─── Workspace ───────────────────────────────────────────────────────
+
+export interface WorkspaceSettings {
+  id: string;
+  name: string;
+  slug: string;
+  industry: string;
+  plan: "starter" | "pro" | "enterprise";
+  createdAt: string;
+  inviteUrl: string;
+  logoUrl?: string;
+  memberCount: number;
+  vaultCount: number;
+}
+
+export const INDUSTRY_OPTIONS = [
+  "Music & Entertainment",
+  "Publishing & Media",
+  "Technology",
+  "Financial Services",
+  "Healthcare",
+  "Legal",
+  "Real Estate",
+  "Other",
+];
+
+export const MOCK_WORKSPACE: WorkspaceSettings = {
+  id: "ws_airlock_demo",
+  name: "Airlock Demo",
+  slug: "airlock-demo",
+  industry: "Music & Entertainment",
+  plan: "enterprise",
+  createdAt: "2025-11-01T09:00:00Z",
+  inviteUrl: "https://app.airlock.dev/invite/airlock-demo/tk_abc123xyz",
+  memberCount: 5,
+  vaultCount: 42,
+};
+
+// ─── Module Config ────────────────────────────────────────────────────
+
+export interface ModuleConfig {
+  id: string;
+  label: string;
+  description: string;
+  enabled: boolean;
+  vaultCount: number;
+  activeMembers: number;
+  chambers: string[];
+  color: string;
+}
+
+export const MOCK_MODULE_CONFIGS: ModuleConfig[] = [
+  {
+    id: "contracts",
+    label: "Contracts",
+    description: "Contract lifecycle management — Discover, Build, Review, Ship.",
+    enabled: true,
+    vaultCount: 24,
+    activeMembers: 4,
+    chambers: ["Discover", "Build", "Review", "Ship"],
+    color: "text-accent-primary",
+  },
+  {
+    id: "crm",
+    label: "CRM",
+    description: "Account, lead, and deal pipeline management. The vault hierarchy is your CRM.",
+    enabled: true,
+    vaultCount: 12,
+    activeMembers: 3,
+    chambers: ["Discover", "Build", "Review", "Ship"],
+    color: "text-accent-success",
+  },
+  {
+    id: "tasks",
+    label: "Tasks",
+    description: "Universal task queue — inbox, board, and personal view.",
+    enabled: true,
+    vaultCount: 0,
+    activeMembers: 4,
+    chambers: [],
+    color: "text-accent-warning",
+  },
+  {
+    id: "calendar",
+    label: "Calendar",
+    description: "Computed dates from vault fields and task due dates.",
+    enabled: true,
+    vaultCount: 0,
+    activeMembers: 2,
+    chambers: [],
+    color: "text-accent-warning",
+  },
+  {
+    id: "documents",
+    label: "Documents",
+    description: "Document library with TipTap editor and PDF preview.",
+    enabled: true,
+    vaultCount: 6,
+    activeMembers: 3,
+    chambers: [],
+    color: "text-text-secondary",
+  },
+];
+
+// ─── Roles ────────────────────────────────────────────────────────────
+
+export interface RolePermission {
+  action: string;
+  description: string;
+  member: boolean;
+  lead: boolean;
+  director: boolean;
+  executive: boolean;
+}
+
+export const ROLE_PERMISSIONS: RolePermission[] = [
+  { action: "View vaults", description: "Read vault fields and events", member: true, lead: true, director: true, executive: true },
+  { action: "Create vaults", description: "Open new vaults in any module", member: false, lead: true, director: true, executive: true },
+  { action: "Submit patches", description: "Propose field value changes", member: true, lead: true, director: true, executive: true },
+  { action: "Approve patches", description: "Accept or reject patch proposals", member: false, lead: false, director: true, executive: true },
+  { action: "Promote gates", description: "Advance vaults between chambers", member: false, lead: false, director: true, executive: true },
+  { action: "Manage members", description: "Invite, deactivate, change roles", member: false, lead: false, director: false, executive: true },
+  { action: "Toggle feature flags", description: "Enable/disable platform features", member: false, lead: false, director: false, executive: true },
+  { action: "View audit log", description: "See all admin actions", member: false, lead: false, director: true, executive: true },
+  { action: "Configure integrations", description: "Connect third-party services", member: false, lead: false, director: false, executive: true },
+  { action: "Export vaults", description: "Download vault data as PDF/JSON", member: false, lead: true, director: true, executive: true },
+];
+
+// ─── AI Provider ─────────────────────────────────────────────────────
+
+export interface AIProviderConfig {
+  id: string;
+  label: string;
+  model: string;
+  status: "active" | "fallback" | "offline";
+  latency: string;
+  costPer1k: string;
+  masked_key: string;
+}
+
+export const MOCK_AI_PROVIDERS: AIProviderConfig[] = [
+  {
+    id: "claude",
+    label: "Anthropic Claude",
+    model: "claude-sonnet-4-6",
+    status: "active",
+    latency: "1.2s avg",
+    costPer1k: "$0.003",
+    masked_key: "sk-ant-••••••••••••••••••••••••••••4xKp",
+  },
+  {
+    id: "openai",
+    label: "OpenAI GPT-4",
+    model: "gpt-4o",
+    status: "fallback",
+    latency: "1.8s avg",
+    costPer1k: "$0.005",
+    masked_key: "sk-••••••••••••••••••••••••••••••••ZqWf",
+  },
+  {
+    id: "ollama",
+    label: "Ollama (Local)",
+    model: "llama3.2",
+    status: "offline",
+    latency: "—",
+    costPer1k: "$0.000",
+    masked_key: "localhost:11434",
+  },
+];
+
+// ─── Data Sources ─────────────────────────────────────────────────────
+
+export interface DataSource {
+  id: string;
+  label: string;
+  type: string;
+  status: "connected" | "pending" | "error" | "not_configured";
+  lastSync?: string;
+  description: string;
+}
+
+export const MOCK_DATA_SOURCES: DataSource[] = [
+  {
+    id: "postgres",
+    label: "PostgreSQL (Internal)",
+    type: "database",
+    status: "connected",
+    lastSync: "2026-03-08T00:00:00Z",
+    description: "Primary application database — PostgreSQL 16 on Railway.",
+  },
+  {
+    id: "redis",
+    label: "Redis",
+    type: "cache",
+    status: "connected",
+    lastSync: "2026-03-08T00:00:00Z",
+    description: "Job queue and pub/sub broker — Redis 7.",
+  },
+  {
+    id: "salesforce",
+    label: "Salesforce",
+    type: "crm",
+    status: "not_configured",
+    description: "Sync contacts and opportunities from Salesforce CRM.",
+  },
+  {
+    id: "hubspot",
+    label: "HubSpot",
+    type: "crm",
+    status: "not_configured",
+    description: "Import deals and contacts from HubSpot.",
+  },
+  {
+    id: "google_drive",
+    label: "Google Drive",
+    type: "storage",
+    status: "not_configured",
+    description: "Attach and sync documents from Google Drive.",
+  },
+];
+
+// ─── Integrations ─────────────────────────────────────────────────────
+
+export interface Integration {
+  id: string;
+  label: string;
+  description: string;
+  status: "connected" | "not_connected";
+  category: "communication" | "video" | "automation" | "notifications";
+  docsUrl?: string;
+}
+
+export const MOCK_INTEGRATIONS: Integration[] = [
+  {
+    id: "slack",
+    label: "Slack",
+    description: "Send vault notifications and approvals to Slack channels.",
+    status: "not_connected",
+    category: "communication",
+  },
+  {
+    id: "novu",
+    label: "Novu",
+    description: "Multi-channel notification delivery (email, SMS, push, in-app).",
+    status: "not_connected",
+    category: "notifications",
+  },
+  {
+    id: "jitsi",
+    label: "Jitsi Meet",
+    description: "Embedded video calls with post-call AI transcription pipeline.",
+    status: "connected",
+    category: "video",
+  },
+  {
+    id: "zapier",
+    label: "Zapier",
+    description: "Connect Airlock to 5,000+ apps via Zapier webhooks.",
+    status: "not_connected",
+    category: "automation",
+  },
+  {
+    id: "make",
+    label: "Make (Integromat)",
+    description: "Advanced automation scenarios with Airlock vault events.",
+    status: "not_connected",
+    category: "automation",
+  },
+];
+
 // ─── Types ───────────────────────────────────────────────────────────
 
 export type ThemeMode = "dark" | "light" | "system";
