@@ -27,6 +27,13 @@ class OttoSession(Base):
     last_message_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+    scope: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default="vault", index=True
+    )  # "vault" | "messenger"
+    surface: Mapped[str | None] = mapped_column(Text, nullable=True)  # task_runner | messenger
+    tier_used: Mapped[str | None] = mapped_column(
+        Text, nullable=True
+    )  # deterministic | local_llm | cloud_llm
 
 
 class OttoMessage(Base):
