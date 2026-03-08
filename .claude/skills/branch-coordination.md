@@ -98,7 +98,7 @@ Create or update `.claude/branch-manifest.json` in the working directory:
 1. Check if another branch has already modified it
 2. If yes: merge that branch's changes first, THEN add yours on top
 3. If no: proceed, but add it to `modifies_shared` with a description
-4. After modifying: run `npx tsc --noEmit` to verify no regressions
+4. After modifying: run `pnpm type-check` to verify no regressions
 
 ## Phase 3: Safe Merge Protocol
 
@@ -115,7 +115,7 @@ git diff A...B --stat
 
 # Are there actual conflicts?
 git merge --no-commit --no-ff A 2>&1 | head -20
-git merge --abort  # Always abort the test merge
+git merge --abort 2>/dev/null || git reset --merge  # Handle both conflict and clean cases
 ```
 
 ### Step 2: Choose Strategy
@@ -143,7 +143,7 @@ git merge other-branch
 
 # 2. MANDATORY: Build verification
 source ~/.nvm/nvm.sh && nvm use 20
-npx tsc --noEmit 2>&1 | grep "error TS" | wc -l  # Target: 0
+pnpm type-check 2>&1 | grep "error TS" | wc -l  # Target: 0
 npx next build 2>&1 | grep -E "error|failed|compiled"  # Target: Compiled successfully
 
 # 3. If errors: fix them NOW before committing
@@ -173,7 +173,7 @@ When adding a field to ANY interface in `mock-*.ts`:
 - [ ] Field is optional (`?:`) unless ALL existing data objects already have it
 - [ ] All existing type unions that reference this interface still compile
 - [ ] All components that destructure this interface still compile
-- [ ] `npx tsc --noEmit` passes with 0 errors (or same count as before)
+- [ ] `pnpm type-check` passes with 0 errors (or same count as before)
 
 ### High-Risk Files (Airlock-Specific)
 
@@ -200,7 +200,7 @@ Never dispatch two agents that both need to add fields to `mock-crm.ts`. Make on
 
 ### 3. Merging without building
 
-Every merge MUST be followed by `npx tsc --noEmit` AND `npx next build`. No exceptions. "It compiled before" doesn't mean it compiles after your merge.
+Every merge MUST be followed by `pnpm type-check` AND `npx next build`. No exceptions. "It compiled before" doesn't mean it compiles after your merge.
 
 ### 4. Force-pushing to shared branches
 

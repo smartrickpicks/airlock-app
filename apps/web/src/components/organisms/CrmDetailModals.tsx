@@ -279,73 +279,82 @@ export function AccountDetailModal({
                   Stakeholder Map
                 </h4>
                 <div className="mt-3 space-y-3">
-                  {workspace.stakeholders.map((stakeholder) => (
-                    <div
-                      key={stakeholder.id}
-                      className="rounded-lg border border-surface-border bg-surface-raised p-3"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                          <div className="text-sm font-medium text-text-primary">
-                            {stakeholder.name}
+                  {workspace.stakeholders.length === 0 ? (
+                    <p className="text-sm text-text-muted">
+                      No stakeholders mapped yet.
+                    </p>
+                  ) : (
+                    workspace.stakeholders.map((stakeholder) => (
+                      <div
+                        key={stakeholder.id}
+                        className="rounded-lg border border-surface-border bg-surface-raised p-3"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <div className="text-sm font-medium text-text-primary">
+                              {stakeholder.name}
+                            </div>
+                            <div className="text-xs text-text-muted">
+                              {stakeholder.roleTitle} ·{" "}
+                              {
+                                STAKEHOLDER_ROLE_LABELS[
+                                  stakeholder.stakeholderRole
+                                ]
+                              }
+                            </div>
                           </div>
-                          <div className="text-xs text-text-muted">
-                            {stakeholder.roleTitle} ·{" "}
-                            {
-                              STAKEHOLDER_ROLE_LABELS[
-                                stakeholder.stakeholderRole
-                              ]
-                            }
+                          <div className="flex flex-wrap gap-2 text-[10px]">
+                            <span className="rounded-full bg-surface-overlay px-2 py-0.5 text-text-secondary">
+                              {stakeholder.influence} influence
+                            </span>
+                            <span className="rounded-full bg-surface-overlay px-2 py-0.5 text-text-secondary">
+                              {stakeholder.status}
+                            </span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 ${
+                                stakeholder.sentiment === "positive"
+                                  ? "bg-accent-success/15 text-accent-success"
+                                  : stakeholder.sentiment === "negative"
+                                    ? "bg-accent-danger/15 text-accent-danger"
+                                    : "bg-surface-overlay text-text-secondary"
+                              }`}
+                            >
+                              {stakeholder.sentiment}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2 text-[10px]">
-                          <span className="rounded-full bg-surface-overlay px-2 py-0.5 text-text-secondary">
-                            {stakeholder.influence} influence
-                          </span>
-                          <span className="rounded-full bg-surface-overlay px-2 py-0.5 text-text-secondary">
-                            {stakeholder.status}
-                          </span>
-                          <span
-                            className={`rounded-full px-2 py-0.5 ${
-                              stakeholder.sentiment === "positive"
-                                ? "bg-accent-success/15 text-accent-success"
-                                : stakeholder.sentiment === "negative"
-                                  ? "bg-accent-danger/15 text-accent-danger"
-                                  : "bg-surface-overlay text-text-secondary"
-                            }`}
-                          >
-                            {stakeholder.sentiment}
+                        <div className="mt-3 grid gap-3 md:grid-cols-2">
+                          <MetaItem
+                            label="Decision Role"
+                            value={stakeholder.decisionRole}
+                          />
+                          <MetaItem
+                            label="Owner"
+                            value={stakeholder.ownerName}
+                          />
+                        </div>
+                        <p className="mt-3 text-sm text-text-secondary">
+                          {stakeholder.notes}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-text-muted">
+                          {stakeholder.channelLabels.map((label) => (
+                            <span
+                              key={label}
+                              className="rounded-full bg-surface-overlay px-2 py-0.5"
+                            >
+                              {label}
+                            </span>
+                          ))}
+                          <span>
+                            Last touched{" "}
+                            {new Date(
+                              stakeholder.lastTouched,
+                            ).toLocaleDateString()}
                           </span>
                         </div>
                       </div>
-                      <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <MetaItem
-                          label="Decision Role"
-                          value={stakeholder.decisionRole}
-                        />
-                        <MetaItem label="Owner" value={stakeholder.ownerName} />
-                      </div>
-                      <p className="mt-3 text-sm text-text-secondary">
-                        {stakeholder.notes}
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-text-muted">
-                        {stakeholder.channelLabels.map((label) => (
-                          <span
-                            key={label}
-                            className="rounded-full bg-surface-overlay px-2 py-0.5"
-                          >
-                            {label}
-                          </span>
-                        ))}
-                        <span>
-                          Last touched{" "}
-                          {new Date(
-                            stakeholder.lastTouched,
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -355,32 +364,38 @@ export function AccountDetailModal({
                     Stakeholder Groups
                   </h4>
                   <div className="mt-3 space-y-2">
-                    {workspace.stakeholderGroups.map((group) => (
-                      <div
-                        key={group.id}
-                        className="rounded-lg border border-surface-border bg-surface-raised p-3"
-                      >
-                        <div className="text-sm font-medium text-text-primary">
-                          {group.name}
+                    {workspace.stakeholderGroups.length === 0 ? (
+                      <p className="text-sm text-text-muted">
+                        No stakeholder groups defined yet.
+                      </p>
+                    ) : (
+                      workspace.stakeholderGroups.map((group) => (
+                        <div
+                          key={group.id}
+                          className="rounded-lg border border-surface-border bg-surface-raised p-3"
+                        >
+                          <div className="text-sm font-medium text-text-primary">
+                            {group.name}
+                          </div>
+                          <p className="mt-1 text-xs text-text-secondary">
+                            {group.description}
+                          </p>
+                          <div className="mt-2 text-[11px] text-text-muted">
+                            Members: {group.members.join(", ")}
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
+                            {group.channelModes.map((mode) => (
+                              <span
+                                key={mode}
+                                className="rounded-full bg-surface-overlay px-2 py-0.5 text-text-secondary"
+                              >
+                                {mode}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                        <p className="mt-1 text-xs text-text-secondary">
-                          {group.description}
-                        </p>
-                        <div className="mt-2 text-[11px] text-text-muted">
-                          Members: {group.members.join(", ")}
-                        </div>
-                        <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                          {group.channelModes.map((mode) => (
-                            <span
-                              key={mode}
-                              className="rounded-full bg-surface-overlay px-2 py-0.5 text-text-secondary"
-                            >
-                              {mode}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
