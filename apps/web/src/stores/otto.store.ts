@@ -3,6 +3,11 @@ import type { OttoMessage } from "@/lib/mock-otto";
 import { OTTO_WELCOME, OTTO_MOCK_RESPONSES } from "@/lib/mock-otto";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 
+function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("airlock_access_token");
+}
+
 let messageCounter = 0;
 
 interface OttoState {
@@ -100,6 +105,8 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   },
 
   sendMessage: (content) => {
+    if (get().isStreaming) return; // Prevent concurrent requests
+
     const userMsg: OttoMessage = {
       id: `msg_${++messageCounter}`,
       role: "user",
@@ -153,11 +160,12 @@ export const useOttoStore = create<OttoState>((set, get) => ({
       ? `/api/v3/vaults/${vaultId}/otto/chat`
       : `/api/v3/otto/chat`;
 
+    const token = getAuthToken();
     fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer dev_mock_token",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(body),
       signal: abort.signal,
@@ -201,7 +209,11 @@ export const useOttoStore = create<OttoState>((set, get) => ({
         drawerAbort = null;
       })
       .catch((err) => {
-        if (err instanceof Error && err.name === "AbortError") return;
+        if (err instanceof Error && err.name === "AbortError") {
+          set({ isStreaming: false });
+          drawerAbort = null;
+          return;
+        }
 
         // Show connection error instead of canned mock
         console.warn("Otto SSE unavailable:", err);
@@ -240,6 +252,8 @@ export const useOttoStore = create<OttoState>((set, get) => ({
     set({ messengerMessages: [], messengerSessionId: null }),
 
   sendMessengerMessage: (content) => {
+    if (get().isMessengerStreaming) return; // Prevent concurrent requests
+
     const userMsg: OttoMessage = {
       id: `msg_${++messageCounter}`,
       role: "user",
@@ -285,11 +299,14 @@ export const useOttoStore = create<OttoState>((set, get) => ({
       },
     };
 
+    const messengerToken = getAuthToken();
     fetch("/api/v3/otto/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer dev_mock_token",
+        ...(messengerToken
+          ? { Authorization: `Bearer ${messengerToken}` }
+          : {}),
       },
       body: JSON.stringify(body),
       signal: abort.signal,
@@ -329,7 +346,11 @@ export const useOttoStore = create<OttoState>((set, get) => ({
         messengerAbort = null;
       })
       .catch((err) => {
-        if (err instanceof Error && err.name === "AbortError") return;
+        if (err instanceof Error && err.name === "AbortError") {
+          set({ isMessengerStreaming: false });
+          messengerAbort = null;
+          return;
+        }
         console.warn("Otto messenger SSE unavailable:", err);
         const errorMsg =
           "**Unable to reach Otto API**\n\n" +

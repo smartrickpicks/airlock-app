@@ -1,9 +1,15 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import OttoMessengerToggle from "@/components/molecules/OttoMessengerToggle";
 import OttoMessengerWindow from "@/components/organisms/OttoMessengerWindow";
 
 export default function OttoMessengerBar() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
   return (
     <>
       <OttoMessengerWindow />

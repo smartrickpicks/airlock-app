@@ -22,18 +22,20 @@ def get_or_create_session(
             .filter(
                 OttoSession.id == session_id,
                 OttoSession.user_id == user_id,
+                OttoSession.workspace_id == workspace_id,
             )
             .first()
         )
         if session:
             return session
 
-    # Find existing session for this vault+user
+    # Find existing session for this vault+user within workspace
     session = (
         db.query(OttoSession)
         .filter(
             OttoSession.vault_id == vault_id,
             OttoSession.user_id == user_id,
+            OttoSession.workspace_id == workspace_id,
         )
         .order_by(OttoSession.last_message_at.desc())
         .first()
@@ -59,6 +61,7 @@ def get_session_with_messages(
     db: Session,
     vault_id: str,
     user_id: str,
+    workspace_id: str,
 ) -> tuple[OttoSession | None, list[OttoMessage]]:
     """Load session and its message history."""
     session = (
@@ -66,6 +69,7 @@ def get_session_with_messages(
         .filter(
             OttoSession.vault_id == vault_id,
             OttoSession.user_id == user_id,
+            OttoSession.workspace_id == workspace_id,
         )
         .order_by(OttoSession.last_message_at.desc())
         .first()
@@ -124,13 +128,14 @@ def save_message(
     return message
 
 
-def clear_session(db: Session, vault_id: str, user_id: str) -> bool:
+def clear_session(db: Session, vault_id: str, user_id: str, workspace_id: str) -> bool:
     """Clear session and messages."""
     session = (
         db.query(OttoSession)
         .filter(
             OttoSession.vault_id == vault_id,
             OttoSession.user_id == user_id,
+            OttoSession.workspace_id == workspace_id,
         )
         .first()
     )

@@ -85,7 +85,7 @@ export default function AdminOttoPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span
-                className={`h-3 w-3 rounded-full ${aiConnected && hasKey ? "bg-green-500" : "bg-yellow-500"}`}
+                className={`h-3 w-3 rounded-full ${aiConnected && hasKey ? "bg-accent-success" : "bg-[var(--accent-warning)]"}`}
               />
               <div>
                 <p className="text-sm font-medium text-text-primary">
@@ -102,7 +102,7 @@ export default function AdminOttoPage() {
               className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                 aiConnected && hasKey
                   ? "bg-accent-success/15 text-accent-success"
-                  : "bg-yellow-500/15 text-yellow-400"
+                  : "bg-[var(--accent-warning)]/15 text-[var(--accent-warning)]"
               }`}
             >
               {aiConnected && hasKey ? "Active" : "Standby"}

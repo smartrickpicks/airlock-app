@@ -91,7 +91,8 @@ def get_session(
     user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
     """Get existing session + message history for this vault."""
-    session, messages = get_session_with_messages(db, vault_id, user["sub"])
+    workspace_id = user.get("workspace_id", "ws_dev")
+    session, messages = get_session_with_messages(db, vault_id, user["sub"], workspace_id)
 
     if not session:
         return {"session": None, "messages": []}
@@ -268,7 +269,8 @@ def delete_session(
     user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
     """Clear session and messages."""
-    success = clear_session(db, vault_id, user["sub"])
+    workspace_id = user.get("workspace_id", "ws_dev")
+    success = clear_session(db, vault_id, user["sub"], workspace_id)
     if not success:
         raise HTTPException(status_code=404, detail="No session found")
     return {"status": "cleared"}

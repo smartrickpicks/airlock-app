@@ -177,17 +177,20 @@ export default function SubPanel() {
 
   const isAdmin = activeModule === "admin";
   const currentModule = !isAdmin
-    ? MODULES[activeModule as keyof typeof MODULES]
+    ? (MODULES[activeModule as keyof typeof MODULES] ?? null)
     : null;
   const pinned = !isAdmin ? pinnedByModule[activeModule] || [] : [];
   const progress = getProgress();
 
-  // Fetch vaults for the active module (skip for admin)
+  // Fetch vaults for the active module (skip for admin and non-module routes)
   useEffect(() => {
-    if (!isAdmin) {
+    if (!isAdmin && currentModule) {
       fetchVaults({ module_type: activeModule });
     }
-  }, [activeModule, fetchVaults, isAdmin]);
+  }, [activeModule, fetchVaults, isAdmin, currentModule]);
+
+  // Non-module, non-admin routes (home, profile, etc.) — hide sub-panel
+  if (!isAdmin && !currentModule) return null;
 
   // Group vaults by chamber
   const vaultsByChamber = CHAMBER_KEYS.reduce(

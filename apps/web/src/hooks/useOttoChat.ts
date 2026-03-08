@@ -95,11 +95,15 @@ export function useOttoChat({
           };
         }
 
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("airlock_access_token")
+            : null;
         const response = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer dev_mock_token",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify(body),
           signal: abortRef.current.signal,
