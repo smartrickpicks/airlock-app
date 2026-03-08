@@ -59,8 +59,17 @@ def handle_node_advance(state: OttoState) -> DeterministicResult:
     current_index = state.current_node_index or 0
     total = state.total_recipe_nodes
 
+    # Guard: recipe data not loaded yet
+    if total is None:
+        return DeterministicResult(
+            intent="node_advance",
+            text="**Cannot advance** — recipe data not loaded yet.",
+            advanced=False,
+            metadata={"blocked_reason": "recipe_not_loaded"},
+        )
+
     # Bounds check: already at or past the last node
-    if total is not None and current_index >= total - 1:
+    if current_index >= total - 1:
         return DeterministicResult(
             intent="node_advance",
             text="**Recipe complete.** All steps finished.",

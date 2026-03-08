@@ -84,7 +84,7 @@ def fuzzy_match_intent(
             # Check substring containment first (high confidence)
             if phrase in lower:
                 # Penalize if the message is complex (needs reasoning)
-                score = 0.70 if is_complex else 0.95
+                score = 0.70 if is_complex else 1.0
             else:
                 # Fuzzy match
                 score = SequenceMatcher(None, lower, phrase).ratio()

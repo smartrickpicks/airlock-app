@@ -4,10 +4,11 @@ import logging
 import os
 import time
 from collections.abc import Generator
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from src.config import settings
@@ -56,9 +57,9 @@ class ChatRequest(BaseModel):
     module: str | None = None  # contracts | crm | tasks | calendar | documents
     chamber: str | None = None  # discover | build | review | ship
     # Agent graph fields
-    surface: str = "task_runner"  # task_runner | messenger | context_menu
+    surface: Literal["task_runner", "messenger", "context_menu"] = "task_runner"
     recipe_id: str | None = None
-    node_index: int | None = None
+    node_index: int | None = Field(default=None, ge=0)
 
 
 def _resolve_provider(pc: ProviderConfig | None) -> tuple[str, str, str]:

@@ -3,7 +3,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, Integer, Numeric, Text, func
+from sqlalchemy import DateTime, Integer, Numeric, Text, func, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -28,7 +28,7 @@ class OttoSession(Base):
         DateTime(timezone=True), server_default=func.now()
     )
     scope: Mapped[str] = mapped_column(
-        Text, nullable=False, server_default="vault", index=True
+        Text, nullable=False, server_default=text("'vault'"), index=True
     )  # "vault" | "messenger"
     surface: Mapped[str | None] = mapped_column(Text, nullable=True)  # task_runner | messenger
     tier_used: Mapped[str | None] = mapped_column(

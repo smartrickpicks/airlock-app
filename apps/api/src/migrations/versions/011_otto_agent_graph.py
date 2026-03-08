@@ -16,7 +16,7 @@ def upgrade() -> None:
     # Add columns to otto_sessions for agent graph support
     op.add_column(
         "otto_sessions",
-        sa.Column("scope", sa.Text(), server_default="vault", nullable=False),
+        sa.Column("scope", sa.Text(), server_default=sa.text("'vault'"), nullable=False),
     )
     op.add_column(
         "otto_sessions",

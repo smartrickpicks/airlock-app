@@ -1,5 +1,9 @@
 """Tool authorization matrix — which tools each sub-agent can access."""
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Role hierarchy for min_role checks
 ROLE_HIERARCHY = {
     "member": 0,
@@ -39,6 +43,8 @@ TOOL_AUTH: dict[str, dict] = {
 
 def get_tools_for_agent(agent_type: str, org_role: str = "member") -> list[dict]:
     """Return authorized tools for a given agent type and user role."""
+    if org_role not in ROLE_HIERARCHY:
+        logger.warning("Unknown org_role '%s' — defaulting to member-level access", org_role)
     user_level = ROLE_HIERARCHY.get(org_role, 0)
     tools = []
 
