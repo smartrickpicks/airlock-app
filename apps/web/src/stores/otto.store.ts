@@ -11,6 +11,12 @@ interface OttoState {
   isDrawerOpen: boolean;
   vaultId: string | null;
 
+  // --- Messenger (shell-level, persistent Otto) ---
+  messengerMessages: OttoMessage[];
+  messengerSessionId: string | null;
+  isMessengerOpen: boolean;
+  unreadCount: number;
+
   // Actions
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -19,6 +25,11 @@ interface OttoState {
   clearHistory: () => void;
   setVaultId: (id: string) => void;
   stop: () => void;
+
+  // --- Messenger Actions ---
+  toggleMessenger: () => void;
+  sendMessengerMessage: (content: string) => void;
+  clearMessengerHistory: () => void;
 }
 
 /** Pick a canned response when no API is available. */
@@ -37,15 +48,17 @@ function streamMock(
   content: string,
   assistantId: string,
   set: (fn: (s: OttoState) => Partial<OttoState>) => void,
+  target: "taskRunner" | "messenger" = "taskRunner",
 ) {
   const fullResponse = pickResponse(content);
   const words = fullResponse.split(" ");
   let wordIndex = 0;
+  const messagesKey = target === "messenger" ? "messengerMessages" : "messages";
   const interval = setInterval(() => {
     wordIndex++;
     const partial = words.slice(0, wordIndex).join(" ");
     set((s) => ({
-      messages: s.messages.map((m) =>
+      [messagesKey]: (s[messagesKey] as OttoMessage[]).map((m) =>
         m.id === assistantId ? { ...m, content: partial } : m,
       ),
     }));
@@ -64,6 +77,12 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   isStreaming: false,
   isDrawerOpen: false,
   vaultId: null,
+
+  // Messenger state
+  messengerMessages: [],
+  messengerSessionId: null,
+  isMessengerOpen: false,
+  unreadCount: 0,
 
   openDrawer: () => set({ isDrawerOpen: true }),
   closeDrawer: () => set({ isDrawerOpen: false }),
@@ -203,4 +222,118 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   },
 
   setVaultId: (id) => set({ vaultId: id }),
+
+  // --- Messenger Actions ---
+
+  toggleMessenger: () =>
+    set((s) => ({
+      isMessengerOpen: !s.isMessengerOpen,
+      unreadCount: s.isMessengerOpen ? s.unreadCount : 0,
+    })),
+
+  clearMessengerHistory: () =>
+    set({ messengerMessages: [], messengerSessionId: null }),
+
+  sendMessengerMessage: (content) => {
+    const userMsg: OttoMessage = {
+      id: `msg_${++messageCounter}`,
+      role: "user",
+      content,
+      timestamp: new Date().toISOString(),
+    };
+
+    const assistantId = `msg_${++messageCounter}`;
+
+    set((s) => ({
+      messengerMessages: [
+        ...s.messengerMessages,
+        userMsg,
+        {
+          id: assistantId,
+          role: "assistant" as const,
+          content: "",
+          timestamp: new Date().toISOString(),
+        },
+      ],
+      isStreaming: true,
+    }));
+
+    const aiConfig = useCapabilityTreeStore.getState().nodeConfigs[
+      "ai_provider"
+    ] as { provider?: string; apiKey?: string; model?: string } | undefined;
+
+    if (!aiConfig?.apiKey) {
+      setTimeout(() => streamMock(content, assistantId, set, "messenger"), 300);
+      return;
+    }
+
+    const abort = new AbortController();
+    currentAbort = abort;
+
+    const body: Record<string, unknown> = {
+      message: content,
+      surface: "messenger",
+      provider_config: {
+        provider: aiConfig.provider ?? "Anthropic",
+        api_key: aiConfig.apiKey,
+        model: aiConfig.model ?? "claude-sonnet-4-6",
+      },
+    };
+
+    fetch("/api/v3/otto/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer dev_mock_token",
+      },
+      body: JSON.stringify(body),
+      signal: abort.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("No response body");
+        const decoder = new TextDecoder();
+        let accumulated = "";
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n").filter((l: string) => l.trim());
+          for (const line of lines) {
+            if (line.startsWith("0:")) {
+              try {
+                const token = JSON.parse(line.slice(2)) as string;
+                accumulated += token;
+                set((s) => ({
+                  messengerMessages: s.messengerMessages.map((m) =>
+                    m.id === assistantId ? { ...m, content: accumulated } : m,
+                  ),
+                }));
+              } catch {
+                /* skip malformed */
+              }
+            }
+          }
+        }
+        set({ isStreaming: false });
+        currentAbort = null;
+      })
+      .catch((err) => {
+        if (err instanceof Error && err.name === "AbortError") return;
+        console.warn("Otto messenger SSE unavailable:", err);
+        const errorMsg =
+          "**Unable to reach Otto API**\n\n" +
+          "The backend server isn't responding. Make sure the API is running:\n" +
+          "```\ncd apps/api && uvicorn src.main:app --reload\n```";
+        set((s) => ({
+          messengerMessages: s.messengerMessages.map((m) =>
+            m.id === assistantId ? { ...m, content: errorMsg } : m,
+          ),
+          isStreaming: false,
+        }));
+        currentAbort = null;
+      });
+  },
 }));
