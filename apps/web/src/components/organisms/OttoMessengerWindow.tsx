@@ -7,7 +7,7 @@ import { useOttoStore } from "@/stores/otto.store";
 export default function OttoMessengerWindow() {
   const messengerMessages = useOttoStore((s) => s.messengerMessages);
   const isMessengerOpen = useOttoStore((s) => s.isMessengerOpen);
-  const isStreaming = useOttoStore((s) => s.isStreaming);
+  const isMessengerStreaming = useOttoStore((s) => s.isMessengerStreaming);
   const toggleMessenger = useOttoStore((s) => s.toggleMessenger);
   const sendMessengerMessage = useOttoStore((s) => s.sendMessengerMessage);
 
@@ -21,7 +21,7 @@ export default function OttoMessengerWindow() {
   if (!isMessengerOpen) return null;
 
   const handleSend = () => {
-    if (!input.trim() || isStreaming) return;
+    if (!input.trim() || isMessengerStreaming) return;
     sendMessengerMessage(input.trim());
     setInput("");
   };
@@ -66,7 +66,7 @@ export default function OttoMessengerWindow() {
                   : "bg-surface-raised text-text-secondary"
               }`}
             >
-              {msg.content || (isStreaming ? "..." : "")}
+              {msg.content || (isMessengerStreaming ? "..." : "")}
             </div>
           </div>
         ))}
@@ -85,7 +85,7 @@ export default function OttoMessengerWindow() {
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim() || isStreaming}
+            disabled={!input.trim() || isMessengerStreaming}
             className="text-accent-primary disabled:opacity-30"
           >
             <Send size={14} />

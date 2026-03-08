@@ -15,6 +15,7 @@ interface OttoState {
   messengerMessages: OttoMessage[];
   messengerSessionId: string | null;
   isMessengerOpen: boolean;
+  isMessengerStreaming: boolean;
   unreadCount: number;
 
   // Actions
@@ -64,13 +65,16 @@ function streamMock(
     }));
     if (wordIndex >= words.length) {
       clearInterval(interval);
-      set(() => ({ isStreaming: false }));
+      const streamingKey =
+        target === "messenger" ? "isMessengerStreaming" : "isStreaming";
+      set(() => ({ [streamingKey]: false }));
     }
   }, 30);
 }
 
-// Track the current AbortController for SSE cancellation
-let currentAbort: AbortController | null = null;
+// Separate abort controllers per surface — prevents cross-surface interference
+let drawerAbort: AbortController | null = null;
+let messengerAbort: AbortController | null = null;
 
 export const useOttoStore = create<OttoState>((set, get) => ({
   messages: [OTTO_WELCOME],
@@ -82,6 +86,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   messengerMessages: [],
   messengerSessionId: null,
   isMessengerOpen: false,
+  isMessengerStreaming: false,
   unreadCount: 0,
 
   openDrawer: () => set({ isDrawerOpen: true }),
@@ -89,8 +94,8 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   toggleDrawer: () => set((s) => ({ isDrawerOpen: !s.isDrawerOpen })),
 
   stop: () => {
-    currentAbort?.abort();
-    currentAbort = null;
+    drawerAbort?.abort();
+    drawerAbort = null;
     set({ isStreaming: false });
   },
 
@@ -133,7 +138,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
 
     // Try real SSE endpoint — vault-scoped or general
     const abort = new AbortController();
-    currentAbort = abort;
+    drawerAbort = abort;
 
     const body: Record<string, unknown> = {
       message: content,
@@ -193,7 +198,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
         }
 
         set({ isStreaming: false });
-        currentAbort = null;
+        drawerAbort = null;
       })
       .catch((err) => {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -211,13 +216,13 @@ export const useOttoStore = create<OttoState>((set, get) => ({
           ),
           isStreaming: false,
         }));
-        currentAbort = null;
+        drawerAbort = null;
       });
   },
 
   clearHistory: () => {
-    currentAbort?.abort();
-    currentAbort = null;
+    drawerAbort?.abort();
+    drawerAbort = null;
     set({ messages: [OTTO_WELCOME], isStreaming: false });
   },
 
@@ -255,7 +260,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
           timestamp: new Date().toISOString(),
         },
       ],
-      isStreaming: true,
+      isMessengerStreaming: true,
     }));
 
     const aiConfig = useCapabilityTreeStore.getState().nodeConfigs[
@@ -268,7 +273,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
     }
 
     const abort = new AbortController();
-    currentAbort = abort;
+    messengerAbort = abort;
 
     const body: Record<string, unknown> = {
       message: content,
@@ -317,8 +322,11 @@ export const useOttoStore = create<OttoState>((set, get) => ({
             }
           }
         }
-        set({ isStreaming: false });
-        currentAbort = null;
+        set((s) => ({
+          isMessengerStreaming: false,
+          unreadCount: s.isMessengerOpen ? s.unreadCount : s.unreadCount + 1,
+        }));
+        messengerAbort = null;
       })
       .catch((err) => {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -331,9 +339,9 @@ export const useOttoStore = create<OttoState>((set, get) => ({
           messengerMessages: s.messengerMessages.map((m) =>
             m.id === assistantId ? { ...m, content: errorMsg } : m,
           ),
-          isStreaming: false,
+          isMessengerStreaming: false,
         }));
-        currentAbort = null;
+        messengerAbort = null;
       });
   },
 }));
