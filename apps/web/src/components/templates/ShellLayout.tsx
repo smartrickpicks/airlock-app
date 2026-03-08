@@ -17,6 +17,7 @@ import { useMessengerStore } from "@/stores/messenger.store";
 import { useModuleStore, type ModuleName } from "@/stores/module.store";
 import RightToolPushPanel from "@/components/organisms/RightToolPushPanel";
 import RightToolRail from "@/components/organisms/RightToolRail";
+import OttoMessengerBar from "@/components/organisms/OttoMessengerBar";
 
 function deriveModuleFromPath(pathname: string): ModuleName {
   if (pathname.startsWith("/admin")) return "admin";
@@ -92,6 +93,7 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
       <OttoDrawer />
       <MessengerDrawer />
       <ToastContainer />
+      <OttoMessengerBar />
     </div>
   );
 }
