@@ -268,7 +268,7 @@ export default function SubPanel() {
                     {tier.label}
                   </div>
                   {tier.nodes.map((node) => {
-                    const state = nodeStates[node.id] ?? "locked";
+                    const state = nodeStates[node.id] ?? "available";
                     const isActive = pathname === node.route;
                     const isLocked = state === "locked";
                     return (

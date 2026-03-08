@@ -12,6 +12,14 @@ interface OttoMessage {
 
 interface UseOttoChatOptions {
   vaultId?: string;
+  surface?: "task_runner" | "messenger";
+  onNodeAdvance?: (
+    from: number,
+    to: number,
+    node: Record<string, unknown>,
+  ) => void;
+  onSignalPush?: (module: string, signal: Record<string, unknown>) => void;
+  onToolStart?: (toolName: string) => void;
 }
 
 /**
@@ -20,7 +28,13 @@ interface UseOttoChatOptions {
  * Reads AI provider config from the capability tree store and sends it
  * with each request so the backend uses the configured provider/model.
  */
-export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
+export function useOttoChat({
+  vaultId,
+  surface = "task_runner",
+  onNodeAdvance,
+  onSignalPush,
+  onToolStart,
+}: UseOttoChatOptions = {}) {
   const [messages, setMessages] = useState<OttoMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,8 +70,12 @@ export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
       ]);
 
       try {
-        if (!vaultId) {
-          throw new Error("No vault context");
+        const endpoint = vaultId
+          ? `/api/v3/vaults/${vaultId}/otto/chat`
+          : `/api/v3/otto/chat`;
+
+        if (!vaultId && surface === "task_runner") {
+          throw new Error("No vault context for task runner");
         }
 
         abortRef.current = new AbortController();
@@ -68,6 +86,7 @@ export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
         ] as { provider?: string; apiKey?: string; model?: string } | undefined;
 
         const body: Record<string, unknown> = { message: content };
+        body.surface = surface;
         if (aiConfig?.apiKey) {
           body.provider_config = {
             provider: aiConfig.provider ?? "Anthropic",
@@ -76,7 +95,7 @@ export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
           };
         }
 
-        const response = await fetch(`/api/v3/vaults/${vaultId}/otto/chat`, {
+        const response = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -119,6 +138,30 @@ export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
                 // Skip malformed tokens
               }
             }
+            if (line.startsWith("9:")) {
+              try {
+                const data = JSON.parse(line.slice(2));
+                onNodeAdvance?.(data.from, data.to, data.node);
+              } catch {
+                // Skip malformed node advance
+              }
+            }
+            if (line.startsWith("a:")) {
+              try {
+                const data = JSON.parse(line.slice(2));
+                onSignalPush?.(data.module, data.signal);
+              } catch {
+                // Skip malformed signal push
+              }
+            }
+            if (line.startsWith("b:")) {
+              try {
+                const data = JSON.parse(line.slice(2));
+                onToolStart?.(data.tool);
+              } catch {
+                // Skip malformed tool start
+              }
+            }
             if (line.startsWith("d:")) {
               break;
             }
@@ -156,7 +199,7 @@ export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
         abortRef.current = null;
       }
     },
-    [vaultId, isLoading],
+    [vaultId, surface, isLoading, onNodeAdvance, onSignalPush, onToolStart],
   );
 
   const clearHistory = useCallback(() => {
