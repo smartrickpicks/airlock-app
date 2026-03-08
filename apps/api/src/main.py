@@ -5,13 +5,20 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.websockets import WebSocket
 
 from src.config import settings
+from src.event_bus.routes import router as event_bus_router
+from src.mcp.routes import router as mcp_router
+from src.messenger.routes import router as messenger_router
+from src.otto.routes import router as otto_router
+from src.realtime.ws import websocket_endpoint
 from src.routes.auth import router as auth_router
 from src.routes.documents import router as document_router
 from src.routes.engines import router as engine_router
 from src.routes.events import router as event_router
 from src.routes.vaults import router as vault_router
+from src.workflows.routes import router as workflow_router
 
 
 @asynccontextmanager
@@ -51,6 +58,16 @@ def create_app() -> FastAPI:
     app.include_router(vault_router)
     app.include_router(event_router)
     app.include_router(engine_router)
+    app.include_router(otto_router)
+    app.include_router(event_bus_router)
+    app.include_router(messenger_router)
+    app.include_router(workflow_router)
+    app.include_router(mcp_router)
+
+    # WebSocket endpoint
+    @app.websocket("/ws")
+    async def ws_route(websocket: WebSocket) -> None:
+        await websocket_endpoint(websocket)
 
     return app
 

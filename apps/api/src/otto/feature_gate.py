@@ -1,0 +1,80 @@
+"""Otto feature gate — circuit breaker + feature flag checks."""
+
+import logging
+import time
+
+logger = logging.getLogger(__name__)
+
+
+class CircuitBreaker:
+    """Simple circuit breaker for Otto AI."""
+
+    def __init__(
+        self,
+        error_threshold: int = 5,
+        window_seconds: int = 60,
+        cooldown_seconds: int = 300,
+    ):
+        self.error_threshold = error_threshold
+        self.window_seconds = window_seconds
+        self.cooldown_seconds = cooldown_seconds
+        self._errors: list[float] = []
+        self._tripped_at: float | None = None
+
+    @property
+    def is_open(self) -> bool:
+        """True if circuit is open (too many errors)."""
+        if self._tripped_at is not None:
+            if time.time() - self._tripped_at > self.cooldown_seconds:
+                self._tripped_at = None
+                self._errors.clear()
+                logger.info("Circuit breaker recovered")
+                return False
+            return True
+        return False
+
+    def record_error(self) -> None:
+        """Record an error and trip if threshold exceeded."""
+        now = time.time()
+        self._errors = [t for t in self._errors if now - t < self.window_seconds]
+        self._errors.append(now)
+        if len(self._errors) >= self.error_threshold:
+            self._tripped_at = now
+            logger.warning(
+                "Circuit breaker tripped: %d errors in %ds",
+                len(self._errors),
+                self.window_seconds,
+            )
+
+    def record_success(self) -> None:
+        """Record a success (no-op for now)."""
+
+    def reset(self) -> None:
+        """Manual reset."""
+        self._errors.clear()
+        self._tripped_at = None
+
+
+# Global instance
+otto_circuit_breaker = CircuitBreaker()
+
+# Feature flags (hardcoded defaults — will be DB-driven later)
+OTTO_FEATURE_FLAGS: dict[str, bool] = {
+    "otto.enabled": True,
+    "otto.tools_enabled": True,
+    "otto.streaming_enabled": True,
+}
+
+OTTO_CALIBRATION: dict[str, int | float | str] = {
+    "otto.model": "otto-default",
+    "otto.max_tokens": 2048,
+    "otto.temperature": 0.3,
+    "otto.timeout": 30,
+    "otto.enrichment_timeout": 2,
+    "otto.max_tool_calls": 5,
+}
+
+
+def is_otto_enabled() -> bool:
+    """Check if Otto is enabled and circuit breaker is not open."""
+    return OTTO_FEATURE_FLAGS.get("otto.enabled", True) and not otto_circuit_breaker.is_open

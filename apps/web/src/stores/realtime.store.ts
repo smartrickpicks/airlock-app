@@ -29,6 +29,7 @@ interface RealtimeState {
 
   // Actions
   connect: () => void;
+  connectReal: () => void;
   disconnect: () => void;
   subscribe: (topic: RealtimeTopic) => void;
   unsubscribe: (topic: RealtimeTopic) => void;
@@ -72,6 +73,42 @@ export const useRealtimeStore = create<RealtimeState>((set, get) => ({
         });
       }
     }, 800);
+  },
+
+  connectReal: () => {
+    // Use real WebSocket — falls back to mock connect on failure
+    try {
+      // Dynamic import to avoid SSR issues
+      import("@/lib/websocket")
+        .then(({ getWebSocket }) => {
+          const ws = getWebSocket();
+          set({ status: "reconnecting", reconnectAttempts: 0 });
+
+          ws.onStatusChange((wsStatus: string) => {
+            set({ status: wsStatus as ConnectionStatus });
+          });
+
+          ws.onEvent("*", (topic: string, event: Record<string, unknown>) => {
+            const realtimeEvent: RealtimeEvent = {
+              id: (event.id as string) || `evt_${Date.now()}`,
+              topic: topic as RealtimeTopic,
+              type: (event.type as string) || "unknown",
+              payload: (event.payload as Record<string, unknown>) || {},
+              timestamp:
+                (event.created_at as string) || new Date().toISOString(),
+            };
+            get().simulateEvent(realtimeEvent);
+          });
+
+          ws.connect();
+        })
+        .catch(() => {
+          // Fall back to mock connect
+          get().connect();
+        });
+    } catch {
+      get().connect();
+    }
   },
 
   disconnect: () => {

@@ -8,6 +8,7 @@ interface OttoState {
   messages: OttoMessage[];
   isStreaming: boolean;
   isDrawerOpen: boolean;
+  vaultId: string | null;
 
   // Actions
   openDrawer: () => void;
@@ -15,6 +16,7 @@ interface OttoState {
   toggleDrawer: () => void;
   sendMessage: (content: string) => void;
   clearHistory: () => void;
+  setVaultId: (id: string) => void;
 }
 
 function pickResponse(input: string): string {
@@ -33,6 +35,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   messages: [OTTO_WELCOME],
   isStreaming: false,
   isDrawerOpen: false,
+  vaultId: null,
 
   openDrawer: () => set({ isDrawerOpen: true }),
   closeDrawer: () => set({ isDrawerOpen: false }),
@@ -93,4 +96,6 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   clearHistory: () => {
     set({ messages: [OTTO_WELCOME], isStreaming: false });
   },
+
+  setVaultId: (id) => set({ vaultId: id }),
 }));
