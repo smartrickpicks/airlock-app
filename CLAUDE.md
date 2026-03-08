@@ -2,6 +2,16 @@
 
 Enterprise data operations platform. Discord-like interface for contract lifecycle management.
 
+> Read [AGENTS.md](AGENTS.md) before starting any task.
+
+## Skills
+
+Load these for detailed context on specific topics:
+
+| Skill | When to load |
+| ----- | ------------ |
+| [roles](.github/skills/roles/SKILL.md) | Users, permissions, org roles, module roles, tiers, members, access control, OTTO tool gating |
+
 ## What Claude Gets Wrong
 
 - DO NOT use "channel", "workstream", "phase", or "stage". Terms: **Vault**, **Module**, **Chamber**, **Gate**, **View**, **Triptych**, **Signal/Orchestrate/Control**.
@@ -33,9 +43,15 @@ Enterprise data operations platform. Discord-like interface for contract lifecyc
 
 ## Roles
 
-- **Builder** — drafts, assembles (Discover + Build chambers)
-- **Gatekeeper** — reviews, approves (Review chamber)
-- **Owner** — promotes, publishes (Ship chamber)
+Airlock uses a **three-layer role system** — do not treat roles as a single flat value.
+
+| Layer | What it is | Values |
+| ----- | ---------- | ------ |
+| **Org Role** | Platform-wide tier, absolute permission ceiling | `member` / `lead` / `director` / `executive` |
+| **Module Role** | Per-module functional role — different per module | `builder` / `gatekeeper` / `owner` / `designer` / `viewer` |
+| **Agentic Role** | Interface personalization, 16 types — does not change permissions | See skill |
+
+**Load [.github/skills/roles/SKILL.md](.github/skills/roles/SKILL.md) before working with any user, permission, or access control logic.**
 
 ## Commands
 
