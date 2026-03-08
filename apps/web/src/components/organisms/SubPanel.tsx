@@ -78,6 +78,13 @@ const ADMIN_TIERS = [
     ],
   },
   {
+    label: "Configure",
+    nodes: [
+      { id: "recipes", label: "Recipes", icon: GitBranch, route: "/admin/recipes" },
+      { id: "playbooks", label: "Playbooks", icon: ScrollText, route: "/admin/playbooks" },
+    ],
+  },
+  {
     label: "Extensions",
     nodes: [
       { id: "otto", label: "OTTO", icon: Sparkles, route: "/admin/otto" },
@@ -151,7 +158,7 @@ export default function SubPanel() {
           <>
             {/* Admin header */}
             <div className="flex h-12 flex-shrink-0 items-center border-b border-surface-border px-4">
-              <span className="text-[15px] font-semibold text-text-primary">Admin</span>
+              <span className="text-[15px] font-semibold text-text-primary">Control Panel</span>
             </div>
 
             {/* Personal section */}

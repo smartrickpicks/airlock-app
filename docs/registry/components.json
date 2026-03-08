@@ -1462,6 +1462,24 @@
         "guardian",
         "architect"
       ]
+    },
+    {
+      "name": "CreateModePanel",
+      "level": "organism",
+      "path": "src/components/organisms/CreateModePanel.tsx",
+      "description": "Captioned chain-of-thought Q&A brainstorm session for creating Airlock artifacts (recipe, playbook, tool, module). Renders a sequential agent-attributed Q&A thread where each question is captioned by the agent asking it (Scholar, Architect, Gatekeeper, Builder, Controller, Orchestrator). Synthesizes answers into a plan the Conductor must approve before the artifact is saved to the library.",
+      "props": {
+        "artifactType": "'recipe' | 'playbook' | 'tool' | 'module'",
+        "onApprove": "() => void (optional)"
+      },
+      "slot": "admin",
+      "chamberAffinity": ["discover"],
+      "roleAccess": ["conductor"],
+      "cognitiveAffinity": [
+        "analyst",
+        "strategist",
+        "architect"
+      ]
     }
   ]
 }
