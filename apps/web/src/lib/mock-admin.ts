@@ -422,13 +422,6 @@ export interface UserPreferences {
   highContrast: boolean;
 }
 
-export interface VaultMembership {
-  vaultId: string;
-  vaultName: string;
-  role: "builder" | "gatekeeper" | "owner" | "viewer";
-  chamber: string;
-}
-
 export interface WorkspaceMember {
   id: string;
   name: string;
@@ -440,7 +433,6 @@ export interface WorkspaceMember {
   orgRole: OrgRole;
   /** Layer 2: per-module roles (module_id → ModuleRole) */
   moduleRoles: Record<string, ModuleRole>;
-  vaultMemberships: VaultMembership[];
   status: "active" | "invited" | "deactivated";
   lastActiveAt: string;
   joinedAt: string;
@@ -538,38 +530,6 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
       calendar: "owner",
       documents: "owner",
     },
-    vaultMemberships: [
-      {
-        vaultId: "vault_001",
-        vaultName: "Henderson MSA",
-        role: "owner",
-        chamber: "discover",
-      },
-      {
-        vaultId: "vault_004",
-        vaultName: "Sony-BigBooty Dist Agreement",
-        role: "owner",
-        chamber: "build",
-      },
-      {
-        vaultId: "vault_007",
-        vaultName: "BMG Catalog Transfer",
-        role: "owner",
-        chamber: "ship",
-      },
-      {
-        vaultId: "vault_002",
-        vaultName: "Warner Distribution Q2",
-        role: "builder",
-        chamber: "discover",
-      },
-      {
-        vaultId: "vault_003",
-        vaultName: "Summit Publishing License",
-        role: "builder",
-        chamber: "discover",
-      },
-    ],
     status: "active",
     lastActiveAt: "2026-03-08T00:00:00Z",
     joinedAt: "2026-03-08T00:00:00Z",
