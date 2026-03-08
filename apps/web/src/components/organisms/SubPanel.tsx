@@ -97,7 +97,7 @@ const ADMIN_TIERS = [
 ];
 
 const ADMIN_PERSONAL = [
-  { label: "Profile", icon: User, route: "/admin/settings" },
+  { label: "Profile", icon: User, route: "/admin/profile" },
   { label: "Appearance", icon: Palette, route: "/admin/settings" },
   { label: "Audit Log", icon: ScrollText, route: "/admin/audit-log" },
 ];

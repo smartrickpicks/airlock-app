@@ -583,3 +583,195 @@ export const MOCK_AUDIT_LOG: AuditLogEntry[] = [
     timestamp: "2026-03-08T00:01:30Z",
   },
 ];
+
+// ─── Role System — Discord-Style ──────────────────────────────────────
+
+export interface PermissionEntry {
+  key: string;
+  label: string;
+  description: string;
+}
+
+export interface PermissionGroup {
+  group: string;
+  permissions: PermissionEntry[];
+}
+
+export const PERMISSION_CATALOG: PermissionGroup[] = [
+  {
+    group: "General Workspace",
+    permissions: [
+      { key: "view_vaults",         label: "View Vaults",         description: "View vault data, fields, and event history" },
+      { key: "create_vaults",       label: "Create Vaults",       description: "Open new vaults in any module" },
+      { key: "edit_vault_metadata", label: "Edit Vault Metadata", description: "Edit vault name, type, and metadata fields" },
+      { key: "archive_vaults",      label: "Archive Vaults",      description: "Soft-archive vaults (reversible)" },
+    ],
+  },
+  {
+    group: "Extraction & Analysis",
+    permissions: [
+      { key: "view_extraction",      label: "View Extraction",      description: "View extraction results and confidence scores" },
+      { key: "run_extraction",       label: "Run Extraction",       description: "Trigger extraction on documents" },
+      { key: "configure_extraction", label: "Configure Extraction", description: "Edit anchors, synonyms, and extraction config" },
+    ],
+  },
+  {
+    group: "Patch Workflow",
+    permissions: [
+      { key: "create_patches",      label: "Create Patches",      description: "Draft field value corrections" },
+      { key: "submit_patches",      label: "Submit Patches",      description: "Submit patch proposals for review" },
+      { key: "approve_low_risk",    label: "Approve Low Risk",    description: "Approve low-confidence patch proposals" },
+      { key: "approve_medium_risk", label: "Approve Medium Risk", description: "Approve medium-confidence patches" },
+      { key: "approve_high_risk",   label: "Approve High Risk",   description: "Approve high-risk patches (Owner+ only)" },
+      { key: "apply_patches",       label: "Apply Patches",       description: "Apply approved patches to the baseline record" },
+    ],
+  },
+  {
+    group: "Triage & Tasks",
+    permissions: [
+      { key: "view_triage",   label: "View Triage",   description: "View triage items and task queue" },
+      { key: "create_triage", label: "Create Triage", description: "Create triage items" },
+      { key: "resolve_triage",label: "Resolve Triage",description: "Resolve or dismiss triage items" },
+      { key: "manage_tasks",  label: "Manage Tasks",  description: "Create, assign, and complete tasks" },
+    ],
+  },
+  {
+    group: "AI Agent",
+    permissions: [
+      { key: "chat_with_otto",  label: "Chat with Otto",  description: "Use the Otto AI agent" },
+      { key: "configure_otto",  label: "Configure Otto",  description: "Edit Otto's roles, prompts, and tools" },
+    ],
+  },
+  {
+    group: "Export",
+    permissions: [
+      { key: "export_csv",  label: "Export CSV",  description: "Download vault data as CSV" },
+      { key: "export_pdf",  label: "Export PDF",  description: "Download vault data as PDF" },
+      { key: "export_json", label: "Export JSON", description: "Download vault data as JSON (Owner+ only)" },
+    ],
+  },
+  {
+    group: "Administration",
+    permissions: [
+      { key: "manage_members",      label: "Manage Members",      description: "Invite, deactivate, and change member roles" },
+      { key: "manage_roles",        label: "Manage Roles",        description: "Create, edit, and delete custom roles" },
+      { key: "toggle_features",     label: "Toggle Features",     description: "Enable or disable feature flags" },
+      { key: "view_audit_log",      label: "View Audit Log",      description: "See all admin actions and role changes" },
+      { key: "manage_integrations", label: "Manage Integrations", description: "Connect and configure external services" },
+    ],
+  },
+];
+
+// All permission keys (derived from catalog — single source of truth)
+export const ALL_PERMISSION_KEYS: string[] = PERMISSION_CATALOG.flatMap(
+  (g) => g.permissions.map((p) => p.key),
+);
+
+export interface RoleDefinition {
+  id: string;
+  name: string;
+  color: string;         // hex — used for the colored dot badge
+  isSystem: boolean;     // system roles cannot be deleted or renamed
+  description: string;
+  permissions: string[]; // list of permission keys
+  memberCount: number;
+  hierarchy: number;     // 0 = highest authority
+}
+
+export const DEFAULT_ROLES: RoleDefinition[] = [
+  {
+    id: "architect",
+    name: "Architect",
+    color: "#00D1FF",
+    isSystem: true,
+    hierarchy: 0,
+    description: "Workspace founder. Full permissions including self-promotion and role management.",
+    permissions: ALL_PERMISSION_KEYS,
+    memberCount: 1,
+  },
+  {
+    id: "owner",
+    name: "Owner",
+    color: "#22C55E",
+    isSystem: true,
+    hierarchy: 1,
+    description: "Module owners — promote vaults to Ship, configure modules, manage integrations.",
+    permissions: [
+      "view_vaults", "create_vaults", "edit_vault_metadata", "archive_vaults",
+      "view_extraction", "run_extraction", "configure_extraction",
+      "create_patches", "submit_patches", "approve_low_risk", "approve_medium_risk",
+      "approve_high_risk", "apply_patches",
+      "view_triage", "create_triage", "resolve_triage", "manage_tasks",
+      "chat_with_otto", "configure_otto",
+      "export_csv", "export_pdf", "export_json",
+      "view_audit_log", "manage_integrations",
+    ],
+    memberCount: 0,
+  },
+  {
+    id: "gatekeeper",
+    name: "Gatekeeper",
+    color: "#A855F7",
+    isSystem: true,
+    hierarchy: 2,
+    description: "Reviewers — approve patches, resolve triage, advance through the Review chamber.",
+    permissions: [
+      "view_vaults", "view_extraction", "run_extraction",
+      "create_patches", "submit_patches", "approve_low_risk", "approve_medium_risk",
+      "view_triage", "create_triage", "resolve_triage", "manage_tasks",
+      "chat_with_otto", "export_csv", "export_pdf", "view_audit_log",
+    ],
+    memberCount: 0,
+  },
+  {
+    id: "builder",
+    name: "Builder",
+    color: "#EAB308",
+    isSystem: true,
+    hierarchy: 3,
+    description: "Builders — draft records, assemble evidence, submit patches for review.",
+    permissions: [
+      "view_vaults", "create_vaults", "edit_vault_metadata",
+      "view_extraction", "run_extraction",
+      "create_patches", "submit_patches",
+      "view_triage", "create_triage", "manage_tasks",
+      "chat_with_otto", "export_csv", "export_pdf",
+    ],
+    memberCount: 0,
+  },
+  {
+    id: "designer",
+    name: "Designer",
+    color: "#F97316",
+    isSystem: true,
+    hierarchy: 4,
+    description: "Schema builders — configure extraction rules, build field schemas, operate in sandbox.",
+    permissions: [
+      "view_vaults", "view_extraction", "run_extraction", "configure_extraction",
+      "view_triage", "chat_with_otto", "export_csv",
+    ],
+    memberCount: 0,
+  },
+  {
+    id: "viewer",
+    name: "Viewer",
+    color: "#64748B",
+    isSystem: true,
+    hierarchy: 5,
+    description: "Read-only access. Can see vault data and events but cannot take any action.",
+    permissions: ["view_vaults", "view_extraction", "view_triage"],
+    memberCount: 0,
+  },
+];
+
+// Color palette for the role color picker
+export const ROLE_COLOR_SWATCHES = [
+  "#00D1FF", // Airlock cyan
+  "#22C55E", // green
+  "#A855F7", // purple
+  "#EAB308", // yellow
+  "#F97316", // orange
+  "#EF4444", // red
+  "#EC4899", // pink
+  "#64748B", // slate
+];
