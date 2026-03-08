@@ -6,7 +6,7 @@
 
 ---
 
-## The Six Layers
+## The Eight Layers
 
 ```
 LAYER 0 — Workspace
@@ -16,6 +16,7 @@ LAYER 3 — Archetype
 LAYER 4 — Skills
 LAYER 5 — Recipe
 LAYER 6 — Playbook
+LAYER 7 — Playbook Chain
 ```
 
 Each layer is independent. A user carries values at every layer simultaneously.
@@ -182,6 +183,51 @@ A named, pre-configured bundle for a specific use case. The unit of "here's what
 
 ---
 
+## Layer 7 — Playbook Chain
+
+A sequence of playbooks connected by handoff conditions. Multiple teams, one pipeline. The Conductor defines when one playbook's output triggers the next playbook's intake — and how work is assigned when it arrives.
+
+**What a chain defines:**
+- Sequence of playbooks (ordered)
+- Handoff condition per link (what triggers the next playbook — vault state, field values, signal counts)
+- Assignment mode per link (how incoming work is routed to the receiving team)
+
+### Assignment modes
+
+| Mode | Behavior |
+|------|---------|
+| **Manual** | Receiving team sees unassigned vault, claims it |
+| **Round-robin** | Auto-assigned to next Builder in rotation |
+| **Rule-based** | Conductor defines routing conditions (e.g., contract_value > $100k → Senior Legal) |
+| **Auto** | Fully automatic based on entity matching or field values |
+
+### Example: Label Deal Pipeline
+
+```
+Sales Discovery ──[vault ships]──▶ Contract Review ──[vault ships]──▶ Publishing Admin
+  SDR + AE                          Legal team                         Royalties team
+  auto-creates vault                rule-based assign                  round-robin assign
+  in Contract Review    →           (value > $50k → Sr. Legal)  →     to admin team
+```
+
+### Conductor-built Skills — the Schema Adapter
+
+The Conductor's most powerful capability: creating custom skills that map the customer's existing data schema to Airlock's standard vocabulary. This is the adapter layer that makes Airlock fit any organization's data without requiring them to change their systems.
+
+**What Conductor-built skills can define:**
+
+| Skill type | What it does | Example |
+|-----------|-------------|---------|
+| **Field mapping** | Customer field name → Airlock standard | `OPP_ACCOUNT_NAME` → `company` |
+| **Entity aliasing** | Customer vocabulary → Airlock vocabulary | "Account" → Company, "Opp" → Vault |
+| **Extraction rules** | How to parse customer-specific document formats | Parse ISRC codes from PDF footnotes |
+| **Routing rules** | Auto-assign vaults to roles based on conditions | territory = "EU" → EU Legal Gatekeeper |
+| **Friction tuning** | Adjust gate conditions per vault type or team | require 2 approvals for contracts > $500k |
+
+The result: Builders, Gatekeepers, and Owners see clean, normalized Airlock-standard data and workflows. They never interact with raw customer schema. The Conductor handles the translation once — invisibly to everyone else.
+
+---
+
 ## How the Layers Interact
 
 ```
@@ -229,7 +275,8 @@ Architect installs playbook
 
 ## Open Questions
 
-- Can a Member hold roles from multiple playbooks simultaneously?
+- Can a Member hold roles from multiple playbooks simultaneously? (answer: yes — cross-playbook membership is supported)
 - Can a playbook be installed more than once with different configurations (e.g., "Contract Review — US" and "Contract Review — EU")?
 - Does archetype affect which recipe nodes are shown, or only how skills behave at each node? (Phase 4)
 - Schema adapter / org mapping: how do customer job titles map to Airlock roles during workspace setup? (separate spec)
+- What is the UI for Conductor skill creation? Node-based (n8n-style) or form-based?
