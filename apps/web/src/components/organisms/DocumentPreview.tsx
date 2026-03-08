@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { Document } from "@/lib/mock-documents";
 import {
   DOC_TYPE_LABELS,
@@ -7,6 +8,22 @@ import {
   FORMAT_ICONS,
   formatFileSize,
 } from "@/lib/mock-documents";
+
+// Load TipTapViewer client-side only (ProseMirror uses browser APIs)
+const TipTapViewer = dynamic(
+  () => import("@/components/organisms/TipTapViewer"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-48 items-center justify-center rounded-xl border border-surface-glass-border bg-surface-glass">
+        <span className="text-xs text-text-muted">Loading viewer…</span>
+      </div>
+    ),
+  },
+);
+
+// Formats that TipTap can render (rich text / markdown)
+const TIPTAP_FORMATS = new Set(["docx", "txt", "md"]);
 
 interface DocumentPreviewProps {
   document: Document;
@@ -25,6 +42,7 @@ export default function DocumentPreview({
     label: document.status ?? "unknown",
     color: "text-text-muted bg-text-muted",
   };
+  const canRender = TIPTAP_FORMATS.has(document.fileFormat);
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-surface-border bg-surface-raised p-4">
@@ -51,18 +69,24 @@ export default function DocumentPreview({
         </button>
       </div>
 
-      {/* Preview placeholder */}
-      <div className="flex h-[300px] items-center justify-center rounded-lg border border-dashed border-surface-border bg-surface-sunken/30">
-        <div className="text-center">
-          <span className={`text-3xl font-bold ${fmt.color}`}>{fmt.label}</span>
-          <p className="mt-2 text-sm text-text-muted">
-            Preview available when TipTap / PDF.js is integrated
-          </p>
-          <p className="mt-1 text-xs text-text-muted">
-            {formatFileSize(document.fileSizeBytes)}
-          </p>
+      {/* Preview */}
+      {canRender ? (
+        <TipTapViewer />
+      ) : (
+        <div className="flex h-[300px] items-center justify-center rounded-xl border border-surface-glass-border bg-surface-glass backdrop-blur-xl">
+          <div className="text-center">
+            <span className={`text-3xl font-bold ${fmt.color}`}>
+              {fmt.label}
+            </span>
+            <p className="mt-2 text-sm text-text-muted">
+              PDF viewer coming soon
+            </p>
+            <p className="mt-1 text-xs text-text-muted">
+              {formatFileSize(document.fileSizeBytes)}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Metadata */}
       <div className="grid grid-cols-2 gap-3">

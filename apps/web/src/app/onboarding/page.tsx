@@ -17,6 +17,7 @@ function provisionDevAuth() {
 
 /**
  * Auth passthrough — provisions dev session, redirects to workspace wizard.
+ * If onboarding is already complete, redirects to home.
  * Future: Google OAuth callback handler.
  */
 export default function OnboardingPage() {
@@ -24,6 +25,13 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     provisionDevAuth();
+
+    // Skip onboarding if already completed
+    if (localStorage.getItem("airlock_onboarding_complete") === "true") {
+      router.replace("/");
+      return;
+    }
+
     router.replace("/onboarding/setup");
   }, [router]);
 
