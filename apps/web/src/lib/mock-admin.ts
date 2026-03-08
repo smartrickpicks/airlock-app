@@ -25,15 +25,15 @@ export const INDUSTRY_OPTIONS = [
 ];
 
 export const MOCK_WORKSPACE: WorkspaceSettings = {
-  id: "ws_airlock_demo",
-  name: "Airlock Demo",
-  slug: "airlock-demo",
+  id: "ws_airlock_01",
+  name: "My Airlock",
+  slug: "my-airlock",
   industry: "Music & Entertainment",
-  plan: "enterprise",
-  createdAt: "2025-11-01T09:00:00Z",
-  inviteUrl: "https://app.airlock.dev/invite/airlock-demo/tk_abc123xyz",
-  memberCount: 5,
-  vaultCount: 42,
+  plan: "starter",
+  createdAt: "2026-03-08T00:00:00Z",
+  inviteUrl: "https://app.airlock.dev/invite/my-airlock/tk_invite",
+  memberCount: 1,
+  vaultCount: 0,
 };
 
 // ─── Module Config ────────────────────────────────────────────────────
@@ -55,8 +55,8 @@ export const MOCK_MODULE_CONFIGS: ModuleConfig[] = [
     label: "Contracts",
     description: "Contract lifecycle management — Discover, Build, Review, Ship.",
     enabled: true,
-    vaultCount: 24,
-    activeMembers: 4,
+    vaultCount: 0,
+    activeMembers: 1,
     chambers: ["Discover", "Build", "Review", "Ship"],
     color: "text-accent-primary",
   },
@@ -65,8 +65,8 @@ export const MOCK_MODULE_CONFIGS: ModuleConfig[] = [
     label: "CRM",
     description: "Account, lead, and deal pipeline management. The vault hierarchy is your CRM.",
     enabled: true,
-    vaultCount: 12,
-    activeMembers: 3,
+    vaultCount: 0,
+    activeMembers: 1,
     chambers: ["Discover", "Build", "Review", "Ship"],
     color: "text-accent-success",
   },
@@ -76,7 +76,7 @@ export const MOCK_MODULE_CONFIGS: ModuleConfig[] = [
     description: "Universal task queue — inbox, board, and personal view.",
     enabled: true,
     vaultCount: 0,
-    activeMembers: 4,
+    activeMembers: 1,
     chambers: [],
     color: "text-accent-warning",
   },
@@ -86,7 +86,7 @@ export const MOCK_MODULE_CONFIGS: ModuleConfig[] = [
     description: "Computed dates from vault fields and task due dates.",
     enabled: true,
     vaultCount: 0,
-    activeMembers: 2,
+    activeMembers: 1,
     chambers: [],
     color: "text-accent-warning",
   },
@@ -95,35 +95,74 @@ export const MOCK_MODULE_CONFIGS: ModuleConfig[] = [
     label: "Documents",
     description: "Document library with TipTap editor and PDF preview.",
     enabled: true,
-    vaultCount: 6,
-    activeMembers: 3,
+    vaultCount: 0,
+    activeMembers: 1,
     chambers: [],
     color: "text-text-secondary",
   },
 ];
 
-// ─── Roles ────────────────────────────────────────────────────────────
+// ─── Role System ──────────────────────────────────────────────────────
+//
+// Layer 1 — Org Role: workspace-level identity, controls admin access ceiling.
+// Layer 2 — Module Role: per-module role, controls chamber visibility + actions.
+//
+// Org Role hierarchy (highest → lowest):
+//   Architect > Executive > Director > Lead > Member
+//
+// Module Role hierarchy (highest → lowest):
+//   Owner > Gatekeeper > Builder > Designer > Viewer
+
+export type OrgRole = "architect" | "executive" | "director" | "lead" | "member";
+export type ModuleRole = "owner" | "gatekeeper" | "builder" | "designer" | "viewer";
+
+export const ORG_ROLE_LABELS: Record<OrgRole, string> = {
+  architect: "Architect",
+  executive: "Executive",
+  director: "Director",
+  lead: "Lead",
+  member: "Member",
+};
+
+export const MODULE_ROLE_LABELS: Record<ModuleRole, string> = {
+  owner: "Owner",
+  gatekeeper: "Gatekeeper",
+  builder: "Builder",
+  designer: "Designer",
+  viewer: "Viewer",
+};
+
+// Chamber access per module role. Controls which chambers are visible/active.
+export const CHAMBER_ACCESS: Record<ModuleRole, Record<string, boolean>> = {
+  owner:      { discover: true,  build: true,  review: true,  ship: true  },
+  gatekeeper: { discover: true,  build: true,  review: true,  ship: false },
+  builder:    { discover: true,  build: true,  review: false, ship: false },
+  designer:   { discover: true,  build: true,  review: false, ship: false },
+  viewer:     { discover: false, build: false, review: false, ship: false },
+};
 
 export interface RolePermission {
   action: string;
   description: string;
-  member: boolean;
-  lead: boolean;
-  director: boolean;
+  architect: boolean;
   executive: boolean;
+  director: boolean;
+  lead: boolean;
+  member: boolean;
 }
 
 export const ROLE_PERMISSIONS: RolePermission[] = [
-  { action: "View vaults", description: "Read vault fields and events", member: true, lead: true, director: true, executive: true },
-  { action: "Create vaults", description: "Open new vaults in any module", member: false, lead: true, director: true, executive: true },
-  { action: "Submit patches", description: "Propose field value changes", member: true, lead: true, director: true, executive: true },
-  { action: "Approve patches", description: "Accept or reject patch proposals", member: false, lead: false, director: true, executive: true },
-  { action: "Promote gates", description: "Advance vaults between chambers", member: false, lead: false, director: true, executive: true },
-  { action: "Manage members", description: "Invite, deactivate, change roles", member: false, lead: false, director: false, executive: true },
-  { action: "Toggle feature flags", description: "Enable/disable platform features", member: false, lead: false, director: false, executive: true },
-  { action: "View audit log", description: "See all admin actions", member: false, lead: false, director: true, executive: true },
-  { action: "Configure integrations", description: "Connect third-party services", member: false, lead: false, director: false, executive: true },
-  { action: "Export vaults", description: "Download vault data as PDF/JSON", member: false, lead: true, director: true, executive: true },
+  { action: "View vaults",           description: "Read vault fields and events",         architect: true,  executive: true,  director: true,  lead: true,  member: true  },
+  { action: "Create vaults",         description: "Open new vaults in any module",        architect: true,  executive: true,  director: true,  lead: true,  member: false },
+  { action: "Submit patches",        description: "Propose field value changes",          architect: true,  executive: true,  director: true,  lead: true,  member: true  },
+  { action: "Approve patches",       description: "Accept or reject patch proposals",     architect: true,  executive: true,  director: true,  lead: false, member: false },
+  { action: "Promote gates",         description: "Advance vaults between chambers",      architect: true,  executive: true,  director: true,  lead: false, member: false },
+  { action: "Manage members",        description: "Invite, deactivate, change roles",     architect: true,  executive: false, director: false, lead: false, member: false },
+  { action: "Toggle feature flags",  description: "Enable/disable platform features",     architect: true,  executive: false, director: false, lead: false, member: false },
+  { action: "View audit log",        description: "See all admin actions",                architect: true,  executive: true,  director: true,  lead: false, member: false },
+  { action: "Configure integrations",description: "Connect third-party services",         architect: true,  executive: false, director: false, lead: false, member: false },
+  { action: "Export vaults",         description: "Download vault data as PDF/JSON",      architect: true,  executive: true,  director: true,  lead: true,  member: false },
+  { action: "Self-promote role",     description: "Change your own org role (founder only)",architect: true, executive: false, director: false, lead: false, member: false },
 ];
 
 // ─── AI Provider ─────────────────────────────────────────────────────
@@ -286,8 +325,12 @@ export interface WorkspaceMember {
   name: string;
   email: string;
   avatarUrl?: string;
-  orgRole: "member" | "lead" | "director" | "executive";
-  moduleRoles: Record<string, string>;
+  bio?: string;
+  headline?: string;
+  /** Layer 1: workspace-level org role */
+  orgRole: OrgRole;
+  /** Layer 2: per-module roles (module_id → ModuleRole) */
+  moduleRoles: Record<string, ModuleRole>;
   status: "active" | "invited" | "deactivated";
   lastActiveAt: string;
   joinedAt: string;
@@ -359,14 +402,7 @@ export const MEMBER_STATUS_CONFIG: Record<
   deactivated: { label: "Deactivated", color: "text-text-muted" },
 };
 
-export const ORG_ROLE_LABELS: Record<WorkspaceMember["orgRole"], string> = {
-  member: "Member",
-  lead: "Lead",
-  director: "Director",
-  executive: "Executive",
-};
-
-// ─── Mock Data ───────────────────────────────────────────────────────
+// ─── Seed Data (single founder — you are the first Airlock user) ──────
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
   theme: "dark",
@@ -376,92 +412,25 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   highContrast: false,
 };
 
+// The first and only user: the Architect/founder.
+// Replace name/email once auth is wired to the real profile.
 export const MOCK_MEMBERS: WorkspaceMember[] = [
   {
-    id: "user_001",
-    name: "Jane Builder",
-    email: "jane@airlock.dev",
-    orgRole: "executive",
+    id: "user_founder",
+    name: "Founder",
+    email: "you@airlock.dev",
+    orgRole: "architect",
+    headline: "Architect — building Airlock from zero",
     moduleRoles: {
       contracts: "owner",
-      crm: "builder",
-      tasks: "builder",
-      calendar: "viewer",
-      documents: "builder",
+      crm: "owner",
+      tasks: "owner",
+      calendar: "owner",
+      documents: "owner",
     },
     status: "active",
-    lastActiveAt: "2026-03-05T14:30:00Z",
-    joinedAt: "2025-11-01T09:00:00Z",
-  },
-  {
-    id: "user_002",
-    name: "Tom Gatekeeper",
-    email: "tom@airlock.dev",
-    orgRole: "director",
-    moduleRoles: {
-      contracts: "gatekeeper",
-      crm: "viewer",
-      tasks: "gatekeeper",
-      calendar: "viewer",
-      documents: "gatekeeper",
-    },
-    status: "active",
-    lastActiveAt: "2026-03-05T12:15:00Z",
-    joinedAt: "2025-11-15T09:00:00Z",
-  },
-  {
-    id: "user_003",
-    name: "Sarah Owner",
-    email: "sarah@airlock.dev",
-    orgRole: "lead",
-    moduleRoles: {
-      contracts: "builder",
-      crm: "builder",
-      tasks: "viewer",
-      calendar: "viewer",
-      documents: "viewer",
-    },
-    status: "active",
-    lastActiveAt: "2026-03-04T18:00:00Z",
-    joinedAt: "2025-12-01T09:00:00Z",
-  },
-  {
-    id: "user_004",
-    name: "Alex Reviewer",
-    email: "alex@airlock.dev",
-    orgRole: "member",
-    moduleRoles: {
-      contracts: "gatekeeper",
-      crm: "viewer",
-      tasks: "viewer",
-      calendar: "viewer",
-      documents: "viewer",
-    },
-    status: "active",
-    lastActiveAt: "2026-03-03T10:45:00Z",
-    joinedAt: "2026-01-10T09:00:00Z",
-  },
-  {
-    id: "user_005",
-    name: "Morgan New",
-    email: "morgan@airlock.dev",
-    orgRole: "member",
-    moduleRoles: {},
-    status: "invited",
-    lastActiveAt: "",
-    joinedAt: "2026-03-01T09:00:00Z",
-  },
-  {
-    id: "user_006",
-    name: "Pat Former",
-    email: "pat@airlock.dev",
-    orgRole: "member",
-    moduleRoles: {
-      contracts: "viewer",
-    },
-    status: "deactivated",
-    lastActiveAt: "2026-02-15T16:00:00Z",
-    joinedAt: "2025-11-20T09:00:00Z",
+    lastActiveAt: "2026-03-08T00:00:00Z",
+    joinedAt: "2026-03-08T00:00:00Z",
   },
 ];
 
@@ -473,8 +442,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Full contract lifecycle management with chambers and gates",
     module: "contracts",
     status: "enabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-01T10:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_002",
@@ -483,8 +452,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Account management, leads, and deal pipeline",
     module: "crm",
     status: "enabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-01T10:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_003",
@@ -493,8 +462,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Universal task queue with Kanban, inbox, and my-tasks views",
     module: "tasks",
     status: "enabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-20T14:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_004",
@@ -503,8 +472,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Month grid and agenda views computed from vault dates",
     module: "calendar",
     status: "enabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-25T09:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_005",
@@ -513,8 +482,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Document library with preview panel and file management",
     module: "documents",
     status: "enabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-03-01T11:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_006",
@@ -523,8 +492,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "AI-powered assistant for contract analysis and suggestions",
     module: null,
     status: "beta",
-    changedBy: "Tom Gatekeeper",
-    changedAt: "2026-03-03T15:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_007",
@@ -533,8 +502,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Real-time messaging with vault threads and team channels",
     module: null,
     status: "disabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-01T10:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_008",
@@ -543,8 +512,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Visual workflow builder with React Flow canvas",
     module: null,
     status: "disabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-01T10:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_009",
@@ -553,8 +522,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Embedded video calls with post-call AI pipeline",
     module: null,
     status: "disabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-01T10:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_010",
@@ -563,8 +532,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Visual confidence overlay on extracted contract fields",
     module: "contracts",
     status: "beta",
-    changedBy: "Tom Gatekeeper",
-    changedAt: "2026-03-02T08:30:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_011",
@@ -573,8 +542,8 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Command palette with fuzzy search across all modules",
     module: null,
     status: "disabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-01T10:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
   {
     id: "ff_012",
@@ -583,74 +552,34 @@ export const MOCK_FEATURE_FLAGS: FeatureFlag[] = [
     description: "Toast system and notification panel with priority filters",
     module: null,
     status: "disabled",
-    changedBy: "Jane Builder",
-    changedAt: "2026-02-01T10:00:00Z",
+    changedBy: "Founder",
+    changedAt: "2026-03-08T00:00:00Z",
   },
 ];
 
 export const MOCK_AUDIT_LOG: AuditLogEntry[] = [
   {
     id: "audit_001",
-    action: "feature_flag.toggle",
-    actor: "Tom Gatekeeper",
-    target: "extraction_heatmap",
-    details: "Enabled beta flag for Extraction Heatmap",
-    timestamp: "2026-03-02T08:30:00Z",
+    action: "workspace.created",
+    actor: "Founder",
+    target: "My Airlock",
+    details: "Initialized workspace as Architect",
+    timestamp: "2026-03-08T00:00:00Z",
   },
   {
     id: "audit_002",
-    action: "member.role_change",
-    actor: "Jane Builder",
-    target: "Alex Reviewer",
-    details: "Changed org role from member to lead",
-    timestamp: "2026-03-01T14:00:00Z",
+    action: "feature_flag.toggle",
+    actor: "Founder",
+    target: "contracts_module",
+    details: "Enabled Contracts Module",
+    timestamp: "2026-03-08T00:01:00Z",
   },
   {
     id: "audit_003",
     action: "feature_flag.toggle",
-    actor: "Jane Builder",
-    target: "documents_module",
-    details: "Enabled Documents Module",
-    timestamp: "2026-03-01T11:00:00Z",
-  },
-  {
-    id: "audit_004",
-    action: "member.invited",
-    actor: "Jane Builder",
-    target: "Morgan New",
-    details: "Sent workspace invitation to morgan@airlock.dev",
-    timestamp: "2026-03-01T09:00:00Z",
-  },
-  {
-    id: "audit_005",
-    action: "workspace.setting_change",
-    actor: "Jane Builder",
-    target: "workspace",
-    details: "Updated workspace name to 'Airlock Demo'",
-    timestamp: "2026-02-28T16:00:00Z",
-  },
-  {
-    id: "audit_006",
-    action: "member.deactivated",
-    actor: "Jane Builder",
-    target: "Pat Former",
-    details: "Deactivated user account",
-    timestamp: "2026-02-15T16:00:00Z",
-  },
-  {
-    id: "audit_007",
-    action: "feature_flag.toggle",
-    actor: "Tom Gatekeeper",
-    target: "otto_ai",
-    details: "Enabled beta flag for Otto AI Agent",
-    timestamp: "2026-03-03T15:00:00Z",
-  },
-  {
-    id: "audit_008",
-    action: "member.module_role",
-    actor: "Jane Builder",
-    target: "Tom Gatekeeper",
-    details: "Assigned gatekeeper role for Tasks module",
-    timestamp: "2026-02-20T10:00:00Z",
+    actor: "Founder",
+    target: "crm_module",
+    details: "Enabled CRM Module",
+    timestamp: "2026-03-08T00:01:30Z",
   },
 ];
