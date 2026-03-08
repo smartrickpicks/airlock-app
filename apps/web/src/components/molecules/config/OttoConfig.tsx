@@ -1,5 +1,6 @@
 "use client";
 
+import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import type { ConfigFormProps } from "@/components/molecules/NodeConfigPanel";
 
 export default function OttoConfig({
@@ -7,16 +8,27 @@ export default function OttoConfig({
   onSave,
   onCancel,
 }: ConfigFormProps) {
-  const aiConnected = (config.aiConnected as boolean) ?? false;
+  // Check if AI Provider node is configured (has a saved API key)
+  const aiProviderState = useCapabilityTreeStore(
+    (s) => s.nodeStates["ai_provider"] ?? "available",
+  );
+  const aiConfig = useCapabilityTreeStore(
+    (s) => s.nodeConfigs["ai_provider"],
+  ) as { provider?: string; model?: string } | undefined;
+
+  const aiConnected = aiProviderState === "configured";
   const toolCount = (config.toolCount as number) ?? 12;
+  const providerLabel = aiConfig?.provider ?? "AI Provider";
+  const modelLabel = aiConfig?.model ?? "";
 
   return (
     <div className="space-y-3 p-4">
       <div className="rounded border border-surface-border bg-surface-raised/50 p-4">
         <p className="text-sm font-medium text-text-primary">OTTO AI Agent</p>
         <p className="mt-1 text-xs leading-relaxed text-text-secondary">
-          OTTO is auto-configured when AI Provider is connected. No additional
-          setup is required.
+          {aiConnected
+            ? `Connected via ${providerLabel}${modelLabel ? ` (${modelLabel})` : ""}. Otto is ready to assist.`
+            : "OTTO is auto-configured when AI Provider is connected. No additional setup is required."}
         </p>
       </div>
 
@@ -44,7 +56,7 @@ export default function OttoConfig({
         </button>
         <button
           type="button"
-          onClick={() => onSave({ ...config, acknowledged: true })}
+          onClick={() => onSave({ ...config, acknowledged: true, aiConnected })}
           className="rounded bg-accent-primary px-4 py-1.5 text-xs font-semibold text-text-inverse hover:bg-accent-primary/80"
         >
           Save

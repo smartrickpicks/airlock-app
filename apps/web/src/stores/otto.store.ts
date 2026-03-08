@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { OttoMessage } from "@/lib/mock-otto";
 import { OTTO_WELCOME, OTTO_MOCK_RESPONSES } from "@/lib/mock-otto";
+import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 
 let messageCounter = 0;
 
@@ -17,8 +18,10 @@ interface OttoState {
   sendMessage: (content: string) => void;
   clearHistory: () => void;
   setVaultId: (id: string) => void;
+  stop: () => void;
 }
 
+/** Pick a canned response when no API is available. */
 function pickResponse(input: string): string {
   const lower = input.toLowerCase();
   if (lower.includes("summar")) return OTTO_MOCK_RESPONSES.summarize;
@@ -26,10 +29,35 @@ function pickResponse(input: string): string {
     return OTTO_MOCK_RESPONSES.risks;
   if (lower.includes("overdue") || lower.includes("deadline"))
     return OTTO_MOCK_RESPONSES.overdue;
-  if (lower.includes("draft") || lower.includes("response"))
-    return OTTO_MOCK_RESPONSES.default;
   return OTTO_MOCK_RESPONSES.default;
 }
+
+/** Simulate word-by-word streaming of a mock response. */
+function streamMock(
+  content: string,
+  assistantId: string,
+  set: (fn: (s: OttoState) => Partial<OttoState>) => void,
+) {
+  const fullResponse = pickResponse(content);
+  const words = fullResponse.split(" ");
+  let wordIndex = 0;
+  const interval = setInterval(() => {
+    wordIndex++;
+    const partial = words.slice(0, wordIndex).join(" ");
+    set((s) => ({
+      messages: s.messages.map((m) =>
+        m.id === assistantId ? { ...m, content: partial } : m,
+      ),
+    }));
+    if (wordIndex >= words.length) {
+      clearInterval(interval);
+      set(() => ({ isStreaming: false }));
+    }
+  }, 30);
+}
+
+// Track the current AbortController for SSE cancellation
+let currentAbort: AbortController | null = null;
 
 export const useOttoStore = create<OttoState>((set, get) => ({
   messages: [OTTO_WELCOME],
@@ -41,6 +69,12 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   closeDrawer: () => set({ isDrawerOpen: false }),
   toggleDrawer: () => set((s) => ({ isDrawerOpen: !s.isDrawerOpen })),
 
+  stop: () => {
+    currentAbort?.abort();
+    currentAbort = null;
+    set({ isStreaming: false });
+  },
+
   sendMessage: (content) => {
     const userMsg: OttoMessage = {
       id: `msg_${++messageCounter}`,
@@ -49,51 +83,108 @@ export const useOttoStore = create<OttoState>((set, get) => ({
       timestamp: new Date().toISOString(),
     };
 
+    const assistantId = `msg_${++messageCounter}`;
+
     set((s) => ({
-      messages: [...s.messages, userMsg],
+      messages: [
+        ...s.messages,
+        userMsg,
+        {
+          id: assistantId,
+          role: "assistant" as const,
+          content: "",
+          timestamp: new Date().toISOString(),
+        },
+      ],
       isStreaming: true,
     }));
 
-    // Simulate streaming response with word-by-word reveal
-    const fullResponse = pickResponse(content);
-    const words = fullResponse.split(" ");
-    const assistantId = `msg_${++messageCounter}`;
+    const { vaultId } = get();
 
-    // Add empty assistant message
-    setTimeout(() => {
-      set((s) => ({
-        messages: [
-          ...s.messages,
-          {
-            id: assistantId,
-            role: "assistant",
-            content: "",
-            timestamp: new Date().toISOString(),
-          },
-        ],
-      }));
+    // Read AI provider config from capability tree
+    const aiConfig = useCapabilityTreeStore.getState().nodeConfigs[
+      "ai_provider"
+    ] as { provider?: string; apiKey?: string; model?: string } | undefined;
 
-      // Stream words in
-      let wordIndex = 0;
-      const interval = setInterval(() => {
-        wordIndex++;
-        const partial = words.slice(0, wordIndex).join(" ");
+    // If no vault or no API key, go straight to mock
+    if (!vaultId || !aiConfig?.apiKey) {
+      setTimeout(() => streamMock(content, assistantId, set), 300);
+      return;
+    }
 
-        set((s) => ({
-          messages: s.messages.map((m) =>
-            m.id === assistantId ? { ...m, content: partial } : m,
-          ),
-        }));
+    // Try real SSE endpoint
+    const abort = new AbortController();
+    currentAbort = abort;
 
-        if (wordIndex >= words.length) {
-          clearInterval(interval);
-          set({ isStreaming: false });
+    const body: Record<string, unknown> = {
+      message: content,
+      provider_config: {
+        provider: aiConfig.provider ?? "Anthropic",
+        api_key: aiConfig.apiKey,
+        model: aiConfig.model ?? "claude-sonnet-4-6",
+      },
+    };
+
+    fetch(`/api/v3/vaults/${vaultId}/otto/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer dev_mock_token",
+      },
+      body: JSON.stringify(body),
+      signal: abort.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("No response body");
+
+        const decoder = new TextDecoder();
+        let accumulated = "";
+
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n").filter((l: string) => l.trim());
+
+          for (const line of lines) {
+            // Vercel AI SDK wire format: 0: text, d: done
+            if (line.startsWith("0:")) {
+              try {
+                const token = JSON.parse(line.slice(2)) as string;
+                accumulated += token;
+                set((s) => ({
+                  messages: s.messages.map((m) =>
+                    m.id === assistantId ? { ...m, content: accumulated } : m,
+                  ),
+                }));
+              } catch {
+                // Skip malformed tokens
+              }
+            }
+          }
         }
-      }, 30);
-    }, 500);
+
+        set({ isStreaming: false });
+        currentAbort = null;
+      })
+      .catch((err) => {
+        if (err instanceof Error && err.name === "AbortError") return;
+
+        // Fallback to mock on any error
+        console.warn("Otto SSE unavailable, using mock:", err);
+        streamMock(content, assistantId, set);
+        currentAbort = null;
+      });
   },
 
   clearHistory: () => {
+    currentAbort?.abort();
+    currentAbort = null;
     set({ messages: [OTTO_WELCOME], isStreaming: false });
   },
 

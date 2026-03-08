@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 
 interface OttoMessage {
   id: string;
@@ -16,8 +17,8 @@ interface UseOttoChatOptions {
 /**
  * useOttoChat — connects to Otto SSE endpoint with mock fallback.
  *
- * Tries POST /api/v3/vaults/{vaultId}/otto/chat (SSE stream).
- * Falls back to mock word-by-word simulation if backend unavailable.
+ * Reads AI provider config from the capability tree store and sends it
+ * with each request so the backend uses the configured provider/model.
  */
 export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
   const [messages, setMessages] = useState<OttoMessage[]>([]);
@@ -61,13 +62,27 @@ export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
 
         abortRef.current = new AbortController();
 
+        // Read AI provider config from capability tree store
+        const aiConfig = useCapabilityTreeStore.getState().nodeConfigs[
+          "ai_provider"
+        ] as { provider?: string; apiKey?: string; model?: string } | undefined;
+
+        const body: Record<string, unknown> = { message: content };
+        if (aiConfig?.apiKey) {
+          body.provider_config = {
+            provider: aiConfig.provider ?? "Anthropic",
+            api_key: aiConfig.apiKey,
+            model: aiConfig.model ?? "claude-sonnet-4-6",
+          };
+        }
+
         const response = await fetch(`/api/v3/vaults/${vaultId}/otto/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer dev_mock_token",
           },
-          body: JSON.stringify({ message: content }),
+          body: JSON.stringify(body),
           signal: abortRef.current.signal,
         });
 
@@ -87,7 +102,7 @@ export function useOttoChat({ vaultId }: UseOttoChatOptions = {}) {
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n").filter((l) => l.trim());
+          const lines = chunk.split("\n").filter((l: string) => l.trim());
 
           for (const line of lines) {
             // Parse Vercel AI SDK wire format

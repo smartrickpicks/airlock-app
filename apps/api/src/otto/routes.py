@@ -1,6 +1,7 @@
 """Otto AI routes — SSE streaming chat + session management."""
 
 import logging
+import os
 import time
 from collections.abc import Generator
 
@@ -9,6 +10,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from src.config import settings
 from src.db import get_db
 from src.middleware.auth import get_current_user
 from src.otto.agent import build_system_prompt, generate_stub_response
@@ -31,10 +33,47 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v3/vaults/{vault_id}/otto", tags=["otto"])
 
+# Provider name → OpenAI-compatible base URL
+PROVIDER_BASE_URLS: dict[str, str] = {
+    "Anthropic": "https://api.anthropic.com/v1",
+    "OpenRouter": "https://openrouter.ai/api/v1",
+}
+
+
+class ProviderConfig(BaseModel):
+    """AI provider config from the admin capability tree."""
+
+    provider: str = "Anthropic"
+    api_key: str = ""
+    model: str = "claude-sonnet-4-6"
+
 
 class ChatRequest(BaseModel):
     message: str
     session_id: str | None = None
+    provider_config: ProviderConfig | None = None
+
+
+def _resolve_provider(pc: ProviderConfig | None) -> tuple[str, str, str]:
+    """Resolve base_url, api_key, model from provider config or env fallback.
+
+    Priority: request provider_config > env vars > settings.
+    Returns (base_url, api_key, model_name).
+    """
+    if pc and pc.api_key:
+        if pc.provider == "Custom":
+            base_url = settings.litellm_api_base + "/v1"
+        else:
+            base_url = PROVIDER_BASE_URLS.get(pc.provider, "https://openrouter.ai/api/v1")
+        return base_url, pc.api_key, pc.model
+
+    # Env var fallback
+    env_key = os.environ.get("OPENROUTER_API_KEY", "") or settings.litellm_master_key
+    if env_key:
+        return "https://openrouter.ai/api/v1", env_key, "anthropic/claude-sonnet-4-6"
+
+    # No key available — will fall through to stub
+    return settings.litellm_api_base + "/v1", "", "otto-default"
 
 
 @router.get("/session")
@@ -103,6 +142,9 @@ def otto_chat(
     # Build enrichment context
     ctx = build_vault_context(db, vault_id, workspace_id, user_id, user_role)
 
+    # Resolve provider from request config or env
+    base_url, api_key, model_name = _resolve_provider(request.provider_config)
+
     # Determine enrichment sources used
     sources_used: list[str] = []
     for attr in [
@@ -125,14 +167,18 @@ def otto_chat(
         full_response = ""
 
         try:
-            # Try to use PydanticAI agent with LiteLLM
+            # Try to use PydanticAI agent with configured provider
             try:
+                if not api_key:
+                    raise ValueError("No API key configured")  # noqa: TRY301
+
                 from pydantic_ai import Agent
                 from pydantic_ai.models.openai import OpenAIModel
 
                 model = OpenAIModel(
-                    "otto-default",
-                    base_url="http://localhost:4000/v1",
+                    model_name,
+                    base_url=base_url,
+                    api_key=api_key,
                 )
                 agent = Agent(
                     model=model,
@@ -140,9 +186,10 @@ def otto_chat(
                 )
                 result = agent.run_sync(request.message)
                 full_response = result.data
+                logger.info("Otto LLM response via %s/%s", base_url, model_name)
 
             except Exception:
-                logger.info("PydanticAI/LiteLLM unavailable, using stub response")
+                logger.info("LLM unavailable (provider=%s), using stub response", base_url)
                 full_response = generate_stub_response(request.message, ctx)
 
             # Stream the response word by word
@@ -165,7 +212,7 @@ def otto_chat(
                 session,
                 role="assistant",
                 content=full_response,
-                model="otto-default",
+                model=model_name,
                 tokens_used=completion_tokens,
                 enrichment_sources=sources_used,
                 finish_reason="stop",
@@ -173,10 +220,10 @@ def otto_chat(
 
             otto_circuit_breaker.record_success()
 
-        except Exception as e:
+        except Exception:
             logger.exception("Otto streaming error")
             otto_circuit_breaker.record_error()
-            yield format_sse_error(str(e))
+            yield format_sse_error("An internal error occurred. Please try again.")
             yield format_sse_done()
 
     return StreamingResponse(

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import ModuleBar from "@/components/organisms/ModuleBar";
 import SubPanel from "@/components/organisms/SubPanel";
 import CommandPalette from "@/components/organisms/CommandPalette";
@@ -13,14 +14,27 @@ import { useNotificationStore } from "@/stores/notification.store";
 import { useRealtimeStore } from "@/stores/realtime.store";
 import { useOttoStore } from "@/stores/otto.store";
 import { useMessengerStore } from "@/stores/messenger.store";
+import { useModuleStore, type ModuleName } from "@/stores/module.store";
 import RightToolPushPanel from "@/components/organisms/RightToolPushPanel";
 import RightToolRail from "@/components/organisms/RightToolRail";
+
+function deriveModuleFromPath(pathname: string): ModuleName {
+  if (pathname.startsWith("/admin")) return "admin";
+  if (pathname.startsWith("/contracts")) return "contracts";
+  if (pathname.startsWith("/crm")) return "crm";
+  if (pathname.startsWith("/tasks")) return "tasks";
+  if (pathname.startsWith("/calendar")) return "calendar";
+  if (pathname.startsWith("/documents")) return "documents";
+  return "home";
+}
 
 interface ShellLayoutProps {
   children: ReactNode;
 }
 
 export default function ShellLayout({ children }: ShellLayoutProps) {
+  const pathname = usePathname();
+  const setActiveModule = useModuleStore((s) => s.setActiveModule);
   const toggleSearch = useSearchStore((s) => s.toggle);
   const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
   const connectRealtime = useRealtimeStore((s) => s.connect);
@@ -28,6 +42,15 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
   const toggleOtto = useOttoStore((s) => s.toggleDrawer);
   const toggleMessenger = useMessengerStore((s) => s.toggleDrawer);
   const fetchMessenger = useMessengerStore((s) => s.fetchMessenger);
+
+  // Sync module store from URL — prevents stale state when navigating
+  useEffect(() => {
+    const derived = deriveModuleFromPath(pathname);
+    const current = useModuleStore.getState().activeModule;
+    if (derived !== current) {
+      setActiveModule(derived);
+    }
+  }, [pathname, setActiveModule]);
 
   // Load notifications, messenger, and connect realtime on mount
   useEffect(() => {
