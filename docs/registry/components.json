@@ -1,370 +1,1467 @@
 {
   "$schema": "./components.schema.json",
   "_description": "Canonical component registry. Agents MUST update this file when creating new components.",
-  "_lastUpdated": "2026-03-05",
+  "_lastUpdated": "2026-03-08",
+  "_schemaVersion": "2",
+  "_notes": "v2 adds: slot (signal|orchestrate|control|shell), skillBinding (which skill activates this component), chamberAffinity, roleAccess, cognitiveAffinity",
   "components": [
     {
       "name": "EntityCard",
       "level": "organism",
       "path": "src/components/organisms/EntityCard.tsx",
-      "description": "Parent vault card with expand/collapse child vault table for Review Queue"
+      "description": "Parent vault card with expand/collapse child vault table for Review Queue",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "review"
+      ],
+      "roleAccess": [
+        "gatekeeper",
+        "builder"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "guardian"
+      ]
     },
     {
       "name": "HandoffSignalPanel",
       "level": "molecule",
       "path": "src/components/molecules/HandoffSignalPanel.tsx",
-      "description": "Alert summary card for RFI/Correction/Anomaly handoff signals"
+      "description": "Alert summary card for RFI/Correction/Anomaly handoff signals",
+      "slot": "signal",
+      "chamberAffinity": [
+        "review",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper"
+      ],
+      "cognitiveAffinity": [
+        "guardian",
+        "executor"
+      ]
     },
     {
       "name": "FilterBar",
       "level": "molecule",
       "path": "src/components/molecules/FilterBar.tsx",
-      "description": "Signal type pills + builder/entity dropdown filters"
+      "description": "Signal type pills + builder/entity dropdown filters",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor"
+      ]
     },
     {
       "name": "ActivityFeed",
       "level": "organism",
       "path": "src/components/organisms/ActivityFeed.tsx",
-      "description": "Reverse-chronological event stream grouped by time period"
+      "description": "Reverse-chronological event stream grouped by time period",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "strategist"
+      ]
     },
     {
       "name": "DealCard",
       "level": "molecule",
       "path": "src/components/molecules/DealCard.tsx",
-      "description": "Pipeline Kanban deal card with value, rep, tasks, progress"
+      "description": "Pipeline Kanban deal card with value, rep, tasks, progress",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "connector"
+      ]
     },
     {
       "name": "PipelineBoard",
       "level": "organism",
       "path": "src/components/organisms/PipelineBoard.tsx",
-      "description": "Drag-and-drop deal Kanban with 5 pipeline stages"
+      "description": "Drag-and-drop deal Kanban with 5 pipeline stages",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "strategist",
+        "executor"
+      ]
     },
     {
       "name": "AccountsTable",
       "level": "organism",
       "path": "src/components/organisms/AccountsTable.tsx",
-      "description": "CRM accounts table with health, segment, deals, contacts"
+      "description": "CRM accounts table with health, segment, deals, contacts",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "guardian"
+      ]
     },
     {
       "name": "LeadsTable",
       "level": "organism",
       "path": "src/components/organisms/LeadsTable.tsx",
-      "description": "New lead triage table with score, stage, source"
+      "description": "New lead triage table with score, stage, source",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor"
+      ]
     },
     {
       "name": "TaskCard",
       "level": "molecule",
       "path": "src/components/molecules/TaskCard.tsx",
       "description": "Task card with severity dot, module badge, vault name, assignee, due countdown",
-      "milestone": "M11"
+      "milestone": "M11",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "guardian"
+      ]
     },
     {
       "name": "TasksTable",
       "level": "organism",
       "path": "src/components/organisms/TasksTable.tsx",
       "description": "Sortable task table with quick filter pills and column sorting",
-      "milestone": "M11"
+      "milestone": "M11",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor"
+      ]
     },
     {
       "name": "TasksKanban",
       "level": "organism",
       "path": "src/components/organisms/TasksKanban.tsx",
       "description": "4-column Kanban board (Open/In Progress/In Review/Resolved) with drag-and-drop",
-      "milestone": "M11"
+      "milestone": "M11",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "strategist"
+      ]
     },
     {
       "name": "MonthGrid",
       "level": "organism",
       "path": "src/components/organisms/MonthGrid.tsx",
       "description": "Calendar month grid with event dots, day navigation, prev/next month",
-      "milestone": "M12"
+      "milestone": "M12",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "strategist",
+        "connector"
+      ]
     },
     {
       "name": "AgendaList",
       "level": "organism",
       "path": "src/components/organisms/AgendaList.tsx",
       "description": "Chronological event list grouped by date with countdown and source badges",
-      "milestone": "M12"
+      "milestone": "M12",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "strategist"
+      ]
     },
     {
       "name": "DocumentsTable",
       "level": "organism",
       "path": "src/components/organisms/DocumentsTable.tsx",
       "description": "Sortable document table with format icons, quick filter pills, and row selection",
-      "milestone": "M13"
+      "milestone": "M13",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "guardian"
+      ]
     },
     {
       "name": "DocumentPreview",
       "level": "organism",
       "path": "src/components/organisms/DocumentPreview.tsx",
       "description": "Side panel document preview with metadata grid and format icon",
-      "milestone": "M13"
+      "milestone": "M13",
+      "slot": "control",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "guardian"
+      ]
     },
     {
       "name": "Button",
       "level": "atom",
       "path": "src/components/atoms/Button.tsx",
       "description": "Shared button with primary, secondary, ghost, danger variants and sm/md/lg sizes",
-      "milestone": "M14"
+      "milestone": "M14",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "EmptyState",
       "level": "atom",
       "path": "src/components/atoms/EmptyState.tsx",
       "description": "Centered empty/loading state placeholder with optional icon",
-      "milestone": "M14"
+      "milestone": "M14",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "ProgressBar",
       "level": "atom",
       "path": "src/components/atoms/ProgressBar.tsx",
       "description": "Horizontal progress bar with color variants and optional percentage label",
-      "milestone": "M14"
+      "milestone": "M14",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "guardian"
+      ]
     },
     {
       "name": "FilterPills",
       "level": "molecule",
       "path": "src/components/molecules/FilterPills.tsx",
       "description": "Horizontal pill toggle group for quick filters \u2014 extracted from 4 tables and 2 pages",
-      "milestone": "M14"
+      "milestone": "M14",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor"
+      ]
     },
     {
       "name": "SortHeader",
       "level": "molecule",
       "path": "src/components/molecules/SortHeader.tsx",
       "description": "Clickable table column header with sort direction indicator",
-      "milestone": "M14"
+      "milestone": "M14",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "guardian"
+      ]
     },
     {
       "name": "Modal",
       "level": "molecule",
       "path": "src/components/molecules/Modal.tsx",
       "description": "Reusable modal overlay with title, close button, escape key, and backdrop click",
-      "milestone": "M14"
+      "milestone": "M14",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "ProfileSettings",
       "level": "organism",
       "path": "src/components/organisms/ProfileSettings.tsx",
       "description": "User profile editor with name, email, avatar, timezone",
-      "milestone": "M15"
+      "milestone": "M15",
+      "slot": "control",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "AppearanceSettings",
       "level": "organism",
       "path": "src/components/organisms/AppearanceSettings.tsx",
       "description": "Theme, font size, sidebar width, reduced motion, high contrast toggles",
-      "milestone": "M15"
+      "milestone": "M15",
+      "slot": "control",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "FeatureFlags",
       "level": "organism",
       "path": "src/components/organisms/FeatureFlags.tsx",
       "description": "Feature Control Plane toggle grid \u2014 cycle disabled/beta/enabled per flag",
-      "milestone": "M15"
+      "milestone": "M15",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "architect",
+        "conductor"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "guardian"
+      ]
     },
     {
       "name": "MembersTable",
       "level": "organism",
       "path": "src/components/organisms/MembersTable.tsx",
       "description": "Workspace member table with role dropdowns and status indicators",
-      "milestone": "M15"
+      "milestone": "M15",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "guardian"
+      ]
     },
     {
       "name": "CommandPalette",
       "level": "organism",
       "path": "src/components/organisms/CommandPalette.tsx",
       "description": "Cmd+K search overlay with Fuse.js fuzzy search, keyboard navigation, and module-aware results",
-      "milestone": "M16"
+      "milestone": "M16",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "Toast",
       "level": "atom",
       "path": "src/components/atoms/Toast.tsx",
       "description": "Toast notification system with auto-dismiss, severity variants, enter animation, and stacking",
-      "milestone": "M17"
+      "milestone": "M17",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "NotificationCenter",
       "level": "organism",
       "path": "src/components/organisms/NotificationCenter.tsx",
       "description": "Slide-in notification panel with category filters, unread indicators, mark-read, and navigate actions",
-      "milestone": "M17"
+      "milestone": "M17",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "connector",
+        "guardian"
+      ]
     },
     {
       "name": "ConnectionStatus",
       "level": "atom",
       "path": "src/components/atoms/ConnectionStatus.tsx",
       "description": "WebSocket connection indicator with colored dot and reconnecting pulse animation",
-      "milestone": "M18"
+      "milestone": "M18",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "PresenceAvatars",
       "level": "molecule",
       "path": "src/components/molecules/PresenceAvatars.tsx",
       "description": "Stacked user avatars with online/away/busy status dots for workspace presence",
-      "milestone": "M18"
+      "milestone": "M18",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "strategist"
+      ]
     },
     {
       "name": "OttoChat",
       "level": "organism",
       "path": "src/components/organisms/OttoChat.tsx",
       "description": "AI chat interface with message bubbles, markdown rendering, quick suggestions, and streaming simulation",
-      "milestone": "M19"
+      "milestone": "M19",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "OttoDrawer",
       "level": "organism",
       "path": "src/components/organisms/OttoDrawer.tsx",
       "description": "Slide-in drawer wrapper for OttoChat accessible via Cmd+J or ModuleBar bot icon",
-      "milestone": "M19"
+      "milestone": "M19",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "QueueHealthCard",
       "level": "molecule",
       "path": "src/components/molecules/QueueHealthCard.tsx",
       "description": "Health status card for a single BullMQ event queue with stats grid",
-      "milestone": "M20"
+      "milestone": "M20",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "architect"
+      ]
     },
     {
       "name": "EventFlowChart",
       "level": "molecule",
       "path": "src/components/molecules/EventFlowChart.tsx",
       "description": "Sparkline bar chart showing events processed per minute with hover tooltips",
-      "milestone": "M20"
+      "milestone": "M20",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "architect"
+      ]
     },
     {
       "name": "DLQTable",
       "level": "organism",
       "path": "src/components/organisms/DLQTable.tsx",
       "description": "Dead letter queue management table with retry, purge, and expandable payload preview",
-      "milestone": "M20"
+      "milestone": "M20",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "EventBusMonitor",
       "level": "organism",
       "path": "src/components/organisms/EventBusMonitor.tsx",
       "description": "Event bus admin dashboard with queue health grid, event flow, DLQ, and routing table",
-      "milestone": "M20"
+      "milestone": "M20",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "architect"
+      ]
     },
     {
       "name": "ConversationListItem",
       "level": "molecule",
       "path": "src/components/molecules/ConversationListItem.tsx",
       "description": "Single conversation row with type-specific icon, preview, time, and unread badge",
-      "milestone": "M21"
+      "milestone": "M21",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "executor"
+      ]
     },
     {
       "name": "ConversationList",
       "level": "organism",
       "path": "src/components/organisms/ConversationList.tsx",
       "description": "Searchable conversation list with module/global scope toggle",
-      "milestone": "M21"
+      "milestone": "M21",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "executor"
+      ]
     },
     {
       "name": "ChatView",
       "level": "organism",
       "path": "src/components/organisms/ChatView.tsx",
       "description": "Chat interface with message list, date separators, typing indicator, and composer",
-      "milestone": "M21"
+      "milestone": "M21",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "executor"
+      ]
     },
     {
       "name": "MessengerDrawer",
       "level": "organism",
       "path": "src/components/organisms/MessengerDrawer.tsx",
       "description": "340px slide-over drawer for Messenger dock tool with conversation list and chat views",
-      "milestone": "M21"
+      "milestone": "M21",
+      "slot": "shell",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "executor"
+      ]
     },
     {
       "name": "MeetingCard",
       "level": "molecule",
       "path": "src/components/molecules/MeetingCard.tsx",
       "description": "Meeting entry card with date, participants, status badge, and action buttons (upcoming/past variants)",
-      "milestone": "M22"
+      "milestone": "M22",
+      "slot": "control",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "strategist"
+      ]
     },
     {
       "name": "MeetingSummaryCard",
       "level": "molecule",
       "path": "src/components/molecules/MeetingSummaryCard.tsx",
       "description": "AI meeting summary display with bullets, key decisions, action items, topics, and sentiment",
-      "milestone": "M22"
+      "milestone": "M22",
+      "slot": "control",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "connector",
+        "strategist"
+      ]
     },
     {
       "name": "MeetingsPanel",
       "level": "organism",
       "path": "src/components/organisms/MeetingsPanel.tsx",
       "description": "Meetings tab for vault Control panel with upcoming/past meeting lists and action buttons",
-      "milestone": "M22"
+      "milestone": "M22",
+      "slot": "control",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "strategist"
+      ]
     },
     {
       "name": "PrepBriefPanel",
       "level": "organism",
       "path": "src/components/organisms/PrepBriefPanel.tsx",
       "description": "Pre-meeting intelligence brief with attendee profiles, related meetings, vaults, tasks, and topic threads",
-      "milestone": "M22"
+      "milestone": "M22",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "strategist",
+        "connector",
+        "analyst"
+      ]
     },
     {
       "name": "TranscriptViewer",
       "level": "organism",
       "path": "src/components/organisms/TranscriptViewer.tsx",
       "description": "Post-meeting transcript viewer with summary/transcript tabs, search, speaker labels, and action item highlighting",
-      "milestone": "M22"
+      "milestone": "M22",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "strategist"
+      ]
     },
     {
       "name": "WorkflowNode",
       "level": "molecule",
       "path": "src/components/molecules/WorkflowNode.tsx",
       "description": "Custom React Flow node with category-colored styling, icon mapping, and branch handle support",
-      "milestone": "M23"
+      "milestone": "M23",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "conductor",
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "analyst"
+      ]
     },
     {
       "name": "WorkflowNodeSidebar",
       "level": "molecule",
       "path": "src/components/molecules/WorkflowNodeSidebar.tsx",
       "description": "Draggable node palette sidebar grouped by category with search filtering",
-      "milestone": "M23"
+      "milestone": "M23",
+      "slot": "signal",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "conductor",
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "executor"
+      ]
     },
     {
       "name": "WorkflowCanvas",
       "level": "organism",
       "path": "src/components/organisms/WorkflowCanvas.tsx",
       "description": "React Flow canvas with node palette sidebar, dark-themed controls, minimap, and smoothstep edges",
-      "milestone": "M23"
+      "milestone": "M23",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "conductor",
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "strategist"
+      ]
     },
     {
       "name": "WorkflowList",
       "level": "organism",
       "path": "src/components/organisms/WorkflowList.tsx",
       "description": "Workflow table with category filter pills, status badges, run counts, and builder launch",
-      "milestone": "M23"
+      "milestone": "M23",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "conductor",
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "executor"
+      ]
     },
     {
       "name": "WorkflowBuilder",
       "level": "template",
       "path": "src/components/templates/WorkflowBuilder.tsx",
       "description": "Full workflow builder layout with toolbar, canvas, and status bar",
-      "milestone": "M23"
+      "milestone": "M23",
+      "slot": "orchestrate",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "conductor",
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "strategist"
+      ]
     },
     {
       "name": "OnboardingChecklist",
       "level": "molecule",
       "path": "src/components/molecules/OnboardingChecklist.tsx",
       "description": "Getting started checklist widget with progress bar and dismissable items",
-      "milestone": "M24"
+      "milestone": "M24",
+      "slot": "signal",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "guardian"
+      ]
     },
     {
       "name": "WelcomeModal",
       "level": "organism",
       "path": "src/components/organisms/WelcomeModal.tsx",
       "description": "Role-specific 3-slide welcome modal with dot navigation for first-time users",
-      "milestone": "M24"
+      "milestone": "M24",
+      "slot": "shell",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     },
     {
       "name": "SetupWizard",
       "level": "template",
       "path": "src/components/templates/SetupWizard.tsx",
       "description": "5-step workspace setup wizard with module config, team invites, and data source selection",
-      "milestone": "M24"
+      "milestone": "M24",
+      "slot": "shell",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "architect"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "executor"
+      ]
+    },
+    {
+      "name": "EntityLookupPanel",
+      "level": "molecule",
+      "path": "src/components/molecules/EntityLookupPanel.tsx",
+      "description": "Search + resolve entity references against known data with confidence indicators",
+      "slot": "signal",
+      "skillBinding": "entity-lookup",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "architect"
+      ]
+    },
+    {
+      "name": "ConfidencePanel",
+      "level": "molecule",
+      "path": "src/components/molecules/ConfidencePanel.tsx",
+      "description": "AI extraction confidence score breakdown with field-level reasoning and accept/reject actions",
+      "slot": "signal",
+      "skillBinding": "confidence-explainer",
+      "chamberAffinity": [
+        "discover"
+      ],
+      "roleAccess": [
+        "builder"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "guardian"
+      ]
+    },
+    {
+      "name": "FlagAction",
+      "level": "atom",
+      "path": "src/components/atoms/FlagAction.tsx",
+      "description": "One-click handoff signal \u2014 raises RFI/correction/anomaly flag to Gatekeeper queue",
+      "slot": "signal",
+      "skillBinding": "flag-for-gatekeeper",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder"
+      ],
+      "cognitiveAffinity": [
+        "guardian",
+        "executor"
+      ]
+    },
+    {
+      "name": "FieldSuggestionOverlay",
+      "level": "molecule",
+      "path": "src/components/molecules/FieldSuggestionOverlay.tsx",
+      "description": "Inline AI field value suggestions with accept/reject/modify affordances",
+      "slot": "orchestrate",
+      "skillBinding": "field-suggestions",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "analyst"
+      ]
+    },
+    {
+      "name": "ExternalLookupPanel",
+      "level": "molecule",
+      "path": "src/components/molecules/ExternalLookupPanel.tsx",
+      "description": "External data lookup panel \u2014 CRM, Spotify, ASCAP, registry integrations",
+      "slot": "control",
+      "skillBinding": "lookup",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "analyst"
+      ]
+    },
+    {
+      "name": "EntityGraphView",
+      "level": "organism",
+      "path": "src/components/organisms/EntityGraphView.tsx",
+      "description": "Interactive entity relationship graph \u2014 nodes, edges, relationship types",
+      "slot": "orchestrate",
+      "skillBinding": "entity-graph",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "strategist",
+        "analyst"
+      ]
+    },
+    {
+      "name": "AliasMappingPanel",
+      "level": "molecule",
+      "path": "src/components/molecules/AliasMappingPanel.tsx",
+      "description": "Map field name variations and entity aliases to canonical Airlock standard",
+      "slot": "control",
+      "skillBinding": "alias-mapper",
+      "chamberAffinity": [
+        "discover",
+        "build"
+      ],
+      "roleAccess": [
+        "builder",
+        "conductor"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "architect"
+      ]
+    },
+    {
+      "name": "DiffViewer",
+      "level": "organism",
+      "path": "src/components/organisms/DiffViewer.tsx",
+      "description": "Side-by-side vault version comparison with field-level change highlighting",
+      "slot": "orchestrate",
+      "skillBinding": "diff-view",
+      "chamberAffinity": [
+        "review"
+      ],
+      "roleAccess": [
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "guardian",
+        "analyst"
+      ]
+    },
+    {
+      "name": "RFIComposer",
+      "level": "molecule",
+      "path": "src/components/molecules/RFIComposer.tsx",
+      "description": "Structured RFI composer with type selector, field reference, and assignment",
+      "slot": "signal",
+      "skillBinding": "rfi-builder",
+      "chamberAffinity": [
+        "review"
+      ],
+      "roleAccess": [
+        "gatekeeper"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "guardian"
+      ]
+    },
+    {
+      "name": "StakeholderPanel",
+      "level": "molecule",
+      "path": "src/components/molecules/StakeholderPanel.tsx",
+      "description": "Stakeholder identification and notification management with role-aware contacts",
+      "slot": "control",
+      "skillBinding": "stakeholder-map",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "connector",
+        "strategist"
+      ]
+    },
+    {
+      "name": "GateStatusPanel",
+      "level": "molecule",
+      "path": "src/components/molecules/GateStatusPanel.tsx",
+      "description": "Gate condition check results \u2014 pass/fail per condition with actionable failure messages",
+      "slot": "signal",
+      "skillBinding": "gate-validator",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "guardian",
+        "executor"
+      ]
+    },
+    {
+      "name": "RecipeEditor",
+      "level": "organism",
+      "path": "src/components/organisms/RecipeEditor.tsx",
+      "description": "Bird's-eye node flow editor for Conductors \u2014 reorder steps, configure skills, set gate conditions",
+      "slot": "orchestrate",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "conductor"
+      ],
+      "cognitiveAffinity": [
+        "architect",
+        "guardian"
+      ]
+    },
+    {
+      "name": "TaskRunner",
+      "level": "organism",
+      "path": "src/components/organisms/TaskRunner.tsx",
+      "description": "Blinders-on step-by-step recipe executor in Signal panel \u2014 current node, progress, available skills",
+      "slot": "signal",
+      "chamberAffinity": [
+        "discover",
+        "build",
+        "review",
+        "ship"
+      ],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner"
+      ],
+      "cognitiveAffinity": [
+        "executor",
+        "analyst"
+      ]
+    },
+    {
+      "name": "InviteLanding",
+      "level": "organism",
+      "path": "src/components/organisms/InviteLanding.tsx",
+      "description": "Single-use invite link landing page \u2014 previews role and vault types, redeems token on accept",
+      "slot": "shell",
+      "chamberAffinity": [],
+      "roleAccess": [
+        "builder",
+        "gatekeeper",
+        "owner",
+        "conductor",
+        "viewer"
+      ],
+      "cognitiveAffinity": [
+        "analyst",
+        "executor",
+        "strategist",
+        "connector",
+        "guardian",
+        "architect"
+      ]
     }
   ]
 }

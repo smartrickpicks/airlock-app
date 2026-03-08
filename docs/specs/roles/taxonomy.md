@@ -98,23 +98,72 @@ Does NOT control: permissions, vault visibility, chamber access.
 
 ## Layer 4 — Skills
 
+**Skills are `function + UI component` — not just capabilities.** When a Conductor assigns a skill to a recipe node, they are composing the UI that renders inside the Triptych when the user reaches that node. The Triptych shell is fixed and inviolable (like Replit's editor container). The contents of each panel are assembled from skill renders.
+
+```
+skill = capability (what the AI/agent does)
+      + render spec (what component renders, in which Triptych slot)
+
+Conductor assigns skill to node
+  → user reaches node in task runner
+  → Triptych renders skill's component in its designated slot
+  → different conductors = different UI inside the same container
+```
+
+### The three constraints that never break
+
+| Constraint | What it means |
+|-----------|--------------|
+| **Container** | Triptych shell (Signal \| Orchestrate \| Control) is fixed — never broken or bypassed |
+| **Catalog** | Skills must come from the approved skill library — no arbitrary UI injection |
+| **Schema** | Skill props must conform to the component schema — validated render spec |
+
+This is the generative UI thesis applied to Airlock. The Conductor is composing interfaces from skill blocks, not writing code. The user experiences a custom UI without knowing it was assembled.
+
 Composable capabilities. Additive on top of archetype defaults. Conductor assigns skills to recipe nodes. Multiple skills can be active at any node.
+
+### Skill render spec (shape of every skill)
+
+Each skill in the catalog defines both its capability and its render target:
+
+```json
+{
+  "id": "entity-lookup",
+  "capability": "Search and resolve entity references against known data",
+  "slot": "signal",
+  "component": "EntityLookupPanel",
+  "props": {
+    "searchable": true,
+    "showConfidence": true,
+    "maxResults": 10
+  },
+  "archetypeAffinity": ["analyst", "architect"],
+  "chamberAffinity": ["discover", "build"]
+}
+```
+
+**Slots** map to Triptych panels:
+- `signal` — left panel (task runner, alerts, active skill actions)
+- `orchestrate` — center panel (primary work surface, data entry, editing)
+- `control` — right panel (context, config, metadata, relationships)
+
+A recipe node can have multiple skills across multiple slots. The Triptych composes them all simultaneously — one skill renders in Signal, another in Control, another surfaces actions in Orchestrate.
 
 ### Skill catalog (v1)
 
-| Skill | Description |
-|-------|-------------|
-| `entity-lookup` | Search and resolve entity references against known data |
-| `confidence-explainer` | Explain AI extraction confidence scores with reasoning |
-| `flag-for-gatekeeper` | Raise a handoff signal to the Review queue |
-| `field-suggestions` | AI-suggested values for incomplete fields |
-| `lookup` | External data lookup (CRM, registry, Spotify, ASCAP, etc.) |
-| `entity-graph` | Visualize entity relationship network |
-| `alias-mapper` | Map alternate names/spellings to canonical entities |
-| `diff-view` | Side-by-side comparison of vault versions |
-| `rfi-builder` | Compose and send a Request for Information |
-| `stakeholder-map` | Identify and notify relevant stakeholders |
-| `gate-validator` | Run gate condition checks and surface results |
+| Skill | Slot | Component rendered | Description |
+|-------|------|--------------------|-------------|
+| `entity-lookup` | signal | `EntityLookupPanel` | Search and resolve entity references |
+| `confidence-explainer` | signal | `ConfidencePanel` | Explain AI extraction scores with reasoning |
+| `flag-for-gatekeeper` | signal | `FlagAction` | Raise a handoff signal to the Review queue |
+| `field-suggestions` | orchestrate | `FieldSuggestionOverlay` | AI-suggested values inline on fields |
+| `lookup` | control | `ExternalLookupPanel` | External data (CRM, Spotify, ASCAP, registry) |
+| `entity-graph` | orchestrate | `EntityGraphView` | Visualize entity relationship network |
+| `alias-mapper` | control | `AliasMappingPanel` | Map name variations to canonical entities |
+| `diff-view` | orchestrate | `DiffViewer` | Side-by-side vault version comparison |
+| `rfi-builder` | signal | `RFIComposer` | Compose and send a Request for Information |
+| `stakeholder-map` | control | `StakeholderPanel` | Identify and notify relevant stakeholders |
+| `gate-validator` | signal | `GateStatusPanel` | Run gate checks and surface pass/fail results |
 
 ### Archetype default skill loadout (5–10 per archetype)
 
@@ -380,10 +429,16 @@ Use Airlock's own CRM module to run Airlock's sales pipeline. The product IS the
 
 ---
 
+## Resolved Questions
+
+| Question | Answer |
+|----------|--------|
+| Can a Member hold roles from multiple playbooks simultaneously? | **Yes** — cross-playbook membership is supported. A person can be Builder in Contract Review AND Builder in Sales Discovery. |
+| Can a playbook be installed more than once with different configs? | **Yes if needed** — e.g., "Contract Review — US" and "Contract Review — EU" as separate named instances. Each gets its own `workspace_recipes` copy. |
+| Is the Conductor skill creation UI node-based or form-based? | **Hybrid** — form-based for simple skills (field mapping, routing rules), node-based canvas (ReactFlow, evolved from WorkflowBuilder) for complex multi-step skills and chains. |
+| Does archetype affect recipe nodes or only skill behavior? | Skills are the UI renders — archetype shapes which skills are in the default loadout and how they render, not which nodes exist. (Phase 4 may add node-level affinity.) |
+
 ## Open Questions
 
-- Can a Member hold roles from multiple playbooks simultaneously? (answer: yes — cross-playbook membership is supported)
-- Can a playbook be installed more than once with different configurations (e.g., "Contract Review — US" and "Contract Review — EU")?
-- Does archetype affect which recipe nodes are shown, or only how skills behave at each node? (Phase 4)
 - Schema adapter / org mapping: how do customer job titles map to Airlock roles during workspace setup? (separate spec)
-- What is the UI for Conductor skill creation? Node-based (n8n-style) or form-based?
+- Playbook instance naming: how does the Architect name/distinguish multiple instances of the same playbook type?
