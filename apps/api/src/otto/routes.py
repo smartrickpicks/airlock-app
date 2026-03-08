@@ -55,6 +55,10 @@ class ChatRequest(BaseModel):
     provider_config: ProviderConfig | None = None
     module: str | None = None  # contracts | crm | tasks | calendar | documents
     chamber: str | None = None  # discover | build | review | ship
+    # Agent graph fields
+    surface: str = "task_runner"  # task_runner | messenger | context_menu
+    recipe_id: str | None = None
+    node_index: int | None = None
 
 
 def _resolve_provider(pc: ProviderConfig | None) -> tuple[str, str, str]:
