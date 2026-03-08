@@ -78,3 +78,73 @@ OTTO_CALIBRATION: dict[str, int | float | str] = {
 def is_otto_enabled() -> bool:
     """Check if Otto is enabled and circuit breaker is not open."""
     return OTTO_FEATURE_FLAGS.get("otto.enabled", True) and not otto_circuit_breaker.is_open
+
+
+# ─── Execution Tier Config ───────────────────────────────────────────
+
+from dataclasses import dataclass, field  # noqa: E402
+
+
+@dataclass
+class TierSettings:
+    """Settings for a single execution tier."""
+
+    enabled: bool = False
+    provider: str = ""
+    model: str = ""
+    base_url: str = ""
+    max_tokens: int = 512
+    confidence_threshold: float = 0.85
+
+
+@dataclass
+class ExecutionTierConfig:
+    """Feature-flagged execution tiers per workspace."""
+
+    tiers: dict[str, TierSettings] = field(default_factory=dict)
+    fallback_order: list[str] = field(default_factory=list)
+
+
+def default_tier_config() -> ExecutionTierConfig:
+    """Default config: deterministic + cloud, no local."""
+    return ExecutionTierConfig(
+        tiers={
+            "deterministic": TierSettings(
+                enabled=True,
+                confidence_threshold=0.85,
+            ),
+            "local_llm": TierSettings(
+                enabled=False,
+                provider="ollama",
+                model="mistral:7b-instruct",
+                base_url="http://localhost:11434",
+                max_tokens=512,
+            ),
+            "cloud_llm": TierSettings(
+                enabled=True,
+                provider="anthropic",
+                model="claude-sonnet-4-6",
+                max_tokens=2048,
+            ),
+        },
+        fallback_order=["deterministic", "local_llm", "cloud_llm"],
+    )
+
+
+def validate_tier_config(config: ExecutionTierConfig) -> list[str]:
+    """Validate tier config. Returns list of errors/warnings."""
+    errors: list[str] = []
+    enabled = [t for t in config.fallback_order if config.tiers[t].enabled]
+
+    if not enabled:
+        errors.append("At least one execution tier must be enabled")
+
+    if config.tiers["local_llm"].enabled and not config.tiers["local_llm"].base_url:
+        errors.append("Local LLM enabled but no base_url configured")
+
+    if enabled == ["deterministic"]:
+        errors.append(
+            "WARN: Only deterministic tier enabled — Otto will not respond to freeform questions"
+        )
+
+    return errors
