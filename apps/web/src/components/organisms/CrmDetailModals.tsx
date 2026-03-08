@@ -43,7 +43,7 @@ export function AccountDetailModal({
   const workspace = account.accountMemory;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Account Detail" size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Account Detail" size="lg">
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between gap-3">
           <div>

@@ -14,7 +14,10 @@ export type CalendarEventType =
   | "renewal_deadline"
   | "expiration"
   | "task_due"
-  | "sla_warning";
+  | "sla_warning"
+  | "review_checkpoint"
+  | "contract_prep"
+  | "follow_up";
 
 export type CalendarEventSource = "contracts" | "crm" | "tasks" | "calendar";
 
@@ -67,6 +70,21 @@ export const EVENT_TYPE_CONFIG: Record<
     label: "SLA Warning",
     color: "bg-red-500/20 text-red-300",
     dotColor: "bg-red-400",
+  },
+  review_checkpoint: {
+    label: "Review Checkpoint",
+    color: "bg-chamber-review/20 text-chamber-review",
+    dotColor: "bg-chamber-review",
+  },
+  contract_prep: {
+    label: "Contract Prep",
+    color: "bg-accent-secondary/20 text-accent-secondary",
+    dotColor: "bg-accent-secondary",
+  },
+  follow_up: {
+    label: "Follow Up",
+    color: "bg-accent-primary/20 text-accent-primary",
+    dotColor: "bg-accent-primary",
   },
 };
 

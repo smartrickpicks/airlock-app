@@ -18,9 +18,13 @@ export type LeadStage = "new" | "mql" | "sal" | "sql";
 export type LeadSource =
   | "contract_upload"
   | "web_form"
+  | "website_form"
   | "smart_line"
   | "entity_resolution"
-  | "referral";
+  | "referral"
+  | "manual_rep_entry"
+  | "dedicated_text"
+  | "meeting_transcript";
 
 export type AccountSegment = "enterprise" | "mid_market" | "smb";
 
@@ -45,6 +49,7 @@ export interface AccountMemoryEntry {
   targetLabel?: string;
   workflowName?: string;
   approvalState?: string;
+  linkedArtifactIds?: string[];
 }
 
 export interface AccountArtifact {
@@ -53,6 +58,30 @@ export interface AccountArtifact {
   type: string;
   status: string;
   updatedAt: string;
+}
+
+export interface Stakeholder {
+  id: string;
+  contactId?: string;
+  name: string;
+  roleTitle: string;
+  stakeholderRole: StakeholderRole;
+  influence: string;
+  status: string;
+  sentiment: string;
+  decisionRole: string;
+  ownerName: string;
+  notes: string;
+  channelLabels: string[];
+  lastTouched: string;
+}
+
+export interface StakeholderGroup {
+  id: string;
+  name: string;
+  description: string;
+  members: string[];
+  channelModes: string[];
 }
 
 export interface AccountMemoryWorkspaceData {
@@ -64,8 +93,8 @@ export interface AccountMemoryWorkspaceData {
   nextRecommendedAction: string;
   stakeholderGap?: string;
   thread: AccountMemoryEntry[];
-  stakeholders: unknown[];
-  stakeholderGroups: unknown[];
+  stakeholders: Stakeholder[];
+  stakeholderGroups: StakeholderGroup[];
   artifacts: AccountArtifact[];
   aiAssist: { id: string; title: string; detail: string; confidence: string }[];
 }
@@ -74,6 +103,8 @@ export interface CrmContact {
   id: string;
   name: string;
   role: string;
+  email?: string;
+  phone?: string;
   interactionCount: number;
   lastInteraction: string;
 }
@@ -91,6 +122,11 @@ export interface CrmAccount {
   currentChamber?: string;
   contractReadiness?: string;
   accountMemory?: AccountMemoryWorkspaceData;
+  latestSummary?: string;
+  workflowName?: string;
+  primaryOwnerName?: string;
+  pendingGateCount?: number;
+  nextRecommendedAction?: string;
 }
 
 export interface CrmDeal {
@@ -106,6 +142,13 @@ export interface CrmDeal {
   daysInStage: number;
   progressPercent: number;
   nextTask: string | null;
+  currentChamber?: string;
+  contractReadiness?: string;
+  latestSummary?: string;
+  nextRecommendedAction?: string;
+  workflowName?: string;
+  pendingGateCount?: number;
+  intakeSource?: LeadSource;
 }
 
 export interface CrmLead {
@@ -117,6 +160,11 @@ export interface CrmLead {
   stage: LeadStage;
   assignedRep: string | null;
   ageDays: number;
+  currentChamber?: string;
+  contractReadiness?: string;
+  latestSummary?: string;
+  nextRecommendedAction?: string;
+  workflowName?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -146,9 +194,13 @@ export const PIPELINE_STAGES: {
 export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
   contract_upload: "Contract Upload",
   web_form: "Web Form",
+  website_form: "Website Form",
   smart_line: "Smart Line",
   entity_resolution: "Entity Resolution",
   referral: "Referral",
+  manual_rep_entry: "Manual Rep Entry",
+  dedicated_text: "Dedicated Text",
+  meeting_transcript: "Meeting Transcript",
 };
 
 export const LEAD_STAGE_CONFIG: Record<

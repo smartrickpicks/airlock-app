@@ -52,6 +52,7 @@ export interface Task {
   dueAt: string | null;
   createdAt: string;
   updatedAt: string;
+  workflowName?: string;
 }
 
 // --- Config maps ---

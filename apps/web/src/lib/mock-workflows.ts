@@ -28,7 +28,11 @@ export type TriggerType =
   | "webhook"
   | "manual"
   | "attachment_received"
-  | "threshold_crossed";
+  | "threshold_crossed"
+  | "meeting_transcript_ready"
+  | "contract_qualification_reached"
+  | "follow_up_due"
+  | "no_response_timeout";
 
 export type NodeCategory = "trigger" | "function" | "action";
 
@@ -54,7 +58,16 @@ export type WorkflowNodeType =
   | "start_workflow"
   | "set_sla"
   | "log_event"
-  | "conversational_ask";
+  | "conversational_ask"
+  | "dedicated_text_trigger"
+  | "website_form_trigger"
+  | "lead_stage_trigger"
+  | "manual_discovery_trigger"
+  | "follow_up_due_trigger"
+  | "meeting_transcript_trigger"
+  | "no_response_timeout_trigger"
+  | "contract_qualification_trigger"
+  | "create_task_bundle";
 
 export type RunStatus =
   | "running"
@@ -278,6 +291,10 @@ export const TRIGGER_TYPE_LABELS: Record<TriggerType, string> = {
   manual: "Manual",
   attachment_received: "Attachment",
   threshold_crossed: "Threshold",
+  meeting_transcript_ready: "Meeting Transcript Ready",
+  contract_qualification_reached: "Contract Qualification Reached",
+  follow_up_due: "Follow-up Due",
+  no_response_timeout: "No Response Timeout",
 };
 
 export const CATEGORY_LABELS: Record<WorkflowCategory, string> = {
