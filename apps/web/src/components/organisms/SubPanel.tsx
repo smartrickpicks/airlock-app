@@ -150,7 +150,7 @@ export default function SubPanel() {
         {isAdmin ? (
           <>
             {/* Admin header */}
-            <div className="theme-panel-main flex h-12 flex-shrink-0 items-center border-b border-surface-border px-4">
+            <div className="flex h-12 flex-shrink-0 items-center border-b border-surface-border px-4">
               <span className="text-[15px] font-semibold text-text-primary">Admin</span>
             </div>
 
