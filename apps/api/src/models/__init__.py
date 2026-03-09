@@ -5,6 +5,8 @@ from src.models.event import Event
 from src.models.mcp_permission import McpToolPermission
 from src.models.passkey import PasskeyCredential
 from src.models.patch import Patch
+from src.models.playbook_instance import PlaybookInstance
+from src.models.playbook_node_state import PlaybookNodeState
 from src.models.user import User
 from src.models.user_connection import UserConnection
 from src.models.user_module_role import UserModuleRole
@@ -21,6 +23,8 @@ __all__ = [
     "McpToolPermission",
     "PasskeyCredential",
     "Patch",
+    "PlaybookInstance",
+    "PlaybookNodeState",
     "User",
     "UserConnection",
     "UserModuleRole",

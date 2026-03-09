@@ -1,0 +1,81 @@
+playbook:
+  id: "contract-intake"
+  name: "Contract Intake"
+  description: "Standard contract intake from discovery through execution. Guides a vault from initial triage through counterparty research, term extraction, drafting, compliance review, and final distribution."
+  module: "contracts"
+  version: "1.0"
+  team_composition: "Vision + Execution flywheel"
+
+  nodes:
+    - id: "triage"
+      name: "Triage Incoming"
+      description: "Classify the incoming contract by type, urgency, and complexity. Identify key parties and assign risk level."
+      actor: "otto"
+      otto_archetype: "analyst"
+      chamber: "discover"
+      team_type: "adapting"
+      depends_on: []
+
+    - id: "research"
+      name: "Research Counterparty"
+      description: "Investigate the counterparty — company background, financial health, previous deals, and potential risks."
+      actor: "otto"
+      otto_archetype: "strategist"
+      chamber: "discover"
+      team_type: "exploring"
+      depends_on: ["triage"]
+
+    - id: "extract_terms"
+      name: "Extract Terms"
+      description: "Extract key terms, clauses, and obligations from the contract document. Flag non-standard or missing terms."
+      actor: "otto"
+      otto_archetype: "executor"
+      chamber: "build"
+      team_type: "producing"
+      depends_on: ["research"]
+      gate:
+        type: "verification"
+        required_approvals: 1
+        roles: ["gatekeeper"]
+        description: "Verify extracted terms are accurate before drafting"
+
+    - id: "draft_agreement"
+      name: "Draft Agreement"
+      description: "Assemble the contract draft from extracted terms and templates. Fill in standard clauses and highlight areas needing human input."
+      actor: "hybrid"
+      otto_archetype: "executor"
+      chamber: "build"
+      team_type: "executing"
+      depends_on: ["extract_terms"]
+
+    - id: "compliance_review"
+      name: "Compliance Review"
+      description: "Review the draft against organizational standards, regulatory requirements, and precedent deals."
+      actor: "hybrid"
+      otto_archetype: "guardian"
+      chamber: "review"
+      team_type: "stabilizing"
+      depends_on: ["draft_agreement"]
+      gate:
+        type: "approval"
+        required_approvals: 1
+        roles: ["gatekeeper", "owner"]
+        description: "Approve contract for execution"
+
+    - id: "stakeholder_alignment"
+      name: "Stakeholder Alignment"
+      description: "Collect sign-offs from all required internal stakeholders. Ensure all parties are aligned on terms."
+      actor: "human"
+      otto_archetype: "connector"
+      chamber: "review"
+      team_type: "cultivating"
+      depends_on: ["compliance_review"]
+
+    - id: "publish_distribute"
+      name: "Publish & Distribute"
+      description: "Execute the agreement — collect signatures, distribute to counterparties, update CRM records, and archive."
+      actor: "hybrid"
+      otto_archetype: "executor"
+      chamber: "ship"
+      team_type: "pathfinding"
+      depends_on: ["stakeholder_alignment"]
