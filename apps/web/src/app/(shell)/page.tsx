@@ -283,8 +283,9 @@ export default function Home() {
     fetchNotifications();
   }, [fetchVaults, fetchRecentEvents, fetchNotifications]);
 
-  // Show first-upload view when the user hasn't uploaded yet
-  if (!firstUploadDone) {
+  // Show first-upload view when no vaults exist AND user hasn't skipped.
+  // If real vaults are already seeded/created, go straight to Operator Hub.
+  if (!firstUploadDone && vaults.length === 0) {
     return <FirstUploadView />;
   }
 
