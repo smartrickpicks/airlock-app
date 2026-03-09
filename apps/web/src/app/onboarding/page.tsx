@@ -4,24 +4,13 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 
-function provisionDevAuth() {
-  const token = "dev_mock_token";
-  localStorage.setItem("airlock_access_token", token);
-  document.cookie = `airlock_access_token=${token}; path=/; max-age=86400; SameSite=Lax`;
-
-  const { setUser, setOrgRole, setAccessToken } = useAuthStore.getState();
-  setUser({ id: "dev_user_001", email: "dev@airlock.local", name: "Dev User" });
-  setOrgRole("executive");
-  setAccessToken(token);
-}
-
 /**
- * Auth passthrough — provisions dev session, redirects to workspace wizard.
+ * Onboarding entry point — checks auth then redirects to setup wizard.
  * If onboarding is already complete, redirects to home.
- * Future: Google OAuth callback handler.
  */
 export default function OnboardingPage() {
   const router = useRouter();
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     // Skip onboarding if already completed
@@ -30,9 +19,17 @@ export default function OnboardingPage() {
       return;
     }
 
-    provisionDevAuth();
+    // No auth — redirect to login with return URL
+    if (!user) {
+      const token = localStorage.getItem("airlock_access_token");
+      if (!token) {
+        router.replace("/login?next=/onboarding/setup");
+        return;
+      }
+    }
+
     router.replace("/onboarding/setup");
-  }, [router]);
+  }, [router, user]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-base">

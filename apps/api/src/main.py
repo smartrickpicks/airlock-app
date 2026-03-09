@@ -19,6 +19,7 @@ from src.routes.documents import router as document_router
 from src.routes.engines import router as engine_router
 from src.routes.events import router as event_router
 from src.routes.vaults import router as vault_router
+from src.routes.workspaces import router as workspace_router
 from src.workflows.routes import router as workflow_router
 
 
@@ -65,6 +66,7 @@ def create_app() -> FastAPI:
     app.include_router(messenger_router)
     app.include_router(workflow_router)
     app.include_router(mcp_router)
+    app.include_router(workspace_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")

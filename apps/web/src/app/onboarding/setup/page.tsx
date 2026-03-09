@@ -4,10 +4,19 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Rocket } from "lucide-react";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
+import { apiFetch } from "@/lib/api";
+
+interface WorkspaceResponse {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function OnboardingSetupPage() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const initTree = useCapabilityTreeStore((s) => s.initTree);
   const saveNodeConfig = useCapabilityTreeStore((s) => s.saveNodeConfig);
@@ -16,22 +25,62 @@ export default function OnboardingSetupPage() {
     inputRef.current?.focus();
   }, []);
 
-  function handleLaunch() {
+  async function handleLaunch() {
     if (!name.trim()) return;
     const trimmed = name.trim();
-    const slug = trimmed.toLowerCase().replace(/\s+/g, "-");
-    // Clear stale localStorage and reset capability tree
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("airlock_capability_tree");
+    setError("");
+    setLoading(true);
+
+    try {
+      const workspace = await apiFetch<WorkspaceResponse>(
+        "/api/v1/workspaces",
+        {
+          method: "POST",
+          body: JSON.stringify({ name: trimmed }),
+        },
+      );
+
+      // Clear stale localStorage and reset capability tree
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("airlock_capability_tree");
+      }
+      initTree(false);
+      saveNodeConfig("workspace", {
+        name: workspace.name,
+        industry: "",
+        slug: workspace.slug,
+      });
+      saveNodeConfig("data_source", {
+        type: "local",
+        label: "Local File Storage",
+      });
+
+      localStorage.setItem("airlock_onboarding_complete", "true");
+      router.push("/admin");
+    } catch (err) {
+      // Fallback: save locally if API is unavailable
+      const slug = trimmed.toLowerCase().replace(/\s+/g, "-");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("airlock_capability_tree");
+      }
+      initTree(false);
+      saveNodeConfig("workspace", { name: trimmed, industry: "", slug });
+      saveNodeConfig("data_source", {
+        type: "local",
+        label: "Local File Storage",
+      });
+
+      if (err instanceof Error && err.message.includes("409")) {
+        setError("A workspace with that name already exists.");
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem("airlock_onboarding_complete", "true");
+      router.push("/admin");
+    } finally {
+      setLoading(false);
     }
-    initTree(false);
-    // Pre-populate workspace + data source (local file storage assumed)
-    saveNodeConfig("workspace", { name: trimmed, industry: "", slug });
-    saveNodeConfig("data_source", {
-      type: "local",
-      label: "Local File Storage",
-    });
-    router.push("/admin");
   }
 
   return (
@@ -63,15 +112,16 @@ export default function OnboardingSetupPage() {
             placeholder="Acme Records"
             className="w-full rounded-lg border border-surface-border bg-surface-sunken px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:outline-none focus:ring-1 focus:ring-accent-primary"
           />
+          {error && <p className="mt-2 text-xs text-accent-danger">{error}</p>}
         </div>
 
         {/* Launch button */}
         <button
           onClick={handleLaunch}
-          disabled={!name.trim()}
+          disabled={!name.trim() || loading}
           className="mt-6 w-full rounded-lg bg-accent-primary py-3 text-sm font-semibold text-surface-base transition-colors hover:bg-accent-primary-hover disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Launch Workspace
+          {loading ? "Creating..." : "Launch Workspace"}
         </button>
       </div>
     </div>
