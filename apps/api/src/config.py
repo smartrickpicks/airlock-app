@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     # OpenRouter (Otto AI provider)
     openrouter_api_key: str = ""
 
+    # MAGS / Inference Engine
+    persona_repo_path: str = "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-persona"
+
     # App
     debug: bool = False
     environment: str = "development"

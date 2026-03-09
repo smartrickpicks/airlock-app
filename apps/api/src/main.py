@@ -19,6 +19,10 @@ from src.routes.crm import router as crm_router
 from src.routes.documents import router as document_router
 from src.routes.engines import router as engine_router
 from src.routes.events import router as event_router
+from src.routes.inference import init_inference_engine
+from src.routes.inference import router as inference_router
+from src.routes.mags import router as mags_router
+from src.routes.profile import router as profile_router
 from src.routes.tasks import router as tasks_router
 from src.routes.vaults import router as vault_router
 from src.routes.workspaces import router as workspace_router
@@ -28,7 +32,8 @@ from src.workflows.routes import router as workflow_router
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown events."""
-    # Startup
+    # Startup — cache airlock-persona profiles for inference engine
+    init_inference_engine()
     yield
     # Shutdown
 
@@ -71,6 +76,9 @@ def create_app() -> FastAPI:
     app.include_router(workspace_router)
     app.include_router(crm_router)
     app.include_router(tasks_router)
+    app.include_router(inference_router)
+    app.include_router(profile_router)
+    app.include_router(mags_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
