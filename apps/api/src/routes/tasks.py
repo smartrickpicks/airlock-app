@@ -1,6 +1,6 @@
 """Tasks module routes — queries task-type vaults across all modules."""
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -33,7 +33,7 @@ def _map_status(status: str) -> str:
 
 
 @router.get("")
-def list_tasks(
+async def list_tasks(
     module_type: str | None = Query(default=None, description="Filter by module"),  # noqa: B008
     status: str | None = Query(default=None, description="Filter by status metadata"),  # noqa: B008
     db: Session = Depends(get_db),  # noqa: B008
@@ -44,9 +44,13 @@ def list_tasks(
     Queries vaults with vault_type='task' (or module_type='triage')
     and reshapes into the Task[] format the frontend expects.
     """
-    workspace_id = current_user.get("workspace_id", "")
+    workspace_id = current_user.get("workspace_id")
+    if not workspace_id:
+        raise HTTPException(status_code=403, detail="No workspace associated")
 
-    stmt = select(Vault).where(Vault.workspace_id == workspace_id).where(Vault.deleted_at.is_(None))
+    stmt = (
+        select(Vault).where(Vault.workspace_id == workspace_id).where(Vault.archived_at.is_(None))
+    )
 
     if module_type:
         stmt = stmt.where(Vault.module_type == module_type)
@@ -59,6 +63,7 @@ def list_tasks(
         )
 
     if status:
+        stmt = stmt.where(Vault.metadata_.isnot(None))
         stmt = stmt.where(Vault.metadata_["status"].astext == status)
 
     vaults = db.execute(stmt).scalars().all()

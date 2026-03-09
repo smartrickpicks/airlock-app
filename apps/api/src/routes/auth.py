@@ -117,9 +117,16 @@ def dev_login(db: Session = Depends(get_db)) -> dict:  # noqa: B008
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     email = "dev@airlock.local"
-    workspace_id = "ws_dev"
 
     from sqlalchemy import select
+
+    from src.models.workspace import Workspace
+
+    # Use the first real workspace if one exists, otherwise fall back to "ws_dev"
+    first_ws = db.execute(
+        select(Workspace).where(Workspace.deleted_at.is_(None)).limit(1)
+    ).scalar_one_or_none()
+    workspace_id = first_ws.id if first_ws else "ws_dev"
 
     stmt = select(User).where(User.email == email)
     user = db.execute(stmt).scalar_one_or_none()
@@ -133,6 +140,11 @@ def dev_login(db: Session = Depends(get_db)) -> dict:  # noqa: B008
             org_role="executive",
         )
         db.add(user)
+        db.commit()
+        db.refresh(user)
+    elif user.workspace_id != workspace_id:
+        # Update dev user to point to real workspace if it was stale
+        user.workspace_id = workspace_id
         db.commit()
         db.refresh(user)
 

@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     litellm_api_base: str = "http://localhost:4000"
     litellm_master_key: str = ""
 
+    # OpenRouter (Otto AI provider)
+    openrouter_api_key: str = ""
+
     # App
     debug: bool = False
     environment: str = "development"

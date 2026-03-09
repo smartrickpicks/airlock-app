@@ -66,7 +66,7 @@ export default function ModuleBar() {
           aria-label="Airlock home"
           onClick={() => {
             setActiveModule("home");
-            router.push("/");
+            router.push("/dispatch");
           }}
         >
           {isHomeActive ? (

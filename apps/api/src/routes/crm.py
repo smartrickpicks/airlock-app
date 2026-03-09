@@ -1,6 +1,6 @@
 """CRM module routes — thin shim over vault queries."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -23,7 +23,7 @@ def _chamber_to_pipeline_stage(chamber: str | None) -> str:
 
 
 @router.get("")
-def get_crm_data(
+async def get_crm_data(
     db: Session = Depends(get_db),  # noqa: B008
     current_user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
@@ -32,13 +32,15 @@ def get_crm_data(
     Queries vaults with module_type='crm' and reshapes into
     accounts, deals, and leads arrays.
     """
-    workspace_id = current_user.get("workspace_id", "")
+    workspace_id = current_user.get("workspace_id")
+    if not workspace_id:
+        raise HTTPException(status_code=403, detail="No workspace associated")
 
     stmt = (
         select(Vault)
         .where(Vault.workspace_id == workspace_id)
         .where(Vault.module_type == "crm")
-        .where(Vault.deleted_at.is_(None))
+        .where(Vault.archived_at.is_(None))
     )
     vaults = db.execute(stmt).scalars().all()
 
