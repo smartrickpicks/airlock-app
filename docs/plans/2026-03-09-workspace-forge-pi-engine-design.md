@@ -648,4 +648,4 @@ Playbook templates loaded from airlock-playbooks (filtered by team type needs)
 - Parasuraman, Sheridan & Wickens (2000): Levels of automation
 - Shneiderman's 2D HCAI Framework (2020): High automation + high control coexist
 - Bainbridge's Ironies of Automation (1983): Justification for Gates
-- Spellburst (Stanford, ACM CHI 2023): Chat → canvas UX pattern precedent
+- Spellburst (Stanford/Replit, ACM UIST 2023): Chat → canvas UX pattern precedent
