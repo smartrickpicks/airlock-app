@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAdminStore } from "@/stores/admin.store";
 import {
   MEMBER_STATUS_CONFIG,
@@ -218,6 +219,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
 // ─── Main component ───────────────────────────────────────────────────
 
 export default function MembersTable() {
+  const router = useRouter();
   const { members, updateMemberRole } = useAdminStore();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showInvite, setShowInvite] = useState(false);
@@ -268,6 +270,9 @@ export default function MembersTable() {
               </th>
               <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Last Active
+              </th>
+              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                Actions
               </th>
             </tr>
           </thead>
@@ -379,12 +384,27 @@ export default function MembersTable() {
                     <td className="px-4 py-3 text-xs text-text-muted">
                       {relativeTime(member.lastActiveAt)}
                     </td>
+
+                    {/* Actions */}
+                    <td
+                      className="px-4 py-3"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() =>
+                          router.push(`/admin/members/${member.id}`)
+                        }
+                        className="rounded px-2 py-1 text-xs font-medium text-accent-primary hover:bg-accent-primary/10"
+                      >
+                        View
+                      </button>
+                    </td>
                   </tr>
 
                   {/* Expanded module role editor */}
                   {isExpanded && (
                     <tr key={`${member.id}-expanded`}>
-                      <td colSpan={6} className="p-0">
+                      <td colSpan={7} className="p-0">
                         <ModuleRoleEditor member={member} />
                       </td>
                     </tr>
