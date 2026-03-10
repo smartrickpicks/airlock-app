@@ -21,6 +21,7 @@ from src.routes.engines import router as engine_router
 from src.routes.events import router as event_router
 from src.routes.inference import init_inference_engine
 from src.routes.inference import router as inference_router
+from src.routes.invites import router as invite_router
 from src.routes.mags import router as mags_router
 from src.routes.playbooks import router as playbook_router
 from src.routes.profile import router as profile_router
@@ -81,6 +82,7 @@ def create_app() -> FastAPI:
     app.include_router(profile_router)
     app.include_router(mags_router)
     app.include_router(playbook_router)
+    app.include_router(invite_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
