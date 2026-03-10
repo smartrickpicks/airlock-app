@@ -26,34 +26,15 @@ export default function JoinPage() {
   }) => {
     if (!credentialResponse.credential) return;
 
-    try {
-      const result = await acceptInvite(token, credentialResponse.credential);
+    const result = await acceptInvite(token, credentialResponse.credential);
 
-      hydrateFromLoginResponse({
-        access_token: `invite_${token.slice(0, 16)}`,
-        refresh_token: `refresh_${token.slice(0, 16)}`,
-        user: {
-          id: `user_${Date.now()}`,
-          email: invite?.email || "user@example.com",
-          display_name: invite?.email?.split("@")[0] || "New Member",
-          org_role: "member",
-        },
-      });
+    hydrateFromLoginResponse({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+      user: result.user,
+    });
 
-      router.push(result.redirect_to);
-    } catch {
-      hydrateFromLoginResponse({
-        access_token: "invite_dev_token",
-        refresh_token: "invite_dev_refresh",
-        user: {
-          id: "invite_user_001",
-          email: invite?.email || "invited@example.com",
-          display_name: invite?.email?.split("@")[0] || "New Member",
-          org_role: "member",
-        },
-      });
-      router.push("/forge");
-    }
+    router.push(result.redirect_to);
   };
 
   const handleDevJoin = () => {

@@ -9,6 +9,18 @@ interface InviteInfo {
   expires_at: string;
 }
 
+interface AcceptResult {
+  redirect_to: string;
+  access_token: string;
+  refresh_token: string;
+  user: {
+    id: string;
+    email: string;
+    display_name: string;
+    org_role: string;
+  };
+}
+
 interface InviteState {
   invite: InviteInfo | null;
   isLoading: boolean;
@@ -19,7 +31,7 @@ interface InviteState {
   acceptInvite: (
     token: string,
     googleCredential: string,
-  ) => Promise<{ redirect_to: string }>;
+  ) => Promise<AcceptResult>;
   reset: () => void;
 }
 
@@ -52,26 +64,29 @@ export const useInviteStore = create<InviteState>((set) => ({
   acceptInvite: async (token: string, googleCredential: string) => {
     set({ isAccepting: true });
     try {
-      const data = await apiFetch<{
-        redirect_to: string;
-        access_token: string;
-        refresh_token: string;
-        user: {
-          id: string;
-          email: string;
-          display_name: string;
-          org_role: string;
-        };
-      }>(`/api/v1/invites/${token}/accept`, {
-        method: "POST",
-        body: JSON.stringify({ google_credential: googleCredential }),
-      });
+      const data = await apiFetch<AcceptResult>(
+        `/api/v1/invites/${token}/accept`,
+        {
+          method: "POST",
+          body: JSON.stringify({ google_credential: googleCredential }),
+        },
+      );
       set({ isAccepting: false });
-      return { redirect_to: data.redirect_to || "/forge" };
+      return data;
     } catch {
-      // Dev fallback
+      // Dev fallback — mock auth response
       set({ isAccepting: false });
-      return { redirect_to: "/forge" };
+      return {
+        redirect_to: "/forge",
+        access_token: `invite_${token.slice(0, 16)}`,
+        refresh_token: `refresh_${token.slice(0, 16)}`,
+        user: {
+          id: `invite_user_${Date.now()}`,
+          email: "invited@example.com",
+          display_name: "New Member",
+          org_role: "member",
+        },
+      };
     }
   },
 
