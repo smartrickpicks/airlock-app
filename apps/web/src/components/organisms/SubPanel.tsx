@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   AlertTriangle,
@@ -34,10 +34,22 @@ import CreateVaultModal from "@/components/molecules/CreateVaultModal";
 import ChamberLabel from "@/components/atoms/ChamberLabel";
 import PinnedChannel from "@/components/molecules/PinnedChannel";
 import VaultItem from "@/components/molecules/VaultItem";
+import VaultContextMenu from "@/components/molecules/VaultContextMenu";
 import { useModuleStore } from "@/stores/module.store";
 import { useVaultStore } from "@/stores/vault.store";
+import { useNotificationStore } from "@/stores/notification.store";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
+import { useRealtimeStore } from "@/stores/realtime.store";
 import { MODULES, CHAMBERS, type ChamberName } from "@/lib/constants";
+
+type GroupingMode = "chamber" | "entity" | "status" | "lifecycle";
+
+const GROUPING_OPTIONS: { value: GroupingMode; label: string }[] = [
+  { value: "chamber", label: "By Chamber" },
+  { value: "entity", label: "By Entity" },
+  { value: "status", label: "By Status" },
+  { value: "lifecycle", label: "By Lifecycle" },
+];
 
 const pinnedByModule: Record<
   string,
@@ -181,6 +193,56 @@ export default function SubPanel() {
   const getProgress = useCapabilityTreeStore((s) => s.getProgress);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [groupingMode, setGroupingMode] = useState<GroupingMode>("chamber");
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    vaultId: string;
+    vaultSlug: string;
+  } | null>(null);
+
+  const notifications = useNotificationStore((s) => s.notifications);
+
+  // Derive unread counts per vault from notification hrefs
+  const unreadByVault = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const n of notifications) {
+      if (!n.read && n.href) {
+        // href format: /<module>/<slug>
+        const slug = n.href.split("/").pop();
+        if (slug) {
+          const vault = vaults.find((v) => v.slug === slug || v.id === slug);
+          if (vault) {
+            map[vault.id] = (map[vault.id] || 0) + 1;
+          }
+        }
+      }
+    }
+    return map;
+  }, [notifications, vaults]);
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent, vaultId: string, vaultSlug: string) => {
+      e.preventDefault();
+      setContextMenu({ x: e.clientX, y: e.clientY, vaultId, vaultSlug });
+    },
+    [],
+  );
+
+  const handleContextAction = useCallback(
+    (action: string, vaultId: string) => {
+      if (action === "pin") {
+        // Future: persist pin state
+      } else if (action === "mark_read") {
+        // Future: mark all vault notifications read
+      } else if (action === "archive") {
+        useVaultStore.getState().archiveVault(vaultId);
+      } else if (action === "view_triage") {
+        router.push(`/${activeModule}/triage`);
+      }
+    },
+    [activeModule, router],
+  );
 
   const isAdmin = activeModule === "admin";
   const currentModule = !isAdmin
@@ -196,17 +258,120 @@ export default function SubPanel() {
     }
   }, [activeModule, fetchVaults, isAdmin, currentModule]);
 
+  // Subscribe to vault realtime events for live updates
+  const subscribeRealtime = useRealtimeStore((s) => s.subscribe);
+  const unsubscribeRealtime = useRealtimeStore((s) => s.unsubscribe);
+  const onRealtimeEvent = useRealtimeStore((s) => s.onEvent);
+
+  useEffect(() => {
+    if (isAdmin || !currentModule) return;
+
+    const topic = "vault:*" as Parameters<typeof subscribeRealtime>[0];
+
+    // Subscribe to vault:* wildcard for all vault events in this module
+    subscribeRealtime(topic);
+
+    // Handle vault events — update local store on chamber advance, health change, etc.
+    const unsubHandler = onRealtimeEvent("vault:*", (event) => {
+      const payload = event.payload as Record<string, unknown>;
+      const vaultId = payload.vault_id as string | undefined;
+      if (!vaultId) return;
+
+      if (
+        event.type === "vault.chamber_advanced" ||
+        event.type === "vault.updated"
+      ) {
+        // Re-fetch the vault list to reflect changes
+        fetchVaults({ module_type: activeModule });
+      } else if (event.type === "vault.archived") {
+        // Remove from local list immediately
+        useVaultStore.setState((s) => ({
+          vaults: s.vaults.filter((v) => v.id !== vaultId),
+        }));
+      }
+    });
+
+    return () => {
+      unsubHandler();
+      unsubscribeRealtime(topic);
+    };
+  }, [
+    isAdmin,
+    currentModule,
+    activeModule,
+    subscribeRealtime,
+    unsubscribeRealtime,
+    onRealtimeEvent,
+    fetchVaults,
+  ]);
+
+  // Group vaults by selected mode
+  const vaultGroups = useMemo(() => {
+    if (groupingMode === "chamber") {
+      return CHAMBER_KEYS.map((key) => ({
+        key,
+        label: CHAMBERS[key].label.toUpperCase(),
+        chamber: key,
+        vaults: vaults.filter((v) => v.chamber === key),
+      }));
+    }
+    if (groupingMode === "entity") {
+      const byEntity: Record<string, typeof vaults> = {};
+      for (const v of vaults) {
+        const entity =
+          (v.metadata as Record<string, string>).entity || "Unassigned";
+        (byEntity[entity] ??= []).push(v);
+      }
+      return Object.entries(byEntity).map(([entity, items]) => ({
+        key: entity,
+        label: entity.toUpperCase(),
+        chamber: undefined,
+        vaults: items,
+      }));
+    }
+    if (groupingMode === "status") {
+      const buckets: Record<string, typeof vaults> = {
+        blocked: [],
+        "at-risk": [],
+        pending: [],
+        passing: [],
+      };
+      for (const v of vaults) {
+        const score = v.health_score ?? 0;
+        if (score < 30) buckets.blocked.push(v);
+        else if (score < 60) buckets["at-risk"].push(v);
+        else if (score < 80) buckets.pending.push(v);
+        else buckets.passing.push(v);
+      }
+      return Object.entries(buckets).map(([status, items]) => ({
+        key: status,
+        label: status.toUpperCase(),
+        chamber: undefined,
+        vaults: items,
+      }));
+    }
+    // lifecycle — group by vault_level
+    const byLevel: Record<number, typeof vaults> = {};
+    for (const v of vaults) {
+      const lvl = v.vault_level ?? 1;
+      (byLevel[lvl] ??= []).push(v);
+    }
+    const levelLabels: Record<number, string> = {
+      1: "WORKSPACE",
+      2: "MODULE",
+      3: "INSTANCE",
+      4: "SUB-ITEM",
+    };
+    return Object.entries(byLevel).map(([lvl, items]) => ({
+      key: `level-${lvl}`,
+      label: levelLabels[Number(lvl)] || `LEVEL ${lvl}`,
+      chamber: undefined,
+      vaults: items,
+    }));
+  }, [vaults, groupingMode]);
+
   // Non-module, non-admin routes (home, profile, etc.) — hide sub-panel
   if (!isAdmin && !currentModule) return null;
-
-  // Group vaults by chamber
-  const vaultsByChamber = CHAMBER_KEYS.reduce(
-    (acc, key) => {
-      acc[key] = vaults.filter((v) => v.chamber === key);
-      return acc;
-    },
-    {} as Record<ChamberName, typeof vaults>,
-  );
 
   const handleVaultClick = (vaultId: string, slug: string) => {
     setSelectedVault(vaultId);
@@ -349,22 +514,43 @@ export default function SubPanel() {
 
             <div className="mx-3 my-2 h-px bg-surface-border" />
 
-            {/* Chamber groups with vaults */}
+            {/* Grouping mode selector */}
+            <div className="mx-3 mb-2">
+              <select
+                value={groupingMode}
+                onChange={(e) =>
+                  setGroupingMode(e.target.value as GroupingMode)
+                }
+                className="w-full rounded border border-surface-border bg-surface-overlay px-2 py-1 text-xs text-text-secondary focus:border-accent-primary focus:outline-none"
+              >
+                {GROUPING_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Grouped vaults */}
             <div className="flex-1 overflow-y-auto px-1">
-              {CHAMBER_KEYS.map((key) => (
+              {vaultGroups.map((group) => (
                 <ChamberLabel
-                  key={key}
-                  label={CHAMBERS[key].label.toUpperCase()}
-                  chamber={key}
-                  count={vaultsByChamber[key].length}
-                  defaultCollapsed={key !== activeChamber}
+                  key={group.key}
+                  label={group.label}
+                  chamber={(group.chamber as ChamberName) ?? "discover"}
+                  count={group.vaults.length}
+                  defaultCollapsed={
+                    groupingMode === "chamber"
+                      ? group.key !== activeChamber
+                      : false
+                  }
                 >
-                  {vaultsByChamber[key].length === 0 ? (
+                  {group.vaults.length === 0 ? (
                     <p className="px-4 py-2 text-xs text-text-muted">
                       No vaults
                     </p>
                   ) : (
-                    vaultsByChamber[key].map((vault) => (
+                    group.vaults.map((vault) => (
                       <VaultItem
                         key={vault.id}
                         name={vault.name}
@@ -378,8 +564,12 @@ export default function SubPanel() {
                         }
                         gate={vault.chamber || "discover"}
                         healthPercent={vault.health_score || 0}
+                        unreadCount={unreadByVault[vault.id] || 0}
                         isActive={selectedVaultId === vault.id}
                         onClick={() => handleVaultClick(vault.id, vault.slug)}
+                        onContextMenu={(e) =>
+                          handleContextMenu(e, vault.id, vault.slug)
+                        }
                       />
                     ))
                   )}
@@ -398,6 +588,18 @@ export default function SubPanel() {
             console.log("Create vault:", data);
             setShowCreateModal(false);
           }}
+        />
+      )}
+
+      {contextMenu && (
+        <VaultContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          vaultId={contextMenu.vaultId}
+          vaultSlug={contextMenu.vaultSlug}
+          moduleName={activeModule}
+          onClose={() => setContextMenu(null)}
+          onAction={handleContextAction}
         />
       )}
     </>

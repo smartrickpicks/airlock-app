@@ -1,5 +1,6 @@
 """Vault service — business logic for vault CRUD and hierarchy."""
 
+import logging
 from datetime import UTC
 
 from sqlalchemy import select
@@ -8,7 +9,10 @@ from ulid import ULID
 
 from src.models.vault import Vault
 from src.models.vault_member import VaultMember
+from src.services.search import index_vault
 from src.services.workspace_service import slugify
+
+logger = logging.getLogger(__name__)
 
 VALID_CHAMBERS = ("discover", "build", "review", "ship")
 CHAMBER_ORDER = {c: i for i, c in enumerate(VALID_CHAMBERS)}
@@ -23,6 +27,23 @@ GATES_BY_CHAMBER: dict[str, list[str]] = {
     "review": ["gate_builder", "gate_gatekeeper", "gate_owner"],
     "ship": ["gate_export", "gate_sync"],
 }
+
+
+def _vault_to_search_dict(vault: Vault) -> dict:
+    """Convert a Vault ORM instance to a dict suitable for search indexing."""
+    return {
+        "id": vault.id,
+        "name": vault.name,
+        "metadata": vault.metadata_ or {},
+        "module_type": vault.module_type,
+        "chamber": vault.chamber,
+        "vault_level": vault.vault_level,
+        "workspace_id": vault.workspace_id,
+        "health_score": vault.health_score,
+        "archived_at": vault.archived_at,
+        "created_at": str(vault.created_at) if vault.created_at else "",
+        "updated_at": str(vault.updated_at) if vault.updated_at else "",
+    }
 
 
 def create_vault(
@@ -77,6 +98,12 @@ def create_vault(
 
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search", vault.id)
+
     return vault
 
 
@@ -151,6 +178,12 @@ def update_vault(
 
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search after update", vault.id)
+
     return vault
 
 
@@ -174,6 +207,12 @@ def advance_chamber(db: Session, vault: Vault) -> Vault:
 
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search after chamber advance", vault.id)
+
     return vault
 
 
@@ -184,4 +223,10 @@ def archive_vault(db: Session, vault: Vault) -> Vault:
     vault.archived_at = datetime.now(UTC)
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search after archive", vault.id)
+
     return vault

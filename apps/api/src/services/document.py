@@ -20,6 +20,8 @@ from ulid import ULID
 
 from src.config import settings
 from src.models.document import Document
+from src.realtime.emitter import emit_domain_event
+from src.services.search import index_document
 
 logger = logging.getLogger(__name__)
 
@@ -211,6 +213,21 @@ def _extract_pdf_text(file_bytes: bytes) -> tuple[str | None, int | None, str | 
     return None, None, combined_error
 
 
+def _document_to_search_dict(doc: Document) -> dict:
+    """Convert a Document ORM instance to a dict suitable for search indexing."""
+    return {
+        "id": doc.id,
+        "filename": doc.filename,
+        "full_text": doc.full_text,
+        "document_type": doc.document_type,
+        "workspace_id": doc.workspace_id,
+        "vault_id": doc.vault_id,
+        "status": doc.status,
+        "file_format": doc.file_format,
+        "created_at": str(doc.created_at) if doc.created_at else "",
+    }
+
+
 async def upload_document(
     db: Session,
     *,
@@ -269,6 +286,20 @@ async def upload_document(
 
     db.commit()
     db.refresh(document)
+
+    try:
+        index_document(_document_to_search_dict(document))
+    except Exception:
+        logger.warning("Failed to index document %s in search", document.id)
+
+    await emit_domain_event(
+        topic=f"vault:{vault_id}" if vault_id else "workspace",
+        event_type="document.uploaded",
+        payload={"document_id": document.id, "filename": document.filename, "vault_id": vault_id},
+        workspace_id=workspace_id,
+        actor_id=uploaded_by,
+    )
+
     return document
 
 

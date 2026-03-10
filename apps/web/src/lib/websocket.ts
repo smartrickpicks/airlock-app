@@ -10,7 +10,8 @@ type ConnectionStatus =
   | "disconnected"
   | "connecting"
   | "connected"
-  | "reconnecting";
+  | "reconnecting"
+  | "auth_expired";
 
 interface WebSocketMessage {
   type: string;
@@ -23,6 +24,9 @@ interface WebSocketMessage {
 
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000, 32000, 60000];
 const MAX_RECONNECT_ATTEMPTS = 10;
+
+// Close codes that indicate auth failure — do NOT reconnect
+const AUTH_FAILURE_CODES = new Set([4001, 4003, 4401]);
 
 export class AirlockWebSocket {
   private ws: WebSocket | null = null;
@@ -67,9 +71,16 @@ export class AirlockWebSocket {
         }
       };
 
-      this.ws.onclose = () => {
+      this.ws.onclose = (event: CloseEvent) => {
         this.ws = null;
-        if (this._status !== "disconnected") {
+        if (AUTH_FAILURE_CODES.has(event.code)) {
+          this.setStatus("auth_expired");
+          return;
+        }
+        if (
+          this._status !== "disconnected" &&
+          this._status !== "auth_expired"
+        ) {
           this.attemptReconnect();
         }
       };
@@ -184,13 +195,39 @@ export class AirlockWebSocket {
 // Singleton instance (lazy)
 let _instance: AirlockWebSocket | null = null;
 
+/**
+ * Get or create the WebSocket singleton.
+ * Reads token from localStorage on creation; call reconnectWithToken()
+ * after a JWT refresh to swap credentials without losing subscriptions.
+ */
 export function getWebSocket(): AirlockWebSocket {
   if (!_instance) {
     const wsUrl =
       typeof window !== "undefined"
         ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
         : "ws://localhost:8000/ws";
-    _instance = new AirlockWebSocket(wsUrl, "dev_mock_token");
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("airlock_access_token") || "dev_mock_token"
+        : "dev_mock_token";
+    _instance = new AirlockWebSocket(wsUrl, token);
   }
   return _instance;
+}
+
+/**
+ * Reconnect with a fresh token (call after JWT refresh).
+ * Preserves all topic subscriptions — they re-subscribe on open.
+ */
+export function reconnectWithToken(newToken: string): void {
+  if (_instance) {
+    _instance.disconnect();
+    _instance = null;
+  }
+  const wsUrl =
+    typeof window !== "undefined"
+      ? `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/ws`
+      : "ws://localhost:8000/ws";
+  _instance = new AirlockWebSocket(wsUrl, newToken);
+  _instance.connect();
 }

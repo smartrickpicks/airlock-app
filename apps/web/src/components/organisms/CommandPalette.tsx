@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useSearchStore } from "@/stores/search.store";
+import { useSearchStore, SEARCH_CATEGORIES } from "@/stores/search.store";
+import type { SearchCategory } from "@/stores/search.store";
 import { SEARCH_TYPE_CONFIG } from "@/lib/mock-search";
 
 export default function CommandPalette() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
     isOpen,
     query,
     results,
     selectedIndex,
+    isSearching,
+    activeCategory,
     close,
     setQuery,
+    setCategory,
     selectNext,
     selectPrev,
     getSelectedItem,
@@ -26,6 +31,36 @@ export default function CommandPalette() {
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   }, [isOpen]);
+
+  // Debounced input handler — 300ms for queries > 2 chars
+  const handleInputChange = useCallback(
+    (value: string) => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+
+      // Short queries update immediately (Fuse.js, no API call)
+      if (value.trim().length <= 2) {
+        setQuery(value);
+        return;
+      }
+
+      // Longer queries: update the displayed query immediately,
+      // but debounce the actual search by 300ms
+      useSearchStore.setState({ query: value });
+      debounceRef.current = setTimeout(() => {
+        setQuery(value);
+      }, 300);
+    },
+    [setQuery],
+  );
+
+  // Clean up debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
@@ -78,10 +113,15 @@ export default function CommandPalette() {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder="Search vaults, tasks, documents, pages..."
             className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
           />
+          {isSearching && (
+            <span className="text-[10px] text-text-muted animate-pulse">
+              Searching...
+            </span>
+          )}
           <button
             onClick={close}
             className="rounded px-2 py-0.5 text-[10px] font-medium text-text-muted bg-surface-overlay"
@@ -90,9 +130,25 @@ export default function CommandPalette() {
           </button>
         </div>
 
+        {/* Category filter chips */}
+        <div className="flex items-center gap-1.5 border-b border-surface-border px-4 py-2 overflow-x-auto">
+          {SEARCH_CATEGORIES.map((cat) => (
+            <CategoryChip
+              key={cat.key}
+              label={cat.label}
+              active={activeCategory === cat.key}
+              onClick={() => setCategory(cat.key)}
+            />
+          ))}
+        </div>
+
         {/* Results */}
         <div className="max-h-[360px] overflow-y-auto p-2">
-          {results.length === 0 && query.trim() ? (
+          {isSearching && results.length === 0 ? (
+            <div className="px-3 py-8 text-center text-sm text-text-muted animate-pulse">
+              Searching...
+            </div>
+          ) : results.length === 0 && query.trim() ? (
             <div className="px-3 py-8 text-center text-sm text-text-muted">
               No results for &ldquo;{query}&rdquo;
             </div>
@@ -147,5 +203,30 @@ export default function CommandPalette() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Sub-component ───────────────────────────────────────────────────
+
+function CategoryChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap transition-colors ${
+        active
+          ? "bg-accent-primary/20 text-accent-primary"
+          : "bg-surface-overlay text-text-muted hover:text-text-secondary"
+      }`}
+    >
+      {label}
+    </button>
   );
 }

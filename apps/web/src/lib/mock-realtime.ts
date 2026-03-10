@@ -1,6 +1,10 @@
 // ─── Types ───────────────────────────────────────────────────────────
 
-export type ConnectionStatus = "connected" | "disconnected" | "reconnecting";
+export type ConnectionStatus =
+  | "connected"
+  | "disconnected"
+  | "reconnecting"
+  | "auth_expired";
 
 export type RealtimeTopic =
   | "vault:*"
@@ -51,6 +55,11 @@ export const CONNECTION_STATUS_CONFIG: Record<
     label: "Reconnecting...",
     color: "text-accent-warning",
     dotColor: "bg-accent-warning",
+  },
+  auth_expired: {
+    label: "Session Expired",
+    color: "text-accent-danger",
+    dotColor: "bg-accent-danger",
   },
 };
 

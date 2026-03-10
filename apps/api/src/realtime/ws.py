@@ -6,6 +6,7 @@ import logging
 
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
+from src.config import settings
 from src.realtime.connection_manager import UserContext, manager
 from src.realtime.emitter import emit_presence
 from src.realtime.topics import validate_topic
@@ -16,6 +17,21 @@ logger = logging.getLogger(__name__)
 HEARTBEAT_INTERVAL = 30  # seconds
 
 
+def _authorize_topic(topic: str, user_ctx: UserContext) -> bool:
+    """Check if user is authorized for a topic based on workspace scope."""
+    # Personal topics — must match the connected user
+    if topic.startswith("user:"):
+        return topic == f"user:{user_ctx.user_id}"
+    # Presence — must match user's workspace
+    if topic.startswith("presence:"):
+        return topic == f"presence:{user_ctx.workspace_id}"
+    # Workspace-scoped topics (vault, module, view, messenger, notifications)
+    # All allowed within user's workspace — vault-level auth is deferred to v2
+    return topic in ("workspace",) or topic.startswith(
+        ("vault:", "module:", "view:", "messenger:", "notifications:")
+    )
+
+
 async def websocket_endpoint(ws: WebSocket) -> None:
     """Main WebSocket handler — authenticate, subscribe, receive/send."""
     token = ws.query_params.get("token")
@@ -23,8 +39,8 @@ async def websocket_endpoint(ws: WebSocket) -> None:
         await ws.close(code=4001, reason="Missing token")
         return
 
-    # Allow dev mock token
-    if token == "dev_mock_token":
+    # Allow dev mock token (development only)
+    if token == "dev_mock_token" and settings.environment == "development":
         user_ctx = UserContext(
             user_id="dev_user_001",
             workspace_id="ws_dev",
@@ -80,9 +96,13 @@ async def websocket_endpoint(ws: WebSocket) -> None:
 
             if msg_type == "subscribe":
                 topic = msg.get("topic", "")
-                if validate_topic(topic):
+                if validate_topic(topic) and _authorize_topic(topic, user_ctx):
                     manager.subscribe(connection_id, topic)
                     await ws.send_json({"type": "subscribed", "topic": topic})
+                elif validate_topic(topic):
+                    await ws.send_json(
+                        {"type": "error", "message": f"Not authorized for topic: {topic}"}
+                    )
 
             elif msg_type == "unsubscribe":
                 topic = msg.get("topic", "")

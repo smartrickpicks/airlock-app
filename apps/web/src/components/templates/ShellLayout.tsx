@@ -38,7 +38,7 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
   const setActiveModule = useModuleStore((s) => s.setActiveModule);
   const toggleSearch = useSearchStore((s) => s.toggle);
   const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
-  const connectRealtime = useRealtimeStore((s) => s.connect);
+  const connectRealtime = useRealtimeStore((s) => s.connectReal);
   const disconnectRealtime = useRealtimeStore((s) => s.disconnect);
   const toggleOtto = useOttoStore((s) => s.toggleDrawer);
   const toggleMessenger = useMessengerStore((s) => s.toggleDrawer);

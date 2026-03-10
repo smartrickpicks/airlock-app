@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     # Redis
     redis_url: str = "redis://localhost:6379/0"
 
+    # MeiliSearch
+    meili_url: str = "http://localhost:7700"
+    meili_master_key: str = "airlock_dev_key"
+
     # Auth — per spec: 15-min access tokens + 7-day refresh tokens
     jwt_secret: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
@@ -31,7 +35,12 @@ class Settings(BaseSettings):
     token_encryption_key: str = ""
 
     # CORS
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:3005",
+        "https://brainbrigade.xyz",
+        "https://www.brainbrigade.xyz",
+    ]
 
     # LiteLLM
     litellm_api_base: str = "http://localhost:4000"
@@ -42,6 +51,16 @@ class Settings(BaseSettings):
 
     # MAGS / Inference Engine
     persona_repo_path: str = ""
+
+    # Email (Resend)
+    resend_api_key: str = ""
+    resend_from_email: str = "Brain Brigade <invite@airlock.so>"
+    app_url: str = "http://localhost:3000"
+
+    # Passkey / WebAuthn
+    rp_id: str = "localhost"
+    rp_name: str = "Airlock"
+    rp_origin: str = "http://localhost:3000"
 
     # Feature flags
     feature_billing: bool = False

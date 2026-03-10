@@ -28,6 +28,7 @@ from src.routes.mags import router as mags_router
 from src.routes.playbooks import router as playbook_router
 from src.routes.profile import router as profile_router
 from src.routes.review_queue import router as review_queue_router
+from src.routes.search import router as search_router
 from src.routes.tasks import router as tasks_router
 from src.routes.vaults import router as vault_router
 from src.routes.workspaces import router as workspace_router
@@ -39,6 +40,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown events."""
     # Startup — cache airlock-persona profiles for inference engine
     init_inference_engine()
+    # Initialize MeiliSearch indexes
+    from src.services.search import ensure_indexes
+
+    ensure_indexes()
     yield
     # Shutdown
 
@@ -84,6 +89,7 @@ def create_app() -> FastAPI:
     app.include_router(calendar_router)
     app.include_router(gateway_router)
     app.include_router(review_queue_router)
+    app.include_router(search_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
