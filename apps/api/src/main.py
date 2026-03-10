@@ -15,6 +15,7 @@ from src.otto.routes import general_router as otto_general_router
 from src.otto.routes import router as otto_router
 from src.realtime.ws import websocket_endpoint
 from src.routes.auth import router as auth_router
+from src.routes.calendar import router as calendar_router
 from src.routes.crm import router as crm_router
 from src.routes.documents import router as document_router
 from src.routes.engines import router as engine_router
@@ -85,6 +86,7 @@ def create_app() -> FastAPI:
     app.include_router(playbook_router)
     app.include_router(invite_router)
     app.include_router(linkedin_router)
+    app.include_router(calendar_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
