@@ -436,6 +436,12 @@ export interface WorkspaceMember {
   status: "active" | "invited" | "deactivated";
   lastActiveAt: string;
   joinedAt: string;
+  /** PI profile name, e.g. "captain", "strategist", "guardian" */
+  piProfile?: string;
+  /** Meta-archetype bucket: "driver" | "enforcer" | "interpreter" */
+  metaArchetype?: string;
+  /** PI assessment confidence score (0-1) */
+  confidence?: number;
 }
 
 export type FeatureFlagStatus = "enabled" | "disabled" | "beta";
@@ -514,13 +520,13 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   highContrast: false,
 };
 
-// The first and only user: the Architect/founder.
-// Replace name/email once auth is wired to the real profile.
+// Workspace members — founder + demo team for Brain Brigade.
+// IDs match dossier records in mock-dossier.ts so View links navigate correctly.
 export const MOCK_MEMBERS: WorkspaceMember[] = [
   {
-    id: "user_founder",
-    name: "Founder",
-    email: "you@airlock.dev",
+    id: "mem_001",
+    name: "Alex Rivera",
+    email: "alex@brainbrigade.io",
     orgRole: "architect",
     headline: "Architect — building Airlock from zero",
     moduleRoles: {
@@ -531,8 +537,51 @@ export const MOCK_MEMBERS: WorkspaceMember[] = [
       documents: "owner",
     },
     status: "active",
-    lastActiveAt: "2026-03-08T00:00:00Z",
+    lastActiveAt: "2026-03-10T09:15:00Z",
     joinedAt: "2026-03-08T00:00:00Z",
+    piProfile: "captain",
+    metaArchetype: "driver",
+    confidence: 0.92,
+  },
+  {
+    id: "mem_002",
+    name: "Sarah Chen",
+    email: "sarah@company.com",
+    orgRole: "executive",
+    headline: "VP Product — strategy and roadmap",
+    moduleRoles: {
+      contracts: "gatekeeper",
+      crm: "owner",
+      tasks: "builder",
+      calendar: "viewer",
+      documents: "builder",
+    },
+    status: "active",
+    lastActiveAt: "2026-03-10T08:42:00Z",
+    joinedAt: "2026-03-08T01:00:00Z",
+    piProfile: "strategist",
+    metaArchetype: "interpreter",
+    confidence: 0.87,
+  },
+  {
+    id: "mem_003",
+    name: "Tom Rodriguez",
+    email: "tom@company.com",
+    orgRole: "director",
+    headline: "Legal counsel — compliance and review",
+    moduleRoles: {
+      contracts: "gatekeeper",
+      crm: "viewer",
+      tasks: "builder",
+      calendar: "viewer",
+      documents: "gatekeeper",
+    },
+    status: "active",
+    lastActiveAt: "2026-03-09T16:30:00Z",
+    joinedAt: "2026-03-08T02:00:00Z",
+    piProfile: "guardian",
+    metaArchetype: "enforcer",
+    confidence: 0.81,
   },
 ];
 
