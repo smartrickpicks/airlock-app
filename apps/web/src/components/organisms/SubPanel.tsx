@@ -584,8 +584,7 @@ export default function SubPanel() {
         <CreateVaultModal
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
-          onSubmit={(data) => {
-            console.log("Create vault:", data);
+          onSubmit={() => {
             setShowCreateModal(false);
           }}
         />

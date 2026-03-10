@@ -99,8 +99,14 @@ export class AirlockWebSocket {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
-    this.ws?.close();
-    this.ws = null;
+    if (this.ws) {
+      // Clear handlers before close to prevent stale onclose from firing
+      this.ws.onclose = null;
+      this.ws.onmessage = null;
+      this.ws.onerror = null;
+      this.ws.close();
+      this.ws = null;
+    }
   }
 
   subscribe(topic: string): void {
