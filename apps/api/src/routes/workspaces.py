@@ -2,15 +2,17 @@
 
 import re
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from ulid import ULID
 
 from src.db import get_db
 from src.middleware.auth import get_current_user
+from src.models.schemas.workspace_config import WorkspaceConfigResponse
 from src.models.user import User
 from src.models.workspace import Workspace
+from src.services.workspace_resolver import resolve_domain
 
 router = APIRouter(prefix="/api/v1/workspaces", tags=["workspaces"])
 
@@ -30,6 +32,25 @@ def _slugify(name: str) -> str:
     slug = name.lower().strip()
     slug = re.sub(r"[^a-z0-9]+", "-", slug)
     return slug.strip("-")
+
+
+@router.get("/resolve", response_model=WorkspaceConfigResponse)
+async def resolve_workspace_by_domain(
+    domain: str = Query(..., description="Custom domain to resolve"),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> WorkspaceConfigResponse:
+    """Resolve a custom domain to its workspace configuration.
+
+    Called by Next.js middleware for multi-domain routing.
+    No auth required (called before user is authenticated).
+    """
+    config = await resolve_domain(domain, db)
+    if not config:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Domain not found or not verified",
+        )
+    return WorkspaceConfigResponse.model_validate(config)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=WorkspaceResponse)

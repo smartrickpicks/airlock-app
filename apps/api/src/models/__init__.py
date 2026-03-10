@@ -15,6 +15,7 @@ from src.models.user_profile_changelog import UserProfileChangelog
 from src.models.vault import Vault
 from src.models.vault_member import VaultMember
 from src.models.workspace import Workspace
+from src.models.workspace_config import WorkspaceConfig
 from src.models.workspace_membership import WorkspaceMembership
 
 __all__ = [
@@ -33,5 +34,6 @@ __all__ = [
     "Vault",
     "VaultMember",
     "Workspace",
+    "WorkspaceConfig",
     "WorkspaceMembership",
 ]

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
+    # Token encryption (Fernet)
+    token_encryption_key: str = ""
+
     # CORS
     cors_origins: list[str] = ["http://localhost:3000"]
 
@@ -34,6 +37,9 @@ class Settings(BaseSettings):
 
     # MAGS / Inference Engine
     persona_repo_path: str = "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-persona"
+
+    # Feature flags
+    feature_billing: bool = False
 
     # App
     debug: bool = False

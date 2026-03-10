@@ -20,6 +20,7 @@ from src.routes.crm import router as crm_router
 from src.routes.documents import router as document_router
 from src.routes.engines import router as engine_router
 from src.routes.events import router as event_router
+from src.routes.gateway import router as gateway_router
 from src.routes.inference import init_inference_engine
 from src.routes.inference import router as inference_router
 from src.routes.invites import router as invite_router
@@ -87,6 +88,7 @@ def create_app() -> FastAPI:
     app.include_router(invite_router)
     app.include_router(linkedin_router)
     app.include_router(calendar_router)
+    app.include_router(gateway_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
