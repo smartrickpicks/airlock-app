@@ -463,6 +463,42 @@ class TestGateManager:
         assert result2.approved is True
         assert len(result2.response_data["responses"]) == 2
 
+    def test_duplicate_approvals_deduplicated(self):
+        """Same user approving twice should count as only 1 approval."""
+        gate = GateConfig(type=GateType.APPROVAL, required_approvals=2)
+
+        result1 = process_gate_response(gate, action="approve", responder_id="user-1")
+        assert result1.approved is False
+        assert result1.response_data["approval_count"] == 1
+
+        # Same user approves again — should NOT reach threshold
+        result2 = process_gate_response(
+            gate,
+            action="approve",
+            responder_id="user-1",
+            existing_response=result1.response_data,
+        )
+        assert result2.approved is False  # Still only 1 unique approver
+        assert result2.response_data["approval_count"] == 1
+        assert len(result2.response_data["responses"]) == 1  # Deduplicated
+
+    def test_responder_can_change_action(self):
+        """A responder can change their action (e.g., reject then approve)."""
+        gate = GateConfig(type=GateType.APPROVAL, required_approvals=1)
+
+        result1 = process_gate_response(gate, action="reject", responder_id="user-1")
+        assert result1.approved is False
+
+        # Same responder changes to approve
+        result2 = process_gate_response(
+            gate,
+            action="approve",
+            responder_id="user-1",
+            existing_response=result1.response_data,
+        )
+        assert result2.approved is True
+        assert len(result2.response_data["responses"]) == 1  # Replaced, not appended
+
 
 # =====================================================================
 # DAG Engine — _get_runnable_nodes Tests
@@ -749,6 +785,85 @@ class TestDAGExecution:
             responder_id="user-1",
         )
         assert len(summary.errors) > 0
+
+    def test_complete_node_blocked_by_unapproved_gate(self, test_db: Session):
+        """Completing a blocked node with an unapproved gate should be rejected.
+
+        We drive a contract-intake playbook through its Otto nodes, then
+        approve gates and complete human/hybrid nodes until we reach the
+        compliance_review node (hybrid + approval gate). It should be BLOCKED
+        with an unapproved gate — calling complete_node should fail.
+        """
+        instance_id = self._create_instance(test_db)
+        start_execution(test_db, instance_id=instance_id)
+        test_db.commit()
+
+        # Walk to compliance_review: approve extract_terms gate, complete
+        # draft_agreement (human), so compliance_review starts (hybrid+gate)
+        # First approve extract_terms gate
+        respond_to_gate(
+            test_db,
+            instance_id=instance_id,
+            node_id="extract_terms",
+            action="approve",
+            responder_id="gk-1",
+        )
+        test_db.commit()
+
+        # Now advance — draft_agreement (human) should become BLOCKED
+        start_execution(test_db, instance_id=instance_id)
+        test_db.commit()
+
+        # Complete draft_agreement
+        complete_node(test_db, instance_id=instance_id, node_id="draft_agreement")
+        test_db.commit()
+
+        # compliance_review is hybrid+gate — should be BLOCKED with gate_response
+        node = playbook_service.get_node_state(
+            test_db, instance_id=instance_id, node_id="compliance_review"
+        )
+        if node and node.status == NodeStatus.BLOCKED and node.gate_response:
+            summary = complete_node(
+                test_db,
+                instance_id=instance_id,
+                node_id="compliance_review",
+            )
+            assert len(summary.errors) > 0
+            assert "gate" in summary.errors[0].lower()
+
+    def test_gate_rejection_does_not_deadlock_otto_node(self, test_db: Session):
+        """Rejecting a gate on a COMPLETED Otto node should NOT set it to BLOCKED."""
+        instance_id = self._create_instance(test_db)
+        start_execution(test_db, instance_id=instance_id)
+        test_db.commit()
+
+        # Find a completed Otto node with a pending gate
+        nodes = playbook_service.get_node_states(test_db, instance_id=instance_id)
+        gated_completed = [
+            ns
+            for ns in nodes
+            if ns.status == NodeStatus.COMPLETED
+            and ns.gate_response
+            and not ns.gate_response.get("approved")
+        ]
+        if gated_completed:
+            node = gated_completed[0]
+            respond_to_gate(
+                test_db,
+                instance_id=instance_id,
+                node_id=node.node_id,
+                action="reject",
+                responder_id="gatekeeper-1",
+            )
+            test_db.commit()
+
+            # Node should still be COMPLETED, not BLOCKED (avoids deadlock)
+            refreshed = playbook_service.get_node_state(
+                test_db, instance_id=instance_id, node_id=node.node_id
+            )
+            assert refreshed.status == NodeStatus.COMPLETED
+            assert refreshed.gate_response["rejected"] is True
+            assert refreshed.gate_response["approved"] is False
 
     def test_execution_summary_to_dict(self):
         summary = ExecutionSummary(

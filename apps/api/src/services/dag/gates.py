@@ -97,15 +97,19 @@ def process_gate_response(
         "responded_at": now,
     }
 
-    # Build cumulative response data
+    # Build cumulative response data — deduplicate by responder_id
+    # Each responder's latest action replaces their prior response
     response_data: dict[str, Any] = dict(existing_response) if existing_response else {}
-    responses = list(response_data.get("responses", []))
-    responses.append(response_entry)
+    existing_by_responder: dict[str, dict[str, Any]] = {
+        r["responder_id"]: r for r in response_data.get("responses", [])
+    }
+    existing_by_responder[responder_id] = response_entry
+    responses = list(existing_by_responder.values())
     response_data["responses"] = responses
     response_data["last_action"] = gate_action.value
     response_data["last_responded_at"] = now
 
-    # Check if approval threshold is met
+    # Check if approval threshold is met (count unique approvers)
     approvals = sum(1 for r in responses if r["action"] == GateAction.APPROVE)
     response_data["approval_count"] = approvals
     response_data["required_approvals"] = gate_config.required_approvals

@@ -132,40 +132,45 @@ def start_execution(
                 summary.errors.append(f"Template node not found: {node_id}")
                 continue
 
-            result = execute_node(
-                node,
-                instance_id=instance_id,
-                vault_context=vault_context,
-                user_profile=user_profile,
-            )
+            try:
+                result = execute_node(
+                    node,
+                    instance_id=instance_id,
+                    vault_context=vault_context,
+                    user_profile=user_profile,
+                )
 
-            # Persist node state
-            update_req = UpdateNodeStateRequest(
-                status=result.status,
-                result=result.result,
-            )
+                # Persist node state
+                update_req = UpdateNodeStateRequest(
+                    status=result.status,
+                    result=result.result,
+                )
 
-            # If the node has a gate and Otto completed, pre-populate gate_response
-            if result.gate_pending and node.gate is not None:
-                update_req.gate_response = {
-                    "gate_type": node.gate.type,
-                    "required_approvals": node.gate.required_approvals,
-                    "roles": node.gate.roles,
-                    "approved": False,
-                    "responses": [],
-                }
+                # If the node has a gate and Otto completed, pre-populate gate_response
+                if result.gate_pending and node.gate is not None:
+                    update_req.gate_response = {
+                        "gate_type": node.gate.type,
+                        "required_approvals": node.gate.required_approvals,
+                        "roles": node.gate.roles,
+                        "approved": False,
+                        "responses": [],
+                    }
 
-            playbook_service.update_node_state(
-                db,
-                instance_id=instance_id,
-                node_id=node_id,
-                request=update_req,
-            )
+                playbook_service.update_node_state(
+                    db,
+                    instance_id=instance_id,
+                    node_id=node_id,
+                    request=update_req,
+                )
 
-            if result.status == NodeStatus.COMPLETED:
-                summary.nodes_executed.append(node_id)
-            else:
-                summary.nodes_blocked.append(node_id)
+                if result.status == NodeStatus.COMPLETED:
+                    summary.nodes_executed.append(node_id)
+                else:
+                    summary.nodes_blocked.append(node_id)
+            except Exception as exc:
+                logger.exception("Node execution failed: %s", node_id)
+                summary.errors.append(f"Node '{node_id}' failed: {exc}")
+                break
 
     # Check if playbook is complete (all nodes completed or skipped)
     final_states = playbook_service.get_node_states(db, instance_id=instance_id)
@@ -202,6 +207,13 @@ def complete_node(
         return ExecutionSummary(
             instance_id,
             errors=[f"Node '{node_id}' is not blocked (status: {node_state.status})"],
+        )
+
+    # Reject completion if node has an unapproved gate — use /gate endpoint instead
+    if node_state.gate_response and not node_state.gate_response.get("approved", False):
+        return ExecutionSummary(
+            instance_id,
+            errors=[f"Node '{node_id}' has an unapproved gate — use the /gate endpoint"],
         )
 
     # Mark as completed
@@ -275,16 +287,22 @@ def respond_to_gate(
     except ValueError as exc:
         return ExecutionSummary(instance_id, errors=[str(exc)])
 
-    # Update gate response data
+    # Update gate response data — status tracks execution, gate_response tracks approval
     update_data: dict[str, Any] = {"gate_response": gate_result.response_data}
 
     # If approved and node was blocked (hybrid/human with gate), mark completed
     if gate_result.approved and node_state.status in {NodeStatus.BLOCKED, NodeStatus.COMPLETED}:
         update_data["status"] = NodeStatus.COMPLETED
 
-    # If rejected, keep as blocked (may need rework)
-    if gate_result.action == GateAction.REJECT:
-        update_data["status"] = NodeStatus.BLOCKED
+    # If rejected, only set BLOCKED for hybrid/human nodes that were already blocked.
+    # Do NOT regress a COMPLETED Otto node to BLOCKED — that creates a deadlock
+    # (node can't re-run from BLOCKED, and downstream nodes see approved=False).
+    # Gate rejection state is tracked in gate_response, not node execution status.
+    if (
+        gate_result.action in {GateAction.REJECT, GateAction.REQUEST_CHANGES}
+        and node_state.status == NodeStatus.BLOCKED
+    ):
+        update_data["status"] = NodeStatus.BLOCKED  # Keep blocked (no-op but explicit)
 
     playbook_service.update_node_state(
         db,
