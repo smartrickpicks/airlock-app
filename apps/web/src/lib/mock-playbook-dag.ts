@@ -81,13 +81,18 @@ export function computeProgress(data: PlaybookDAGData): DAGProgress {
         inProgress++;
         break;
       case "pending":
-      case "skipped":
         pending++;
+        break;
+      case "skipped":
+        // Skipped nodes are resolved — don't count as pending work
         break;
     }
   }
 
-  const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const skipped = data.nodes.filter((n) => n.status === "skipped").length;
+  const actionable = total - skipped;
+  const percent =
+    actionable > 0 ? Math.round((completed / actionable) * 100) : 0;
 
   return { completed, blocked, inProgress, pending, total, percent };
 }

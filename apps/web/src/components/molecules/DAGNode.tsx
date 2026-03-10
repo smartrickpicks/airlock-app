@@ -2,6 +2,7 @@
 
 import {
   Check,
+  Circle,
   Loader2,
   Lock,
   Slash,
@@ -49,7 +50,7 @@ const STATUS_ICON: Record<DAGNodeStatus, LucideIcon> = {
   completed: Check,
   in_progress: Loader2,
   blocked: Lock,
-  pending: Loader2, // placeholder -- rendered hollow via border
+  pending: Circle,
   skipped: Slash,
 };
 

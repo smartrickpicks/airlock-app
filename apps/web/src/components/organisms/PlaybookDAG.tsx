@@ -92,14 +92,18 @@ export default function PlaybookDAG({
     return m;
   }, [data.nodes]);
 
-  // Track the flat list of nodes in render order to draw inter-node edges
-  const flatNodes = useMemo(() => {
-    const result: DAGNodeData[] = [];
+  // Build a map from node id → preceding node id for edge rendering
+  const prevNodeMap = useMemo(() => {
+    const flat: DAGNodeData[] = [];
     for (const chamber of CHAMBER_ORDER) {
       const nodes = grouped.get(chamber);
-      if (nodes) result.push(...nodes);
+      if (nodes) flat.push(...nodes);
     }
-    return result;
+    const map = new Map<string, string>();
+    for (let i = 1; i < flat.length; i++) {
+      map.set(flat[i].id, flat[i - 1].id);
+    }
+    return map;
   }, [grouped]);
 
   return (
@@ -117,7 +121,7 @@ export default function PlaybookDAG({
         if (!nodes || nodes.length === 0) return null;
 
         return (
-          <div key={chamber} className="space-y-0">
+          <div key={chamber}>
             {/* Chamber header bar */}
             <div className="flex items-center gap-2 py-1.5">
               <div
@@ -134,15 +138,13 @@ export default function PlaybookDAG({
             </div>
 
             {/* Nodes with connecting edges */}
-            <div className="flex flex-col items-center gap-0">
+            <div className="flex flex-col items-center">
               {nodes.map((node, idx) => {
                 // Determine if we need an edge line ABOVE this node
-                const globalIdx = flatNodes.indexOf(node);
-                const prevNode =
-                  globalIdx > 0 ? flatNodes[globalIdx - 1] : null;
-                const showEdge = prevNode !== null;
-                const edgeColor = prevNode
-                  ? EDGE_LINE_COLOR[nodeStatusMap.get(prevNode.id) ?? "pending"]
+                const prevId = prevNodeMap.get(node.id);
+                const showEdge = prevId !== undefined;
+                const edgeColor = prevId
+                  ? EDGE_LINE_COLOR[nodeStatusMap.get(prevId) ?? "pending"]
                   : "bg-surface-border";
 
                 return (
@@ -150,8 +152,7 @@ export default function PlaybookDAG({
                     {/* Edge connector line */}
                     {showEdge && (
                       <div
-                        className={`w-0.5 ${edgeColor}`}
-                        style={{ height: idx === 0 ? "12px" : "8px" }}
+                        className={`w-0.5 ${edgeColor} ${idx === 0 ? "h-3" : "h-2"}`}
                       />
                     )}
 
