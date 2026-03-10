@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminStore } from "@/stores/admin.store";
 import { apiFetch } from "@/lib/api";
@@ -143,20 +143,22 @@ function InviteModal({ onClose }: { onClose: () => void }) {
   const [orgRole, setOrgRole] = useState<OrgRole>("member");
   const [sent, setSent] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleInvite = async () => {
-    if (!email.trim()) return;
+    if (!email.trim() || isLoading) return;
+    setIsLoading(true);
     try {
       await apiFetch("/api/v1/invites", {
         method: "POST",
         body: JSON.stringify({ email, org_role: orgRole }),
       });
-      setSent(true);
-      setTimeout(onClose, 1500);
     } catch {
-      // API not running — just show success for demo
-      setSent(true);
-      setTimeout(onClose, 1500);
+      // API not running — fall through to show success for demo
     }
+    setSent(true);
+    setIsLoading(false);
+    setTimeout(onClose, 1500);
   };
 
   return (
@@ -216,7 +218,7 @@ function InviteModal({ onClose }: { onClose: () => void }) {
           </button>
           <button
             onClick={handleInvite}
-            disabled={!email.trim() || sent}
+            disabled={!email.trim() || sent || isLoading}
             className="rounded-md bg-accent-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >
             {sent ? "Invitation sent!" : "Send invite"}
@@ -294,9 +296,8 @@ export default function MembersTable() {
               const moduleRoleEntries = Object.entries(member.moduleRoles);
 
               return (
-                <>
+                <Fragment key={member.id}>
                   <tr
-                    key={member.id}
                     className="border-t border-surface-border transition-colors hover:bg-surface-overlay/50 cursor-pointer"
                     onClick={() => setExpandedId(isExpanded ? null : member.id)}
                   >
@@ -433,7 +434,7 @@ export default function MembersTable() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               );
             })}
           </tbody>

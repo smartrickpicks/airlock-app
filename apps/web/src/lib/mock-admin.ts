@@ -32,7 +32,7 @@ export const MOCK_WORKSPACE: WorkspaceSettings = {
   plan: "starter",
   createdAt: "2026-03-08T00:00:00Z",
   inviteUrl: "https://app.airlock.dev/invite/my-airlock/tk_invite",
-  memberCount: 1,
+  memberCount: 3,
   vaultCount: 0,
 };
 
