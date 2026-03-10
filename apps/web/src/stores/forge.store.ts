@@ -401,12 +401,12 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
   launchWorkspace: () => {
     set({ isLaunching: true });
 
-    // Simulate launch delay, then load demo playbook
+    // Simulate launch delay, then load archetype-matched playbook
     setTimeout(() => {
       set({ isLaunching: false, isComplete: true });
-      // Wire to playbook store — auto-suggest a playbook after workspace launch
+      const { metaArchetype } = get();
       const { loadDemoPlaybook } = usePlaybookStore.getState();
-      loadDemoPlaybook();
+      loadDemoPlaybook(metaArchetype || undefined);
     }, 1500);
   },
 

@@ -5,7 +5,10 @@ import type {
   DAGNodeStatus,
 } from "@/lib/mock-playbook-dag";
 import type { GateResponseState, GateAction } from "@/lib/mock-gates";
-import { MOCK_DAG_AT_GATE } from "@/lib/mock-playbook-dag";
+import {
+  MOCK_DAG_AT_GATE,
+  ARCHETYPE_PLAYBOOK_MAP,
+} from "@/lib/mock-playbook-dag";
 import { MOCK_GATE_RESPONSES } from "@/lib/mock-gates";
 
 /* ------------------------------------------------------------------ */
@@ -30,7 +33,7 @@ interface PlaybookState {
     optionId?: string,
   ) => void;
   completeNode: (nodeId: string) => void;
-  loadDemoPlaybook: () => void;
+  loadDemoPlaybook: (metaArchetype?: string) => void;
   reset: () => void;
 }
 
@@ -199,8 +202,11 @@ export const usePlaybookStore = create<PlaybookState>((set, get) => ({
     });
   },
 
-  loadDemoPlaybook: () => {
-    const playbook = clonePlaybook(MOCK_DAG_AT_GATE);
+  loadDemoPlaybook: (metaArchetype?: string) => {
+    const template = metaArchetype
+      ? ARCHETYPE_PLAYBOOK_MAP[metaArchetype] || MOCK_DAG_AT_GATE
+      : MOCK_DAG_AT_GATE;
+    const playbook = clonePlaybook(template);
     set({
       activePlaybook: playbook,
       selectedNodeId: null,
