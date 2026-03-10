@@ -12,13 +12,7 @@ import {
 } from "recharts";
 import { MOCK_DOSSIERS, type MemberDossier } from "@/lib/mock-dossier";
 
-const ARCHETYPE_COLORS: Record<string, string> = {
-  driver: "var(--accent-secondary)", // indigo
-  enforcer: "var(--accent-warning)", // amber
-  interpreter: "var(--accent-success)", // emerald
-};
-
-// Fallback hex values for SVG contexts where CSS vars may not resolve
+// Hex values for SVG contexts where CSS vars don't resolve (Recharts limitation)
 const ARCHETYPE_HEX: Record<string, string> = {
   driver: "#6366F1",
   enforcer: "#F59E0B",
@@ -136,9 +130,9 @@ export default function ConstellationMap() {
             />
             <Tooltip content={<CustomTooltip />} />
             <Scatter data={data}>
-              {data.map((entry, i) => (
+              {data.map((entry) => (
                 <Cell
-                  key={i}
+                  key={entry.name}
                   fill={ARCHETYPE_HEX[entry.archetype] || "#6366F1"}
                   r={Math.sqrt(entry.size / Math.PI)}
                 />
