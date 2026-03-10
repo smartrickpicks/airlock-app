@@ -125,16 +125,15 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       timestamp: new Date().toISOString(),
     };
 
-    set((s) => ({ messages: [...s.messages, userMsg] }));
-
-    // Advance conversation based on current step
+    // Step 0 is LinkedIn — delegate entirely (it adds its own user message)
     if (step === 0) {
-      // Step 0 is LinkedIn — submitLinkedInUrl handles user message + scraping
-      // Remove the auto-added user message since submitLinkedInUrl adds its own
-      set((s) => ({ messages: s.messages.slice(0, -1) }));
       get().submitLinkedInUrl(content);
       return;
-    } else if (step === 1) {
+    }
+
+    set((s) => ({ messages: [...s.messages, userMsg] }));
+
+    if (step === 1) {
       // Free-text answer to Q1 — infer goal from text and advance to Q2
       // In real app, LLM would extract signals from text
       set({ step: 2 });
@@ -149,19 +148,19 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
 
       // Merge LinkedIn pre-inferred drives if available
       if (linkedInDrives) {
-        if (linkedInDrives.dominance)
+        if (linkedInDrives.dominance != null)
           drives.dominance = Math.round(
             (drives.dominance + linkedInDrives.dominance) / 2,
           );
-        if (linkedInDrives.extraversion)
+        if (linkedInDrives.extraversion != null)
           drives.extraversion = Math.round(
             (drives.extraversion + linkedInDrives.extraversion) / 2,
           );
-        if (linkedInDrives.patience)
+        if (linkedInDrives.patience != null)
           drives.patience = Math.round(
             (drives.patience + linkedInDrives.patience) / 2,
           );
-        if (linkedInDrives.formality)
+        if (linkedInDrives.formality != null)
           drives.formality = Math.round(
             (drives.formality + linkedInDrives.formality) / 2,
           );
@@ -299,19 +298,19 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     // Merge LinkedIn pre-inferred drives if available
     const { linkedInDrives, linkedInProfile } = get();
     if (linkedInDrives) {
-      if (linkedInDrives.dominance)
+      if (linkedInDrives.dominance != null)
         drives.dominance = Math.round(
           (drives.dominance + linkedInDrives.dominance) / 2,
         );
-      if (linkedInDrives.extraversion)
+      if (linkedInDrives.extraversion != null)
         drives.extraversion = Math.round(
           (drives.extraversion + linkedInDrives.extraversion) / 2,
         );
-      if (linkedInDrives.patience)
+      if (linkedInDrives.patience != null)
         drives.patience = Math.round(
           (drives.patience + linkedInDrives.patience) / 2,
         );
-      if (linkedInDrives.formality)
+      if (linkedInDrives.formality != null)
         drives.formality = Math.round(
           (drives.formality + linkedInDrives.formality) / 2,
         );
