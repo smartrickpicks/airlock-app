@@ -23,6 +23,7 @@ export interface ForgeMessage {
   timestamp: string;
   /** Optional interactive element attached to this message */
   interaction?:
+    | "linkedin_input"
     | "goal_chips"
     | "autonomy_cards"
     | "profile_result"
@@ -83,6 +84,24 @@ export interface GoalChip {
   label: string;
   modules: string[];
   driveSignals: Partial<ForgeDrives>;
+}
+
+// LinkedIn scrape result type
+export interface LinkedInProfile {
+  name: string;
+  headline: string | null;
+  location: string | null;
+  summary: string | null;
+  experience: Array<{
+    title: string;
+    company: string;
+    duration: string;
+    description: string;
+  }>;
+  skills: string[];
+  education: Array<{ school: string; degree: string; year: string }>;
+  source_url: string;
+  inferred_drives: Partial<ForgeDrives>;
 }
 
 // ---------------------------------------------------------------------------
@@ -428,6 +447,30 @@ export const FORGE_WELCOME: ForgeMessage = {
     "Welcome to the Workspace Forge. I'm Otto — I'll help configure your workspace based on how you work.\n\nLet's start with a simple question...",
   timestamp: new Date().toISOString(),
 };
+
+export const FORGE_LINKEDIN_ASK: ForgeMessage = {
+  id: "forge_linkedin",
+  role: "otto",
+  content:
+    "Welcome to Brain Brigade! I'm Otto. Before we get started, drop your LinkedIn profile URL so I can learn about your background.",
+  timestamp: new Date().toISOString(),
+  interaction: "linkedin_input",
+};
+
+export function createLinkedInResultMessage(
+  profile: LinkedInProfile,
+): ForgeMessage {
+  const title = profile.headline || "professional";
+  const company = profile.experience?.[0]?.company || "your company";
+  const topSkills = profile.skills?.slice(0, 3).join(", ") || "your skills";
+
+  return {
+    id: "forge_linkedin_result",
+    role: "otto",
+    content: `Nice to meet you, ${profile.name}! I can see you're a ${title} at ${company}, with expertise in ${topSkills}.\n\nI've already started building a picture of how you work. Let me ask a couple more questions to dial in your workspace...`,
+    timestamp: new Date().toISOString(),
+  };
+}
 
 export const FORGE_Q1: ForgeMessage = {
   id: "forge_q1",

@@ -13,9 +13,11 @@ interface ForgeChatProps {
   step: number;
   goalChipId: string | null;
   autonomyOptionId: string | null;
+  isScrapingLinkedIn: boolean;
   onSendMessage: (content: string) => void;
   onSelectGoalChip: (chipId: string) => void;
   onSelectAutonomyOption: (optionId: string) => void;
+  onSubmitLinkedInUrl: (url: string) => void;
 }
 
 export default function ForgeChat({
@@ -24,9 +26,11 @@ export default function ForgeChat({
   step,
   goalChipId,
   autonomyOptionId,
+  isScrapingLinkedIn,
   onSendMessage,
   onSelectGoalChip,
   onSelectAutonomyOption,
+  onSubmitLinkedInUrl,
 }: ForgeChatProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -142,6 +146,15 @@ export default function ForgeChat({
                     />
                   </div>
                 )}
+
+              {msg.interaction === "linkedin_input" && step === 0 && (
+                <div className="ml-10 mt-3">
+                  <LinkedInInput
+                    onSubmit={onSubmitLinkedInUrl}
+                    isLoading={isScrapingLinkedIn}
+                  />
+                </div>
+              )}
             </div>
           ))}
 
@@ -209,7 +222,52 @@ function renderContent(content: string) {
 }
 
 function getPlaceholder(step: number): string {
+  if (step === 0) return "Paste your LinkedIn URL...";
   if (step <= 1) return "Tell Otto about your goals...";
   if (step <= 2) return "Or type your preference...";
   return "Ask Otto anything...";
+}
+
+function LinkedInInput({
+  onSubmit,
+  isLoading,
+}: {
+  onSubmit: (url: string) => void;
+  isLoading: boolean;
+}) {
+  const [url, setUrl] = useState("");
+
+  const handleSubmit = () => {
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    onSubmit(trimmed);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <input
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSubmit();
+          }}
+          placeholder="https://linkedin.com/in/your-profile"
+          disabled={isLoading}
+          className="flex-1 rounded border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:outline-none disabled:opacity-50"
+        />
+        <button
+          onClick={handleSubmit}
+          disabled={!url.trim() || isLoading}
+          className="rounded bg-accent-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-primary/80 disabled:opacity-50"
+        >
+          {isLoading ? "Analyzing..." : "Analyze"}
+        </button>
+      </div>
+      <p className="text-[11px] text-text-muted">
+        Paste your LinkedIn profile URL to accelerate onboarding
+      </p>
+    </div>
+  );
 }

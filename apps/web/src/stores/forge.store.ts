@@ -7,9 +7,10 @@ import type {
   ForgeWorkspaceConfig,
   ForgeSkill,
   MetaArchetype,
+  LinkedInProfile,
 } from "@/lib/mock-forge";
 import {
-  FORGE_WELCOME,
+  FORGE_LINKEDIN_ASK,
   FORGE_Q1,
   FORGE_Q2,
   FORGE_LAUNCH_READY,
@@ -21,17 +22,24 @@ import {
   AUTONOMY_OPTIONS,
   mockInferProfile,
   createProfileResultMessage,
+  createLinkedInResultMessage,
 } from "@/lib/mock-forge";
+import { apiFetch } from "@/lib/api";
 
 let messageCounter = 0;
 
 interface ForgeState {
   // Conversation
-  step: number; // 0=welcome, 1=Q1, 2=Q2, 3=result, 4=launch_ready
+  step: number; // 0=linkedin, 1=Q1, 2=Q2, 3=result, 4=launch_ready
   messages: ForgeMessage[];
   isTyping: boolean;
   goalChipId: string | null;
   autonomyOptionId: string | null;
+
+  // LinkedIn
+  linkedInProfile: LinkedInProfile | null;
+  linkedInDrives: Partial<ForgeDrives> | null;
+  isScrapingLinkedIn: boolean;
 
   // Inferred profile
   inferredProfile: ForgeProfile | null;
@@ -56,6 +64,7 @@ interface ForgeState {
 
   // Actions
   sendMessage: (content: string) => void;
+  submitLinkedInUrl: (url: string) => Promise<void>;
   selectGoalChip: (chipId: string) => void;
   selectAutonomyOption: (optionId: string) => void;
   toggleModule: (moduleId: string) => void;
@@ -79,12 +88,16 @@ function addOttoMessage(
 }
 
 export const useForgeStore = create<ForgeState>((set, get) => ({
-  // Initial state
+  // Initial state — start with LinkedIn ask instead of welcome
   step: 0,
-  messages: [FORGE_WELCOME],
+  messages: [FORGE_LINKEDIN_ASK],
   isTyping: false,
   goalChipId: null,
   autonomyOptionId: null,
+
+  linkedInProfile: null,
+  linkedInDrives: null,
+  isScrapingLinkedIn: false,
 
   inferredProfile: null,
   drives: null,
@@ -116,9 +129,11 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
 
     // Advance conversation based on current step
     if (step === 0) {
-      // After welcome, show Q1
-      set({ step: 1 });
-      addOttoMessage(set, FORGE_Q1);
+      // Step 0 is LinkedIn — submitLinkedInUrl handles user message + scraping
+      // Remove the auto-added user message since submitLinkedInUrl adds its own
+      set((s) => ({ messages: s.messages.slice(0, -1) }));
+      get().submitLinkedInUrl(content);
+      return;
     } else if (step === 1) {
       // Free-text answer to Q1 — infer goal from text and advance to Q2
       // In real app, LLM would extract signals from text
@@ -126,18 +141,43 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       addOttoMessage(set, FORGE_Q2);
     } else if (step === 2) {
       // Free-text answer to Q2 — run inference and show result
-      const { goalChipId } = get();
+      const { goalChipId, linkedInDrives, linkedInProfile } = get();
       const { profile, drives, confidence } = mockInferProfile(
         goalChipId,
         null,
       );
+
+      // Merge LinkedIn pre-inferred drives if available
+      if (linkedInDrives) {
+        if (linkedInDrives.dominance)
+          drives.dominance = Math.round(
+            (drives.dominance + linkedInDrives.dominance) / 2,
+          );
+        if (linkedInDrives.extraversion)
+          drives.extraversion = Math.round(
+            (drives.extraversion + linkedInDrives.extraversion) / 2,
+          );
+        if (linkedInDrives.patience)
+          drives.patience = Math.round(
+            (drives.patience + linkedInDrives.patience) / 2,
+          );
+        if (linkedInDrives.formality)
+          drives.formality = Math.round(
+            (drives.formality + linkedInDrives.formality) / 2,
+          );
+      }
+
+      const hasLinkedIn = !!linkedInProfile;
+      const adjustedConfidence = hasLinkedIn
+        ? Math.min(0.95, confidence + 0.1)
+        : confidence;
       const archetype = profile.metaArchetype;
 
       set({
         step: 3,
         inferredProfile: profile,
         drives,
-        confidence,
+        confidence: adjustedConfidence,
         metaArchetype: archetype,
         activeModules: [...ARCHETYPE_MODULES[archetype]],
         workspaceConfig: ARCHETYPE_WORKSPACE_CONFIGS[archetype],
@@ -153,6 +193,67 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
         set({ step: 4 });
       }, 2500);
     }
+  },
+
+  submitLinkedInUrl: async (url: string) => {
+    // Show user message
+    const userMsg: ForgeMessage = {
+      id: `forge_user_${++messageCounter}`,
+      role: "user",
+      content: url,
+      timestamp: new Date().toISOString(),
+    };
+    set((s) => ({
+      messages: [...s.messages, userMsg],
+      isScrapingLinkedIn: true,
+    }));
+
+    // Scrape LinkedIn
+    let profile: LinkedInProfile;
+    try {
+      profile = await apiFetch<LinkedInProfile>("/api/v1/linkedin/scrape", {
+        method: "POST",
+        body: JSON.stringify({ linkedin_url: url }),
+      });
+    } catch {
+      // Mock fallback
+      profile = {
+        name:
+          url
+            .split("/")
+            .pop()
+            ?.replace(/-/g, " ")
+            .replace(/\b\w/g, (c) => c.toUpperCase()) || "New Member",
+        headline: "Professional",
+        location: null,
+        summary: "Experienced professional.",
+        experience: [],
+        skills: ["Leadership", "Strategy"],
+        education: [],
+        source_url: url,
+        inferred_drives: {
+          dominance: 7,
+          extraversion: 6,
+          patience: 4,
+          formality: 4,
+        },
+      };
+    }
+
+    set({
+      linkedInProfile: profile,
+      linkedInDrives: profile.inferred_drives,
+      isScrapingLinkedIn: false,
+    });
+
+    // Show Otto's LinkedIn summary
+    addOttoMessage(set, createLinkedInResultMessage(profile), 1000);
+
+    // Then advance to Q1 (goal chips)
+    setTimeout(() => {
+      set({ step: 1 });
+      addOttoMessage(set, FORGE_Q1, 400);
+    }, 2000);
   },
 
   selectGoalChip: (chipId: string) => {
@@ -194,6 +295,32 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       goalChipId,
       optionId,
     );
+
+    // Merge LinkedIn pre-inferred drives if available
+    const { linkedInDrives, linkedInProfile } = get();
+    if (linkedInDrives) {
+      if (linkedInDrives.dominance)
+        drives.dominance = Math.round(
+          (drives.dominance + linkedInDrives.dominance) / 2,
+        );
+      if (linkedInDrives.extraversion)
+        drives.extraversion = Math.round(
+          (drives.extraversion + linkedInDrives.extraversion) / 2,
+        );
+      if (linkedInDrives.patience)
+        drives.patience = Math.round(
+          (drives.patience + linkedInDrives.patience) / 2,
+        );
+      if (linkedInDrives.formality)
+        drives.formality = Math.round(
+          (drives.formality + linkedInDrives.formality) / 2,
+        );
+    }
+
+    const hasLinkedIn = !!linkedInProfile;
+    const adjustedConfidence = hasLinkedIn
+      ? Math.min(0.95, confidence + 0.1)
+      : confidence;
     const archetype = profile.metaArchetype;
 
     set((s) => ({
@@ -202,7 +329,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       step: 3,
       inferredProfile: profile,
       drives,
-      confidence,
+      confidence: adjustedConfidence,
       metaArchetype: archetype,
       activeModules: [
         ...new Set([...s.activeModules, ...ARCHETYPE_MODULES[archetype]]),
@@ -287,10 +414,13 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     messageCounter = 0;
     set({
       step: 0,
-      messages: [FORGE_WELCOME],
+      messages: [FORGE_LINKEDIN_ASK],
       isTyping: false,
       goalChipId: null,
       autonomyOptionId: null,
+      linkedInProfile: null,
+      linkedInDrives: null,
+      isScrapingLinkedIn: false,
       inferredProfile: null,
       drives: null,
       confidence: 0,

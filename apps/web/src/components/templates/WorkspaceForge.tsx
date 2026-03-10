@@ -11,6 +11,7 @@ export default function WorkspaceForge() {
     isTyping,
     goalChipId,
     autonomyOptionId,
+    isScrapingLinkedIn,
     inferredProfile,
     drives,
     confidence,
@@ -22,6 +23,7 @@ export default function WorkspaceForge() {
     isLaunching,
     isComplete,
     sendMessage,
+    submitLinkedInUrl,
     selectGoalChip,
     selectAutonomyOption,
     toggleModule,
@@ -39,9 +41,11 @@ export default function WorkspaceForge() {
           step={step}
           goalChipId={goalChipId}
           autonomyOptionId={autonomyOptionId}
+          isScrapingLinkedIn={isScrapingLinkedIn}
           onSendMessage={sendMessage}
           onSelectGoalChip={selectGoalChip}
           onSelectAutonomyOption={selectAutonomyOption}
+          onSubmitLinkedInUrl={submitLinkedInUrl}
         />
       </div>
 
