@@ -7,7 +7,8 @@ import MemberDossierComponent from "@/components/organisms/MemberDossier";
 export default function MemberDossierPage() {
   const params = useParams();
   const router = useRouter();
-  const userId = params.userId as string;
+  const rawId = params.userId;
+  const userId = Array.isArray(rawId) ? rawId[0] : rawId;
 
   const dossier = getDossier(userId);
 

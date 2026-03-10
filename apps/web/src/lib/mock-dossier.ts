@@ -49,8 +49,8 @@ export interface MemberDossier {
 export const MOCK_DOSSIERS: Record<string, MemberDossier> = {
   mem_001: {
     userId: "mem_001",
-    name: "Zach Holwerda",
-    email: "zach@airlock.so",
+    name: "Alex Rivera",
+    email: "alex@brainbrigade.io",
     piProfile: "captain",
     metaArchetype: "driver",
     confidence: 0.92,
@@ -75,7 +75,7 @@ export const MOCK_DOSSIERS: Record<string, MemberDossier> = {
     },
     linkedInSummary: {
       headline: "Founder & CEO",
-      company: "Airlock",
+      company: "Acme Records",
       yearsExperience: 10,
       topSkills: ["Product Strategy", "AI/ML", "Team Building"],
     },

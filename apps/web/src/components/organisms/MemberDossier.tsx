@@ -30,7 +30,9 @@ function DriveBar({
 }
 
 export default function MemberDossier({ dossier }: { dossier: DossierType }) {
-  const archetypeDisplay = ARCHETYPE_DISPLAY[dossier.metaArchetype];
+  const archetypeDisplay =
+    ARCHETYPE_DISPLAY[dossier.metaArchetype] ??
+    ARCHETYPE_DISPLAY["interpreter"];
 
   return (
     <div className="space-y-6">
@@ -126,7 +128,7 @@ export default function MemberDossier({ dossier }: { dossier: DossierType }) {
             <div className="flex justify-between">
               <dt className="text-text-muted">Autonomy</dt>
               <dd className="font-medium text-text-primary">
-                {dossier.ottoConfig.autonomyCeiling}
+                {Math.round(dossier.ottoConfig.autonomyCeiling * 100)}%
               </dd>
             </div>
             <div className="flex justify-between">
