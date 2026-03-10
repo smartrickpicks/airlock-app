@@ -1,6 +1,11 @@
 """Google Calendar sync service."""
 
+import logging
 from datetime import UTC, datetime, timedelta
+
+import httpx
+
+logger = logging.getLogger(__name__)
 
 GOOGLE_CALENDAR_API = "https://www.googleapis.com/calendar/v3"
 
@@ -17,8 +22,6 @@ async def sync_google_calendar(
         return _mock_calendar_events(days_ahead)
 
     try:
-        import httpx
-
         now = datetime.now(UTC)
         time_min = now.isoformat()
         time_max = (now + timedelta(days=days_ahead)).isoformat()
@@ -58,8 +61,8 @@ async def sync_google_calendar(
                     }
                 )
             return events
-    except Exception as e:
-        print(f"[CALENDAR] Google API failed, using mock: {e}")
+    except Exception:
+        logger.warning("[CALENDAR] Google API failed, using mock")
         return _mock_calendar_events(days_ahead)
 
 

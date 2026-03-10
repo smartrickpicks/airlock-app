@@ -46,5 +46,5 @@ async def list_events():
     return SyncResponse(
         events=[CalendarEvent(**e) for e in events],
         count=len(events),
-        synced=True,
+        synced=False,
     )
