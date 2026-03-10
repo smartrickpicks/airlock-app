@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { usePlaybookStore } from "@/stores/playbook.store";
 import type {
   ForgeMessage,
   ForgeProfile,
@@ -273,10 +274,12 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
   launchWorkspace: () => {
     set({ isLaunching: true });
 
-    // Simulate launch delay
+    // Simulate launch delay, then load demo playbook
     setTimeout(() => {
       set({ isLaunching: false, isComplete: true });
-      // TODO(M10): Call workspace API to persist config, then redirect to Dispatch ("/")
+      // Wire to playbook store — auto-suggest a playbook after workspace launch
+      const { loadDemoPlaybook } = usePlaybookStore.getState();
+      loadDemoPlaybook();
     }, 1500);
   },
 
