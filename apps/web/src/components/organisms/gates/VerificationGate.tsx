@@ -28,10 +28,10 @@ export default function VerificationGate({
 }: VerificationGateProps) {
   const [comment, setComment] = useState("");
   const approvedCount = approvals.filter((a) => a.action === "approve").length;
-  const progressPercent = Math.min(
-    100,
-    Math.round((approvedCount / requiredApprovals) * 100),
-  );
+  const progressPercent =
+    requiredApprovals > 0
+      ? Math.min(100, Math.round((approvedCount / requiredApprovals) * 100))
+      : 0;
 
   return (
     <div
@@ -79,7 +79,7 @@ export default function VerificationGate({
             </span>
             {approvals.map((approval) => (
               <div
-                key={approval.responderId + approval.respondedAt}
+                key={`${approval.responderId}::${approval.respondedAt}`}
                 className="flex items-start gap-3 rounded-md bg-surface-overlay px-3 py-2"
               >
                 <Icon
@@ -132,12 +132,14 @@ export default function VerificationGate({
       {/* Footer */}
       <div className="flex items-center justify-end gap-2 border-t border-surface-border px-4 py-3">
         <button
+          type="button"
           onClick={() => onAction("reject", comment || undefined)}
           className="cursor-pointer rounded border border-gate-red/30 bg-gate-red/20 px-4 py-1.5 text-[13px] font-semibold text-gate-red transition-colors duration-fast hover:bg-gate-red/30"
         >
           Reject
         </button>
         <button
+          type="button"
           onClick={() => onAction("approve", comment || undefined)}
           className="cursor-pointer rounded border border-gate-green/30 bg-gate-green/20 px-4 py-1.5 text-[13px] font-semibold text-gate-green transition-colors duration-fast hover:bg-gate-green/30"
         >

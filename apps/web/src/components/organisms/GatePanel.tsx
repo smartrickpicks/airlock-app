@@ -5,12 +5,12 @@ import ApprovalGate from "@/components/organisms/gates/ApprovalGate";
 import QualityGate from "@/components/organisms/gates/QualityGate";
 import DecisionGate from "@/components/organisms/gates/DecisionGate";
 import ConvergenceGate from "@/components/organisms/gates/ConvergenceGate";
-import type { GateResponseState } from "@/lib/mock-gates";
+import type { GateAction, GateResponseState } from "@/lib/mock-gates";
 
 interface GatePanelProps {
   gate: GateResponseState;
   slaDeadline?: string;
-  onAction: (action: string, comment?: string, optionId?: string) => void;
+  onAction: (action: GateAction, comment?: string, optionId?: string) => void;
   className?: string;
 }
 
@@ -86,7 +86,7 @@ export default function GatePanel({
           approvals={gate.approvals}
           requiredApprovals={gate.requiredApprovals}
           slaDeadline={slaDeadline}
-          onAction={(action, comment) => onAction(action, comment)}
+          onAction={() => onAction("approve")}
           className={className}
         />
       );

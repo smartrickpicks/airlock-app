@@ -13,7 +13,7 @@ interface ConvergenceGateProps {
   approvals: GateApproval[];
   requiredApprovals: number;
   slaDeadline?: string;
-  onAction: (action: "approve", comment?: string) => void;
+  onAction: (action: "approve") => void;
   className?: string;
 }
 
@@ -75,7 +75,7 @@ export default function ConvergenceGate({
             </div>
             {approvals.map((approval) => (
               <div
-                key={approval.responderId + approval.respondedAt}
+                key={`${approval.responderId}::${approval.respondedAt}`}
                 className="flex items-start gap-3 rounded-md bg-surface-overlay px-3 py-2"
               >
                 <Icon
@@ -119,6 +119,7 @@ export default function ConvergenceGate({
       {/* Footer */}
       <div className="flex items-center justify-end border-t border-surface-border px-4 py-3">
         <button
+          type="button"
           onClick={() => onAction("approve")}
           className="cursor-pointer rounded border border-gate-green/30 bg-gate-green/20 px-4 py-1.5 text-[13px] font-semibold text-gate-green transition-colors duration-fast hover:bg-gate-green/30"
         >

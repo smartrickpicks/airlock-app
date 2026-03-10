@@ -43,16 +43,19 @@ const CHAMBER_BADGE_STYLES: Record<string, string> = {
 
 export default function GateCard({ card, onClick, className }: GateCardProps) {
   const GateIcon = GATE_TYPE_ICON[card.gateType];
-  const progressPercent = Math.min(
-    100,
-    Math.round((card.currentApprovals / card.requiredApprovals) * 100),
-  );
+  const progressPercent =
+    card.requiredApprovals > 0
+      ? Math.min(
+          100,
+          Math.round((card.currentApprovals / card.requiredApprovals) * 100),
+        )
+      : 0;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`group w-full cursor-pointer rounded-lg border-l-2 ${URGENCY_BORDER[card.urgency]} border border-l-2 border-surface-border bg-surface-raised px-3 py-3 text-left transition-colors duration-fast hover:bg-surface-overlay ${className ?? ""}`}
+      className={`group w-full cursor-pointer rounded-lg border border-surface-border border-l-2 ${URGENCY_BORDER[card.urgency]} bg-surface-raised px-3 py-3 text-left transition-colors duration-fast hover:bg-surface-overlay ${className ?? ""}`}
     >
       {/* Top row: Gate icon + chamber badge */}
       <div className="mb-2 flex items-center gap-2">

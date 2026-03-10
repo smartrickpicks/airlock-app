@@ -12,7 +12,7 @@ interface DecisionGateProps {
   description: string;
   options: DecisionOption[];
   slaDeadline?: string;
-  onAction: (action: string, comment?: string, optionId?: string) => void;
+  onAction: (action: "approve", comment?: string, optionId?: string) => void;
   className?: string;
 }
 
@@ -107,6 +107,7 @@ export default function DecisionGate({
       {/* Footer */}
       <div className="flex items-center justify-end border-t border-surface-border px-4 py-3">
         <button
+          type="button"
           onClick={() => {
             if (selectedId) {
               onAction("approve", undefined, selectedId);
