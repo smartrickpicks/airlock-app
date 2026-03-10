@@ -187,4 +187,103 @@
   .tiptap-content .ProseMirror ::selection {
     background: color-mix(in srgb, var(--accent-primary) 20%, transparent);
   }
+
+  /* ===================================================================
+     FullCalendar — Dark Theme Overrides
+     Scoped to .full-calendar-dark
+     =================================================================== */
+  .full-calendar-dark .fc {
+    --fc-border-color: var(--surface-border);
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: var(--surface-overlay);
+    --fc-list-event-hover-bg-color: var(--surface-overlay);
+    --fc-today-bg-color: rgba(99, 102, 241, 0.08);
+    --fc-event-text-color: #f5f5f5;
+    font-family: inherit;
+  }
+
+  .full-calendar-dark .fc-toolbar-title {
+    color: var(--text-primary) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+  }
+
+  .full-calendar-dark .fc-button {
+    background: var(--surface-overlay) !important;
+    border-color: var(--surface-border) !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .full-calendar-dark .fc-button-active {
+    background: var(--accent-primary) !important;
+    color: white !important;
+  }
+
+  .full-calendar-dark .fc-col-header-cell-cushion,
+  .full-calendar-dark .fc-daygrid-day-number,
+  .full-calendar-dark .fc-list-day-text,
+  .full-calendar-dark .fc-list-day-side-text {
+    color: var(--text-secondary) !important;
+    font-size: 0.75rem !important;
+  }
+
+  .full-calendar-dark .fc-daygrid-event {
+    border-radius: 4px !important;
+    font-size: 0.7rem !important;
+    padding: 1px 4px !important;
+  }
+
+  .full-calendar-dark .fc-scrollgrid {
+    border-color: var(--surface-border) !important;
+  }
+
+  /* ===================================================================
+     frappe-gantt — Dark Theme Overrides
+     =================================================================== */
+  .gantt .grid-background {
+    fill: transparent !important;
+  }
+
+  .gantt .grid-header {
+    fill: var(--surface-overlay) !important;
+    stroke: var(--surface-border) !important;
+  }
+
+  .gantt .grid-row {
+    fill: transparent !important;
+  }
+
+  .gantt .grid-row:nth-child(even) {
+    fill: rgba(255, 255, 255, 0.02) !important;
+  }
+
+  .gantt .row-line {
+    stroke: var(--surface-border) !important;
+  }
+
+  .gantt .tick {
+    stroke: var(--surface-border) !important;
+  }
+
+  .gantt .bar {
+    fill: var(--accent-primary) !important;
+    stroke: none !important;
+  }
+
+  .gantt .bar-progress {
+    fill: var(--accent-success) !important;
+  }
+
+  .gantt .bar-label {
+    fill: var(--text-primary) !important;
+    font-size: 11px !important;
+  }
+
+  .gantt .lower-text,
+  .gantt .upper-text {
+    fill: var(--text-muted) !important;
+    font-size: 11px !important;
+  }
 }

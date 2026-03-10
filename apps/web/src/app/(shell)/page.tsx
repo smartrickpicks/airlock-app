@@ -24,6 +24,11 @@ import {
 } from "@/stores/onboarding.store";
 import OnboardingChecklist from "@/components/molecules/OnboardingChecklist";
 import InboundContractIntakeModal from "@/components/organisms/InboundContractIntakeModal";
+import dynamic from "next/dynamic";
+const DispatchCharts = dynamic(
+  () => import("@/components/organisms/DispatchCharts"),
+  { ssr: false },
+);
 import {
   MOCK_OPERATOR_FEED,
   MOCK_OPERATOR_QUEUE,
@@ -619,6 +624,8 @@ export default function Home() {
               ))}
             </div>
           </div>
+
+          <DispatchCharts />
         </section>
       </div>
     </div>

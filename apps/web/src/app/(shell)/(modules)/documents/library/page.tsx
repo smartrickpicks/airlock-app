@@ -1,12 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Clock } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Plus, Pencil, Trash2, Clock, LayoutGrid, Table2 } from "lucide-react";
 import { useDocumentsStore } from "@/stores/documents.store";
 import { useLocalDrafts } from "@/hooks/useLocalDrafts";
 import DocumentsTable from "@/components/organisms/DocumentsTable";
 import DocumentPreview from "@/components/organisms/DocumentPreview";
 import NewDocumentEditor from "@/components/organisms/NewDocumentEditor";
+
+const SpreadsheetView = dynamic(
+  () => import("@/components/organisms/SpreadsheetView"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[500px] animate-pulse rounded-lg bg-surface-raised" />
+    ),
+  },
+);
 
 function formatRelativeDate(dateStr: string): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();
@@ -33,6 +44,7 @@ export default function DocumentsLibraryPage() {
 
   const [activeView, setActiveView] = useState<"list" | "editor">("list");
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "spreadsheet">("table");
 
   useEffect(() => {
     fetchDocuments();
@@ -93,6 +105,22 @@ export default function DocumentsLibraryPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 rounded-lg border border-surface-border p-0.5">
+            <button
+              onClick={() => setViewMode("table")}
+              className={`rounded-md p-1.5 transition-colors ${viewMode === "table" ? "bg-surface-overlay text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
+              title="Table view"
+            >
+              <Table2 size={14} />
+            </button>
+            <button
+              onClick={() => setViewMode("spreadsheet")}
+              className={`rounded-md p-1.5 transition-colors ${viewMode === "spreadsheet" ? "bg-surface-overlay text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
+              title="Spreadsheet view"
+            >
+              <LayoutGrid size={14} />
+            </button>
+          </div>
           <button
             onClick={handleNewDocument}
             className="flex items-center gap-1.5 rounded-lg border border-accent-primary/40 bg-accent-primary/10 px-3 py-1.5 text-xs font-medium text-accent-primary transition-colors hover:border-accent-primary/70 hover:bg-accent-primary/20"
@@ -153,6 +181,8 @@ export default function DocumentsLibraryPage() {
         <div className="flex items-center justify-center py-12">
           <p className="text-sm text-text-muted">Loading documents...</p>
         </div>
+      ) : viewMode === "spreadsheet" ? (
+        <SpreadsheetView documents={documents} />
       ) : (
         <div className="flex gap-4">
           <div className={selectedDoc ? "flex-1 min-w-0" : "w-full"}>

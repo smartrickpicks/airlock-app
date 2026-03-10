@@ -2,8 +2,13 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import GateDot from "@/components/atoms/GateDot";
 import { useVaultStore } from "@/stores/vault.store";
+
+const VaultGantt = dynamic(() => import("@/components/organisms/VaultGantt"), {
+  ssr: false,
+});
 
 export default function TriagePage() {
   const router = useRouter();
@@ -35,54 +40,60 @@ export default function TriagePage() {
           <p className="text-sm text-text-muted">No contracts in triage</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {discoverVaults.map((vault) => {
-            const entity =
-              (vault.metadata as Record<string, string>).entity || "Unknown";
-            const contractType =
-              (vault.metadata as Record<string, string>).contract_type ||
-              "Contract";
-            const healthColor =
-              (vault.health_score ?? 0) >= 80
-                ? "text-gate-green"
-                : (vault.health_score ?? 0) >= 50
-                  ? "text-gate-yellow"
-                  : "text-gate-red";
+        <>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {discoverVaults.map((vault) => {
+              const entity =
+                (vault.metadata as Record<string, string>).entity || "Unknown";
+              const contractType =
+                (vault.metadata as Record<string, string>).contract_type ||
+                "Contract";
+              const healthColor =
+                (vault.health_score ?? 0) >= 80
+                  ? "text-gate-green"
+                  : (vault.health_score ?? 0) >= 50
+                    ? "text-gate-yellow"
+                    : "text-gate-red";
 
-            return (
-              <button
-                key={vault.id}
-                onClick={() => router.push(`/contracts/${vault.slug}`)}
-                className="rounded-lg border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:border-accent-primary/30 hover:bg-surface-overlay"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <GateDot gate="discover" />
-                    <span className="text-sm font-medium text-text-primary">
-                      {vault.name}
+              return (
+                <button
+                  key={vault.id}
+                  onClick={() => router.push(`/contracts/${vault.slug}`)}
+                  className="rounded-lg border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:border-accent-primary/30 hover:bg-surface-overlay"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <GateDot gate="discover" />
+                      <span className="text-sm font-medium text-text-primary">
+                        {vault.name}
+                      </span>
+                    </div>
+                    <span className={`font-mono text-xs ${healthColor}`}>
+                      {vault.health_score ?? 0}%
                     </span>
                   </div>
-                  <span className={`font-mono text-xs ${healthColor}`}>
-                    {vault.health_score ?? 0}%
-                  </span>
-                </div>
 
-                <div className="mt-2 text-xs text-text-muted">
-                  {entity} — {contractType}
-                </div>
+                  <div className="mt-2 text-xs text-text-muted">
+                    {entity} — {contractType}
+                  </div>
 
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="rounded bg-surface-overlay px-2 py-0.5 text-[11px] text-text-secondary">
-                    {vault.gate?.replace("gate_", "") || "pending"}
-                  </span>
-                  <span className="text-[11px] text-text-muted">
-                    {new Date(vault.updated_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="rounded bg-surface-overlay px-2 py-0.5 text-[11px] text-text-secondary">
+                      {vault.gate?.replace("gate_", "") || "pending"}
+                    </span>
+                    <span className="text-[11px] text-text-muted">
+                      {new Date(vault.updated_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <VaultGantt
+            vaults={discoverVaults}
+            onVaultClick={(slug) => router.push(`/contracts/${slug}`)}
+          />
+        </>
       )}
     </div>
   );

@@ -1,6 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 import { MOCK_CRM_HEALTH } from "@/lib/mock-crm-enhancements";
 
 export default function CrmHealthPage() {
@@ -25,6 +34,55 @@ export default function CrmHealthPage() {
         <span className="rounded-full bg-chamber-ship/15 px-3 py-1 text-xs font-medium text-chamber-ship">
           Customers
         </span>
+      </div>
+
+      {/* Health Score Chart */}
+      <div className="rounded-lg border border-surface-border bg-surface-raised p-4">
+        <div className="mb-3 text-xs font-medium text-text-secondary">
+          Account Health Scores
+        </div>
+        <ResponsiveContainer width="100%" height={140}>
+          <BarChart
+            data={MOCK_CRM_HEALTH.map((c) => ({
+              name: c.accountName.split(" ")[0],
+              score: c.healthScore,
+              trend: c.trend,
+            }))}
+            barSize={32}
+          >
+            <XAxis
+              dataKey="name"
+              tick={{ fill: "var(--color-text-muted)", fontSize: 11 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis domain={[0, 100]} hide />
+            <Tooltip
+              contentStyle={{
+                background: "var(--color-surface-overlay)",
+                border: "1px solid var(--color-surface-border)",
+                borderRadius: 8,
+                color: "var(--color-text-primary)",
+                fontSize: 12,
+              }}
+              formatter={(value: unknown) => [`${value}%`, "Health"]}
+            />
+            <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+              {MOCK_CRM_HEALTH.map((c, i) => (
+                <Cell
+                  key={i}
+                  fill={
+                    c.healthScore >= 80
+                      ? "var(--color-accent-success)"
+                      : c.healthScore >= 60
+                        ? "var(--color-accent-warning)"
+                        : "var(--color-accent-danger)"
+                  }
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
