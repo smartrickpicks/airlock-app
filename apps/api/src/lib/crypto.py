@@ -9,11 +9,14 @@ Generate a key with:
 
 from __future__ import annotations
 
+import logging
 from functools import lru_cache
 
 from cryptography.fernet import Fernet, InvalidToken
 
 from src.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class TokenEncryptionError(Exception):
@@ -36,8 +39,11 @@ def encrypt_token(plaintext: str) -> str:
     """Encrypt a plaintext token. Returns base64-encoded ciphertext."""
     try:
         return _get_fernet().encrypt(plaintext.encode()).decode()
-    except Exception as e:
-        raise TokenEncryptionError(f"Encryption failed: {e}") from e
+    except TokenEncryptionError:
+        raise
+    except Exception:
+        logger.error("Encryption failed: unexpected error")
+        raise TokenEncryptionError("Encryption failed") from None
 
 
 def decrypt_token(ciphertext: str) -> str:
@@ -45,6 +51,10 @@ def decrypt_token(ciphertext: str) -> str:
     try:
         return _get_fernet().decrypt(ciphertext.encode()).decode()
     except InvalidToken as e:
+        logger.error("Decryption failed: invalid token or key")
         raise TokenEncryptionError("Decryption failed: invalid token or key") from e
-    except Exception as e:
-        raise TokenEncryptionError(f"Decryption failed: {e}") from e
+    except TokenEncryptionError:
+        raise
+    except Exception:
+        logger.error("Decryption failed: unexpected error")
+        raise TokenEncryptionError("Decryption failed") from None

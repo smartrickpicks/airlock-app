@@ -7,6 +7,7 @@ and internally by multi-tenant routing logic.
 import json
 import logging
 import time
+from collections import OrderedDict
 
 import redis as redis_lib
 from sqlalchemy import select
@@ -19,32 +20,99 @@ logger = logging.getLogger(__name__)
 
 CACHE_TTL_SECONDS = 300
 CACHE_KEY_PREFIX = "domain:"
+MEMORY_CACHE_MAX_SIZE = 10_000
+REDIS_RETRY_INTERVAL_SECONDS = 30
 
-_redis_client: redis_lib.Redis | None = None
+_redis_pool: redis_lib.ConnectionPool | None = None
 _redis_unavailable = False
+_redis_last_retry: float = 0.0
 
-# In-memory fallback cache: {domain: (config_dict, expiry_timestamp)}
-_memory_cache: dict[str, tuple[dict, float]] = {}
+
+class _BoundedTTLCache:
+    """LRU cache with TTL and max size. Evicts oldest entries when full."""
+
+    def __init__(self, maxsize: int = MEMORY_CACHE_MAX_SIZE) -> None:
+        self._maxsize = maxsize
+        self._data: OrderedDict[str, tuple[dict, float]] = OrderedDict()
+
+    def get(self, key: str) -> dict | None:
+        entry = self._data.get(key)
+        if entry is None:
+            return None
+        data, expiry = entry
+        if time.monotonic() > expiry:
+            del self._data[key]
+            return None
+        self._data.move_to_end(key)
+        return data
+
+    def set(self, key: str, data: dict, ttl: float = CACHE_TTL_SECONDS) -> None:
+        if key in self._data:
+            self._data.move_to_end(key)
+        self._data[key] = (data, time.monotonic() + ttl)
+        while len(self._data) > self._maxsize:
+            self._data.popitem(last=False)
+
+    def delete(self, key: str) -> None:
+        self._data.pop(key, None)
+
+    def __contains__(self, key: str) -> bool:
+        entry = self._data.get(key)
+        if entry is None:
+            return False
+        _, expiry = entry
+        if time.monotonic() > expiry:
+            del self._data[key]
+            return False
+        return True
+
+    def clear(self) -> None:
+        self._data.clear()
+
+
+_memory_cache = _BoundedTTLCache()
 
 
 def _get_redis() -> redis_lib.Redis | None:
-    """Get Redis client, or None if unavailable."""
-    global _redis_client, _redis_unavailable  # noqa: PLW0603
+    """Get Redis client via connection pool, or None if unavailable. Retries after interval."""
+    global _redis_pool, _redis_unavailable, _redis_last_retry  # noqa: PLW0603
     if _redis_unavailable:
-        return None
-    if _redis_client is None:
+        if time.monotonic() - _redis_last_retry < REDIS_RETRY_INTERVAL_SECONDS:
+            return None
+        _redis_last_retry = time.monotonic()
         try:
-            _redis_client = redis_lib.Redis.from_url(settings.redis_url, decode_responses=True)
-            _redis_client.ping()
+            _redis_pool = redis_lib.ConnectionPool.from_url(
+                settings.redis_url, max_connections=10, decode_responses=True
+            )
+            client = redis_lib.Redis(connection_pool=_redis_pool)
+            client.ping()
+            _redis_unavailable = False
+            logger.info("Redis connection restored")
+        except Exception:
+            _redis_pool = None
+            return None
+    if _redis_pool is None:
+        try:
+            _redis_pool = redis_lib.ConnectionPool.from_url(
+                settings.redis_url, max_connections=10, decode_responses=True
+            )
+            client = redis_lib.Redis(connection_pool=_redis_pool)
+            client.ping()
         except Exception:
             logger.warning("Redis unavailable — domain cache will use in-memory fallback")
+            _redis_pool = None
             _redis_unavailable = True
+            _redis_last_retry = time.monotonic()
             return None
-    return _redis_client
+    return redis_lib.Redis(connection_pool=_redis_pool)
 
 
 def _config_to_cache_dict(config: WorkspaceConfig) -> dict:
-    """Serialize a WorkspaceConfig to a JSON-safe dict for caching."""
+    """Serialize a WorkspaceConfig to a JSON-safe dict for caching.
+
+    Excludes encrypted fields — only public data for routing/rendering.
+    """
+    # Only cache fields needed for routing/rendering — never billing data
     return {
         "id": config.id,
         "workspace_id": config.workspace_id,
@@ -56,9 +124,6 @@ def _config_to_cache_dict(config: WorkspaceConfig) -> dict:
         "enabled_modules": config.enabled_modules,
         "ai_provider": config.ai_provider,
         "ai_tier": config.ai_tier,
-        "billing_tier": config.billing_tier,
-        "max_users": config.max_users,
-        "max_vaults": config.max_vaults,
     }
 
 
@@ -73,15 +138,7 @@ def _get_cached(domain: str) -> dict | None:
         except Exception:
             logger.warning("Redis get failed for domain %s", domain)
 
-    # In-memory fallback
-    entry = _memory_cache.get(domain)
-    if entry:
-        data, expiry = entry
-        if time.monotonic() < expiry:
-            return data
-        del _memory_cache[domain]
-
-    return None
+    return _memory_cache.get(domain)
 
 
 def _set_cached(domain: str, data: dict) -> None:
@@ -93,30 +150,30 @@ def _set_cached(domain: str, data: dict) -> None:
         except Exception:
             logger.warning("Redis set failed for domain %s", domain)
 
-    # Always populate in-memory fallback
-    _memory_cache[domain] = (data, time.monotonic() + CACHE_TTL_SECONDS)
+    _memory_cache.set(domain, data)
 
 
 async def resolve_domain(domain: str, db: Session) -> WorkspaceConfig | None:
     """Resolve a custom domain to its WorkspaceConfig.
 
     1. Checks cache (Redis -> in-memory fallback)
-    2. Falls back to DB query on custom_domain where domain_verified is True
-    3. Caches result on hit
+    2. On cache hit: returns a detached WorkspaceConfig from cached data (no DB query)
+    3. On cache miss: queries DB, caches on hit
     4. Returns None on miss
     """
     domain = domain.lower().strip()
     if not domain:
         return None
 
-    # Check cache first
+    # Cache hit — construct detached object, skip DB
     cached = _get_cached(domain)
     if cached is not None:
-        # Re-fetch from DB to return a proper ORM object
-        stmt = select(WorkspaceConfig).where(WorkspaceConfig.id == cached["id"])
-        return db.execute(stmt).scalar_one_or_none()
+        config = WorkspaceConfig()
+        for key, value in cached.items():
+            setattr(config, key, value)
+        return config
 
-    # Query DB
+    # Cache miss — query DB with full safety filters
     stmt = select(WorkspaceConfig).where(
         WorkspaceConfig.custom_domain == domain,
         WorkspaceConfig.domain_verified.is_(True),
@@ -141,4 +198,4 @@ async def invalidate_domain_cache(domain: str) -> None:
         except Exception:
             logger.warning("Redis delete failed for domain %s", domain)
 
-    _memory_cache.pop(domain, None)
+    _memory_cache.delete(domain)

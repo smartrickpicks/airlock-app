@@ -4,13 +4,12 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocket
 
-from src.config import settings
 from src.event_bus.routes import router as event_bus_router
 from src.mcp.routes import router as mcp_router
 from src.messenger.routes import router as messenger_router
+from src.middleware.dynamic_cors import DynamicCORSMiddleware
 from src.otto.routes import general_router as otto_general_router
 from src.otto.routes import router as otto_router
 from src.realtime.ws import websocket_endpoint
@@ -28,6 +27,7 @@ from src.routes.linkedin import router as linkedin_router
 from src.routes.mags import router as mags_router
 from src.routes.playbooks import router as playbook_router
 from src.routes.profile import router as profile_router
+from src.routes.review_queue import router as review_queue_router
 from src.routes.tasks import router as tasks_router
 from src.routes.vaults import router as vault_router
 from src.routes.workspaces import router as workspace_router
@@ -52,14 +52,8 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # CORS
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    # CORS — dynamic origin validation for white-label custom domains
+    app.add_middleware(DynamicCORSMiddleware)
 
     # Health check
     @app.get("/health")
@@ -89,6 +83,7 @@ def create_app() -> FastAPI:
     app.include_router(linkedin_router)
     app.include_router(calendar_router)
     app.include_router(gateway_router)
+    app.include_router(review_queue_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")

@@ -1,6 +1,5 @@
 """Vault service — business logic for vault CRUD and hierarchy."""
 
-import re
 from datetime import UTC
 
 from sqlalchemy import select
@@ -9,6 +8,7 @@ from ulid import ULID
 
 from src.models.vault import Vault
 from src.models.vault_member import VaultMember
+from src.services.workspace_service import slugify
 
 VALID_CHAMBERS = ("discover", "build", "review", "ship")
 CHAMBER_ORDER = {c: i for i, c in enumerate(VALID_CHAMBERS)}
@@ -23,15 +23,6 @@ GATES_BY_CHAMBER: dict[str, list[str]] = {
     "review": ["gate_builder", "gate_gatekeeper", "gate_owner"],
     "ship": ["gate_export", "gate_sync"],
 }
-
-
-def slugify(name: str) -> str:
-    """Convert a name to a URL-friendly slug."""
-    slug = name.lower().strip()
-    slug = re.sub(r"[^\w\s-]", "", slug)
-    slug = re.sub(r"[\s_]+", "-", slug)
-    slug = re.sub(r"-+", "-", slug)
-    return slug.strip("-")
 
 
 def create_vault(

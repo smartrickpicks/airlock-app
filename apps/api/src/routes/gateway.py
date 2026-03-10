@@ -4,8 +4,9 @@ import logging
 import re
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from ulid import ULID
 
@@ -13,12 +14,13 @@ from src.config import settings
 from src.db import get_db
 from src.lib.crypto import encrypt_token
 from src.middleware.auth import get_current_user
-from src.models.schemas.workspace_config import WorkspaceConfigResponse
+from src.models.schemas.workspace_config import WorkspaceConfigResponse, WorkspaceConfigUpdate
 from src.models.user import User
 from src.models.workspace import Workspace
 from src.models.workspace_config import WorkspaceConfig
 from src.models.workspace_membership import WorkspaceMembership
 from src.services.workspace_resolver import invalidate_domain_cache
+from src.services.workspace_service import slugify
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,18 @@ class ProvisionWorkspaceRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
 
     # Domain
-    custom_domain: str | None = None
+    custom_domain: str | None = Field(default=None, max_length=253)
+
+    @field_validator("custom_domain")
+    @classmethod
+    def validate_custom_domain(cls, v: str | None) -> str | None:
+        """Validate domain format (RFC-compliant hostname)."""
+        if v is None:
+            return v
+        pattern = r"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$"
+        if not re.match(pattern, v):
+            raise ValueError("Invalid domain format")
+        return v
 
     # Branding
     logo_url: str | None = None
@@ -68,6 +81,7 @@ class ProvisionWorkspaceResponse(BaseModel):
 
     workspace_id: str
     workspace_slug: str
+    workspace_name: str
     config: WorkspaceConfigResponse
 
 
@@ -105,13 +119,6 @@ class BillingResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def _slugify(name: str) -> str:
-    """Convert workspace name to URL-safe slug."""
-    slug = name.lower().strip()
-    slug = re.sub(r"[^a-z0-9]+", "-", slug)
-    return slug.strip("-")
-
-
 def _config_to_response(config: WorkspaceConfig) -> WorkspaceConfigResponse:
     """Convert a WorkspaceConfig ORM object to a response schema."""
     return WorkspaceConfigResponse(
@@ -129,8 +136,6 @@ def _config_to_response(config: WorkspaceConfig) -> WorkspaceConfigResponse:
         google_scopes_granted=config.google_scopes_granted,
         has_google_token=config.google_refresh_token_encrypted is not None,
         billing_tier=config.billing_tier,
-        stripe_customer_id=config.stripe_customer_id,
-        stripe_subscription_id=config.stripe_subscription_id,
         max_users=config.max_users,
         max_vaults=config.max_vaults,
         metadata=config.metadata_,
@@ -139,8 +144,24 @@ def _config_to_response(config: WorkspaceConfig) -> WorkspaceConfigResponse:
     )
 
 
-def _get_workspace_config_or_404(workspace_id: str, db: Session) -> WorkspaceConfig:
-    """Fetch workspace config or raise 404."""
+def _get_workspace_config_or_404(
+    workspace_id: str, db: Session, current_user: dict
+) -> WorkspaceConfig:
+    """Fetch workspace config or raise 403/404. Verifies membership."""
+    user_id = current_user.get("sub")
+    membership = db.execute(
+        select(WorkspaceMembership).where(
+            WorkspaceMembership.workspace_id == workspace_id,
+            WorkspaceMembership.user_id == user_id,
+            WorkspaceMembership.deleted_at.is_(None),
+        )
+    ).scalar_one_or_none()
+    if not membership:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not a member of this workspace",
+        )
+
     config = db.execute(
         select(WorkspaceConfig).where(
             WorkspaceConfig.workspace_id == workspace_id,
@@ -171,7 +192,7 @@ async def provision_workspace(
     db: Session = Depends(get_db),  # noqa: B008
 ) -> ProvisionWorkspaceResponse:
     """Create workspace + workspace_config. Called by the gateway wizard."""
-    slug = _slugify(payload.name)
+    slug = slugify(payload.name)
 
     # Check slug uniqueness
     existing = db.execute(
@@ -223,7 +244,7 @@ async def provision_workspace(
             id=membership_id,
             workspace_id=workspace_id,
             user_id=user_id,
-            org_role="architect",
+            org_role="executive",
         )
         db.add(membership)
 
@@ -233,12 +254,22 @@ async def provision_workspace(
             user.workspace_id = workspace_id
             user.org_role = "executive"
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        if "ix_workspace_config_custom_domain" in str(exc):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Custom domain already in use",
+            ) from exc
+        raise
     db.refresh(config)
 
     return ProvisionWorkspaceResponse(
         workspace_id=workspace_id,
         workspace_slug=slug,
+        workspace_name=payload.name,
         config=_config_to_response(config),
     )
 
@@ -306,7 +337,7 @@ async def verify_domain(
     In production: would call Vercel API to check domain status.
     For now: returns current domain_verified status.
     """
-    config = _get_workspace_config_or_404(workspace_id, db)
+    config = _get_workspace_config_or_404(workspace_id, db, current_user)
 
     if not config.custom_domain:
         raise HTTPException(
@@ -336,7 +367,7 @@ async def connect_google_workspace(
     db: Session = Depends(get_db),  # noqa: B008
 ) -> GoogleStatusResponse:
     """Store encrypted Google refresh token + scopes."""
-    config = _get_workspace_config_or_404(workspace_id, db)
+    config = _get_workspace_config_or_404(workspace_id, db, current_user)
 
     # Encrypt and store
     config.google_refresh_token_encrypted = encrypt_token(body.refresh_token)
@@ -367,7 +398,7 @@ async def google_connection_status(
     db: Session = Depends(get_db),  # noqa: B008
 ) -> GoogleStatusResponse:
     """Return which Google scopes are active."""
-    config = _get_workspace_config_or_404(workspace_id, db)
+    config = _get_workspace_config_or_404(workspace_id, db, current_user)
 
     return GoogleStatusResponse(
         connected=config.google_refresh_token_encrypted is not None,
@@ -397,7 +428,7 @@ async def create_subscription(
             message="Billing disabled during beta",
         )
 
-    config = _get_workspace_config_or_404(workspace_id, db)
+    config = _get_workspace_config_or_404(workspace_id, db, current_user)
 
     # TODO: Implement Stripe subscription creation
     # 1. Create Stripe customer if not exists
@@ -429,3 +460,61 @@ async def stripe_webhook(
     # 3. Update workspace_config billing fields accordingly
     logger.info("Stripe webhook received (not yet implemented)")
     return {"status": "received"}
+
+
+# ---------------------------------------------------------------------------
+# PATCH /api/v1/gateway/workspaces/{workspace_id}/config
+# ---------------------------------------------------------------------------
+
+
+@router.patch(
+    "/workspaces/{workspace_id}/config",
+    response_model=WorkspaceConfigResponse,
+)
+async def update_workspace_config(
+    workspace_id: str,
+    payload: WorkspaceConfigUpdate,
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+) -> WorkspaceConfigResponse:
+    """Partially update a workspace config. Encrypts sensitive fields."""
+    config = _get_workspace_config_or_404(workspace_id, db, current_user)
+
+    old_domain = config.custom_domain
+    updates = payload.model_dump(exclude_unset=True)
+
+    # Handle encrypted fields specially — never store plain-text secrets
+    if "ai_api_key" in updates:
+        plain_key = updates.pop("ai_api_key")
+        if plain_key is not None:
+            config.ai_api_key_encrypted = encrypt_token(plain_key)
+        else:
+            config.ai_api_key_encrypted = None
+
+    if "google_refresh_token" in updates:
+        plain_token = updates.pop("google_refresh_token")
+        if plain_token is not None:
+            config.google_refresh_token_encrypted = encrypt_token(plain_token)
+        else:
+            config.google_refresh_token_encrypted = None
+
+    # Handle metadata field name mismatch (schema: metadata, ORM: metadata_)
+    if "metadata" in updates:
+        config.metadata_ = updates.pop("metadata")
+
+    # Apply remaining fields
+    for key, value in updates.items():
+        setattr(config, key, value)
+
+    db.commit()
+    db.refresh(config)
+
+    # Invalidate domain caches if custom_domain changed
+    new_domain = config.custom_domain
+    if old_domain != new_domain:
+        if old_domain:
+            await invalidate_domain_cache(old_domain)
+        if new_domain:
+            await invalidate_domain_cache(new_domain)
+
+    return _config_to_response(config)

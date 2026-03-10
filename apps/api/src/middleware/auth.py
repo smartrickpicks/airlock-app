@@ -28,8 +28,8 @@ async def get_current_user(
             detail="Authentication required",
         )
 
-    # Allow dev mock token in non-production environments
-    if credentials.credentials == "dev_mock_token" and settings.environment != "production":
+    # Allow dev mock token ONLY in development environment
+    if credentials.credentials == "dev_mock_token" and settings.environment == "development":
         return _DEV_MOCK_PAYLOAD
 
     payload = verify_token(credentials.credentials)

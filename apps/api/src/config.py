@@ -1,6 +1,11 @@
 """Airlock API configuration — Pydantic BaseSettings (env vars)."""
 
+import logging
+import sys
+
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -36,7 +41,7 @@ class Settings(BaseSettings):
     openrouter_api_key: str = ""
 
     # MAGS / Inference Engine
-    persona_repo_path: str = "/Users/zacharyholwerda/Desktop/Airlock/repos/airlock-persona"
+    persona_repo_path: str = ""
 
     # Feature flags
     feature_billing: bool = False
@@ -54,3 +59,30 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def validate_production_settings() -> None:
+    """Abort startup if critical secrets are missing in production."""
+    if settings.environment != "production":
+        return
+
+    errors: list[str] = []
+
+    if settings.jwt_secret == "change-me-in-production" or len(settings.jwt_secret) < 32:
+        errors.append("JWT_SECRET must be set to a strong secret (>= 32 chars) in production")
+
+    if not settings.token_encryption_key:
+        errors.append(
+            "TOKEN_ENCRYPTION_KEY must be set in production. "
+            'Generate with: python -c "from cryptography.fernet import Fernet; '
+            'print(Fernet.generate_key().decode())"'
+        )
+
+    if errors:
+        for err in errors:
+            logger.critical("STARTUP BLOCKED: %s", err)
+        sys.exit(1)
+
+
+# Run validation on import (server startup)
+validate_production_settings()

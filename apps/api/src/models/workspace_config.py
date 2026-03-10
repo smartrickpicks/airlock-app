@@ -7,7 +7,7 @@ Workspace integration, and billing/limit overrides.
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, Text, UniqueConstraint, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -19,7 +19,9 @@ class WorkspaceConfig(Base):
     __table_args__ = (UniqueConstraint("workspace_id", name="uq_workspace_config_workspace_id"),)
 
     id: Mapped[str] = mapped_column(Text, primary_key=True)
-    workspace_id: Mapped[str] = mapped_column(Text, nullable=False, index=True)
+    workspace_id: Mapped[str] = mapped_column(
+        Text, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # Domain
     custom_domain: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -31,7 +33,7 @@ class WorkspaceConfig(Base):
     accent_color: Mapped[str] = mapped_column(Text, nullable=False, server_default="#00d1ff")
 
     # Modules
-    enabled_modules: Mapped[dict] = mapped_column(
+    enabled_modules: Mapped[list] = mapped_column(
         JSONB(astext_type=Text()),
         nullable=False,
         server_default='["contracts","crm","triage","calendar","documents"]',
@@ -44,7 +46,7 @@ class WorkspaceConfig(Base):
 
     # Google Workspace
     google_refresh_token_encrypted: Mapped[str | None] = mapped_column(Text, nullable=True)
-    google_scopes_granted: Mapped[dict | None] = mapped_column(
+    google_scopes_granted: Mapped[list | None] = mapped_column(
         JSONB(astext_type=Text()), nullable=True
     )
 

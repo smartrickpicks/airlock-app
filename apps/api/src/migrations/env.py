@@ -25,12 +25,18 @@ from src.models import (  # noqa: E402, F401
     McpToolPermission,
     PasskeyCredential,
     Patch,
+    PlaybookInstance,
+    PlaybookNodeState,
     User,
     UserConnection,
     UserModuleRole,
+    UserProfile,
+    UserProfileChangelog,
     Vault,
     VaultMember,
     Workspace,
+    WorkspaceConfig,
+    WorkspaceMembership,
 )
 from src.otto.models import OttoMessage, OttoSession  # noqa: E402, F401
 from src.workflows.models import Workflow, WorkflowRun  # noqa: E402, F401

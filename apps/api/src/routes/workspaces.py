@@ -1,7 +1,5 @@
 """Workspace routes — create and retrieve workspaces."""
 
-import re
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -9,10 +7,11 @@ from ulid import ULID
 
 from src.db import get_db
 from src.middleware.auth import get_current_user
-from src.models.schemas.workspace_config import WorkspaceConfigResponse
+from src.models.schemas.workspace_config import PublicResolveResponse
 from src.models.user import User
 from src.models.workspace import Workspace
 from src.services.workspace_resolver import resolve_domain
+from src.services.workspace_service import slugify
 
 router = APIRouter(prefix="/api/v1/workspaces", tags=["workspaces"])
 
@@ -27,22 +26,21 @@ class WorkspaceResponse(BaseModel):
     slug: str
 
 
-def _slugify(name: str) -> str:
-    """Convert workspace name to URL-safe slug."""
-    slug = name.lower().strip()
-    slug = re.sub(r"[^a-z0-9]+", "-", slug)
-    return slug.strip("-")
-
-
-@router.get("/resolve", response_model=WorkspaceConfigResponse)
+@router.get("/resolve", response_model=PublicResolveResponse)
 async def resolve_workspace_by_domain(
-    domain: str = Query(..., description="Custom domain to resolve"),  # noqa: B008
+    domain: str = Query(  # noqa: B008
+        ...,
+        description="Custom domain to resolve",
+        max_length=253,
+        pattern=r"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$",
+    ),
     db: Session = Depends(get_db),  # noqa: B008
-) -> WorkspaceConfigResponse:
+) -> PublicResolveResponse:
     """Resolve a custom domain to its workspace configuration.
 
     Called by Next.js middleware for multi-domain routing.
     No auth required (called before user is authenticated).
+    Returns a minimal response — no billing, Stripe, or limit data.
     """
     config = await resolve_domain(domain, db)
     if not config:
@@ -50,7 +48,7 @@ async def resolve_workspace_by_domain(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Domain not found or not verified",
         )
-    return WorkspaceConfigResponse.model_validate(config)
+    return PublicResolveResponse.model_validate(config)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=WorkspaceResponse)
@@ -60,7 +58,7 @@ async def create_workspace(
     db: Session = Depends(get_db),  # noqa: B008
 ) -> WorkspaceResponse:
     """Create a new workspace and assign the creator as executive."""
-    slug = _slugify(body.name)
+    slug = slugify(body.name)
 
     # Check slug uniqueness
     existing = (
