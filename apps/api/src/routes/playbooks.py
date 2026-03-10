@@ -1,4 +1,4 @@
-"""Playbook routes — CRUD for templates, instances, and node states.
+"""Playbook routes — CRUD for templates, instances, node states, and DAG execution.
 
 Template endpoints (read-only from YAML):
 - GET    /api/v1/playbooks/templates                    — List available templates
@@ -13,6 +13,11 @@ Instance endpoints (database state):
 Node state endpoints:
 - GET    /api/v1/playbooks/instances/{instance_id}/nodes              — Get node states
 - PATCH  /api/v1/playbooks/instances/{instance_id}/nodes/{node_id}   — Update node state
+
+DAG Execution endpoints (M7):
+- POST   /api/v1/playbooks/instances/{instance_id}/execute                    — Start/advance execution
+- POST   /api/v1/playbooks/instances/{instance_id}/nodes/{node_id}/complete   — Complete a blocked node
+- POST   /api/v1/playbooks/instances/{instance_id}/nodes/{node_id}/gate       — Respond to a gate
 """
 
 from __future__ import annotations
@@ -24,7 +29,11 @@ from sqlalchemy.orm import Session
 
 from src.db import get_db
 from src.schemas.playbook import (
+    CompleteNodeRequest,
     CreateInstanceRequest,
+    ExecuteRequest,
+    ExecutionResponse,
+    GateResponseRequest,
     InstanceListResponse,
     InstanceResponse,
     NodeStateResponse,
@@ -34,6 +43,7 @@ from src.schemas.playbook import (
     UpdateNodeStateRequest,
 )
 from src.services import playbook as playbook_service
+from src.services.dag.engine import complete_node, respond_to_gate, start_execution
 from src.services.playbooks.template_loader import get_template, list_templates
 
 logger = logging.getLogger(__name__)
@@ -244,3 +254,129 @@ async def update_node_state(
         db.rollback()
         logger.exception("Node state update failed: instance=%s node=%s", instance_id, node_id)
         raise HTTPException(status_code=500, detail="Node state update failed") from exc
+
+
+# =====================================================================
+# DAG Execution Endpoints (M7)
+# =====================================================================
+
+
+@router.post(
+    "/instances/{instance_id}/execute",
+    response_model=ExecutionResponse,
+)
+async def execute_instance(
+    instance_id: str,
+    body: ExecuteRequest | None = None,
+    db: Session = Depends(get_db),  # noqa: B008
+) -> ExecutionResponse:
+    """Start or advance DAG execution on a playbook instance.
+
+    Walks the DAG, executing all runnable nodes (those whose dependencies
+    are satisfied). Returns a summary of what was executed and what's blocked.
+    """
+    existing = playbook_service.get_instance(db, instance_id=instance_id)
+    if existing is None:
+        raise HTTPException(status_code=404, detail=f"Instance not found: {instance_id}")
+
+    try:
+        summary = start_execution(
+            db,
+            instance_id=instance_id,
+            vault_context=body.vault_context if body else None,
+            user_profile=body.user_profile if body else None,
+        )
+        db.commit()
+
+        if summary.errors:
+            raise HTTPException(status_code=400, detail="; ".join(summary.errors))
+
+        return ExecutionResponse(**summary.to_dict())
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        logger.exception("DAG execution failed: %s", instance_id)
+        raise HTTPException(status_code=500, detail="DAG execution failed") from exc
+
+
+@router.post(
+    "/instances/{instance_id}/nodes/{node_id}/complete",
+    response_model=ExecutionResponse,
+)
+async def complete_blocked_node(
+    instance_id: str,
+    node_id: str,
+    body: CompleteNodeRequest | None = None,
+    db: Session = Depends(get_db),  # noqa: B008
+) -> ExecutionResponse:
+    """Complete a blocked node (human or hybrid) and advance the DAG.
+
+    After completing the node, the engine walks forward to execute
+    any nodes that are now unblocked.
+    """
+    existing = playbook_service.get_instance(db, instance_id=instance_id)
+    if existing is None:
+        raise HTTPException(status_code=404, detail=f"Instance not found: {instance_id}")
+
+    try:
+        summary = complete_node(
+            db,
+            instance_id=instance_id,
+            node_id=node_id,
+            result=body.result if body else None,
+        )
+        db.commit()
+
+        if summary.errors:
+            raise HTTPException(status_code=400, detail="; ".join(summary.errors))
+
+        return ExecutionResponse(**summary.to_dict())
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        logger.exception("Node completion failed: instance=%s node=%s", instance_id, node_id)
+        raise HTTPException(status_code=500, detail="Node completion failed") from exc
+
+
+@router.post(
+    "/instances/{instance_id}/nodes/{node_id}/gate",
+    response_model=ExecutionResponse,
+)
+async def respond_to_node_gate(
+    instance_id: str,
+    node_id: str,
+    body: GateResponseRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+) -> ExecutionResponse:
+    """Respond to a gate checkpoint on a node (approve/reject/request_changes).
+
+    If approved and the approval threshold is met, advances the DAG.
+    If rejected, the node stays blocked for rework.
+    """
+    existing = playbook_service.get_instance(db, instance_id=instance_id)
+    if existing is None:
+        raise HTTPException(status_code=404, detail=f"Instance not found: {instance_id}")
+
+    try:
+        summary = respond_to_gate(
+            db,
+            instance_id=instance_id,
+            node_id=node_id,
+            action=body.action,
+            responder_id=body.responder_id,
+            comment=body.comment,
+        )
+        db.commit()
+
+        if summary.errors:
+            raise HTTPException(status_code=400, detail="; ".join(summary.errors))
+
+        return ExecutionResponse(**summary.to_dict())
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        logger.exception("Gate response failed: instance=%s node=%s", instance_id, node_id)
+        raise HTTPException(status_code=500, detail="Gate response failed") from exc

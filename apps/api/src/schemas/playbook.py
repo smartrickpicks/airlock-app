@@ -209,6 +209,48 @@ class UpdateNodeStateRequest(BaseModel):
     gate_response: dict[str, Any] | None = None
 
 
+# ---------------------------------------------------------------------------
+# DAG Execution Schemas (M7)
+# ---------------------------------------------------------------------------
+
+
+class ExecuteRequest(BaseModel):
+    """Request to start or advance DAG execution on a playbook instance."""
+
+    vault_context: dict[str, Any] | None = Field(
+        default=None, description="Vault data context for prompt composition"
+    )
+    user_profile: dict[str, Any] | None = Field(
+        default=None, description="User profile for prompt composition"
+    )
+
+
+class CompleteNodeRequest(BaseModel):
+    """Request to externally complete a blocked node (human/hybrid)."""
+
+    result: dict[str, Any] | None = Field(
+        default=None, description="Result data from human completion"
+    )
+
+
+class GateResponseRequest(BaseModel):
+    """Request to respond to a gate checkpoint."""
+
+    action: str = Field(description="Gate action: approve, reject, or request_changes")
+    responder_id: str = Field(description="ID of the user responding to the gate")
+    comment: str | None = Field(default=None, description="Optional comment from reviewer")
+
+
+class ExecutionResponse(BaseModel):
+    """Response from DAG execution operations."""
+
+    instance_id: str
+    nodes_executed: list[str] = Field(default_factory=list)
+    nodes_blocked: list[str] = Field(default_factory=list)
+    is_complete: bool = False
+    errors: list[str] = Field(default_factory=list)
+
+
 class TemplateListResponse(BaseModel):
     """List of available playbook templates."""
 
