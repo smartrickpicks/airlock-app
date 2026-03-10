@@ -27,6 +27,7 @@ import {
   ChevronRight,
   Check,
   Lock,
+  Orbit,
 } from "lucide-react";
 import SearchInput from "@/components/atoms/SearchInput";
 import CreateVaultModal from "@/components/molecules/CreateVaultModal";
@@ -94,6 +95,12 @@ const ADMIN_TIERS = [
         route: "/admin/modules",
       },
       { id: "members", label: "Members", icon: Users, route: "/admin/members" },
+      {
+        id: "constellation",
+        label: "Constellation",
+        icon: Orbit,
+        route: "/admin/constellation",
+      },
       { id: "roles", label: "Roles", icon: Shield, route: "/admin/roles" },
     ],
   },
