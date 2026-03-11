@@ -22,6 +22,7 @@ from src.otto.agent import (
 )
 from src.otto.enrichment import build_user_agent_context, build_vault_context
 from src.otto.feature_gate import is_otto_enabled, otto_circuit_breaker
+from src.otto.moderation import check_moderation
 from src.otto.session_service import (
     clear_session,
     get_or_create_session,
@@ -154,6 +155,33 @@ async def otto_chat(
 
     # Save user message
     save_message(db, session, role="user", content=request.message)
+
+    # ── Moderation check ──────────────────────────────────────────────
+    mod_block = await check_moderation(
+        user_id=user_id,
+        content=request.message,
+        surface=request.surface or "otto_chat",
+        workspace_id=workspace_id,
+    )
+    if mod_block:
+
+        def stream_moderation() -> Generator[str, None, None]:
+            yield format_sse_text(mod_block.otto_message)
+            yield format_sse_finish("moderation", 0, 0)
+            yield format_sse_done()
+
+        save_message(
+            db, session, role="assistant", content=mod_block.otto_message, model="moderation"
+        )
+        return StreamingResponse(
+            stream_moderation(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     # Build enrichment context — try full agent context, fall back to vault context
     agent_ctx = None
@@ -336,7 +364,7 @@ Keep responses focused, helpful, and concise.
 
 
 @general_router.post("/chat")
-def otto_general_chat(
+async def otto_general_chat(
     request: ChatRequest,
     db: Session = Depends(get_db),  # noqa: B008
     user: dict = Depends(get_current_user),  # noqa: B008
@@ -346,6 +374,32 @@ def otto_general_chat(
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Otto AI is temporarily unavailable",
+        )
+
+    # ── Moderation check ──────────────────────────────────────────────
+    user_id = user["sub"]
+    workspace_id = user.get("workspace_id", "ws_dev")
+    mod_block = await check_moderation(
+        user_id=user_id,
+        content=request.message,
+        surface="general_chat",
+        workspace_id=workspace_id,
+    )
+    if mod_block:
+
+        def stream_mod() -> Generator[str, None, None]:
+            yield format_sse_text(mod_block.otto_message)
+            yield format_sse_finish("moderation", 0, 0)
+            yield format_sse_done()
+
+        return StreamingResponse(
+            stream_mod(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
         )
 
     # Resolve provider from request config or env

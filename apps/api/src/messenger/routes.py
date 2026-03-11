@@ -13,6 +13,7 @@ from src.messenger.service import (
     send_message,
 )
 from src.middleware.auth import get_current_user
+from src.otto.moderation import check_moderation
 from src.realtime.emitter import emit_event
 
 router = APIRouter(prefix="/api/v1/messenger", tags=["messenger"])
@@ -73,6 +74,16 @@ async def post_message(
     user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
     """Send a message to a conversation."""
+    # ── Moderation check ──────────────────────────────────────────────
+    mod_block = await check_moderation(
+        user_id=user["sub"],
+        content=request.content,
+        surface="messenger",
+        workspace_id=user.get("workspace_id", "ws_dev"),
+    )
+    if mod_block:
+        raise HTTPException(status_code=403, detail=mod_block.to_dict())
+
     msg = send_message(
         db,
         conversation_id=conversation_id,

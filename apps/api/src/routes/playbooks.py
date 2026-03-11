@@ -28,6 +28,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from src.db import get_db
+from src.otto.moderation import check_moderation
 from src.schemas.playbook import (
     CompleteNodeRequest,
     CreateInstanceRequest,
@@ -358,6 +359,17 @@ async def respond_to_node_gate(
     existing = playbook_service.get_instance(db, instance_id=instance_id)
     if existing is None:
         raise HTTPException(status_code=404, detail=f"Instance not found: {instance_id}")
+
+    # ── Moderation check (gate comments) ──────────────────────────────
+    if body.comment:
+        mod_block = await check_moderation(
+            user_id=body.responder_id or "unknown",
+            content=body.comment,
+            surface="playbook_chat",
+            workspace_id=existing.workspace_id,
+        )
+        if mod_block:
+            raise HTTPException(status_code=403, detail=mod_block.to_dict())
 
     try:
         summary = respond_to_gate(

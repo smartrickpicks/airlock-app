@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.db import get_db
 from src.middleware.auth import get_current_user
+from src.otto.moderation import check_moderation
 from src.schemas.patch import (
     CreatePatchRequest,
     PatchListResponse,
@@ -107,7 +108,7 @@ def get_patch_route(
 
 
 @router.post("/{patch_id}/transition")
-def transition_patch_route(
+async def transition_patch_route(
     vault_id: str,
     patch_id: str,
     body: TransitionPatchRequest,
@@ -117,6 +118,18 @@ def transition_patch_route(
     """Transition a patch through the approval state machine."""
     workspace_id = current_user.get("workspace_id", "")
     actor_id = current_user.get("sub", "")
+
+    # ── Moderation check (patch notes) ────────────────────────────────
+    if body.note:
+        mod_block = await check_moderation(
+            user_id=actor_id,
+            content=body.note,
+            surface="patch_note",
+            workspace_id=workspace_id,
+        )
+        if mod_block:
+            raise HTTPException(status_code=403, detail=mod_block.to_dict())
+
     patch = get_patch(db, patch_id, workspace_id)
     if patch is None or patch.vault_id != vault_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patch not found")
