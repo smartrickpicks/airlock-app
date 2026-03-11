@@ -9,6 +9,7 @@ export interface WorkspaceSettings {
   createdAt: string;
   inviteUrl: string;
   logoUrl?: string;
+  accentColor: string;
   memberCount: number;
   vaultCount: number;
 }
@@ -32,6 +33,7 @@ export const MOCK_WORKSPACE: WorkspaceSettings = {
   plan: "starter",
   createdAt: "2026-03-08T00:00:00Z",
   inviteUrl: "https://app.airlock.dev/invite/my-airlock/tk_invite",
+  accentColor: "#00d1ff",
   memberCount: 3,
   vaultCount: 0,
 };

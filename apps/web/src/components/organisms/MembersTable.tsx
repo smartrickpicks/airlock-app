@@ -3,7 +3,6 @@
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminStore } from "@/stores/admin.store";
-import { apiFetch } from "@/lib/api";
 import {
   MEMBER_STATUS_CONFIG,
   ORG_ROLE_LABELS,
@@ -136,106 +135,12 @@ function ModuleRoleEditor({ member }: { member: WorkspaceMember }) {
   );
 }
 
-// ─── Invite modal (stateful placeholder) ─────────────────────────────
-
-function InviteModal({ onClose }: { onClose: () => void }) {
-  const [email, setEmail] = useState("");
-  const [orgRole, setOrgRole] = useState<OrgRole>("member");
-  const [sent, setSent] = useState(false);
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleInvite = async () => {
-    if (!email.trim() || isLoading) return;
-    setIsLoading(true);
-    try {
-      await apiFetch("/api/v1/invites", {
-        method: "POST",
-        body: JSON.stringify({ email, org_role: orgRole }),
-      });
-    } catch {
-      // API not running — fall through to show success for demo
-    }
-    setSent(true);
-    setIsLoading(false);
-    setTimeout(onClose, 1500);
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-xl border border-surface-border bg-surface-base p-6 shadow-2xl">
-        <h3 className="text-base font-semibold text-text-primary">
-          Invite a member
-        </h3>
-        <p className="mt-1 text-xs text-text-secondary">
-          They&apos;ll receive an email with a magic link to join your
-          workspace.
-        </p>
-
-        <div className="mt-4 space-y-3">
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1">
-              Email address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com"
-              className="w-full rounded-md border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-accent-primary focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1">
-              Org role
-            </label>
-            <select
-              value={orgRole}
-              onChange={(e) => setOrgRole(e.target.value as OrgRole)}
-              className="w-full rounded-md border border-surface-border bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent-primary focus:outline-none"
-            >
-              {(["member", "lead", "director", "executive"] as OrgRole[]).map(
-                (r) => (
-                  <option key={r} value={r}>
-                    {ORG_ROLE_LABELS[r]}
-                  </option>
-                ),
-              )}
-            </select>
-            <p className="mt-1 text-[10px] text-text-muted">
-              Architect is reserved for the workspace founder and cannot be
-              invited.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-5 flex items-center justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="rounded-md px-4 py-2 text-sm text-text-secondary hover:text-text-primary"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleInvite}
-            disabled={!email.trim() || sent || isLoading}
-            className="rounded-md bg-accent-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {sent ? "Invitation sent!" : "Send invite"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main component ───────────────────────────────────────────────────
 
 export default function MembersTable() {
   const router = useRouter();
   const { members, updateMemberRole } = useAdminStore();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [showInvite, setShowInvite] = useState(false);
 
   const activeCount = members.filter((m) => m.status === "active").length;
 
@@ -244,23 +149,13 @@ export default function MembersTable() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-text-primary">Members</h2>
-          <p className="mt-0.5 text-sm text-text-secondary">
-            Manage workspace members and their roles
-          </p>
+          <h2 className="text-base font-semibold text-text-primary">
+            Active Members
+          </h2>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-surface-overlay px-3 py-1 text-xs font-medium text-text-secondary">
-            {activeCount} active
-          </span>
-          <button
-            onClick={() => setShowInvite(true)}
-            className="flex items-center gap-1.5 rounded-md bg-accent-primary px-3 py-1.5 text-sm font-medium text-white hover:opacity-90"
-          >
-            <span className="text-base leading-none">+</span>
-            Invite
-          </button>
-        </div>
+        <span className="rounded-full bg-surface-overlay px-3 py-1 text-xs font-medium text-text-secondary">
+          {activeCount} active
+        </span>
       </div>
 
       {/* Table */}
@@ -441,8 +336,6 @@ export default function MembersTable() {
         </table>
       </div>
 
-      {/* Invite modal */}
-      {showInvite && <InviteModal onClose={() => setShowInvite(false)} />}
     </div>
   );
 }

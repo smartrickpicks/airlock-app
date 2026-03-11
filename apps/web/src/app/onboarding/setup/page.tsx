@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { wizardStep as wizardStepVariants } from "@/lib/animations";
 import type {
   WizardStep,
@@ -262,17 +262,19 @@ function StepWorkspaceName({ onNext }: { onNext: () => void }) {
     } catch (err) {
       setLoading(false);
 
-      if (err instanceof Error && err.message.includes("409")) {
-        setError("A workspace with that name already exists.");
-        return;
-      }
-
-      // Show the actual error instead of silently proceeding
-      if (err instanceof Error && err.message.includes("401")) {
-        setError(
-          "Your session expired. Please go back to the login page and sign in again.",
-        );
-        return;
+      if (err instanceof ApiError) {
+        if (err.status === 409) {
+          setError(
+            "A workspace with that name already exists. Try a different name.",
+          );
+          return;
+        }
+        if (err.status === 401) {
+          setError(
+            "Your session expired. Please go back to the login page and sign in again.",
+          );
+          return;
+        }
       }
 
       setError(

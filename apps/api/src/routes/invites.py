@@ -4,6 +4,7 @@ Database-backed invite records with real auth for acceptance.
 """
 
 import logging
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
@@ -47,12 +48,56 @@ class InviteInfo(BaseModel):
     expires_at: str
 
 
+class InviteListItem(BaseModel):
+    id: str
+    email: str
+    role: str
+    code: str
+    status: str
+    invited_by: str
+    created_at: str
+    expires_at: str
+
+
 class AcceptInviteRequest(BaseModel):
     google_credential: str
     display_name: str | None = None
 
 
 # -- Routes -------------------------------------------------------------------
+
+
+@router.get("", response_model=list[InviteListItem])
+async def list_invites(
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+    db: Session = Depends(get_db),  # noqa: B008
+):
+    """List pending invites for the current user's workspace (admin view)."""
+    workspace_id = current_user.get("workspace_id")
+    invites = invite_service.list_workspace_invites(db, workspace_id)
+
+    result = []
+    for inv in invites:
+        if inv.accepted_by:
+            inv_status = "accepted"
+        elif datetime.now(UTC) > inv.expires_at.replace(tzinfo=UTC):
+            inv_status = "expired"
+        else:
+            inv_status = "pending"
+
+        result.append(
+            InviteListItem(
+                id=inv.id,
+                email=inv.email,
+                role=inv.role,
+                code=inv.code,
+                status=inv_status,
+                invited_by=inv.invited_by,
+                created_at=inv.created_at.isoformat(),
+                expires_at=inv.expires_at.isoformat(),
+            )
+        )
+    return result
 
 
 @router.post("", response_model=CreateInviteResponse)

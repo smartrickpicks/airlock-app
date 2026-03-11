@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   Plus,
+  Upload,
   PenLine,
   Eraser,
   Clock,
@@ -15,6 +16,9 @@ import { useLocalDrafts } from "@/hooks/useLocalDrafts";
 import DocumentsTable from "@/components/organisms/DocumentsTable";
 import DocumentPreview from "@/components/organisms/DocumentPreview";
 import NewDocumentEditor from "@/components/organisms/NewDocumentEditor";
+import DocumentUploadModal from "@/components/organisms/DocumentUploadModal";
+import FileDropZone from "@/components/organisms/FileDropZone";
+import type { Document } from "@/lib/mock-documents";
 
 const SpreadsheetView = dynamic(
   () => import("@/components/organisms/SpreadsheetView"),
@@ -42,6 +46,7 @@ export default function DocumentsLibraryPage() {
     isLoading,
     selectedDocId,
     selectDocument,
+    addDocument,
     getFilteredDocuments,
     getSelectedDocument,
   } = useDocumentsStore();
@@ -52,6 +57,7 @@ export default function DocumentsLibraryPage() {
   const [activeView, setActiveView] = useState<"list" | "editor">("list");
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "spreadsheet">("table");
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDocuments();
@@ -82,6 +88,63 @@ export default function DocumentsLibraryPage() {
     if (activeDraftId === id) {
       handleCloseEditor();
     }
+  };
+
+  const handleUpload = (data: {
+    title: string;
+    fileName: string;
+    documentType: Document["documentType"];
+    fileFormat: Document["fileFormat"];
+    moduleSource: "contracts" | "crm" | "tasks" | "documents";
+    accountId: string | null;
+    sourceLabel: string;
+  }) => {
+    const now = new Date().toISOString();
+    const newDoc: Document = {
+      id: crypto.randomUUID(),
+      title: data.title,
+      fileName: data.fileName,
+      fileFormat: data.fileFormat,
+      fileSizeBytes: 0,
+      documentType: data.documentType,
+      status: "draft",
+      vaultSlug: null,
+      vaultName: null,
+      moduleSource: data.moduleSource,
+      uploadedBy: "current-user",
+      uploadedByName: "You",
+      version: 1,
+      createdAt: now,
+      updatedAt: now,
+      relatedAccountId: data.accountId,
+      sourceLabel: data.sourceLabel,
+    };
+    addDocument(newDoc);
+  };
+
+  const handleFileDrop = (file: File) => {
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+    const format = (["pdf", "docx", "xlsx", "pptx", "txt", "md"].includes(ext) ? ext : "pdf") as Document["fileFormat"];
+    const now = new Date().toISOString();
+    const newDoc: Document = {
+      id: crypto.randomUUID(),
+      title: file.name.replace(/\.[^.]+$/, ""),
+      fileName: file.name,
+      fileFormat: format,
+      fileSizeBytes: file.size,
+      documentType: "other",
+      status: "draft",
+      vaultSlug: null,
+      vaultName: null,
+      moduleSource: "documents",
+      uploadedBy: "current-user",
+      uploadedByName: "You",
+      version: 1,
+      createdAt: now,
+      updatedAt: now,
+      sourceLabel: "Local Upload",
+    };
+    addDocument(newDoc);
   };
 
   // Editor view
@@ -128,6 +191,13 @@ export default function DocumentsLibraryPage() {
               <LayoutDashboard size={14} />
             </button>
           </div>
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="flex items-center gap-1.5 rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent-primary/40 hover:bg-accent-primary/10 hover:text-accent-primary"
+          >
+            <Upload size={13} />
+            Upload
+          </button>
           <button
             onClick={handleNewDocument}
             className="flex items-center gap-1.5 rounded-lg border border-accent-primary/40 bg-accent-primary/10 px-3 py-1.5 text-xs font-medium text-accent-primary transition-colors hover:border-accent-primary/70 hover:bg-accent-primary/20"
@@ -209,6 +279,16 @@ export default function DocumentsLibraryPage() {
           )}
         </div>
       )}
+
+      {/* File drop zone */}
+      <FileDropZone onFileSelected={handleFileDrop} />
+
+      {/* Upload modal */}
+      <DocumentUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onUpload={handleUpload}
+      />
     </div>
   );
 }
