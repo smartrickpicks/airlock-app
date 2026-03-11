@@ -5,9 +5,17 @@ import { Bot, Send, Trash2 } from "lucide-react";
 import { useOttoStore } from "@/stores/otto.store";
 import { OTTO_SUGGESTIONS } from "@/lib/mock-otto";
 import type { OttoMessage } from "@/lib/mock-otto";
+import PersonaSelector from "@/components/molecules/PersonaSelector";
 
 export default function OttoChat() {
-  const { messages, isStreaming, sendMessage, clearHistory } = useOttoStore();
+  const {
+    messages,
+    isStreaming,
+    sendMessage,
+    clearHistory,
+    personaMode,
+    setPersonaMode,
+  } = useOttoStore();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,14 +61,17 @@ export default function OttoChat() {
             </span>
           )}
         </div>
-        <button
-          onClick={clearHistory}
-          className="text-text-muted hover:text-text-primary transition-colors"
-          aria-label="Clear chat history"
-          title="Clear history"
-        >
-          <Trash2 size={14} />
-        </button>
+        <div className="flex items-center gap-2">
+          <PersonaSelector value={personaMode} onChange={setPersonaMode} />
+          <button
+            onClick={clearHistory}
+            className="text-text-muted hover:text-text-primary transition-colors"
+            aria-label="Clear chat history"
+            title="Clear history"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Messages */}

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/atoms/Button";
 import { usePatchStore } from "@/stores/patch.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import type { Patch, PatchState } from "@/lib/mock-patches";
 
@@ -176,13 +177,35 @@ interface PatchActionsProps {
   vaultId: string;
 }
 
+/** Approval/rejection target states that must be hidden for self-approval */
+const APPROVAL_TARGETS: PatchState[] = [
+  "verifier_approved",
+  "admin_approved",
+  "rejected",
+];
+
 export default function PatchActions({ patch, vaultId }: PatchActionsProps) {
-  const { transitionPatch, isLoading } = usePatchStore();
+  const { transitionPatch, isLoading, evidenceViewed } = usePatchStore();
+  const currentUser = useAuthStore((s) => s.user);
   const [activeAction, setActiveAction] = useState<PatchState | null>(null);
   const [note, setNote] = useState("");
 
-  const actions = getActions(patch);
+  const isSelfApproval = currentUser?.id === patch.author_id;
+
+  // Self-approval prevention: hide approve/reject from DOM entirely (not disabled)
+  const actions = getActions(patch).filter(
+    (a) => !(isSelfApproval && APPROVAL_TARGETS.includes(a.targetState)),
+  );
   if (actions.length === 0) return null;
+
+  // Evidence must be viewed before approve actions are enabled
+  const evidenceRequired =
+    !evidenceViewed &&
+    actions.some((a) =>
+      (["verifier_approved", "admin_approved"] as PatchState[]).includes(
+        a.targetState,
+      ),
+    );
 
   const handleAction = async (action: ActionDef) => {
     if (action.requiresNote && activeAction !== action.targetState) {
@@ -219,24 +242,38 @@ export default function PatchActions({ patch, vaultId }: PatchActionsProps) {
         Actions
       </p>
 
+      {evidenceRequired && (
+        <p className="mb-2 text-xs text-text-muted">
+          Review all evidence in the approval chain before approving.
+        </p>
+      )}
+
       <div className="flex flex-wrap gap-2">
-        {actions.map((action) => (
-          <Button
-            key={action.targetState}
-            variant={action.variant}
-            size="sm"
-            onClick={() => handleAction(action)}
-            disabled={isLoading}
-            className="gap-1.5"
-          >
-            {isLoading && activeAction === action.targetState ? (
-              <LoaderCircle size={14} className="animate-spin" />
-            ) : (
-              action.icon
-            )}
-            {action.label}
-          </Button>
-        ))}
+        {actions.map((action) => {
+          const isApproveAction = (
+            ["verifier_approved", "admin_approved"] as PatchState[]
+          ).includes(action.targetState);
+          const blocked = evidenceRequired && isApproveAction;
+
+          return (
+            <Button
+              key={action.targetState}
+              variant={action.variant}
+              size="sm"
+              onClick={() => handleAction(action)}
+              disabled={isLoading || blocked}
+              className="gap-1.5"
+              title={blocked ? "View evidence before approving" : undefined}
+            >
+              {isLoading && activeAction === action.targetState ? (
+                <LoaderCircle size={14} className="animate-spin" />
+              ) : (
+                action.icon
+              )}
+              {action.label}
+            </Button>
+          );
+        })}
       </div>
 
       {/* Note input for actions requiring explanation */}

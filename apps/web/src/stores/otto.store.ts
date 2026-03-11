@@ -10,11 +10,22 @@ function getAuthToken(): string | null {
 
 let messageCounter = 0;
 
+export const PERSONA_MODES = [
+  { value: null, label: "Auto" },
+  { value: "analyst", label: "Analyst" },
+  { value: "executor", label: "Executor" },
+  { value: "guardian", label: "Guardian" },
+  { value: "strategist", label: "Strategist" },
+  { value: "connector", label: "Connector" },
+  { value: "architect", label: "Architect" },
+] as const;
+
 interface OttoState {
   messages: OttoMessage[];
   isStreaming: boolean;
   isDrawerOpen: boolean;
   vaultId: string | null;
+  personaMode: string | null;
 
   // --- Messenger (shell-level, persistent Otto) ---
   messengerMessages: OttoMessage[];
@@ -30,6 +41,7 @@ interface OttoState {
   sendMessage: (content: string) => void;
   clearHistory: () => void;
   setVaultId: (id: string) => void;
+  setPersonaMode: (mode: string | null) => void;
   stop: () => void;
 
   // --- Messenger Actions ---
@@ -86,6 +98,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   isStreaming: false,
   isDrawerOpen: false,
   vaultId: null,
+  personaMode: null,
 
   // Messenger state
   messengerMessages: [],
@@ -130,7 +143,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
       isStreaming: true,
     }));
 
-    const { vaultId } = get();
+    const { vaultId, personaMode } = get();
 
     // Read AI provider config from capability tree
     const aiConfig = useCapabilityTreeStore.getState().nodeConfigs[
@@ -149,6 +162,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
 
     const body: Record<string, unknown> = {
       message: content,
+      ...(personaMode && { persona_mode: personaMode }),
       provider_config: {
         provider: aiConfig.provider ?? "Anthropic",
         api_key: aiConfig.apiKey,
@@ -239,6 +253,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   },
 
   setVaultId: (id) => set({ vaultId: id }),
+  setPersonaMode: (mode) => set({ personaMode: mode }),
 
   // --- Messenger Actions ---
 
@@ -289,9 +304,11 @@ export const useOttoStore = create<OttoState>((set, get) => ({
     const abort = new AbortController();
     messengerAbort = abort;
 
+    const { personaMode: messengerPersona } = get();
     const body: Record<string, unknown> = {
       message: content,
       surface: "messenger",
+      ...(messengerPersona && { persona_mode: messengerPersona }),
       provider_config: {
         provider: aiConfig.provider ?? "Anthropic",
         api_key: aiConfig.apiKey,

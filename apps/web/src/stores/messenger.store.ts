@@ -58,6 +58,11 @@ interface MessengerState {
   initRealtimeHandlers: () => void;
   sendTypingIndicator: (conversationId: string) => void;
 
+  setConversationPersonaMode: (
+    conversationId: string,
+    mode: string | null,
+  ) => void;
+
   filteredConversations: (activeModule: string) => Conversation[];
   totalUnread: () => number;
 }
@@ -536,6 +541,14 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
         subscribeToConversation(conv.id);
       }
     });
+  },
+
+  setConversationPersonaMode: (conversationId, mode) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id === conversationId ? { ...c, personaMode: mode ?? undefined } : c,
+      ),
+    }));
   },
 
   sendTypingIndicator: (conversationId: string) => {

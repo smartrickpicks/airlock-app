@@ -8,6 +8,7 @@ import MessageReactions from "@/components/molecules/MessageReactions";
 import EmojiPicker from "@/components/molecules/EmojiPicker";
 import GifPicker from "@/components/molecules/GifPicker";
 import { useMessengerStore } from "@/stores/messenger.store";
+import PersonaSelector from "@/components/molecules/PersonaSelector";
 
 interface GifData {
   gifUrl: string;
@@ -36,6 +37,9 @@ export default function ChatView({
   const [input, setInput] = useState("");
   const [showGifPicker, setShowGifPicker] = useState(false);
   const sendTypingIndicator = useMessengerStore((s) => s.sendTypingIndicator);
+  const setConversationPersonaMode = useMessengerStore(
+    (s) => s.setConversationPersonaMode,
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -109,10 +113,15 @@ export default function ChatView({
               ? otherParticipant?.name || "Direct Message"
               : conversation.name || "Untitled"}
           </p>
-          {conversation.type === "otto" && conversation.personaMode && (
-            <span className="text-xs text-text-tertiary ml-2 capitalize">
-              {conversation.personaMode} mode
-            </span>
+          {conversation.type === "otto" && (
+            <div className="mt-0.5">
+              <PersonaSelector
+                value={conversation.personaMode ?? null}
+                onChange={(mode) =>
+                  setConversationPersonaMode(conversation.id, mode)
+                }
+              />
+            </div>
           )}
         </div>
         {conversation.type === "vault_thread" && conversation.chamber && (

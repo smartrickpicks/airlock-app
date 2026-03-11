@@ -65,7 +65,11 @@ const pinnedByModule: Record<
   ],
   crm: [{ icon: GitBranch, label: "Pipeline", path: "/crm/pipeline" }],
   tasks: [{ icon: LayoutDashboard, label: "Board", path: "/tasks/board" }],
-  calendar: [{ icon: Calendar, label: "Month View", path: "/calendar/month" }],
+  calendar: [
+    { icon: Calendar, label: "Month", path: "/calendar/month" },
+    { icon: Calendar, label: "Week", path: "/calendar/week" },
+    { icon: Calendar, label: "Agenda", path: "/calendar/agenda" },
+  ],
   documents: [
     { icon: FolderTree, label: "All Documents", path: "/documents/all" },
   ],

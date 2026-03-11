@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Eye } from "lucide-react";
 import SLATimer from "@/components/molecules/SLATimer";
+import { usePatchStore } from "@/stores/patch.store";
 import type { ApprovalStep, ApprovalStepStatus } from "@/lib/mock-patches";
 
 const dotStyles: Record<ApprovalStepStatus, string> = {
@@ -30,7 +31,12 @@ export default function ApprovalChain({
   steps,
   className,
 }: ApprovalChainProps) {
+  const { evidenceViewed, markEvidenceViewed } = usePatchStore();
   const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
+
+  const hasEvidence = steps.some(
+    (s) => s.note && (s.status === "completed" || s.status === "returned"),
+  );
 
   const toggleStep = (stepId: string) => {
     setExpandedSteps((prev) => {
@@ -116,6 +122,35 @@ export default function ApprovalChain({
           </div>
         );
       })}
+
+      {/* Evidence viewing requirement — must be confirmed before approve enables */}
+      {hasEvidence && !evidenceViewed && (
+        <button
+          onClick={() => {
+            // Expand all steps with notes so reviewer sees evidence
+            const noteStepIds = steps
+              .filter(
+                (s) =>
+                  s.note &&
+                  (s.status === "completed" || s.status === "returned"),
+              )
+              .map((s) => s.id);
+            setExpandedSteps(new Set(noteStepIds));
+            markEvidenceViewed();
+          }}
+          className="mt-2 flex items-center gap-1.5 rounded-md border border-surface-border bg-surface-overlay px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors duration-fast hover:bg-surface-sunken hover:text-text-primary"
+        >
+          <Eye size={12} />
+          View Evidence
+        </button>
+      )}
+
+      {hasEvidence && evidenceViewed && (
+        <p className="mt-2 flex items-center gap-1.5 text-[10px] text-text-muted">
+          <Eye size={10} />
+          Evidence reviewed
+        </p>
+      )}
     </div>
   );
 }
