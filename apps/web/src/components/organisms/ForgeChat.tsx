@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { Send, Bot, User } from "lucide-react";
+import { SendHorizonal, Bot, UserRound } from "lucide-react";
 import GoalChips from "@/components/molecules/GoalChips";
 import AutonomyCards from "@/components/molecules/AutonomyCards";
 import type { ForgeMessage } from "@/lib/mock-forge";
@@ -102,7 +102,7 @@ export default function ForgeChat({
                   {msg.role === "otto" ? (
                     <Bot size={14} className="text-accent-primary" />
                   ) : (
-                    <User size={14} className="text-text-muted" />
+                    <UserRound size={14} className="text-text-muted" />
                   )}
                 </div>
 
@@ -194,7 +194,7 @@ export default function ForgeChat({
             disabled={!input.trim()}
             className="flex-shrink-0 text-text-muted hover:text-accent-primary disabled:opacity-30 transition-colors"
           >
-            <Send size={16} />
+            <SendHorizonal size={16} />
           </button>
         </div>
         <p className="mt-1.5 text-center text-[10px] text-text-muted">

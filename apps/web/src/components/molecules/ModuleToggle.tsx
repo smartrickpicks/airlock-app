@@ -1,6 +1,12 @@
 "use client";
 
-import { FileText, Users, CheckSquare, Calendar, File } from "lucide-react";
+import {
+  FileStack,
+  UsersRound,
+  CheckSquare,
+  Calendar,
+  FileBadge,
+} from "lucide-react";
 import type { ElementType } from "react";
 
 interface ModuleItem {
@@ -15,18 +21,18 @@ interface ModuleToggleProps {
 }
 
 const MODULE_ICONS: Record<string, ElementType> = {
-  contracts: FileText,
-  crm: Users,
+  contracts: FileStack,
+  crm: UsersRound,
   tasks: CheckSquare,
   calendar: Calendar,
-  documents: File,
+  documents: FileBadge,
 };
 
 export default function ModuleToggle({ modules, onToggle }: ModuleToggleProps) {
   return (
     <div className="flex items-center gap-1.5">
       {modules.map((mod) => {
-        const Icon = MODULE_ICONS[mod.id] || File;
+        const Icon = MODULE_ICONS[mod.id] || FileBadge;
         return (
           <button
             key={mod.id}

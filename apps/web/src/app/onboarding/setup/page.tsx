@@ -6,17 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Rocket,
   Layers,
-  Plug,
-  Users,
-  Database,
+  Cable,
+  UsersRound,
+  DatabaseZap,
   CheckCircle,
-  FileText,
-  UserCircle,
+  FileStack,
+  UserRound,
   BarChart3,
   Calendar,
-  FolderOpen,
-  Cpu,
-  Key,
+  FolderTree,
+  Microchip,
+  KeyRound,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
@@ -39,18 +39,18 @@ import {
 const STEP_ICONS: Record<WizardStep, React.ReactNode> = {
   create_workspace: <Rocket size={20} />,
   module_config: <Layers size={20} />,
-  connect_tools: <Plug size={20} />,
-  invite_team: <Users size={20} />,
-  connect_data: <Database size={20} />,
+  connect_tools: <Cable size={20} />,
+  invite_team: <UsersRound size={20} />,
+  connect_data: <DatabaseZap size={20} />,
   ready: <CheckCircle size={20} />,
 };
 
 const MODULE_ICONS: Record<string, React.ReactNode> = {
-  contracts: <FileText size={18} />,
-  crm: <UserCircle size={18} />,
+  contracts: <FileStack size={18} />,
+  crm: <UserRound size={18} />,
   tasks: <BarChart3 size={18} />,
   calendar: <Calendar size={18} />,
-  documents: <FolderOpen size={18} />,
+  documents: <FolderTree size={18} />,
 };
 
 /* ─── Workspace creation response ──────────────────────────────────────────── */
@@ -396,7 +396,7 @@ function StepConnectors({
   return (
     <>
       <StepHeader
-        icon={<Plug size={24} className="text-chamber-build" />}
+        icon={<Cable size={24} className="text-chamber-build" />}
         title="Connect your tools"
         subtitle="Optional. Bring in data from tools you already use."
       />
@@ -487,7 +487,7 @@ function StepInviteTeam({
   return (
     <>
       <StepHeader
-        icon={<Users size={24} className="text-chamber-review" />}
+        icon={<UsersRound size={24} className="text-chamber-review" />}
         title="Invite your team"
         subtitle="Add people now or invite them later from Admin."
       />
@@ -609,7 +609,7 @@ function StepAiProvider({
   return (
     <>
       <StepHeader
-        icon={<Cpu size={24} className="text-accent-primary" />}
+        icon={<Microchip size={24} className="text-accent-primary" />}
         title="Connect your AI"
         subtitle="Power Otto and contract extraction with your own API key."
       />
@@ -644,7 +644,7 @@ function StepAiProvider({
             API Key
           </label>
           <div className="relative">
-            <Key
+            <KeyRound
               size={14}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
             />

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Circle, X, Sparkles } from "lucide-react";
+import { CircleCheckBig, CircleDashed, X, Sparkles } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import {
   staggerContainer,
@@ -105,13 +105,13 @@ export default function OnboardingChecklist() {
                     damping: 15,
                   }}
                 >
-                  <CheckCircle2
+                  <CircleCheckBig
                     size={16}
                     className="shrink-0 text-accent-success"
                   />
                 </motion.div>
               ) : (
-                <Circle size={16} className="shrink-0 text-text-muted" />
+                <CircleDashed size={16} className="shrink-0 text-text-muted" />
               )}
               <span
                 className={`text-sm transition-all duration-normal ${

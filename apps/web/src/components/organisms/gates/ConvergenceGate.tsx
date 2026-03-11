@@ -1,6 +1,6 @@
 "use client";
 
-import { Layers, Check, X, Clock } from "lucide-react";
+import { Layers, Check, X, Timer } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { GateApproval } from "@/lib/mock-gates";
@@ -94,7 +94,7 @@ export default function ConvergenceGate({
                     </span>
                     <span className="flex items-center gap-1 text-xs text-text-muted">
                       <Icon
-                        icon={Clock}
+                        icon={Timer}
                         size="sm"
                         className="text-text-muted"
                       />

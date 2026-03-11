@@ -1,6 +1,6 @@
 "use client";
 
-import { Rocket, Loader2, Bot } from "lucide-react";
+import { Rocket, LoaderCircle, Bot } from "lucide-react";
 import ModuleToggle from "@/components/molecules/ModuleToggle";
 import ProfileInferencePanel from "@/components/molecules/ProfileInferencePanel";
 import ArchetypeBadge from "@/components/atoms/ArchetypeBadge";
@@ -215,7 +215,7 @@ export default function ForgePreview({
               </>
             ) : isLaunching ? (
               <>
-                <Loader2 size={16} className="animate-spin" />
+                <LoaderCircle size={16} className="animate-spin" />
                 <span>Launching...</span>
               </>
             ) : (

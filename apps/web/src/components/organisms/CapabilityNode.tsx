@@ -3,7 +3,7 @@
 import { memo, lazy, Suspense, useState, useRef, useCallback } from "react";
 import { Handle, Position } from "@xyflow/react";
 import type { NodeProps, Node } from "@xyflow/react";
-import { Lock, X, Check, AlertTriangle } from "lucide-react";
+import { Lock, X, Check, OctagonAlert } from "lucide-react";
 import Skeleton from "@/components/atoms/Skeleton";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import type { CapabilityNodeData } from "@/stores/capability-tree.store";
@@ -53,7 +53,7 @@ function CheckBadge() {
 function ErrorBadge() {
   return (
     <div className="absolute -right-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-accent-danger">
-      <AlertTriangle size={10} className="text-white" strokeWidth={3} />
+      <OctagonAlert size={10} className="text-white" strokeWidth={3} />
     </div>
   );
 }

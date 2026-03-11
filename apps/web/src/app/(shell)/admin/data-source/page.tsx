@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Upload, CheckCircle, Loader2 } from "lucide-react";
+import { CloudUpload, CircleCheckBig, LoaderCircle } from "lucide-react";
 import { MOCK_DATA_SOURCES } from "@/lib/mock-admin";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import { fadeInUp } from "@/lib/animations";
@@ -132,7 +132,7 @@ export default function AdminDataSourcePage() {
                     className="rounded-md border border-surface-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-surface-overlay disabled:opacity-50"
                   >
                     {isConnecting ? (
-                      <Loader2 size={14} className="animate-spin" />
+                      <LoaderCircle size={14} className="animate-spin" />
                     ) : (
                       "Connect"
                     )}
@@ -156,7 +156,7 @@ export default function AdminDataSourcePage() {
           >
             <div className="flex items-start gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/15">
-                <Upload size={18} className="text-accent-primary" />
+                <CloudUpload size={18} className="text-accent-primary" />
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-text-primary">
@@ -172,19 +172,19 @@ export default function AdminDataSourcePage() {
                       onClick={handleUploadBatch}
                       className="inline-flex items-center gap-2 rounded-lg bg-accent-primary px-4 py-2 text-xs font-semibold text-surface-base transition-colors hover:bg-accent-primary-hover"
                     >
-                      <Upload size={14} />
+                      <CloudUpload size={14} />
                       Upload Batch
                     </button>
                   )}
                   {uploadState === "uploading" && (
                     <div className="flex items-center gap-2 text-xs text-accent-primary">
-                      <Loader2 size={14} className="animate-spin" />
+                      <LoaderCircle size={14} className="animate-spin" />
                       Processing batch upload...
                     </div>
                   )}
                   {uploadState === "done" && (
                     <div className="flex items-center gap-2 text-xs text-accent-success">
-                      <CheckCircle size={14} />
+                      <CircleCheckBig size={14} />
                       Batch uploaded successfully
                     </div>
                   )}

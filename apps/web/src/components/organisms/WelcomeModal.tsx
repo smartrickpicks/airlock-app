@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Wrench,
-  LayoutList,
+  Rows3,
   Vault,
   ShieldCheck,
   ListChecks,
@@ -25,7 +25,7 @@ import type { LucideIcon } from "lucide-react";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   wrench: Wrench,
-  "layout-list": LayoutList,
+  "layout-list": Rows3,
   vault: Vault,
   "shield-check": ShieldCheck,
   "list-checks": ListChecks,

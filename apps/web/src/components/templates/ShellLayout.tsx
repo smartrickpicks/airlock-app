@@ -16,6 +16,7 @@ import { useNotificationStore } from "@/stores/notification.store";
 import { useRealtimeStore } from "@/stores/realtime.store";
 import { useOttoStore } from "@/stores/otto.store";
 import { useMessengerStore } from "@/stores/messenger.store";
+import type { Message } from "@/lib/mock-messenger";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import { useModuleStore, type ModuleName } from "@/stores/module.store";
 import RightToolPushPanel from "@/components/organisms/RightToolPushPanel";
@@ -47,6 +48,10 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
   const toggleOtto = useOttoStore((s) => s.toggleDrawer);
   const toggleMessenger = useMessengerStore((s) => s.toggleDrawer);
   const fetchMessenger = useMessengerStore((s) => s.fetchMessenger);
+  const handleIncomingMessage = useMessengerStore(
+    (s) => s.handleIncomingMessage,
+  );
+  const conversations = useMessengerStore((s) => s.conversations);
   const welcomeSeen = useOnboardingStore((s) => s.welcomeSeen);
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -95,6 +100,34 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [toggleSearch, toggleOtto, toggleMessenger]);
+
+  // Listen for incoming messenger WebSocket events
+  useEffect(() => {
+    const unsubscribe = useRealtimeStore
+      .getState()
+      .onEvent("messenger:*", (event) => {
+        if (event.type === "message.sent" && event.payload?.message) {
+          const msg = event.payload.message as Message;
+          handleIncomingMessage(msg.conversationId, msg);
+        }
+      });
+    return unsubscribe;
+  }, [handleIncomingMessage]);
+
+  // Subscribe to WebSocket topics for each conversation
+  useEffect(() => {
+    if (conversations.length === 0) return;
+    import("@/lib/websocket")
+      .then(({ getWebSocket }) => {
+        const socket = getWebSocket();
+        conversations.forEach((conv) => {
+          socket.subscribe(`messenger:${conv.id}`);
+        });
+      })
+      .catch(() => {
+        /* mock mode — no WebSocket available */
+      });
+  }, [conversations]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-surface-base">

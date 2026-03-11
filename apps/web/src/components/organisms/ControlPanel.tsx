@@ -7,10 +7,14 @@ import ControlTab from "@/components/molecules/ControlTab";
 import PatchList from "@/components/molecules/PatchList";
 import PatchStateBadge from "@/components/atoms/PatchStateBadge";
 import ApprovalChain from "@/components/organisms/ApprovalChain";
+import PatchActions from "@/components/molecules/PatchActions";
 import SLATimer from "@/components/molecules/SLATimer";
 import { usePatchStore } from "@/stores/patch.store";
+import { useVaultStore } from "@/stores/vault.store";
+import ChamberStepper from "@/components/organisms/ChamberStepper";
 import OttoChat from "@/components/organisms/OttoChat";
 import AuditTrailPanel from "@/components/organisms/AuditTrailPanel";
+import type { ChamberName } from "@/lib/constants";
 
 /** Tab definition with icon, label, and placeholder content */
 interface TabDef {
@@ -86,6 +90,11 @@ export default function ControlPanel({
   vaultId,
 }: ControlPanelProps) {
   const { patches, selectedPatch, fetchPatches, selectPatch } = usePatchStore();
+  const {
+    selectedVault,
+    advanceChamber,
+    isLoading: isVaultLoading,
+  } = useVaultStore();
 
   useEffect(() => {
     if (vaultId) {
@@ -139,6 +148,9 @@ export default function ControlPanel({
                   <PatchStateBadge state={selectedPatch.state} />
                 </div>
                 <ApprovalChain steps={selectedPatch.approval_steps} />
+                {vaultId && (
+                  <PatchActions patch={selectedPatch} vaultId={vaultId} />
+                )}
               </div>
             )}
           </div>
@@ -189,6 +201,24 @@ export default function ControlPanel({
           <div className="-m-4 h-[calc(100%+2rem)]">
             <OttoChat />
           </div>
+        );
+      case "lifecycle":
+        return selectedVault ? (
+          <ChamberStepper
+            currentChamber={
+              (selectedVault.chamber as ChamberName) ?? "discover"
+            }
+            canAdvance={selectedVault.chamber !== "ship" && !isVaultLoading}
+            onAdvance={() => {
+              if (vaultId) advanceChamber(vaultId);
+            }}
+            isAdvancing={isVaultLoading}
+            compact
+          />
+        ) : (
+          <p className="text-sm text-text-muted">
+            Select a vault to view lifecycle.
+          </p>
         );
       default:
         return (

@@ -1,17 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 import GateDot from "@/components/atoms/GateDot";
 import RecordInspector from "@/components/organisms/RecordInspector";
 import AuditTrailFullScreen from "@/components/organisms/AuditTrailFullScreen";
 import { useVaultStore } from "@/stores/vault.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
+import { CHAMBERS } from "@/lib/constants";
 import type { Chamber } from "@/stores/vault.store";
+import type { ChamberName } from "@/lib/constants";
 
 export default function VaultDetailPage() {
   const params = useParams<{ vaultId: string }>();
-  const { selectedVault, fetchVault, isLoading } = useVaultStore();
+  const { selectedVault, fetchVault, advanceChamber, isLoading } =
+    useVaultStore();
+  const [isAdvancing, setIsAdvancing] = useState(false);
 
   useEffect(() => {
     if (params.vaultId) {
@@ -48,6 +53,18 @@ export default function VaultDetailPage() {
         ? "text-gate-yellow"
         : "text-gate-red";
 
+  const currentChamber = (selectedVault.chamber as ChamberName) ?? "discover";
+  const chamberOrder = CHAMBERS[currentChamber].order;
+  const CHAMBER_KEYS: ChamberName[] = ["discover", "build", "review", "ship"];
+  const nextChamber = chamberOrder < 3 ? CHAMBER_KEYS[chamberOrder + 1] : null;
+
+  const handleAdvance = async () => {
+    if (!params.vaultId || !nextChamber) return;
+    setIsAdvancing(true);
+    await advanceChamber(params.vaultId);
+    setIsAdvancing(false);
+  };
+
   return (
     <div className="flex h-full flex-col">
       {/* Compact vault header */}
@@ -78,6 +95,22 @@ export default function VaultDetailPage() {
             <span className={`font-mono text-sm font-bold ${healthColor}`}>
               {selectedVault.health_score ?? 0}%
             </span>
+            {nextChamber && (
+              <button
+                onClick={handleAdvance}
+                disabled={isAdvancing}
+                className="flex items-center gap-1.5 rounded-md bg-accent-primary/15 px-3 py-1.5 text-xs font-semibold text-accent-primary transition-colors hover:bg-accent-primary/25 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isAdvancing ? (
+                  "Advancing..."
+                ) : (
+                  <>
+                    <ChevronRight size={14} />
+                    Advance to {CHAMBERS[nextChamber].label}
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -6,9 +6,9 @@ import {
   Sparkles,
   Shield,
   Wrench,
-  MessageSquare,
-  Brain,
-  Eye,
+  MessageSquareText,
+  BrainCircuit,
+  ScanEye,
 } from "lucide-react";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 
@@ -31,9 +31,12 @@ const OTTO_TOOLS = [
 
 const BEHAVIORAL_RULES = [
   { icon: Shield, rule: "Propose patches as drafts — never auto-apply" },
-  { icon: Eye, rule: "Self-approval blocked — AI patches need human review" },
-  { icon: MessageSquare, rule: "Max 8 tool calls per message" },
-  { icon: Brain, rule: "Always cite enrichment sources in responses" },
+  {
+    icon: ScanEye,
+    rule: "Self-approval blocked — AI patches need human review",
+  },
+  { icon: MessageSquareText, rule: "Max 8 tool calls per message" },
+  { icon: BrainCircuit, rule: "Always cite enrichment sources in responses" },
 ];
 
 export default function AdminOttoPage() {
@@ -113,7 +116,7 @@ export default function AdminOttoPage() {
         {/* System Prompt Preview */}
         <div className="rounded-lg border border-surface-border bg-surface-raised p-4">
           <div className="mb-3 flex items-center gap-2">
-            <MessageSquare size={14} className="text-text-muted" />
+            <MessageSquareText size={14} className="text-text-muted" />
             <h2 className="text-sm font-semibold text-text-primary">
               System Prompt
             </h2>

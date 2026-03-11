@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Cpu, CheckCircle, AlertCircle, Circle } from "lucide-react";
+import { Cpu, CircleCheckBig, TriangleAlert, Circle } from "lucide-react";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import { MOCK_AI_PROVIDERS } from "@/lib/mock-admin";
@@ -89,9 +89,9 @@ export default function AdminAiProviderPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isConfigured ? (
-                <CheckCircle size={18} className="text-accent-success" />
+                <CircleCheckBig size={18} className="text-accent-success" />
               ) : (
-                <AlertCircle size={18} className="text-accent-warning" />
+                <TriangleAlert size={18} className="text-accent-warning" />
               )}
               <div>
                 <p className="text-sm font-medium text-text-primary">

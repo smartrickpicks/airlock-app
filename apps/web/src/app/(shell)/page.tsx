@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  BellRing,
+  BellDot,
   Bot,
   FileUp,
-  FolderOpen,
-  MessageSquare,
+  FolderTree,
+  MessageSquareText,
   Plus,
   Sparkles,
   X,
@@ -148,7 +148,7 @@ function FirstUploadView() {
                 onClick={() => router.push("/documents/library")}
                 className="flex items-start gap-3 rounded-xl border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:bg-surface-overlay"
               >
-                <FolderOpen
+                <FolderTree
                   size={18}
                   className="mt-0.5 shrink-0 text-accent-primary"
                 />
@@ -433,7 +433,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 rounded-full bg-accent-primary px-3 py-1.5 text-xs font-semibold text-background transition-colors hover:bg-accent-primary-hover"
                 onClick={() => openTool("compose")}
               >
-                <MessageSquare size={14} />
+                <MessageSquareText size={14} />
                 Quick Compose
               </button>
             </div>
@@ -533,7 +533,7 @@ export default function Home() {
 
                 <div className="mt-5 grid gap-3 md:grid-cols-3">
                   <HubAction
-                    icon={BellRing}
+                    icon={BellDot}
                     label="Activity"
                     value={`${unreadNotifications} unread`}
                     onClick={() => openTool("activity")}
@@ -640,7 +640,7 @@ function HubAction({
   value,
   onClick,
 }: {
-  icon: typeof BellRing;
+  icon: typeof BellDot;
   label: string;
   value: string;
   onClick: () => void;

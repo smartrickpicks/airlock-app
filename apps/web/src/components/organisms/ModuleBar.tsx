@@ -8,8 +8,8 @@ import {
   CheckSquare,
   Calendar,
   FolderOpen,
-  Settings,
-  LogOut,
+  SlidersHorizontal,
+  DoorOpen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { MODULES, type ModuleName } from "@/lib/constants";
@@ -148,7 +148,7 @@ export default function ModuleBar() {
           title="Log out"
           onClick={handleLogout}
         >
-          <LogOut size={18} />
+          <DoorOpen size={18} />
         </button>
 
         {/* Settings gear */}
@@ -166,7 +166,7 @@ export default function ModuleBar() {
             router.push("/admin");
           }}
         >
-          <Settings size={20} />
+          <SlidersHorizontal size={20} />
           {isAdminRoute ? (
             <span className="absolute -left-3 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-accent-primary" />
           ) : null}

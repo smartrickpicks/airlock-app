@@ -2,8 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle,
-  Circle,
+  CircleCheckBig,
+  CircleDashed,
   ChevronDown,
   ChevronUp,
   ShieldCheck,
@@ -99,13 +99,16 @@ export default function AdminOnboardingChecklist() {
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                   >
-                    <CheckCircle
+                    <CircleCheckBig
                       size={14}
                       className="text-accent-success shrink-0"
                     />
                   </motion.div>
                 ) : (
-                  <Circle size={14} className="text-text-muted shrink-0" />
+                  <CircleDashed
+                    size={14}
+                    className="text-text-muted shrink-0"
+                  />
                 )}
                 <span
                   className={`text-xs ${

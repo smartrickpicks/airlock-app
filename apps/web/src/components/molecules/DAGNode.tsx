@@ -2,8 +2,8 @@
 
 import {
   Check,
-  Circle,
-  Loader2,
+  CircleDashed,
+  LoaderCircle,
   Lock,
   Slash,
   Bot,
@@ -48,9 +48,9 @@ const STATUS_RING: Record<DAGNodeStatus, string> = {
 
 const STATUS_ICON: Record<DAGNodeStatus, LucideIcon> = {
   completed: Check,
-  in_progress: Loader2,
+  in_progress: LoaderCircle,
   blocked: Lock,
-  pending: Circle,
+  pending: CircleDashed,
   skipped: Slash,
 };
 

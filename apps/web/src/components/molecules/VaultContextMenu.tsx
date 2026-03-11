@@ -5,9 +5,9 @@ import {
   ExternalLink,
   Pin,
   CheckCheck,
-  Link2,
+  ClipboardCopy,
   AlertTriangle,
-  Archive,
+  ArchiveRestore,
 } from "lucide-react";
 
 interface VaultContextMenuProps {
@@ -24,9 +24,9 @@ const ACTIONS = [
   { id: "open_new_tab", label: "Open in New Tab", icon: ExternalLink },
   { id: "pin", label: "Pin to Top", icon: Pin },
   { id: "mark_read", label: "Mark as Read", icon: CheckCheck },
-  { id: "copy_link", label: "Copy Link", icon: Link2 },
+  { id: "copy_link", label: "Copy Link", icon: ClipboardCopy },
   { id: "view_triage", label: "View in Triage", icon: AlertTriangle },
-  { id: "archive", label: "Archive", icon: Archive, danger: true },
+  { id: "archive", label: "Archive", icon: ArchiveRestore, danger: true },
 ] as const;
 
 export default function VaultContextMenu({

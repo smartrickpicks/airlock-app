@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart3, Check, X, Clock, MessageSquare } from "lucide-react";
+import { BarChart3, Check, X, Timer, MessageSquare } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { GateApproval } from "@/lib/mock-gates";
@@ -106,7 +106,7 @@ export default function QualityGate({
                       </span>
                       <span className="flex items-center gap-1 text-xs text-text-muted">
                         <Icon
-                          icon={Clock}
+                          icon={Timer}
                           size="sm"
                           className="text-text-muted"
                         />

@@ -5,24 +5,24 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   AlertTriangle,
   Calendar,
-  FolderOpen,
+  FolderTree,
   GitBranch,
-  LayoutGrid,
+  LayoutDashboard,
   Plus,
   PlusCircle,
-  Building2,
-  Brain,
-  Database,
-  Users,
+  Landmark,
+  BrainCircuit,
+  DatabaseZap,
+  UsersRound,
   Shield,
   Sparkles,
-  Server,
-  Wand2,
-  Plug,
-  Radio,
-  Flag,
+  ServerCog,
+  Sparkles as SparklesSkills,
+  Cable,
+  Podcast,
+  ToggleLeft,
   ScrollText,
-  User,
+  UserRound,
   Palette,
   ChevronRight,
   Check,
@@ -64,10 +64,10 @@ const pinnedByModule: Record<
     { icon: PlusCircle, label: "Generator", path: "/contracts/generator" },
   ],
   crm: [{ icon: GitBranch, label: "Pipeline", path: "/crm/pipeline" }],
-  tasks: [{ icon: LayoutGrid, label: "Board", path: "/tasks/board" }],
+  tasks: [{ icon: LayoutDashboard, label: "Board", path: "/tasks/board" }],
   calendar: [{ icon: Calendar, label: "Month View", path: "/calendar/month" }],
   documents: [
-    { icon: FolderOpen, label: "All Documents", path: "/documents/all" },
+    { icon: FolderTree, label: "All Documents", path: "/documents/all" },
   ],
 };
 
@@ -80,19 +80,19 @@ const ADMIN_TIERS = [
       {
         id: "workspace",
         label: "Workspace",
-        icon: Building2,
+        icon: Landmark,
         route: "/admin/workspace",
       },
       {
         id: "ai_provider",
         label: "AI Provider",
-        icon: Brain,
+        icon: BrainCircuit,
         route: "/admin/ai-provider",
       },
       {
         id: "data_source",
         label: "Data Source",
-        icon: Database,
+        icon: DatabaseZap,
         route: "/admin/data-source",
       },
     ],
@@ -103,10 +103,15 @@ const ADMIN_TIERS = [
       {
         id: "modules",
         label: "Modules",
-        icon: LayoutGrid,
+        icon: LayoutDashboard,
         route: "/admin/modules",
       },
-      { id: "members", label: "Members", icon: Users, route: "/admin/members" },
+      {
+        id: "members",
+        label: "Members",
+        icon: UsersRound,
+        route: "/admin/members",
+      },
       {
         id: "constellation",
         label: "Constellation",
@@ -140,14 +145,19 @@ const ADMIN_TIERS = [
       {
         id: "mcp_servers",
         label: "MCP Servers",
-        icon: Server,
+        icon: ServerCog,
         route: "/admin/mcp-servers",
       },
-      { id: "skills", label: "Skills", icon: Wand2, route: "/admin/skills" },
+      {
+        id: "skills",
+        label: "Skills",
+        icon: SparklesSkills,
+        route: "/admin/skills",
+      },
       {
         id: "integrations",
         label: "Integrations",
-        icon: Plug,
+        icon: Cable,
         route: "/admin/integrations",
       },
     ],
@@ -164,13 +174,13 @@ const ADMIN_TIERS = [
       {
         id: "event_bus",
         label: "Event Bus",
-        icon: Radio,
+        icon: Podcast,
         route: "/admin/event-bus",
       },
       {
         id: "feature_flags",
         label: "Feature Flags",
-        icon: Flag,
+        icon: ToggleLeft,
         route: "/admin/features",
       },
     ],
@@ -178,7 +188,7 @@ const ADMIN_TIERS = [
 ];
 
 const ADMIN_PERSONAL = [
-  { label: "Profile", icon: User, route: "/admin/profile" },
+  { label: "Profile", icon: UserRound, route: "/admin/profile" },
   { label: "Appearance", icon: Palette, route: "/admin/settings" },
   { label: "Audit Log", icon: ScrollText, route: "/admin/audit-log" },
 ];
@@ -442,7 +452,7 @@ export default function SubPanel() {
                     : "text-text-secondary hover:bg-surface-overlay/50 hover:text-text-primary"
                 }`}
               >
-                <LayoutGrid size={16} />
+                <LayoutDashboard size={16} />
                 Capability Tree
                 <span className="ml-auto text-[10px] text-text-muted">
                   {progress.configured}/{progress.total}

@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Plus, Pencil, Trash2, Clock, LayoutGrid, Table2 } from "lucide-react";
+import {
+  Plus,
+  PenLine,
+  Eraser,
+  Clock,
+  LayoutDashboard,
+  TableProperties,
+} from "lucide-react";
 import { useDocumentsStore } from "@/stores/documents.store";
 import { useLocalDrafts } from "@/hooks/useLocalDrafts";
 import DocumentsTable from "@/components/organisms/DocumentsTable";
@@ -111,14 +118,14 @@ export default function DocumentsLibraryPage() {
               className={`rounded-md p-1.5 transition-colors ${viewMode === "table" ? "bg-surface-overlay text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
               title="Table view"
             >
-              <Table2 size={14} />
+              <TableProperties size={14} />
             </button>
             <button
               onClick={() => setViewMode("spreadsheet")}
               className={`rounded-md p-1.5 transition-colors ${viewMode === "spreadsheet" ? "bg-surface-overlay text-text-primary" : "text-text-muted hover:text-text-secondary"}`}
               title="Spreadsheet view"
             >
-              <LayoutGrid size={14} />
+              <LayoutDashboard size={14} />
             </button>
           </div>
           <button
@@ -146,7 +153,7 @@ export default function DocumentsLibraryPage() {
                 key={draft.id}
                 className="flex items-center gap-3 bg-surface-raised px-4 py-2.5 transition-colors hover:bg-surface-overlay"
               >
-                <Pencil size={13} className="shrink-0 text-text-muted" />
+                <PenLine size={13} className="shrink-0 text-text-muted" />
                 <span className="flex-1 truncate text-sm text-text-primary">
                   {draft.title}
                 </span>
@@ -168,7 +175,7 @@ export default function DocumentsLibraryPage() {
                   title="Delete draft"
                   className="rounded-md p-1 text-text-muted transition-colors hover:bg-accent-danger/10 hover:text-accent-danger"
                 >
-                  <Trash2 size={12} />
+                  <Eraser size={12} />
                 </button>
               </div>
             ))}

@@ -183,14 +183,36 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   advanceChamber: async (vaultId) => {
-    const updated = await apiFetch<Vault>(`/api/v1/vaults/${vaultId}/advance`, {
-      method: "POST",
-    });
-    set((state) => ({
-      vaults: state.vaults.map((v) => (v.id === vaultId ? updated : v)),
-      selectedVault:
-        state.selectedVault?.id === vaultId ? updated : state.selectedVault,
-    }));
+    try {
+      const updated = await apiFetch<Vault>(
+        `/api/v1/vaults/${vaultId}/advance`,
+        { method: "POST" },
+      );
+      set((state) => ({
+        vaults: state.vaults.map((v) => (v.id === vaultId ? updated : v)),
+        selectedVault:
+          state.selectedVault?.id === vaultId ? updated : state.selectedVault,
+      }));
+    } catch {
+      // Mock fallback — advance chamber locally
+      const CHAMBER_ORDER: Chamber[] = ["discover", "build", "review", "ship"];
+      const vault =
+        get().vaults.find((v) => v.id === vaultId) ?? get().selectedVault;
+      if (!vault || !vault.chamber) return;
+      const currentIdx = CHAMBER_ORDER.indexOf(vault.chamber);
+      if (currentIdx < 0 || currentIdx >= CHAMBER_ORDER.length - 1) return;
+      const nextChamber = CHAMBER_ORDER[currentIdx + 1];
+      const updated: Vault = {
+        ...vault,
+        chamber: nextChamber,
+        updated_at: new Date().toISOString(),
+      };
+      set((state) => ({
+        vaults: state.vaults.map((v) => (v.id === vaultId ? updated : v)),
+        selectedVault:
+          state.selectedVault?.id === vaultId ? updated : state.selectedVault,
+      }));
+    }
   },
 
   archiveVault: async (vaultId) => {

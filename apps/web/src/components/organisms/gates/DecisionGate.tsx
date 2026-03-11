@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GitBranch, Star } from "lucide-react";
+import { GitBranch, Sparkle } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { DecisionOption } from "@/lib/mock-gates";
@@ -72,7 +72,7 @@ export default function DecisionGate({
                       {option.recommended && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-gate-green/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gate-green">
                           <Icon
-                            icon={Star}
+                            icon={Sparkle}
                             size="sm"
                             className="text-gate-green"
                           />
