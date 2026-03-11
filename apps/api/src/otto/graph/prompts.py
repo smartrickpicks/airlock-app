@@ -1,6 +1,6 @@
-"""System prompts for each sub-agent node — persona-aware."""
+"""System prompts for each sub-agent node — persona-aware, channel-aware."""
 
-from src.otto.agent import OTTO_VOICE_BASELINE, PERSONA_VOICE_TRAITS
+from src.otto.agent import OTTO_VOICE_BASELINE, PERSONA_VOICE_TRAITS, get_voice_mode
 from src.otto.deps import OttoState
 
 
@@ -12,6 +12,11 @@ def _persona_modulation(archetype: str | None) -> str:
     if trait:
         return f"\nVoice modulation ({archetype}): {trait}"
     return ""
+
+
+def _channel_block(state: OttoState) -> str:
+    """Return the channel-aware voice mode block for the current surface."""
+    return get_voice_mode(state.surface)
 
 
 def build_recipe_prompt(state: OttoState) -> str:
@@ -26,6 +31,7 @@ def build_recipe_prompt(state: OttoState) -> str:
     archetype = state.archetype or "member"
 
     return f"""{OTTO_VOICE_BASELINE}
+{_channel_block(state)}
 {_persona_modulation(archetype)}
 
 You are guiding the user ({state.org_role}, archetype: {archetype}) \
@@ -52,6 +58,7 @@ def build_vault_prompt(state: OttoState) -> str:
     archetype = state.archetype or "member"
 
     return f"""{OTTO_VOICE_BASELINE}
+{_channel_block(state)}
 {_persona_modulation(archetype)}
 
 You are helping the user ({state.org_role}, archetype: {archetype}) \
@@ -76,6 +83,7 @@ Behavioral rules:
 def build_general_prompt(state: OttoState) -> str:
     """GeneralAgent — freeform questions, cross-vault search, platform help."""
     return f"""{OTTO_VOICE_BASELINE}
+{_channel_block(state)}
 
 You are in messenger mode. Help the user ({state.org_role}) with \
 general questions, cross-vault searches, and platform navigation.
@@ -88,6 +96,7 @@ If the user asks about specific contract data, suggest they open a vault.
 def build_conductor_prompt(state: OttoState) -> str:
     """ConductorAgent — recipe editing, skill assignment, team analytics."""
     return f"""{OTTO_VOICE_BASELINE}
+{_channel_block(state)}
 
 You are in conductor mode. Help the user ({state.org_role}) manage \
 recipes, assign archetypes, and review team performance.

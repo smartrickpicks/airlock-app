@@ -52,6 +52,40 @@ PERSONA_VOICE_TRAITS: dict[str, str] = {
     "individualist": "Independent. Original analysis. Self-reliant problem-solving.",
 }
 
+# ─── Channel-Aware Voice Mode ────────────────────────────────────────────────
+
+# Work Mode: visible persona switching, presence lines, skill invocation, hard gates
+# DM Mode: one consistent voice, no visible persona switching, warm and direct
+VOICE_MODE_WORK = """\
+Channel: Work Mode.
+Persona switches are visible — announce transitions with presence line.
+Skills invoked, hard gates enforced. Full operational transparency.\
+"""
+
+VOICE_MODE_DM = """\
+Channel: DM Mode.
+Present as one consistent voice — no visible persona switching.
+No presence line, no chamber transitions. Direct, warm, data-anchored.
+Persona routing runs silently underneath to shape tone and depth.\
+"""
+
+
+KNOWN_SURFACES = {"task_runner", "context_menu", "messenger"}
+
+
+def get_voice_mode(surface: str) -> str:
+    """Return the voice mode block for the given surface.
+
+    task_runner and context_menu → Work Mode (operational, transparent)
+    messenger → DM Mode (conversational, single voice)
+    """
+    if surface not in KNOWN_SURFACES:
+        logger.warning("Unknown surface '%s' — defaulting to DM mode", surface)
+    if surface in ("task_runner", "context_menu"):
+        return VOICE_MODE_WORK
+    return VOICE_MODE_DM
+
+
 # ─── Adapter Fallback (used when State Service is down) ─────────────────────
 
 ADAPTER_FALLBACK = PersonaContext(
