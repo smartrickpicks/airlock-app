@@ -6,8 +6,8 @@
   },
   "deploy": {
     "startCommand": "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port $PORT",
-    "healthcheckPath": "/api/v1/workspaces/resolve?domain=brainbrigade.xyz",
-    "healthcheckTimeout": 30,
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }
