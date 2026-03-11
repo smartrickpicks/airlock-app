@@ -215,6 +215,24 @@ async def search_chat_messages(
     return {"messages": results}
 
 
+@router.post("/conversations/{conversation_id}/typing")
+async def send_typing_indicator(
+    conversation_id: str,
+    user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Broadcast typing indicator — fire-and-forget, no persistence."""
+    await emit_event(
+        f"chat:{conversation_id}:typing",
+        {
+            "event_type": "typing.start",
+            "user_id": user["sub"],
+            "user_name": user.get("display_name", "Unknown"),
+            "conversation_id": conversation_id,
+        },
+    )
+    return {"ok": True}
+
+
 @router.get("/gifs/search")
 async def search_gifs_route(
     q: str = Query(...),  # noqa: B008

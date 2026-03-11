@@ -9,6 +9,7 @@ VALID_PREFIXES = {
     "notifications",
     "presence",
     "messenger",
+    "chat",
 }
 
 
