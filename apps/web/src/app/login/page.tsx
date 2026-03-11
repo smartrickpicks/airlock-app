@@ -12,6 +12,7 @@ import { fadeIn, staggerContainer, staggerItem } from "@/lib/animations";
 interface AuthResponse {
   access_token: string;
   refresh_token: string;
+  workspace_id?: string;
   user: {
     id: string;
     email: string;
@@ -99,7 +100,6 @@ function LoginForm() {
         method: "POST",
         body: JSON.stringify({
           credential: credentialResponse.credential,
-          workspace_id: "ws_default",
         }),
       });
 
@@ -107,7 +107,7 @@ function LoginForm() {
       useOnboardingStore.getState().completeChecklistItem("login");
 
       // First-time user (no workspace) → onboarding
-      if (data.user.org_role === "member") {
+      if (!data.workspace_id || data.workspace_id === "") {
         router.push("/onboarding/setup");
         return;
       }

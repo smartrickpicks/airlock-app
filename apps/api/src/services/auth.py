@@ -100,6 +100,7 @@ def authenticate_google_user(
     return {
         "access_token": create_access_token(token_data),
         "refresh_token": create_refresh_token(token_data),
+        "workspace_id": user.workspace_id,
         "user": {
             "id": user.id,
             "email": user.email,

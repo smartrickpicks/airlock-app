@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 class GoogleVerifyRequest(BaseModel):
     credential: str
-    workspace_id: str
+    workspace_id: str = ""
 
 
 class RefreshRequest(BaseModel):
