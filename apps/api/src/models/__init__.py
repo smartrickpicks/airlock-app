@@ -1,5 +1,9 @@
 """Airlock ORM models."""
 
+from src.models.credit_account import CreditAccount
+from src.models.credit_plan import CreditPlan
+from src.models.credit_pool import CreditPool, CreditPoolTransaction
+from src.models.credit_transaction import CreditTransaction
 from src.models.document import Document
 from src.models.event import Event
 from src.models.invite import Invite
@@ -38,4 +42,9 @@ __all__ = [
     "Workspace",
     "WorkspaceConfig",
     "WorkspaceMembership",
+    "CreditAccount",
+    "CreditPlan",
+    "CreditPool",
+    "CreditPoolTransaction",
+    "CreditTransaction",
 ]
