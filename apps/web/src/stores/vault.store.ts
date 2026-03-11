@@ -6,6 +6,7 @@ import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 type VaultLevel = 1 | 2 | 3 | 4;
 type Chamber = "discover" | "build" | "review" | "ship";
+type GroupingMode = "chamber" | "entity" | "status" | "lifecycle";
 
 interface Vault {
   id: string;
@@ -41,6 +42,8 @@ interface VaultState {
   isLoading: boolean;
   /** Error message */
   error: string | null;
+  /** Active grouping mode for SubPanel sidebar */
+  groupingMode: GroupingMode;
 
   /** Fetch vaults with optional filters */
   fetchVaults: (params?: {
@@ -70,6 +73,8 @@ interface VaultState {
   addVault: (vault: Vault) => void;
   /** Clear selected vault */
   clearSelectedVault: () => void;
+  /** Set grouping mode for SubPanel sidebar */
+  setGroupingMode: (mode: GroupingMode) => void;
 }
 
 export const useVaultStore = create<VaultState>((set, get) => ({
@@ -78,6 +83,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   children: [],
   isLoading: false,
   error: null,
+  groupingMode: "chamber",
 
   fetchVaults: async (params) => {
     set({ isLoading: true, error: null });
@@ -199,6 +205,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   addVault: (vault) => set((state) => ({ vaults: [vault, ...state.vaults] })),
 
   clearSelectedVault: () => set({ selectedVault: null, children: [] }),
+
+  setGroupingMode: (mode) => set({ groupingMode: mode }),
 }));
 
-export type { Vault, VaultLevel, Chamber };
+export type { Vault, VaultLevel, Chamber, GroupingMode };

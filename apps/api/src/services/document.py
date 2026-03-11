@@ -8,6 +8,7 @@ Text extraction uses a tiered strategy:
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from io import BytesIO
@@ -24,6 +25,26 @@ from src.realtime.emitter import emit_domain_event
 from src.services.search import index_document
 
 logger = logging.getLogger(__name__)
+
+
+def _fire_event(
+    topic: str, event_type: str, payload: dict, workspace_id: str, actor_id: str | None = None
+) -> None:
+    """Schedule an emit_domain_event call on the running event loop (fire-and-forget)."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(
+            emit_domain_event(
+                topic=topic,
+                event_type=event_type,
+                payload=payload,
+                workspace_id=workspace_id,
+                actor_id=actor_id,
+            )
+        )
+    except Exception:
+        logger.warning("Failed to emit %s event for topic %s", event_type, topic)
+
 
 ALLOWED_PDF_EXTENSIONS = {"pdf"}
 
@@ -292,8 +313,8 @@ async def upload_document(
     except Exception:
         logger.warning("Failed to index document %s in search", document.id)
 
-    await emit_domain_event(
-        topic=f"vault:{vault_id}" if vault_id else "workspace",
+    _fire_event(
+        topic=f"vault:{vault_id}" if vault_id else f"workspace:{workspace_id}",
         event_type="document.uploaded",
         payload={"document_id": document.id, "filename": document.filename, "vault_id": vault_id},
         workspace_id=workspace_id,

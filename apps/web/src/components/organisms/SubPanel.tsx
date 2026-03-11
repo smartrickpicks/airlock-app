@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   AlertTriangle,
@@ -28,6 +28,8 @@ import {
   Check,
   Lock,
   Orbit,
+  ListFilter,
+  ChevronDown,
 } from "lucide-react";
 import SearchInput from "@/components/atoms/SearchInput";
 import CreateVaultModal from "@/components/molecules/CreateVaultModal";
@@ -36,13 +38,11 @@ import PinnedChannel from "@/components/molecules/PinnedChannel";
 import VaultItem from "@/components/molecules/VaultItem";
 import VaultContextMenu from "@/components/molecules/VaultContextMenu";
 import { useModuleStore } from "@/stores/module.store";
-import { useVaultStore } from "@/stores/vault.store";
+import { useVaultStore, type GroupingMode } from "@/stores/vault.store";
 import { useNotificationStore } from "@/stores/notification.store";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import { useRealtimeStore } from "@/stores/realtime.store";
 import { MODULES, CHAMBERS, type ChamberName } from "@/lib/constants";
-
-type GroupingMode = "chamber" | "entity" | "status" | "lifecycle";
 
 const GROUPING_OPTIONS: { value: GroupingMode; label: string }[] = [
   { value: "chamber", label: "By Chamber" },
@@ -188,12 +188,14 @@ export default function SubPanel() {
   const pathname = usePathname();
   const { activeModule, activeChamber, selectedVaultId, setSelectedVault } =
     useModuleStore();
-  const { vaults, fetchVaults } = useVaultStore();
+  const { vaults, fetchVaults, groupingMode, setGroupingMode } =
+    useVaultStore();
   const nodeStates = useCapabilityTreeStore((s) => s.nodeStates);
   const getProgress = useCapabilityTreeStore((s) => s.getProgress);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [groupingMode, setGroupingMode] = useState<GroupingMode>("chamber");
+  const [showGroupingMenu, setShowGroupingMenu] = useState(false);
+  const groupingMenuRef = useRef<HTMLDivElement>(null);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -305,6 +307,21 @@ export default function SubPanel() {
     fetchVaults,
   ]);
 
+  // Close grouping menu on outside click
+  useEffect(() => {
+    if (!showGroupingMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      if (
+        groupingMenuRef.current &&
+        !groupingMenuRef.current.contains(e.target as Node)
+      ) {
+        setShowGroupingMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showGroupingMenu]);
+
   // Group vaults by selected mode
   const vaultGroups = useMemo(() => {
     if (groupingMode === "chamber") {
@@ -357,10 +374,10 @@ export default function SubPanel() {
       (byLevel[lvl] ??= []).push(v);
     }
     const levelLabels: Record<number, string> = {
-      1: "WORKSPACE",
-      2: "MODULE",
-      3: "INSTANCE",
-      4: "SUB-ITEM",
+      1: "NEW",
+      2: "ACTIVE",
+      3: "MATURE",
+      4: "COMPLETE",
     };
     return Object.entries(byLevel).map(([lvl, items]) => ({
       key: `level-${lvl}`,
@@ -515,20 +532,51 @@ export default function SubPanel() {
             <div className="mx-3 my-2 h-px bg-surface-border" />
 
             {/* Grouping mode selector */}
-            <div className="mx-3 mb-2">
-              <select
-                value={groupingMode}
-                onChange={(e) =>
-                  setGroupingMode(e.target.value as GroupingMode)
-                }
-                className="w-full rounded border border-surface-border bg-surface-overlay px-2 py-1 text-xs text-text-secondary focus:border-accent-primary focus:outline-none"
+            <div className="relative mx-3 mb-2" ref={groupingMenuRef}>
+              <button
+                onClick={() => setShowGroupingMenu((prev) => !prev)}
+                className="flex w-full items-center gap-1.5 rounded px-2 py-1 text-[11px] text-text-muted transition-colors duration-fast hover:bg-surface-overlay hover:text-text-secondary"
+                aria-label="Change grouping mode"
               >
-                {GROUPING_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+                <ListFilter size={12} />
+                <span>
+                  {GROUPING_OPTIONS.find((o) => o.value === groupingMode)
+                    ?.label ?? "Group"}
+                </span>
+                <ChevronDown
+                  size={10}
+                  className={`ml-auto transition-transform duration-fast ${showGroupingMenu ? "rotate-180" : ""}`}
+                />
+              </button>
+              {showGroupingMenu && (
+                <div className="absolute left-0 right-0 z-50 mt-1 rounded-md border border-surface-border bg-surface-overlay py-1 shadow-lg">
+                  {GROUPING_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => {
+                        setGroupingMode(opt.value);
+                        setShowGroupingMenu(false);
+                      }}
+                      className={`flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors ${
+                        groupingMode === opt.value
+                          ? "bg-accent-primary/10 text-accent-primary"
+                          : "text-text-secondary hover:bg-surface-raised hover:text-text-primary"
+                      }`}
+                    >
+                      {groupingMode === opt.value && (
+                        <Check size={10} className="flex-shrink-0" />
+                      )}
+                      <span
+                        className={
+                          groupingMode === opt.value ? "" : "pl-[18px]"
+                        }
+                      >
+                        {opt.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Grouped vaults */}
