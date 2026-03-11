@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { useAdminStore } from "@/stores/admin.store";
 import MembersTable from "@/components/organisms/MembersTable";
+import { fadeInUp } from "@/lib/animations";
 
 export default function AdminMembersPage() {
   const { fetchAdmin } = useAdminStore();
@@ -12,8 +14,8 @@ export default function AdminMembersPage() {
   }, [fetchAdmin]);
 
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <motion.div className="h-full overflow-y-auto p-6" {...fadeInUp}>
       <MembersTable />
-    </div>
+    </motion.div>
   );
 }

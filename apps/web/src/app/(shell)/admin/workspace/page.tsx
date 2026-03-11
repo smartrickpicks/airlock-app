@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { MOCK_WORKSPACE, INDUSTRY_OPTIONS } from "@/lib/mock-admin";
+import { fadeInUp } from "@/lib/animations";
 
 const PLAN_BADGE: Record<string, string> = {
   starter: "bg-text-muted/15 text-text-muted",
@@ -27,7 +29,7 @@ export default function AdminWorkspacePage() {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <motion.div className="h-full overflow-y-auto p-6" {...fadeInUp}>
       <div className="max-w-2xl space-y-6">
         <div>
           <h1 className="text-lg font-bold text-text-primary">Workspace</h1>
@@ -183,6 +185,6 @@ export default function AdminWorkspacePage() {
           </div>
         </section>
       </div>
-    </div>
+    </motion.div>
   );
 }

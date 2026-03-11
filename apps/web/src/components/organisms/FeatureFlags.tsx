@@ -1,6 +1,7 @@
 "use client";
 
 import { useAdminStore } from "@/stores/admin.store";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 import { FLAG_STATUS_CONFIG, type FeatureFlagStatus } from "@/lib/mock-admin";
 
 const STATUS_CYCLE: FeatureFlagStatus[] = ["disabled", "beta", "enabled"];
@@ -12,6 +13,8 @@ export default function FeatureFlags() {
     const idx = STATUS_CYCLE.indexOf(current);
     const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
     toggleFeatureFlag(flagId, next);
+    // Mark admin checklist item on first flag configuration
+    useOnboardingStore.getState().completeAdminItem("configure_flags");
   };
 
   const moduleFlags = featureFlags.filter((f) => f.module !== null);

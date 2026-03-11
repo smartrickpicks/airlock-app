@@ -1,8 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+import { motion } from "framer-motion";
 import { Cpu, CheckCircle, AlertCircle, Circle } from "lucide-react";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 import { MOCK_AI_PROVIDERS } from "@/lib/mock-admin";
+import { fadeInUp } from "@/lib/animations";
 
 const EMPTY_CONFIG: Record<string, unknown> = {};
 
@@ -46,8 +50,15 @@ export default function AdminAiProviderPage() {
   const configuredModel = aiConfig.model ?? "";
   const configuredKey = aiConfig.apiKey ?? "";
 
+  // Mark admin checklist when AI provider is configured
+  useEffect(() => {
+    if (isConfigured) {
+      useOnboardingStore.getState().completeAdminItem("set_calibration");
+    }
+  }, [isConfigured]);
+
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <motion.div className="h-full overflow-y-auto p-6" {...fadeInUp}>
       <div className="max-w-2xl space-y-6">
         {/* Header */}
         <div>
@@ -237,6 +248,6 @@ export default function AdminAiProviderPage() {
           </pre>
         </details>
       </div>
-    </div>
+    </motion.div>
   );
 }
