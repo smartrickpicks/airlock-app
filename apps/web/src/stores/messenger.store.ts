@@ -27,9 +27,28 @@ interface MessengerState {
   backToList: () => void;
   setScope: (scope: "module" | "global") => void;
   setSearchQuery: (query: string) => void;
-  sendMessage: (conversationId: string, content: string) => Promise<void>;
+  sendMessage: (
+    conversationId: string,
+    content: string,
+    gifData?: {
+      gifUrl: string;
+      gifProvider: string;
+      gifWidth: number;
+      gifHeight: number;
+    },
+  ) => Promise<void>;
   markAsRead: (conversationId: string) => void;
   handleIncomingMessage: (conversationId: string, message: Message) => void;
+  addReaction: (
+    messageId: string,
+    conversationId: string,
+    emoji: string,
+  ) => Promise<void>;
+  removeReaction: (
+    messageId: string,
+    conversationId: string,
+    emoji: string,
+  ) => Promise<void>;
 
   filteredConversations: (activeModule: string) => Conversation[];
   totalUnread: () => number;
@@ -54,16 +73,20 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
     try {
       const data = await apiFetch<{
         conversations: Conversation[];
-      }>("/api/v1/messenger");
+        next_cursor?: string;
+        has_more?: boolean;
+      }>("/api/chat/conversations");
 
       // Fetch messages for each conversation
       const messagesMap: Record<string, Message[]> = {};
       await Promise.all(
         data.conversations.map(async (conv) => {
           try {
-            const msgData = await apiFetch<{ messages: Message[] }>(
-              `/api/v1/messenger/${conv.id}/messages?limit=50`,
-            );
+            const msgData = await apiFetch<{
+              messages: Message[];
+              next_cursor?: string;
+              has_more?: boolean;
+            }>(`/api/chat/conversations/${conv.id}/messages?limit=50`);
             messagesMap[conv.id] = msgData.messages;
           } catch {
             messagesMap[conv.id] = [];
@@ -130,16 +153,23 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
     });
   },
 
-  sendMessage: async (conversationId, content) => {
+  sendMessage: async (conversationId, content, gifData?) => {
     const now = new Date().toISOString();
+    const messageType = gifData ? "gif" : "text";
     const newMsg: Message = {
       id: `msg_${Date.now()}`,
       conversationId,
       authorId: "user_self",
       authorName: "You",
       content,
-      messageType: "text",
+      messageType,
       createdAt: now,
+      ...(gifData && {
+        gifUrl: gifData.gifUrl,
+        gifProvider: gifData.gifProvider,
+        gifWidth: gifData.gifWidth,
+        gifHeight: gifData.gifHeight,
+      }),
     };
 
     // Optimistic update
@@ -160,10 +190,19 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
 
     try {
       const response = await apiFetch<Message>(
-        `/api/v1/messenger/${conversationId}/messages`,
+        `/api/chat/conversations/${conversationId}/messages`,
         {
           method: "POST",
-          body: JSON.stringify({ content, message_type: "text" }),
+          body: JSON.stringify({
+            content,
+            message_type: messageType,
+            ...(gifData && {
+              gif_url: gifData.gifUrl,
+              gif_provider: gifData.gifProvider,
+              gif_width: gifData.gifWidth,
+              gif_height: gifData.gifHeight,
+            }),
+          }),
         },
       );
 
@@ -226,6 +265,69 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
           }));
         }, 3000);
       }
+    }
+  },
+
+  addReaction: async (messageId, conversationId, emoji) => {
+    // Optimistic update
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [conversationId]:
+          s.messages[conversationId]?.map((m) => {
+            if (m.id !== messageId) return m;
+            const reactions = [...(m.reactions || [])];
+            const existing = reactions.find((r) => r.emoji === emoji);
+            if (existing) {
+              existing.count += 1;
+              existing.userReacted = true;
+            } else {
+              reactions.push({ emoji, count: 1, userReacted: true });
+            }
+            return { ...m, reactions };
+          }) || [],
+      },
+    }));
+
+    try {
+      await apiFetch(`/api/chat/messages/${messageId}/reactions`, {
+        method: "POST",
+        body: JSON.stringify({ emoji }),
+      });
+    } catch {
+      // Keep optimistic update in mock mode
+    }
+  },
+
+  removeReaction: async (messageId, conversationId, emoji) => {
+    // Optimistic update
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [conversationId]:
+          s.messages[conversationId]?.map((m) => {
+            if (m.id !== messageId) return m;
+            const reactions = (m.reactions || [])
+              .map((r) =>
+                r.emoji === emoji
+                  ? { ...r, count: r.count - 1, userReacted: false }
+                  : r,
+              )
+              .filter((r) => r.count > 0);
+            return { ...m, reactions };
+          }) || [],
+      },
+    }));
+
+    try {
+      await apiFetch(
+        `/api/chat/messages/${messageId}/reactions/${encodeURIComponent(emoji)}`,
+        {
+          method: "DELETE",
+        },
+      );
+    } catch {
+      // Keep optimistic update in mock mode
     }
   },
 

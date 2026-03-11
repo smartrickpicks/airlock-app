@@ -4,6 +4,8 @@ import { useRef, useEffect, useState } from "react";
 import { ArrowLeft, Send } from "lucide-react";
 import type { Conversation, Message } from "@/lib/mock-messenger";
 import { CHAMBER_DOT_CONFIG } from "@/lib/mock-messenger";
+import MessageReactions from "@/components/molecules/MessageReactions";
+import EmojiPicker from "@/components/molecules/EmojiPicker";
 
 interface ChatViewProps {
   conversation: Conversation;
@@ -127,7 +129,7 @@ export default function ChatView({
                   </div>
                 ) : (
                   <div
-                    className={`flex gap-2.5 ${showAuthor ? "mt-3" : "mt-0.5"}`}
+                    className={`group flex gap-2.5 ${showAuthor ? "mt-3" : "mt-0.5"}`}
                   >
                     {showAuthor ? (
                       <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-surface-hover text-[10px] font-semibold text-text-primary">
@@ -150,6 +152,17 @@ export default function ChatView({
                       <p className="text-sm leading-relaxed text-text-secondary break-words">
                         {msg.content}
                       </p>
+                      <MessageReactions
+                        messageId={msg.id}
+                        conversationId={conversation.id}
+                        reactions={msg.reactions || []}
+                      />
+                    </div>
+                    <div className="flex-shrink-0 self-center">
+                      <EmojiPicker
+                        messageId={msg.id}
+                        conversationId={conversation.id}
+                      />
                     </div>
                   </div>
                 )}
