@@ -40,6 +40,7 @@ class Settings(BaseSettings):
         "http://localhost:3005",
         "https://brainbrigade.xyz",
         "https://www.brainbrigade.xyz",
+        "https://airlock-api.fly.dev",
     ]
 
     # LiteLLM
