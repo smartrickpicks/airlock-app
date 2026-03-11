@@ -119,7 +119,7 @@ async def post_message(
         request=request,
     )
     await emit_event(
-        f"messenger:{conversation_id}",
+        f"chat:{conversation_id}",
         {"event_type": "message.sent", "message": msg},
     )
     return msg
@@ -136,6 +136,15 @@ async def mark_read(
     success = mark_message_read(db, message_id=message_id, user_id=user["sub"])
     if not success:
         raise HTTPException(status_code=404, detail="Message not found")
+    await emit_event(
+        f"chat:{conversation_id}:read",
+        {
+            "event_type": "read_receipt",
+            "user_id": user["sub"],
+            "user_name": user.get("display_name", "Unknown"),
+            "message_id": message_id,
+        },
+    )
     return {"status": "read"}
 
 
@@ -156,11 +165,13 @@ async def add_message_reaction(
 
     result = add_reaction(db, message_id=message_id, user_id=user["sub"], emoji=request.emoji)
     await emit_event(
-        f"messenger:{msg.conversation_id}",
+        f"chat:{msg.conversation_id}:reactions",
         {
             "event_type": "reaction.added",
             "message_id": message_id,
             "reaction": result,
+            "user_id": user["sub"],
+            "user_name": user.get("display_name", "Unknown"),
         },
     )
     return {"reactions": result}
@@ -177,6 +188,21 @@ async def remove_message_reaction(
     success = remove_reaction(db, message_id=message_id, user_id=user["sub"], emoji=emoji)
     if not success:
         raise HTTPException(status_code=404, detail="Reaction not found")
+
+    # Broadcast reaction removal
+    from src.messenger.models import Message as MessageModel
+
+    msg = db.query(MessageModel).filter(MessageModel.id == message_id).first()
+    if msg:
+        await emit_event(
+            f"chat:{msg.conversation_id}:reactions",
+            {
+                "event_type": "reaction.removed",
+                "message_id": message_id,
+                "user_id": user["sub"],
+                "emoji": emoji,
+            },
+        )
     return {"status": "removed"}
 
 
