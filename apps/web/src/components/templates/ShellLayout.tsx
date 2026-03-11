@@ -21,6 +21,7 @@ import { useModuleStore, type ModuleName } from "@/stores/module.store";
 import RightToolPushPanel from "@/components/organisms/RightToolPushPanel";
 import RightToolRail from "@/components/organisms/RightToolRail";
 import OttoMessengerBar from "@/components/organisms/OttoMessengerBar";
+import AirlockIconDefs from "@/components/atoms/AirlockIconDefs";
 
 function deriveModuleFromPath(pathname: string): ModuleName {
   if (pathname.startsWith("/admin")) return "admin";
@@ -97,6 +98,7 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-surface-base">
+      <AirlockIconDefs />
       <motion.div
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
