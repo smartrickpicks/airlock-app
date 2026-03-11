@@ -1,6 +1,9 @@
 """Tasks module routes — queries task-type vaults across all modules."""
 
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -95,3 +98,47 @@ async def list_tasks(
         )
 
     return {"tasks": tasks}
+
+
+# -- Status map: frontend → DB seed convention --------------------------------
+
+_REVERSE_STATUS = {
+    "open": "todo",
+    "in_progress": "in_progress",
+    "resolved": "done",
+    "dismissed": "dismissed",
+}
+
+
+class UpdateTaskStatusRequest(BaseModel):
+    status: str
+
+
+@router.patch("/{task_id}/status")
+async def update_task_status(
+    task_id: str,
+    body: UpdateTaskStatusRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+    current_user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Move a task to a new status (Kanban drag-and-drop)."""
+    workspace_id = current_user.get("workspace_id")
+    if not workspace_id:
+        raise HTTPException(status_code=403, detail="No workspace associated")
+
+    vault = db.execute(
+        select(Vault).where(Vault.id == task_id, Vault.workspace_id == workspace_id)
+    ).scalar_one_or_none()
+
+    if vault is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    db_status = _REVERSE_STATUS.get(body.status, body.status)
+    meta = dict(vault.metadata_ or {})
+    meta["status"] = db_status
+    vault.metadata_ = meta
+    vault.updated_at = datetime.now(UTC)
+    db.commit()
+    db.refresh(vault)
+
+    return {"id": vault.id, "status": body.status, "updatedAt": vault.updated_at.isoformat()}

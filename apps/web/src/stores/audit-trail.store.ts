@@ -100,7 +100,7 @@ export const useAuditTrailStore = create<AuditTrailState>((set) => ({
     set({ isLoading: true });
     try {
       const data = await apiFetch<{ events: VaultEvent[] }>(
-        `/api/v1/events/vault/${vaultId}/audit`,
+        `/api/v1/events/vault/${vaultId}`,
       );
       const { nodes, edges } = eventsToFlow(data.events);
       set({ events: data.events, nodes, edges, isLoading: false });

@@ -72,14 +72,24 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     }
   },
 
-  moveTask: (taskId, newStatus) =>
+  moveTask: (taskId, newStatus) => {
+    // Optimistic update
     set((state) => ({
       tasks: state.tasks.map((t) =>
         t.id === taskId
           ? { ...t, status: newStatus, updatedAt: new Date().toISOString() }
           : t,
       ),
-    })),
+    }));
+    // Fire API call (non-blocking)
+    apiFetch(`/api/v1/tasks/${taskId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    }).catch(() => {
+      // Silently accept — optimistic update stays
+    });
+  },
 
   setFilter: (key, value) =>
     set((state) => ({ filters: { ...state.filters, [key]: value } })),

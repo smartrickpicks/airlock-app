@@ -25,6 +25,8 @@ from src.routes.inference import router as inference_router
 from src.routes.invites import router as invite_router
 from src.routes.linkedin import router as linkedin_router
 from src.routes.mags import router as mags_router
+from src.routes.notifications import router as notification_router
+from src.routes.patches import router as patch_router
 from src.routes.playbooks import router as playbook_router
 from src.routes.profile import router as profile_router
 from src.routes.review_queue import router as review_queue_router
@@ -70,6 +72,7 @@ def create_app() -> FastAPI:
     app.include_router(document_router)
     app.include_router(vault_router)
     app.include_router(event_router)
+    app.include_router(patch_router)
     app.include_router(engine_router)
     app.include_router(otto_router)
     app.include_router(otto_general_router)
@@ -90,6 +93,7 @@ def create_app() -> FastAPI:
     app.include_router(gateway_router)
     app.include_router(review_queue_router)
     app.include_router(search_router)
+    app.include_router(notification_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
