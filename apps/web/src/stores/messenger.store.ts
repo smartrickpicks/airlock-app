@@ -7,6 +7,7 @@ import {
   MOCK_REPLIES,
 } from "@/lib/mock-messenger";
 import { getWorkspaceMode } from "@/stores/onboarding.store";
+import { getWebSocket } from "@/lib/websocket";
 
 interface MessengerState {
   conversations: Conversation[];
@@ -50,12 +51,16 @@ interface MessengerState {
     emoji: string,
   ) => Promise<void>;
 
+  initRealtimeHandlers: () => void;
+  sendTypingIndicator: (conversationId: string) => void;
+
   filteredConversations: (activeModule: string) => Conversation[];
   totalUnread: () => number;
 }
 
 let replyTimeout: ReturnType<typeof setTimeout> | null = null;
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
+let lastTypingSent = 0;
 
 export const useMessengerStore = create<MessengerState>((set, get) => ({
   conversations: [],
@@ -99,6 +104,19 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
         messages: messagesMap,
         isLoading: false,
       });
+
+      // Subscribe to WebSocket topics for each conversation
+      try {
+        const ws = getWebSocket();
+        data.conversations.forEach((conv) => {
+          ws.subscribe(`chat:${conv.id}`);
+          ws.subscribe(`chat:${conv.id}:typing`);
+          ws.subscribe(`chat:${conv.id}:reactions`);
+          ws.subscribe(`chat:${conv.id}:read`);
+        });
+      } catch {
+        // WebSocket unavailable — mock mode
+      }
     } catch {
       if (getWorkspaceMode() === "clean") {
         set({ conversations: [], messages: {}, isLoading: false });
@@ -358,6 +376,134 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
           : c,
       ),
     }));
+  },
+
+  initRealtimeHandlers: () => {
+    let ws: ReturnType<typeof getWebSocket>;
+    try {
+      ws = getWebSocket();
+    } catch {
+      return;
+    }
+
+    // Incoming messages
+    ws.onEvent("chat:*", (topic: string, event: Record<string, unknown>) => {
+      const parts = topic.split(":");
+      if (parts.length > 2) return;
+
+      const conversationId = parts[1];
+
+      if (event.event_type === "message.sent" && event.message) {
+        const msg = event.message as Message;
+        if (msg.authorId === "user_self") return;
+        get().handleIncomingMessage(conversationId, msg);
+      }
+    });
+
+    // Typing indicators
+    ws.onEvent("chat:*", (topic: string, event: Record<string, unknown>) => {
+      if (!topic.includes(":typing")) return;
+      const conversationId = topic.split(":")[1];
+      const userName = event.user_name as string;
+      if (!userName) return;
+
+      set((s) => ({
+        typingUsers: {
+          ...s.typingUsers,
+          [conversationId]: [
+            ...(s.typingUsers[conversationId] || []).filter(
+              (n) => n !== userName,
+            ),
+            userName,
+          ],
+        },
+      }));
+
+      setTimeout(() => {
+        set((s) => ({
+          typingUsers: {
+            ...s.typingUsers,
+            [conversationId]: (s.typingUsers[conversationId] || []).filter(
+              (n) => n !== userName,
+            ),
+          },
+        }));
+      }, 4000);
+    });
+
+    // Reactions
+    ws.onEvent("chat:*", (topic: string, event: Record<string, unknown>) => {
+      if (!topic.includes(":reactions")) return;
+      const conversationId = topic.split(":")[1];
+      const messageId = event.message_id as string;
+      if (!messageId) return;
+
+      const messages = get().messages[conversationId] || [];
+      const idx = messages.findIndex((m) => m.id === messageId);
+      if (idx === -1) return;
+
+      const message = messages[idx];
+      let updatedReactions = [...(message.reactions || [])];
+
+      if (event.event_type === "reaction.added") {
+        const emoji = (event.reaction as Record<string, unknown>)
+          ?.emoji as string;
+        if (emoji) {
+          const existing = updatedReactions.find((r) => r.emoji === emoji);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            updatedReactions.push({ emoji, count: 1, userReacted: false });
+          }
+        }
+      } else if (event.event_type === "reaction.removed") {
+        const emoji = event.emoji as string;
+        updatedReactions = updatedReactions
+          .map((r) => (r.emoji === emoji ? { ...r, count: r.count - 1 } : r))
+          .filter((r) => r.count > 0);
+      }
+
+      const updated = [...messages];
+      updated[idx] = { ...message, reactions: updatedReactions };
+      set((s) => ({
+        messages: { ...s.messages, [conversationId]: updated },
+      }));
+    });
+
+    // Read receipts
+    ws.onEvent("chat:*", (topic: string, event: Record<string, unknown>) => {
+      if (!topic.includes(":read")) return;
+      const conversationId = topic.split(":")[1];
+      const userId = event.user_id as string;
+      if (!userId) return;
+
+      set((s) => ({
+        conversations: s.conversations.map((c) =>
+          c.id !== conversationId
+            ? c
+            : {
+                ...c,
+                participants: c.participants.map((p) =>
+                  p.userId === userId
+                    ? { ...p, lastReadAt: event.last_read_at as string }
+                    : p,
+                ),
+              },
+        ),
+      }));
+    });
+  },
+
+  sendTypingIndicator: (conversationId: string) => {
+    const now = Date.now();
+    if (now - lastTypingSent < 3000) return;
+    lastTypingSent = now;
+
+    apiFetch(`/api/chat/conversations/${conversationId}/typing`, {
+      method: "POST",
+    }).catch(() => {
+      // Fire-and-forget
+    });
   },
 
   filteredConversations: (activeModule) => {
