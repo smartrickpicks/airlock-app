@@ -64,7 +64,7 @@
     "fuse.js": "^7.1.0",
     "lucide-react": "^0.577.0",
     "mermaid": "^11.13.0",
-    "next": "14.2.23",
+    "next": "^14.2.35",
     "papaparse": "^5.5.3",
     "pptxgenjs": "^4.0.1",
     "react": "^18.3.1",
