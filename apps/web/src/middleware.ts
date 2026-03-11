@@ -35,8 +35,14 @@ function evictExpiredEntries() {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /** Hostnames that belong to the Airlock platform itself (not tenants). */
-export const DEV_HOSTNAMES = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
+export const DEV_HOSTNAMES = new Set([
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "airlock-app-production.up.railway.app",
+]);
 export const GATEWAY_HOSTNAME = "doyoulikedags.xyz";
+export const APP_HOSTNAME = "brainbrigade.xyz";
 export const DEMO_HOSTNAME = "demo.doyoulikedags.xyz";
 export const DEMO_WORKSPACE_ID = "DEMO_WORKSPACE_ID";
 
@@ -114,11 +120,12 @@ export function extractHostname(host: string): string {
  * Classify the hostname for routing purposes.
  * Returns one of: "dev" | "gateway" | "demo" | "custom"
  */
-export type HostKind = "dev" | "gateway" | "demo" | "custom";
+export type HostKind = "dev" | "gateway" | "app" | "demo" | "custom";
 
 export function classifyHost(hostname: string): HostKind {
   if (DEV_HOSTNAMES.has(hostname)) return "dev";
   if (hostname === GATEWAY_HOSTNAME) return "gateway";
+  if (hostname === APP_HOSTNAME) return "app";
   if (hostname === DEMO_HOSTNAME) return "demo";
   return "custom";
 }
@@ -163,8 +170,8 @@ export async function middleware(request: NextRequest) {
   let workspaceId: string | undefined;
   let workspaceMode: string | undefined;
 
-  if (hostKind === "dev" || hostKind === "gateway") {
-    // Local development or gateway root — skip resolution, use default workspace
+  if (hostKind === "dev" || hostKind === "gateway" || hostKind === "app") {
+    // Local development, gateway root, or app host — skip resolution, use default workspace
   } else if (hostKind === "demo") {
     // Demo subdomain — hardcoded demo workspace
     workspaceId = DEMO_WORKSPACE_ID;
