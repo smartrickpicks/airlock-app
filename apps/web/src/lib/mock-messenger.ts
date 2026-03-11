@@ -1,7 +1,12 @@
 // ─── Types ───────────────────────────────────────────────────────────
 
-export type ConversationType = "vault_thread" | "dm" | "team" | "module";
-export type MessageType = "text" | "file" | "system";
+export type ConversationType =
+  | "vault_thread"
+  | "dm"
+  | "team"
+  | "module"
+  | "otto";
+export type MessageType = "text" | "file" | "system" | "gif";
 export type ChamberName = "discover" | "build" | "review" | "ship";
 
 export interface Conversation {
@@ -16,6 +21,12 @@ export interface Conversation {
   unreadCount: number;
   muted: boolean;
   createdAt: string;
+  topic?: string;
+  contextType?: string;
+  contextId?: string;
+  contextName?: string;
+  personaMode?: string;
+  archived?: boolean;
 }
 
 export interface ConversationParticipant {
@@ -31,6 +42,23 @@ export interface MessagePreview {
   timestamp: string;
 }
 
+export interface Embed {
+  type:
+    | "sovereign_balance"
+    | "node_preview"
+    | "gate_alert"
+    | "roster_card"
+    | "playbook_diff"
+    | "code_block";
+  data: Record<string, unknown>;
+}
+
+export interface ReactionSummary {
+  emoji: string;
+  count: number;
+  userReacted: boolean;
+}
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -42,6 +70,14 @@ export interface Message {
   fileName?: string;
   fileSize?: number;
   createdAt: string;
+  gifUrl?: string;
+  gifProvider?: string;
+  gifWidth?: number;
+  gifHeight?: number;
+  embeds?: Embed[];
+  personaMode?: string;
+  readAt?: string;
+  reactions?: ReactionSummary[];
 }
 
 // ─── Config ──────────────────────────────────────────────────────────
@@ -54,6 +90,7 @@ export const CONVERSATION_TYPE_CONFIG: Record<
   dm: { label: "Direct Message", icon: "User" },
   team: { label: "Team", icon: "Users" },
   module: { label: "Module", icon: "Hash" },
+  otto: { label: "Otto", icon: "Bot" },
 };
 
 export const CHAMBER_DOT_CONFIG: Record<
