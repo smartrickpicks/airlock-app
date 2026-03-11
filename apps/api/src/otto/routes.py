@@ -37,6 +37,12 @@ from src.otto.sse import (
     format_sse_finish,
     format_sse_text,
 )
+from src.otto.token_counter import estimate_cc_cost, estimate_cost_usd, model_name_to_tier
+from src.services.credit_service import (
+    CreditService,
+    InsufficientCreditsError,
+    OpusCapExceededError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -222,6 +228,24 @@ async def otto_chat(
             model_name,
         )
 
+    # ── Credit check ──────────────────────────────────────────────────
+    credit_svc = CreditService(db=db)
+    credit_account = credit_svc.get_or_create_account(user_id=user_id)
+    model_tier = model_name_to_tier(model_name)
+    cc_cost = estimate_cc_cost(model_tier)
+
+    if credit_svc.is_byok(credit_account.id) and credit_account.openrouter_key_encrypted:
+        # TODO: decrypt and use user's own key
+        pass
+    elif not credit_svc.is_byok(credit_account.id) and credit_account.balance_cc < cc_cost:
+        raise HTTPException(
+            status_code=402,
+            detail=(
+                f"Insufficient credits. You have {credit_account.balance_cc} CC,"
+                f" this interaction costs {cc_cost} CC."
+            ),
+        )
+
     # Determine enrichment sources used
     sources_used: list[str] = []
     for attr in [
@@ -275,15 +299,23 @@ async def otto_chat(
                 token = word if i == 0 else " " + word
                 yield format_sse_text(token)
 
-            prompt_tokens = len(request.message.split()) * 2
+            prompt_tokens = (
+                len(system_prompt.split()) * 2
+            )  # Approximate until API usage is available
             completion_tokens = len(words)
+            cost_usd = estimate_cost_usd(prompt_tokens, completion_tokens, model_tier)
 
             yield format_sse_finish("stop", prompt_tokens, completion_tokens)
             yield format_sse_done()
 
             # Save assistant message
             elapsed = time.time() - start_time
-            logger.info("Otto response in %.1fs (%d tokens)", elapsed, completion_tokens)
+            logger.info(
+                "Otto response in %.1fs (%d tokens, $%.6f USD)",
+                elapsed,
+                completion_tokens,
+                cost_usd,
+            )
             save_message(
                 db,
                 session,
@@ -294,6 +326,22 @@ async def otto_chat(
                 enrichment_sources=sources_used,
                 finish_reason="stop",
             )
+
+            # Deduct credits — best-effort: do not break response if this fails
+            try:
+                credit_svc.spend(
+                    account_id=credit_account.id,
+                    amount_cc=cc_cost,
+                    source="otto_chat",
+                    model_tier=model_tier,
+                    session_id=session.id,
+                )
+            except (InsufficientCreditsError, OpusCapExceededError):
+                logger.warning(
+                    "Credit deduction failed post-call for account %s (cc_cost=%d)",
+                    credit_account.id,
+                    cc_cost,
+                )
 
             # Bridge to WebSocket for other participants
             import asyncio
