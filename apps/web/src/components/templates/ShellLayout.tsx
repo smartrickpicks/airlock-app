@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import ModuleBar from "@/components/organisms/ModuleBar";
 import SubPanel from "@/components/organisms/SubPanel";
 import CommandPalette from "@/components/organisms/CommandPalette";
@@ -10,11 +10,13 @@ import NotificationCenter from "@/components/organisms/NotificationCenter";
 import ToastContainer from "@/components/atoms/Toast";
 import OttoDrawer from "@/components/organisms/OttoDrawer";
 import MessengerDrawer from "@/components/organisms/MessengerDrawer";
+import WelcomeModal from "@/components/organisms/WelcomeModal";
 import { useSearchStore } from "@/stores/search.store";
 import { useNotificationStore } from "@/stores/notification.store";
 import { useRealtimeStore } from "@/stores/realtime.store";
 import { useOttoStore } from "@/stores/otto.store";
 import { useMessengerStore } from "@/stores/messenger.store";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 import { useModuleStore, type ModuleName } from "@/stores/module.store";
 import RightToolPushPanel from "@/components/organisms/RightToolPushPanel";
 import RightToolRail from "@/components/organisms/RightToolRail";
@@ -44,6 +46,17 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
   const toggleOtto = useOttoStore((s) => s.toggleDrawer);
   const toggleMessenger = useMessengerStore((s) => s.toggleDrawer);
   const fetchMessenger = useMessengerStore((s) => s.fetchMessenger);
+  const welcomeSeen = useOnboardingStore((s) => s.welcomeSeen);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Show welcome modal after shell mounts if user hasn't seen it
+  useEffect(() => {
+    if (!welcomeSeen) {
+      // Small delay so the shell animates in first
+      const timer = setTimeout(() => setShowWelcome(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [welcomeSeen]);
 
   // Sync module store from URL — prevents stale state when navigating
   useEffect(() => {
@@ -115,6 +128,11 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
       <MessengerDrawer />
       <ToastContainer />
       <OttoMessengerBar />
+      <AnimatePresence>
+        {showWelcome && !welcomeSeen && (
+          <WelcomeModal onClose={() => setShowWelcome(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

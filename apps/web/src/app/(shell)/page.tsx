@@ -286,6 +286,8 @@ export default function Home() {
     fetchVaults({ module_type: "contracts" });
     fetchRecentEvents();
     fetchNotifications();
+    // Mark "view_home" checklist item as complete on first visit
+    useOnboardingStore.getState().completeChecklistItem("view_home");
   }, [fetchVaults, fetchRecentEvents, fetchNotifications]);
 
   // Show first-upload view when no vaults exist AND user hasn't skipped.

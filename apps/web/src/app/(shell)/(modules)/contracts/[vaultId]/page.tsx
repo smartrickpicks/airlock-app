@@ -6,6 +6,7 @@ import GateDot from "@/components/atoms/GateDot";
 import RecordInspector from "@/components/organisms/RecordInspector";
 import AuditTrailFullScreen from "@/components/organisms/AuditTrailFullScreen";
 import { useVaultStore } from "@/stores/vault.store";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 import type { Chamber } from "@/stores/vault.store";
 
 export default function VaultDetailPage() {
@@ -15,6 +16,8 @@ export default function VaultDetailPage() {
   useEffect(() => {
     if (params.vaultId) {
       fetchVault(params.vaultId);
+      // Mark "view_vault" checklist item as complete
+      useOnboardingStore.getState().completeChecklistItem("view_vault");
     }
   }, [params.vaultId, fetchVault]);
 

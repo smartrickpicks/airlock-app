@@ -8,6 +8,7 @@ import GateDot from "@/components/atoms/GateDot";
 import { SkeletonCard } from "@/components/atoms/Skeleton";
 import { useVaultStore } from "@/stores/vault.store";
 import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 
 const VaultGantt = dynamic(() => import("@/components/organisms/VaultGantt"), {
   ssr: false,
@@ -19,6 +20,8 @@ export default function TriagePage() {
 
   useEffect(() => {
     fetchVaults({ module_type: "contracts", chamber: "discover" });
+    // Mark "open_contracts" checklist item as complete
+    useOnboardingStore.getState().completeChecklistItem("open_contracts");
   }, [fetchVaults]);
 
   const discoverVaults = vaults.filter((v) => v.chamber === "discover");
