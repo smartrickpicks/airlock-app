@@ -38,6 +38,35 @@ from src.services.playbooks.template_loader import get_template
 logger = logging.getLogger(__name__)
 
 
+def _sync_session_playbook(
+    db: Session,
+    instance_id: str,
+    vault_id: str,
+    workspace_id: str,
+    current_node_id: str | None,
+    completed_nodes: list[str],
+) -> None:
+    """Best-effort: update the OttoSession with playbook progress."""
+    try:
+        from src.otto.models import OttoSession
+
+        session = (
+            db.query(OttoSession)
+            .filter(
+                OttoSession.vault_id == vault_id,
+                OttoSession.workspace_id == workspace_id,
+            )
+            .order_by(OttoSession.last_message_at.desc())
+            .first()
+        )
+        if session:
+            session.active_playbook_id = instance_id
+            session.current_node_id = current_node_id
+            session.completed_nodes = completed_nodes
+    except Exception:
+        logger.debug("Session playbook sync skipped")
+
+
 # ---------------------------------------------------------------------------
 # Execution result
 # ---------------------------------------------------------------------------
@@ -183,6 +212,23 @@ def start_execution(
             instance_id=instance_id,
             request=UpdateInstanceRequest(status=InstanceStatus.COMPLETED),
         )
+
+    # Sync playbook progress into the OttoSession
+    completed = [ns.node_id for ns in final_states if ns.status in terminal]
+    blocked = [ns.node_id for ns in final_states if ns.status == NodeStatus.BLOCKED]
+    current = (
+        blocked[0]
+        if blocked
+        else (None if summary.is_complete else completed[-1] if completed else None)
+    )
+    _sync_session_playbook(
+        db,
+        instance_id=instance_id,
+        vault_id=instance.vault_id,
+        workspace_id=instance.workspace_id,
+        current_node_id=current,
+        completed_nodes=completed,
+    )
 
     return summary
 

@@ -35,6 +35,11 @@ class OttoSession(Base):
         Text, nullable=True
     )  # deterministic | local_llm | cloud_llm
 
+    # Playbook tracking (WS3.4) — tracks which playbook/node this session is executing
+    active_playbook_id: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
+    current_node_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    completed_nodes: Mapped[list[str] | None] = mapped_column(ARRAY(Text), nullable=True)
+
 
 class OttoMessage(Base):
     __tablename__ = "otto_messages"

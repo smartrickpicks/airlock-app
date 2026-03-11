@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from src.schemas.playbook import ActorType, NodeStatus, PlaybookNode
+from src.services.mags.prompt_composer import compose_prompt, resolve_archetype
 
 logger = logging.getLogger(__name__)
 
@@ -184,16 +185,34 @@ def _build_prompt_context(
     vault_context: dict[str, Any] | None = None,
     user_profile: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Build the context dict that would be passed to prompt_composer.
+    """Build the context dict and compose the actual system prompt.
 
-    This validates the composition pipeline without actually calling
-    the LLM. In M25, this dict feeds directly into compose_prompt().
+    Runs the full prompt_composer pipeline (archetype resolution,
+    fragment loading, profile/vault injection). The composed prompt
+    is included in the result for downstream LLM integration (M25).
     """
+    # Resolve archetype: explicit from template > user profile > fallback
+    archetype = resolve_archetype(
+        pi_profile=user_profile.get("pi_profile") if user_profile else None,
+        meta_archetype=user_profile.get("meta_archetype") if user_profile else None,
+        explicit_archetype=node.otto_archetype,
+    )
+
+    # Compose the full system prompt via fragment pipeline
+    system_prompt = compose_prompt(
+        user_profile=user_profile,
+        archetype=archetype,
+        module="contracts",  # From template; passed through in real usage
+        chamber=node.chamber or "discover",
+        vault_context=vault_context,
+    )
+
     return {
-        "archetype": node.otto_archetype or "executor",
-        "module": "contracts",  # From template; passed through in real usage
+        "archetype": archetype,
+        "module": "contracts",
         "chamber": node.chamber,
         "team_type": node.team_type,
         "user_profile": user_profile,
         "vault_context": vault_context,
+        "system_prompt": system_prompt,
     }
