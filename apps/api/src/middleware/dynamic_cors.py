@@ -26,6 +26,12 @@ class DynamicCORSMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
         self._static_origins: set[str] = set(settings.cors_origins)
+        # Merge extra origins from CORS_EXTRA_ORIGINS env var (comma-separated)
+        if settings.cors_extra_origins:
+            for extra in settings.cors_extra_origins.split(","):
+                extra = extra.strip()
+                if extra:
+                    self._static_origins.add(extra)
 
     def _is_allowed_origin(self, origin: str) -> bool:
         """Check if origin is in static allowlist or matches a verified custom domain."""
