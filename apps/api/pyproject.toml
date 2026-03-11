@@ -23,6 +23,7 @@ dependencies = [
     "pdfplumber>=0.11.0",
     "pypdf>=4.0.0",
     "meilisearch>=0.31.0",
+    "stripe>=8.0.0",
 ]
 
 [project.optional-dependencies]

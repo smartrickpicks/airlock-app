@@ -68,6 +68,13 @@ class Settings(BaseSettings):
     rp_name: str = "Airlock"
     rp_origin: str = "http://localhost:3000"
 
+    # Stripe
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_plus: str = "price_plus_monthly"
+    stripe_price_constellation: str = "price_constellation_monthly"
+    stripe_price_byok_pro: str = "price_byok_pro_monthly"
+
     # Feature flags
     feature_billing: bool = False
 
