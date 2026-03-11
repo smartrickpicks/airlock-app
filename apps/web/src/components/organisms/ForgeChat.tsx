@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { SendHorizonal, Bot, UserRound } from "lucide-react";
+import { SendHorizonal, UserRound } from "lucide-react";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import GoalChips from "@/components/molecules/GoalChips";
 import AutonomyCards from "@/components/molecules/AutonomyCards";
 import type { ForgeMessage } from "@/lib/mock-forge";
@@ -72,7 +73,7 @@ export default function ForgeChat({
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-surface-border px-5 py-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-primary/15">
-          <Bot size={16} className="text-accent-primary" />
+          <AirlockIcon name="otto" size="sm" animate="breathe" />
         </div>
         <div>
           <h2 className="text-sm font-semibold text-text-primary">Otto</h2>
@@ -100,7 +101,7 @@ export default function ForgeChat({
                   }`}
                 >
                   {msg.role === "otto" ? (
-                    <Bot size={14} className="text-accent-primary" />
+                    <AirlockIcon name="otto" size="sm" animate="breathe" />
                   ) : (
                     <UserRound size={14} className="text-text-muted" />
                   )}
@@ -162,7 +163,7 @@ export default function ForgeChat({
           {isTyping && (
             <div className="flex gap-3">
               <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-accent-primary/15">
-                <Bot size={14} className="text-accent-primary" />
+                <AirlockIcon name="otto" size="sm" animate="breathe" />
               </div>
               <div className="rounded-lg bg-surface-overlay px-3 py-2">
                 <div className="flex items-center gap-1">

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  Bot,
   Sparkles,
   Shield,
   Wrench,
@@ -10,6 +9,7 @@ import {
   BrainCircuit,
   ScanEye,
 } from "lucide-react";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 
 const EMPTY_CONFIG: Record<string, unknown> = {};
@@ -71,7 +71,7 @@ export default function AdminOttoPage() {
         <div>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-primary/15">
-              <Bot size={20} className="text-accent-primary" />
+              <AirlockIcon name="otto" size="md" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-text-primary">OTTO</h1>

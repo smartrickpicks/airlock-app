@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { GitBranch, Clock, CheckCircle, ScrollText, Bot } from "lucide-react";
+import { GitBranch, Clock, CheckCircle, ScrollText } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import ControlTab from "@/components/molecules/ControlTab";
 import PatchList from "@/components/molecules/PatchList";
 import PatchStateBadge from "@/components/atoms/PatchStateBadge";
@@ -19,7 +20,7 @@ import type { ChamberName } from "@/lib/constants";
 /** Tab definition with icon, label, and placeholder content */
 interface TabDef {
   key: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   label: string;
   placeholder: string;
 }
@@ -51,19 +52,18 @@ const TABS: TabDef[] = [
   },
   {
     key: "ai-agent",
-    icon: Bot,
     label: "AI Agent",
     placeholder: "Chat interface with Otto",
   },
 ];
 
 /** Collapsed-mode icon list */
-const collapsedIcons: { key: string; icon: LucideIcon; label: string }[] = [
+const collapsedIcons: { key: string; icon?: LucideIcon; label: string }[] = [
   { key: "lifecycle", icon: GitBranch, label: "Lifecycle" },
   { key: "sla", icon: Clock, label: "SLA" },
   { key: "approvals", icon: CheckCircle, label: "Approvals" },
   { key: "audit", icon: ScrollText, label: "Audit" },
-  { key: "ai-agent", icon: Bot, label: "AI Agent" },
+  { key: "ai-agent", label: "AI Agent" },
 ];
 
 interface ControlPanelProps {
@@ -109,19 +109,20 @@ export default function ControlPanel({
         className="flex flex-col items-center pt-4 gap-3 bg-surface-raised border-l border-surface-border h-full flex-shrink-0"
         style={{ width }}
       >
-        {collapsedIcons.map((item) => {
-          const IconComponent = item.icon;
-          return (
-            <button
-              key={item.key}
-              onClick={onOverlayToggle}
-              className="text-text-muted hover:text-text-secondary cursor-pointer transition-colors duration-fast"
-              aria-label={item.label}
-            >
-              <IconComponent size={20} />
-            </button>
-          );
-        })}
+        {collapsedIcons.map((item) => (
+          <button
+            key={item.key}
+            onClick={onOverlayToggle}
+            className="text-text-muted hover:text-text-secondary cursor-pointer transition-colors duration-fast"
+            aria-label={item.label}
+          >
+            {item.icon ? (
+              <item.icon size={20} />
+            ) : (
+              <AirlockIcon name="otto" size="sm" />
+            )}
+          </button>
+        ))}
       </div>
     );
   }
@@ -239,15 +240,38 @@ export default function ControlPanel({
         role="tablist"
         aria-label="Control panel tabs"
       >
-        {TABS.map((tab) => (
-          <ControlTab
-            key={tab.key}
-            icon={tab.icon}
-            label={tab.label}
-            isActive={activeTab === tab.key}
-            onClick={() => onTabChange(tab.key)}
-          />
-        ))}
+        {TABS.map((tab) =>
+          tab.icon ? (
+            <ControlTab
+              key={tab.key}
+              icon={tab.icon}
+              label={tab.label}
+              isActive={activeTab === tab.key}
+              onClick={() => onTabChange(tab.key)}
+            />
+          ) : (
+            <button
+              key={tab.key}
+              onClick={() => onTabChange(tab.key)}
+              className={`
+                flex-1 h-10
+                flex items-center justify-center gap-1.5
+                cursor-pointer
+                transition-colors duration-fast
+                ${
+                  activeTab === tab.key
+                    ? "text-text-primary border-b-2 border-accent-primary"
+                    : "text-text-muted hover:text-text-secondary"
+                }
+              `}
+              role="tab"
+              aria-selected={activeTab === tab.key}
+            >
+              <AirlockIcon name="otto" size="sm" />
+              <span className="text-xs font-medium">{tab.label}</span>
+            </button>
+          ),
+        )}
       </div>
 
       {/* Tab content */}

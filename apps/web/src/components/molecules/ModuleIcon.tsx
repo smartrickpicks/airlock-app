@@ -1,12 +1,14 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import Icon from "@/components/atoms/Icon";
 import Tooltip from "@/components/atoms/Tooltip";
 import Badge from "@/components/atoms/Badge";
 
 interface ModuleIconProps {
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  children?: ReactNode;
   label: string;
   isActive: boolean;
   badgeCount?: number;
@@ -15,6 +17,7 @@ interface ModuleIconProps {
 
 export default function ModuleIcon({
   icon,
+  children,
   label,
   isActive,
   badgeCount = 0,
@@ -51,7 +54,7 @@ export default function ModuleIcon({
           aria-label={label}
           aria-current={isActive ? "page" : undefined}
         >
-          <Icon icon={icon} size="lg" />
+          {children ?? (icon ? <Icon icon={icon} size="lg" /> : null)}
 
           {/* Badge in top-right corner */}
           {badgeCount > 0 && (

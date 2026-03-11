@@ -1,6 +1,7 @@
 "use client";
 
-import { Rocket, LoaderCircle, Bot } from "lucide-react";
+import { Rocket, LoaderCircle } from "lucide-react";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import ModuleToggle from "@/components/molecules/ModuleToggle";
 import ProfileInferencePanel from "@/components/molecules/ProfileInferencePanel";
 import ArchetypeBadge from "@/components/atoms/ArchetypeBadge";
@@ -181,7 +182,7 @@ export default function ForgePreview({
           {step < 3 && !showProfilePanel && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-overlay">
-                <Bot size={24} className="text-text-muted" />
+                <AirlockIcon name="otto" size="lg" />
               </div>
               <p className="text-sm text-text-muted">
                 Chat with Otto to configure your workspace

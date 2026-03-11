@@ -1,16 +1,9 @@
 "use client";
 
-import {
-  Shield,
-  CheckCircle,
-  BarChart3,
-  GitBranch,
-  Layers,
-  User,
-  Clock,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { User, Clock } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
+import type { AirlockIconName } from "@/components/atoms/airlock-icons/types";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { GateCardData, GateType, GateUrgency } from "@/lib/mock-gates";
 
@@ -20,12 +13,12 @@ interface GateCardProps {
   className?: string;
 }
 
-const GATE_TYPE_ICON: Record<GateType, LucideIcon> = {
-  verification: Shield,
-  approval: CheckCircle,
-  density: BarChart3,
-  decision: GitBranch,
-  convergence: Layers,
+const GATE_ICON_MAP: Record<GateType, AirlockIconName> = {
+  verification: "gate-verify",
+  approval: "gate-approval",
+  density: "gate-density",
+  decision: "gate-decision",
+  convergence: "gate-convergence",
 };
 
 const URGENCY_BORDER: Record<GateUrgency, string> = {
@@ -42,7 +35,7 @@ const CHAMBER_BADGE_STYLES: Record<string, string> = {
 };
 
 export default function GateCard({ card, onClick, className }: GateCardProps) {
-  const GateIcon = GATE_TYPE_ICON[card.gateType];
+  const gateIconName = GATE_ICON_MAP[card.gateType];
   const progressPercent =
     card.requiredApprovals > 0
       ? Math.min(
@@ -59,7 +52,7 @@ export default function GateCard({ card, onClick, className }: GateCardProps) {
     >
       {/* Top row: Gate icon + chamber badge */}
       <div className="mb-2 flex items-center gap-2">
-        <Icon icon={GateIcon} size="sm" className="text-text-secondary" />
+        <AirlockIcon name={gateIconName} size="lg" animate="glowOnHover" />
         <span
           className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${CHAMBER_BADGE_STYLES[card.chamber]}`}
         >

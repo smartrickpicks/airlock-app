@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { GitBranch, Sparkle } from "lucide-react";
+import { Sparkle } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { DecisionOption } from "@/lib/mock-gates";
 
@@ -33,7 +34,7 @@ export default function DecisionGate({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Icon icon={GitBranch} size="md" className="text-accent-secondary" />
+          <AirlockIcon name="gate-decision" size="md" />
           <span className="text-xs font-bold uppercase tracking-wider text-text-primary">
             Decision Required
           </span>

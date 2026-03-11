@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CircleCheckBig, Check, X, Timer, TriangleAlert } from "lucide-react";
+import { Check, X, Timer, TriangleAlert } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { GateApproval } from "@/lib/mock-gates";
 
@@ -56,7 +57,7 @@ export default function ApprovalGate({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Icon icon={CircleCheckBig} size="md" className="text-gate-purple" />
+          <AirlockIcon name="gate-approval" size="md" />
           <span className="text-xs font-bold uppercase tracking-wider text-text-primary">
             Approval Required
           </span>

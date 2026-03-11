@@ -6,16 +6,12 @@ import {
   LoaderCircle,
   Lock,
   Slash,
-  Bot,
   User,
   Users,
-  Shield,
-  CheckCircle,
-  BarChart3,
-  GitBranch,
-  Layers,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
+import type { AirlockIconName } from "@/components/atoms/airlock-icons/types";
 import type {
   DAGNodeData,
   DAGNodeStatus,
@@ -58,8 +54,7 @@ const STATUS_ICON: Record<DAGNodeStatus, LucideIcon> = {
 /*  Actor display                                                     */
 /* ------------------------------------------------------------------ */
 
-const ACTOR_ICON: Record<ActorType, LucideIcon> = {
-  otto: Bot,
+const ACTOR_LUCIDE_ICON: Record<string, LucideIcon> = {
   human: User,
   hybrid: Users,
 };
@@ -74,12 +69,12 @@ const ACTOR_LABEL: Record<ActorType, string> = {
 /*  Gate type icons                                                   */
 /* ------------------------------------------------------------------ */
 
-const GATE_TYPE_ICON: Record<DAGGateInfo["type"], LucideIcon> = {
-  verification: Shield,
-  approval: CheckCircle,
-  density: BarChart3,
-  decision: GitBranch,
-  convergence: Layers,
+const GATE_ICON_MAP: Record<DAGGateInfo["type"], AirlockIconName> = {
+  verification: "gate-verify",
+  approval: "gate-approval",
+  density: "gate-density",
+  decision: "gate-decision",
+  convergence: "gate-convergence",
 };
 
 /* ------------------------------------------------------------------ */
@@ -107,8 +102,6 @@ function GateBadge({ gate }: { gate: DAGGateInfo }) {
       ? "bg-accent-danger/15 text-accent-danger"
       : "bg-accent-warning/15 text-accent-warning";
 
-  const GateIcon = GATE_TYPE_ICON[gate.type];
-
   const label = isApproved
     ? `${gate.type} \u2713`
     : isRejected
@@ -119,7 +112,7 @@ function GateBadge({ gate }: { gate: DAGGateInfo }) {
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${bgColor}`}
     >
-      <GateIcon size={10} />
+      <AirlockIcon name={GATE_ICON_MAP[gate.type]} size="sm" />
       {label}
     </span>
   );
@@ -136,7 +129,6 @@ export default function DAGNode({
   className,
 }: DAGNodeProps) {
   const StatusIcon = STATUS_ICON[node.status];
-  const ActorIcon = ACTOR_ICON[node.actor];
   const showStatusIcon = node.status !== "pending";
 
   return (
@@ -167,7 +159,16 @@ export default function DAGNode({
           {node.name}
         </p>
         <div className="flex items-center gap-1.5 text-xs text-text-muted">
-          <ActorIcon size={11} className="flex-shrink-0" />
+          {node.actor === "otto" ? (
+            <AirlockIcon name="otto" size="sm" />
+          ) : (
+            (() => {
+              const LucideActorIcon = ACTOR_LUCIDE_ICON[node.actor];
+              return LucideActorIcon ? (
+                <LucideActorIcon size={11} className="flex-shrink-0" />
+              ) : null;
+            })()
+          )}
           <span>{ACTOR_LABEL[node.actor]}</span>
           <span className="text-text-muted">({node.archetype})</span>
         </div>

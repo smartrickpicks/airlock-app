@@ -1,31 +1,24 @@
 "use client";
 
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  FileText,
-  Users,
-  CheckSquare,
-  Calendar,
-  FolderOpen,
-  SlidersHorizontal,
-  DoorOpen,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { MODULES, type ModuleName } from "@/lib/constants";
+import { SlidersHorizontal, DoorOpen } from "lucide-react";
+import type { ModuleName } from "@/lib/constants";
+import { MODULES } from "@/lib/constants";
 import { useModuleStore } from "@/stores/module.store";
 import { useAuthStore } from "@/stores/auth.store";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
+import type { AirlockIconName } from "@/components/atoms/airlock-icons/types";
 import ModuleIcon from "@/components/molecules/ModuleIcon";
 import ConnectionStatus from "@/components/atoms/ConnectionStatus";
 import PresenceAvatars from "@/components/molecules/PresenceAvatars";
 
-/** Map module icon string names to actual Lucide components */
-const moduleIconMap: Record<string, LucideIcon> = {
-  FileText,
-  Users,
-  CheckSquare,
-  Calendar,
-  File: FolderOpen,
+/** Map module keys to AirlockIcon names */
+const moduleAirlockIconMap: Record<ModuleName, AirlockIconName> = {
+  contracts: "module-contracts",
+  crm: "module-crm",
+  tasks: "module-triage",
+  calendar: "module-calendar",
+  documents: "module-documents",
 };
 
 export default function ModuleBar() {
@@ -72,14 +65,7 @@ export default function ModuleBar() {
           {isHomeActive ? (
             <span className="absolute -left-3 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-accent-primary" />
           ) : null}
-          <Image
-            src="/assets/padlock_no_bg.png"
-            alt="Airlock lockmark"
-            width={92}
-            height={92}
-            className="h-[90px] w-[90px] select-none object-contain"
-            priority
-          />
+          <AirlockIcon name="lockmark" size="xl" animate="entrance" />
         </button>
 
         {/* Spacer */}
@@ -95,13 +81,11 @@ export default function ModuleBar() {
         <div className="flex flex-col items-center gap-2">
           {moduleKeys.map((key) => {
             const mod = MODULES[key];
-            const IconComponent = moduleIconMap[mod.icon];
             const isActive = key === activeModule;
 
             return (
               <ModuleIcon
                 key={key}
-                icon={IconComponent}
                 label={mod.label}
                 isActive={isActive}
                 onClick={() => {
@@ -110,7 +94,13 @@ export default function ModuleBar() {
                     useModuleStore.getState().lastVisitedView[key];
                   router.push(lastView || mod.path);
                 }}
-              />
+              >
+                <AirlockIcon
+                  name={moduleAirlockIconMap[key]}
+                  size="md"
+                  animate={isActive ? ["entrance", "activeGlow"] : undefined}
+                />
+              </ModuleIcon>
             );
           })}
         </div>

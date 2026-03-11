@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, Check, X, Timer, User } from "lucide-react";
+import { Check, X, Timer, User } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { GateApproval } from "@/lib/mock-gates";
 
@@ -40,7 +41,7 @@ export default function VerificationGate({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Icon icon={Shield} size="md" className="text-gate-amber" />
+          <AirlockIcon name="gate-verify" size="md" />
           <span className="text-xs font-bold uppercase tracking-wider text-text-primary">
             Verification Required
           </span>

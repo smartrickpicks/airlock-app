@@ -1,23 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Search,
-  Hammer,
-  ShieldCheck,
-  Rocket,
-  ChevronRight,
-  Lock,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ChevronRight, Lock } from "lucide-react";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
+import type { AirlockIconName } from "@/components/atoms/airlock-icons/types";
 import { CHAMBERS } from "@/lib/constants";
 import type { ChamberName } from "@/lib/constants";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 
+const CHAMBER_ICON_NAMES: Record<string, AirlockIconName> = {
+  discover: "chamber-discover",
+  build: "chamber-build",
+  review: "chamber-review",
+  ship: "chamber-ship",
+};
+
 interface ChamberStepDef {
   key: ChamberName;
   label: string;
-  icon: LucideIcon;
   colorClass: string;
   bgClass: string;
   borderClass: string;
@@ -28,7 +28,6 @@ const STEPS: ChamberStepDef[] = [
   {
     key: "discover",
     label: "Discover",
-    icon: Search,
     colorClass: "text-chamber-discover",
     bgClass: "bg-chamber-discover/15",
     borderClass: "border-chamber-discover/40",
@@ -37,7 +36,6 @@ const STEPS: ChamberStepDef[] = [
   {
     key: "build",
     label: "Build",
-    icon: Hammer,
     colorClass: "text-chamber-build",
     bgClass: "bg-chamber-build/15",
     borderClass: "border-chamber-build/40",
@@ -46,7 +44,6 @@ const STEPS: ChamberStepDef[] = [
   {
     key: "review",
     label: "Review",
-    icon: ShieldCheck,
     colorClass: "text-chamber-review",
     bgClass: "bg-chamber-review/15",
     borderClass: "border-chamber-review/40",
@@ -55,7 +52,6 @@ const STEPS: ChamberStepDef[] = [
   {
     key: "ship",
     label: "Ship",
-    icon: Rocket,
     colorClass: "text-chamber-ship",
     bgClass: "bg-chamber-ship/15",
     borderClass: "border-chamber-ship/40",
@@ -97,7 +93,6 @@ export default function ChamberStepper({
       {/* Chamber progression steps */}
       <div className={compact ? "flex flex-col gap-1" : "flex flex-col gap-2"}>
         {STEPS.map((step, idx) => {
-          const StepIcon = step.icon;
           const isComplete = idx < currentOrder;
           const isCurrent = idx === currentOrder;
           const isFuture = idx > currentOrder;
@@ -122,8 +117,18 @@ export default function ChamberStepper({
                 >
                   {isFuture ? (
                     <Lock size={compact ? 12 : 14} />
+                  ) : isCurrent ? (
+                    <AirlockIcon
+                      name={CHAMBER_ICON_NAMES[step.key]}
+                      size="md"
+                      animate={["entrance", "breathe"]}
+                    />
                   ) : (
-                    <StepIcon size={compact ? 14 : 16} />
+                    <AirlockIcon
+                      name={CHAMBER_ICON_NAMES[step.key]}
+                      size="md"
+                      animate="entrance"
+                    />
                   )}
                 </div>
 
@@ -223,7 +228,11 @@ export default function ChamberStepper({
           variants={staggerItem}
           className="flex items-center justify-center gap-2 rounded-lg border border-accent-success/30 bg-accent-success/10 px-3 py-2.5"
         >
-          <Rocket size={14} className="text-accent-success" />
+          <AirlockIcon
+            name="chamber-ship"
+            size="sm"
+            className="text-accent-success"
+          />
           <span className="text-xs font-semibold text-accent-success">
             Vault shipped
           </span>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart3, Check, X, Timer, MessageSquare } from "lucide-react";
+import { Check, X, Timer, MessageSquare } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { GateApproval } from "@/lib/mock-gates";
 
@@ -41,7 +42,7 @@ export default function QualityGate({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Icon icon={BarChart3} size="md" className="text-gate-yellow" />
+          <AirlockIcon name="gate-density" size="md" />
           <span className="text-xs font-bold uppercase tracking-wider text-text-primary">
             Quality Check
           </span>

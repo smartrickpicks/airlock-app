@@ -1,7 +1,8 @@
 "use client";
 
-import { Layers, Check, X, Timer } from "lucide-react";
+import { Check, X, Timer } from "lucide-react";
 import Icon from "@/components/atoms/Icon";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import SLATimer from "@/components/molecules/SLATimer";
 import type { GateApproval } from "@/lib/mock-gates";
 
@@ -36,7 +37,7 @@ export default function ConvergenceGate({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Icon icon={Layers} size="md" className="text-gate-green" />
+          <AirlockIcon name="gate-convergence" size="md" />
           <span className="text-xs font-bold uppercase tracking-wider text-text-primary">
             Review Summary
           </span>
@@ -54,7 +55,7 @@ export default function ConvergenceGate({
         {/* Summary card */}
         <div className="rounded-lg border border-surface-border bg-surface-overlay p-4">
           <div className="mb-2 flex items-center gap-2">
-            <Icon icon={Layers} size="sm" className="text-accent-primary" />
+            <AirlockIcon name="gate-convergence" size="sm" />
             <span className="text-xs font-bold uppercase tracking-wider text-text-muted">
               Aggregated Summary
             </span>
