@@ -235,6 +235,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Check if user has a workspace — redirect to onboarding if not
+  try {
+    const payload = JSON.parse(
+      Buffer.from(token.value.split(".")[1], "base64url").toString(),
+    );
+    if (
+      (!payload.workspace_id || payload.workspace_id === "") &&
+      !pathname.startsWith("/onboarding")
+    ) {
+      return NextResponse.redirect(new URL("/onboarding/setup", request.url));
+    }
+    // Set workspace_id header from JWT for downstream use
+    if (payload.workspace_id) {
+      requestHeaders.set("x-workspace-id", payload.workspace_id);
+    }
+  } catch {
+    // Malformed JWT — let the app handle it
+  }
+
   return createResponse();
 }
 
