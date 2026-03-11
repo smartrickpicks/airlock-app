@@ -213,3 +213,28 @@ async def search_chat_messages(
         limit=limit,
     )
     return {"messages": results}
+
+
+@router.get("/gifs/search")
+async def search_gifs_route(
+    q: str = Query(...),  # noqa: B008
+    limit: int = Query(default=20, le=50),  # noqa: B008
+    _user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Search for GIFs via Tenor proxy."""
+    from src.chat.gif_service import search_gifs
+
+    results = await search_gifs(q, limit=limit)
+    return {"gifs": results}
+
+
+@router.get("/gifs/trending")
+async def trending_gifs_route(
+    limit: int = Query(default=20, le=50),  # noqa: B008
+    _user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Get trending GIFs via Tenor proxy."""
+    from src.chat.gif_service import trending_gifs
+
+    results = await trending_gifs(limit=limit)
+    return {"gifs": results}

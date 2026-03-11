@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     # OpenRouter (Otto AI provider)
     openrouter_api_key: str = ""
 
+    # Tenor GIF API
+    tenor_api_key: str = ""
+
     # MAGS / Inference Engine
     persona_repo_path: str = ""
 
