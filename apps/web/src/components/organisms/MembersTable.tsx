@@ -335,7 +335,6 @@ export default function MembersTable() {
           </tbody>
         </table>
       </div>
-
     </div>
   );
 }

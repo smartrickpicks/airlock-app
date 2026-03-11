@@ -124,7 +124,9 @@ export default function DocumentsLibraryPage() {
 
   const handleFileDrop = (file: File) => {
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
-    const format = (["pdf", "docx", "xlsx", "pptx", "txt", "md"].includes(ext) ? ext : "pdf") as Document["fileFormat"];
+    const format = (
+      ["pdf", "docx", "xlsx", "pptx", "txt", "md"].includes(ext) ? ext : "pdf"
+    ) as Document["fileFormat"];
     const now = new Date().toISOString();
     const newDoc: Document = {
       id: crypto.randomUUID(),

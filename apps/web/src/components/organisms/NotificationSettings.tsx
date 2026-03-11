@@ -212,7 +212,9 @@ export default function NotificationSettings() {
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="text-sm text-text-primary">Digest frequency</div>
+                <div className="text-sm text-text-primary">
+                  Digest frequency
+                </div>
                 <div className="text-xs text-text-tertiary mt-0.5">
                   Receive a summary of missed notifications via email
                 </div>
@@ -273,9 +275,7 @@ function Toggle({
       <div>
         <div className="text-sm text-text-primary">{label}</div>
         {description && (
-          <div className="text-xs text-text-tertiary mt-0.5">
-            {description}
-          </div>
+          <div className="text-xs text-text-tertiary mt-0.5">{description}</div>
         )}
       </div>
       <button

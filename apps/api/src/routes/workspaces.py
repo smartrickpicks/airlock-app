@@ -150,9 +150,7 @@ async def get_my_workspace(
 
     # Count members
     member_count = (
-        db.query(User)
-        .filter(User.workspace_id == workspace_id, User.deleted_at.is_(None))
-        .count()
+        db.query(User).filter(User.workspace_id == workspace_id, User.deleted_at.is_(None)).count()
     )
 
     return WorkspaceWithBrandingResponse(
@@ -243,9 +241,7 @@ async def update_workspace_config(
     db.refresh(config)
 
     member_count = (
-        db.query(User)
-        .filter(User.workspace_id == workspace_id, User.deleted_at.is_(None))
-        .count()
+        db.query(User).filter(User.workspace_id == workspace_id, User.deleted_at.is_(None)).count()
     )
 
     return WorkspaceWithBrandingResponse(

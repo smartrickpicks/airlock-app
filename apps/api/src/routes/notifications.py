@@ -14,6 +14,7 @@ from src.models.event import Event
 
 # ─── Pydantic Schemas ────────────────────────────────────────────────
 
+
 class NotificationPreferencesResponse(BaseModel):
     """Response schema for notification preferences."""
 
@@ -41,6 +42,7 @@ class NotificationPreferencesUpdate(BaseModel):
     sound_receive: str | None = None
     sound_notification: str | None = None
     overlay_default: bool | None = None
+
 
 router = APIRouter(prefix="/api/v1/notifications", tags=["notifications"])
 
@@ -131,9 +133,7 @@ async def get_notification_preferences(
     user_id = current_user.get("sub", "")
 
     prefs = db.execute(
-        select(NotificationPreferences).where(
-            NotificationPreferences.user_id == user_id
-        )
+        select(NotificationPreferences).where(NotificationPreferences.user_id == user_id)
     ).scalar_one_or_none()
 
     if prefs is None:
@@ -155,9 +155,7 @@ async def update_notification_preferences(
     user_id = current_user.get("sub", "")
 
     prefs = db.execute(
-        select(NotificationPreferences).where(
-            NotificationPreferences.user_id == user_id
-        )
+        select(NotificationPreferences).where(NotificationPreferences.user_id == user_id)
     ).scalar_one_or_none()
 
     if prefs is None:
