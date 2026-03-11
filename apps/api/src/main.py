@@ -17,6 +17,7 @@ from src.realtime.ws import websocket_endpoint
 from src.routes.admin import router as admin_router
 from src.routes.auth import router as auth_router
 from src.routes.calendar import router as calendar_router
+from src.routes.credits import router as credits_router
 from src.routes.crm import router as crm_router
 from src.routes.documents import router as document_router
 from src.routes.engines import router as engine_router
@@ -30,6 +31,7 @@ from src.routes.mags import router as mags_router
 from src.routes.notifications import router as notification_router
 from src.routes.patches import router as patch_router
 from src.routes.playbooks import router as playbook_router
+from src.routes.pool import router as pool_router
 from src.routes.profile import router as profile_router
 from src.routes.review_queue import router as review_queue_router
 from src.routes.search import router as search_router
@@ -98,6 +100,8 @@ def create_app() -> FastAPI:
     app.include_router(search_router)
     app.include_router(notification_router)
     app.include_router(admin_router)
+    app.include_router(credits_router)
+    app.include_router(pool_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
