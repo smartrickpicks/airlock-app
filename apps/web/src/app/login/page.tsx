@@ -3,9 +3,16 @@
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
+import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/auth.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import { apiFetch } from "@/lib/api";
+import {
+  fadeInUp,
+  fadeIn,
+  staggerContainer,
+  staggerItem,
+} from "@/lib/animations";
 
 interface AuthResponse {
   access_token: string;
@@ -108,60 +115,126 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-base">
-      <div className="w-full max-w-sm rounded-lg border border-surface-border bg-surface-raised p-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-text-primary">Airlock</h1>
+    <div className="relative flex min-h-screen items-center justify-center bg-surface-base overflow-hidden">
+      {/* Background orbs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-accent-primary/10 animate-airlock-glow-breathe"
+          style={{ animationDelay: "0s" }}
+        />
+        <div
+          className="absolute -bottom-48 -right-48 h-[500px] w-[500px] rounded-full bg-accent-secondary/8 animate-airlock-drift"
+          style={{ animationDelay: "2s" }}
+        />
+        <div
+          className="absolute top-1/3 right-1/4 h-64 w-64 rounded-full bg-chamber-review/5 animate-airlock-glow-breathe"
+          style={{ animationDelay: "1s" }}
+        />
+      </div>
+
+      {/* Grid overlay */}
+      <div className="pointer-events-none absolute inset-0 bg-grid opacity-40" />
+
+      {/* Login card */}
+      <motion.div
+        className="relative w-full max-w-sm rounded-xl border border-surface-border/80 bg-surface-raised/90 backdrop-blur-xl p-8 shadow-2xl shadow-black/40"
+        initial={{ opacity: 0, y: 24, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+      >
+        {/* Logo / brand */}
+        <motion.div className="mb-8 text-center" {...fadeIn}>
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-primary/10 border border-accent-primary/20">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="text-accent-primary"
+            >
+              <path
+                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold gradient-text">Airlock</h1>
           <p className="mt-2 text-sm text-text-secondary">
             {nextUrl.includes("onboarding")
               ? "Sign in to create your workspace"
               : "Enterprise data operations platform"}
           </p>
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col items-center gap-4">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => {
-              // Google login error
-            }}
-            theme="filled_black"
-            size="large"
-            width="320"
-          />
+        <motion.div
+          className="flex flex-col items-center gap-4"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div variants={staggerItem}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => {
+                // Google login error
+              }}
+              theme="filled_black"
+              size="large"
+              width="320"
+            />
+          </motion.div>
 
           {process.env.NODE_ENV === "development" && (
             <>
-              <div className="flex w-full items-center gap-3">
+              <motion.div
+                className="flex w-full items-center gap-3"
+                variants={staggerItem}
+              >
                 <div className="h-px flex-1 bg-surface-border" />
-                <span className="text-xs text-text-muted">DEV ONLY</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+                  Dev Only
+                </span>
                 <div className="h-px flex-1 bg-surface-border" />
-              </div>
-              <button
+              </motion.div>
+              <motion.button
                 onClick={handleDevLogin}
-                className="w-full rounded border border-accent-primary bg-surface-overlay px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-border"
+                className="w-full rounded-lg border border-accent-primary/30 bg-surface-overlay px-4 py-2.5 text-sm font-medium text-text-primary transition-all duration-normal hover:bg-accent-primary/10 hover:border-accent-primary/50 hover:shadow-[0_0_20px_rgba(0,209,255,0.08)]"
+                variants={staggerItem}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
               >
                 Dev Login
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={handleCreateWorkspace}
-                className="w-full rounded border border-accent-success bg-surface-overlay px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-border"
+                className="w-full rounded-lg border border-accent-success/30 bg-surface-overlay px-4 py-2.5 text-sm font-medium text-text-primary transition-all duration-normal hover:bg-accent-success/10 hover:border-accent-success/50 hover:shadow-[0_0_20px_rgba(34,197,94,0.08)]"
+                variants={staggerItem}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
               >
                 Create Workspace
-              </button>
+              </motion.button>
             </>
           )}
-        </div>
+        </motion.div>
 
-        <div className="mt-6 text-center">
+        <motion.div
+          className="mt-6 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.4 }}
+        >
           <button
             onClick={() => router.push("/")}
             className="text-xs text-text-muted transition-colors hover:text-text-secondary"
           >
             Back to home
           </button>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
@@ -171,7 +244,14 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-surface-base">
-          <div className="text-sm text-text-muted">Loading...</div>
+          <div className="w-full max-w-sm space-y-4 px-8">
+            <div className="mx-auto h-14 w-14 rounded-2xl bg-surface-border/50 animate-airlock-pulse-glow" />
+            <div className="mx-auto h-6 w-32 rounded-md bg-surface-border/50 animate-airlock-pulse-glow" />
+            <div
+              className="mx-auto h-4 w-48 rounded-md bg-surface-border/30 animate-airlock-pulse-glow"
+              style={{ animationDelay: "0.1s" }}
+            />
+          </div>
         </div>
       }
     >

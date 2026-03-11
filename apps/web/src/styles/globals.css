@@ -4,6 +4,153 @@
 
 @import "./tokens.css";
 
+/* ===================================================================
+   Airlock Animations — Ported from airlock-landing, extended for app
+   =================================================================== */
+
+/* Floating / bobbing */
+@keyframes airlock-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Pulse glow (opacity breathing) */
+@keyframes airlock-pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* Shimmer sweep (skeleton loaders, button accents) */
+@keyframes airlock-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Fade in up (CSS fallback for non-FM elements) */
+@keyframes airlock-fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade in (simple) */
+@keyframes airlock-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Organic drift (orb backgrounds) */
+@keyframes airlock-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(-25px, -10px) scale(1.02); }
+}
+
+/* Glow breathe (orbs) */
+@keyframes airlock-glow-breathe {
+  0%, 100% { opacity: 0.3; filter: blur(40px); }
+  50% { opacity: 0.6; filter: blur(60px); }
+}
+
+/* Gradient background shift */
+@keyframes airlock-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Beam scan line */
+@keyframes airlock-beam-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Scale in (pop) */
+@keyframes airlock-scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Utility animation classes */
+.animate-airlock-float { animation: airlock-float 6s ease-in-out infinite; }
+.animate-airlock-pulse-glow { animation: airlock-pulse-glow 4s ease-in-out infinite; }
+.animate-airlock-drift { animation: airlock-drift 8s ease-in-out infinite; }
+.animate-airlock-glow-breathe { animation: airlock-glow-breathe 4s ease-in-out infinite; }
+.animate-airlock-fade-in-up { animation: airlock-fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-airlock-fade-in { animation: airlock-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-airlock-scale-in { animation: airlock-scale-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 50%, var(--chamber-review) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow card hover effect */
+.glow-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+.glow-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 209, 255, 0.06), transparent 40%);
+  pointer-events: none;
+}
+.glow-card:hover::after { opacity: 1; }
+.glow-card:hover {
+  border-color: rgba(0, 209, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Grid pattern background */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(0, 209, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 209, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Stagger delay utilities (apply to children for CSS-only stagger) */
+.stagger-delay-1 { animation-delay: 0.08s; }
+.stagger-delay-2 { animation-delay: 0.16s; }
+.stagger-delay-3 { animation-delay: 0.24s; }
+.stagger-delay-4 { animation-delay: 0.32s; }
+.stagger-delay-5 { animation-delay: 0.40s; }
+.stagger-delay-6 { animation-delay: 0.48s; }
+
+/* Shimmer animation class (for Skeleton component) */
+.animate-airlock-shimmer { animation: airlock-shimmer 2s infinite; }
+
+/* ─── Reduced Motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-airlock-float,
+  .animate-airlock-pulse-glow,
+  .animate-airlock-drift,
+  .animate-airlock-glow-breathe,
+  .animate-airlock-fade-in-up,
+  .animate-airlock-fade-in,
+  .animate-airlock-scale-in,
+  .animate-airlock-shimmer {
+    animation: none !important;
+  }
+
+  .glow-card:hover {
+    transform: none;
+  }
+
+  /* Tell Framer Motion to skip animations */
+  * {
+    --framer-motion-reduced: 1;
+  }
+}
+
 @layer base {
   * {
     box-sizing: border-box;

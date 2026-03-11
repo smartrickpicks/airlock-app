@@ -4,6 +4,7 @@ import { memo, lazy, Suspense, useState, useRef, useCallback } from "react";
 import { Handle, Position } from "@xyflow/react";
 import type { NodeProps, Node } from "@xyflow/react";
 import { Lock, X, Check, AlertTriangle } from "lucide-react";
+import Skeleton from "@/components/atoms/Skeleton";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import type { CapabilityNodeData } from "@/stores/capability-tree.store";
 
@@ -242,8 +243,10 @@ function DraggableConfigPanel({ data }: { data: CapabilityNodeData }) {
       >
         <Suspense
           fallback={
-            <div className="flex h-24 items-center justify-center text-sm text-text-muted">
-              Loading...
+            <div className="space-y-3 p-4">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-1/2" />
             </div>
           }
         >

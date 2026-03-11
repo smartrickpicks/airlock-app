@@ -108,4 +108,16 @@
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
   --transition-panel: 300ms ease-in-out;
+
+  /* === Easing Curves === */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* === Animation Durations === */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-entrance: 400ms;
 }

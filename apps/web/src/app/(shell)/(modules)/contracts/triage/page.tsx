@@ -2,9 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import GateDot from "@/components/atoms/GateDot";
+import { SkeletonCard } from "@/components/atoms/Skeleton";
 import { useVaultStore } from "@/stores/vault.store";
+import { staggerContainer, staggerItem, fadeInUp } from "@/lib/animations";
 
 const VaultGantt = dynamic(() => import("@/components/organisms/VaultGantt"), {
   ssr: false,
@@ -21,7 +24,10 @@ export default function TriagePage() {
   const discoverVaults = vaults.filter((v) => v.chamber === "discover");
 
   return (
-    <div className="h-full overflow-y-auto flex flex-col gap-6 p-6">
+    <motion.div
+      className="h-full overflow-y-auto flex flex-col gap-6 p-6"
+      {...fadeInUp}
+    >
       <div>
         <h1 className="text-xl font-semibold text-text-primary">
           Triage Board
@@ -32,8 +38,10 @@ export default function TriagePage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-sm text-text-muted">Loading vaults...</p>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       ) : discoverVaults.length === 0 ? (
         <div className="flex items-center justify-center py-12">
@@ -41,7 +49,12 @@ export default function TriagePage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <motion.div
+            className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
             {discoverVaults.map((vault) => {
               const entity =
                 (vault.metadata as Record<string, string>).entity || "Unknown";
@@ -56,10 +69,13 @@ export default function TriagePage() {
                     : "text-gate-red";
 
               return (
-                <button
+                <motion.button
                   key={vault.id}
+                  variants={staggerItem}
                   onClick={() => router.push(`/contracts/${vault.slug}`)}
                   className="rounded-lg border border-surface-border bg-surface-raised p-4 text-left transition-colors hover:border-accent-primary/30 hover:bg-surface-overlay"
+                  whileHover={{ y: -2, transition: { duration: 0.2 } }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -85,16 +101,16 @@ export default function TriagePage() {
                       {new Date(vault.updated_at).toLocaleDateString()}
                     </span>
                   </div>
-                </button>
+                </motion.button>
               );
             })}
-          </div>
+          </motion.div>
           <VaultGantt
             vaults={discoverVaults}
             onVaultClick={(slug) => router.push(`/contracts/${slug}`)}
           />
         </>
       )}
-    </div>
+    </motion.div>
   );
 }

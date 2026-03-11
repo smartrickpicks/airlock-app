@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import ModuleBar from "@/components/organisms/ModuleBar";
 import SubPanel from "@/components/organisms/SubPanel";
 import CommandPalette from "@/components/organisms/CommandPalette";
@@ -83,9 +84,29 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-surface-base">
-      <ModuleBar />
-      <SubPanel />
-      <main className="flex-1 overflow-hidden">{children}</main>
+      <motion.div
+        initial={{ opacity: 0, x: -12 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      >
+        <ModuleBar />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: -8 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1], delay: 0.05 }}
+        className="flex"
+      >
+        <SubPanel />
+      </motion.div>
+      <motion.main
+        className="flex-1 overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1], delay: 0.1 }}
+      >
+        {children}
+      </motion.main>
       <RightToolPushPanel />
       <RightToolRail />
       <CommandPalette />
