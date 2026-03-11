@@ -65,6 +65,22 @@ class DealFields:
 
 
 @dataclass
+class PersonaContext:
+    """PI behavioral profile data from Otto State Service."""
+
+    profile_id: str | None = None
+    profile_name: str | None = None
+    drives: dict | None = None  # {D, E, C, F}
+    category: str | None = None  # analytical | social | stabilizing | persistent
+    archetype: str | None = None  # MAGS archetype: analyst | executor | guardian | ...
+    warm_start: str | None = None  # ~150 token warm-start context block
+    session_count: int = 0
+    open_items: list[str] | None = None
+    team_type: str | None = None
+    sovereign_balance: dict | None = None  # team drive vector
+
+
+@dataclass
 class VaultContext:
     """Full context injected into Otto agent for each message."""
 
@@ -120,6 +136,9 @@ class UserAgentContext:
 
     # Context (enrichment)
     vault_context: VaultContext
+
+    # Persona (PI behavioral profile)
+    persona: PersonaContext | None = None
 
     # Preferences (how)
     response_style: str = "concise"  # "concise" | "detailed" | "technical"

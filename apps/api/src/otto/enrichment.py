@@ -1,7 +1,9 @@
-"""Otto enrichment sources — 9 sources for VaultContext."""
+"""Otto enrichment sources — 9 vault sources + persona from Otto State Service."""
 
 import logging
+import os
 
+import httpx
 from sqlalchemy.orm import Session
 
 from src.otto.deps import (
@@ -13,12 +15,15 @@ from src.otto.deps import (
     GateState,
     PatchSummary,
     PermittedTool,
+    PersonaContext,
     PreflightSection,
     UserAgentContext,
     VaultContext,
 )
 
 logger = logging.getLogger(__name__)
+
+OTTO_STATE_SERVICE_URL = os.environ.get("OTTO_STATE_SERVICE_URL", "http://localhost:8100")
 
 
 def _enrich_gate_state(db: Session, vault_id: str) -> GateState | None:
@@ -182,6 +187,46 @@ def _enrich_deal_fields(db: Session, vault_id: str) -> DealFields | None:
             legal_entity=meta.get("legal_entity"),
         )
     except Exception:
+        return None
+
+
+def enrich_persona(user_id: str) -> PersonaContext | None:
+    """Fetch PI behavioral profile from Otto State Service.
+
+    Calls GET /otto/context/{user_id} and maps the response to PersonaContext.
+    Returns None if the service is unreachable (graceful degradation).
+    """
+    try:
+        resp = httpx.get(
+            f"{OTTO_STATE_SERVICE_URL}/otto/context/{user_id}",
+            timeout=2.0,
+        )
+        if resp.status_code != 200:
+            logger.debug("Otto State Service returned %d for user %s", resp.status_code, user_id)
+            return None
+
+        data = resp.json()
+        session = data.get("session", {})
+        team = data.get("team", {})
+        profile = data.get("user_profile")
+
+        return PersonaContext(
+            profile_id=profile.get("id") if profile else None,
+            profile_name=profile.get("name") if profile else None,
+            drives=profile.get("drives") if profile else None,
+            category=profile.get("category") if profile else None,
+            archetype=session.get("persona"),
+            warm_start=data.get("warm_start"),
+            session_count=session.get("session_count", 0),
+            open_items=session.get("open_items", []),
+            team_type=team.get("team_type"),
+            sovereign_balance=team.get("sovereign_balance"),
+        )
+    except httpx.ConnectError:
+        logger.debug("Otto State Service unreachable at %s", OTTO_STATE_SERVICE_URL)
+        return None
+    except Exception:
+        logger.exception("Persona enrichment failed for user %s", user_id)
         return None
 
 
@@ -389,6 +434,9 @@ def build_user_agent_context(
     # 5. Resolve user preferences
     prefs = _resolve_user_preferences(db, user_id)
 
+    # 6. Resolve persona from Otto State Service
+    persona = enrich_persona(user_id)
+
     return UserAgentContext(
         user_id=user_id,
         workspace_id=workspace_id,
@@ -400,6 +448,7 @@ def build_user_agent_context(
         permitted_tools=permitted_tools,
         personal_connections=personal_connections,
         vault_context=vault_context,
+        persona=persona,
         response_style=prefs["response_style"],
         auto_approve_reads=prefs["auto_approve_reads"],
         notification_prefs=prefs.get("notification_prefs"),

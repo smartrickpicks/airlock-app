@@ -1,6 +1,17 @@
-"""System prompts for each sub-agent node."""
+"""System prompts for each sub-agent node — persona-aware."""
 
+from src.otto.agent import OTTO_VOICE_BASELINE, PERSONA_VOICE_TRAITS
 from src.otto.deps import OttoState
+
+
+def _persona_modulation(archetype: str | None) -> str:
+    """Return voice modulation line for the active archetype."""
+    if not archetype:
+        return ""
+    trait = PERSONA_VOICE_TRAITS.get(archetype.lower(), "")
+    if trait:
+        return f"\nVoice modulation ({archetype}): {trait}"
+    return ""
 
 
 def build_recipe_prompt(state: OttoState) -> str:
@@ -14,7 +25,10 @@ def build_recipe_prompt(state: OttoState) -> str:
     total = state.total_recipe_nodes or "?"
     archetype = state.archetype or "member"
 
-    return f"""You are Otto, guiding the user ({state.org_role}, archetype: {archetype}) \
+    return f"""{OTTO_VOICE_BASELINE}
+{_persona_modulation(archetype)}
+
+You are guiding the user ({state.org_role}, archetype: {archetype}) \
 through step {index} of {total} in their active recipe.
 
 Current node: {node_type} — {description}
@@ -37,7 +51,10 @@ def build_vault_prompt(state: OttoState) -> str:
     """VaultAgent — vault-specific analysis, field questions, risk scoring."""
     archetype = state.archetype or "member"
 
-    return f"""You are Otto, helping the user ({state.org_role}, archetype: {archetype}) \
+    return f"""{OTTO_VOICE_BASELINE}
+{_persona_modulation(archetype)}
+
+You are helping the user ({state.org_role}, archetype: {archetype}) \
 analyze vault {state.vault_id} in the {state.chamber or "unknown"} chamber of {state.module or "unknown"}.
 
 Tailor depth to archetype:
@@ -58,19 +75,21 @@ Behavioral rules:
 
 def build_general_prompt(state: OttoState) -> str:
     """GeneralAgent — freeform questions, cross-vault search, platform help."""
-    return f"""You are Otto in messenger mode. Help the user ({state.org_role}) with \
+    return f"""{OTTO_VOICE_BASELINE}
+
+You are in messenger mode. Help the user ({state.org_role}) with \
 general questions, cross-vault searches, and platform navigation.
 
 No vault is selected. Use search tools to find relevant data.
 If the user asks about specific contract data, suggest they open a vault.
-
-Keep responses conversational and helpful.
 """
 
 
 def build_conductor_prompt(state: OttoState) -> str:
     """ConductorAgent — recipe editing, skill assignment, team analytics."""
-    return f"""You are Otto in conductor mode. Help the user ({state.org_role}) manage \
+    return f"""{OTTO_VOICE_BASELINE}
+
+You are in conductor mode. Help the user ({state.org_role}) manage \
 recipes, assign archetypes, and review team performance.
 
 You can:

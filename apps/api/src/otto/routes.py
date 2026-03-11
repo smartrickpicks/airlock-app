@@ -14,7 +14,12 @@ from sqlalchemy.orm import Session
 from src.config import settings
 from src.db import get_db
 from src.middleware.auth import get_current_user
-from src.otto.agent import build_agent_context_prompt, build_system_prompt, generate_stub_response
+from src.otto.agent import (
+    build_agent_context_prompt,
+    build_system_prompt,
+    generate_stub_response,
+    resolve_model_for_persona,
+)
 from src.otto.enrichment import build_user_agent_context, build_vault_context
 from src.otto.feature_gate import is_otto_enabled, otto_circuit_breaker
 from src.otto.session_service import (
@@ -171,6 +176,19 @@ async def otto_chat(
 
     # Resolve provider from request config or env
     base_url, api_key, model_name = _resolve_provider(request.provider_config)
+
+    # Persona-based model routing — override model_name if persona is active
+    if agent_ctx and agent_ctx.persona and agent_ctx.persona.profile_id:
+        provider_name = request.provider_config.provider if request.provider_config else "default"
+        model_name = resolve_model_for_persona(
+            agent_ctx.persona,
+            provider=provider_name,
+        )
+        logger.info(
+            "Persona model routing: %s → %s",
+            agent_ctx.persona.profile_id,
+            model_name,
+        )
 
     # Determine enrichment sources used
     sources_used: list[str] = []
