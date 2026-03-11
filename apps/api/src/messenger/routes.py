@@ -13,12 +13,13 @@ from src.messenger.service import (
     send_message,
 )
 from src.middleware.auth import get_current_user
+from src.realtime.emitter import emit_event
 
 router = APIRouter(prefix="/api/v1/messenger", tags=["messenger"])
 
 
 @router.get("")
-def get_conversations(
+async def get_conversations(
     db: Session = Depends(get_db),  # noqa: B008
     user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
@@ -32,7 +33,7 @@ def get_conversations(
 
 
 @router.post("")
-def create_new_conversation(
+async def create_new_conversation(
     request: CreateConversationRequest,
     db: Session = Depends(get_db),  # noqa: B008
     user: dict = Depends(get_current_user),  # noqa: B008
@@ -52,7 +53,7 @@ def create_new_conversation(
 
 
 @router.get("/{conversation_id}/messages")
-def get_messages(
+async def get_messages(
     conversation_id: str,
     limit: int = Query(default=50, le=100),  # noqa: B008
     offset: int = Query(default=0, ge=0),  # noqa: B008
@@ -65,7 +66,7 @@ def get_messages(
 
 
 @router.post("/{conversation_id}/messages")
-def post_message(
+async def post_message(
     conversation_id: str,
     request: SendMessageRequest,
     db: Session = Depends(get_db),  # noqa: B008
@@ -81,11 +82,15 @@ def post_message(
         message_type=request.message_type,
         reply_to_id=request.reply_to_id,
     )
+    await emit_event(
+        f"messenger:{conversation_id}",
+        {"event_type": "message.sent", "message": msg},
+    )
     return msg
 
 
 @router.patch("/{conversation_id}/read")
-def mark_conversation_read(
+async def mark_conversation_read(
     conversation_id: str,
     db: Session = Depends(get_db),  # noqa: B008
     user: dict = Depends(get_current_user),  # noqa: B008

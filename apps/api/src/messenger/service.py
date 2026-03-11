@@ -3,12 +3,23 @@
 import logging
 from datetime import UTC, datetime
 
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 from ulid import ULID
 
 from src.messenger.models import Conversation, ConversationParticipant, Message
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_user_names(db: Session, user_ids: list[str]) -> dict[str, dict[str, str | None]]:
+    """Batch resolve user IDs to display_name and avatar_url."""
+    from src.models.user import User
+
+    if not user_ids:
+        return {}
+    users = db.query(User).filter(User.id.in_(user_ids)).all()
+    return {u.id: {"name": u.display_name, "avatarUrl": u.avatar_url} for u in users}
 
 
 def list_conversations(db: Session, workspace_id: str, user_id: str) -> list[dict]:
@@ -39,17 +50,61 @@ def list_conversations(db: Session, workspace_id: str, user_id: str) -> list[dic
     # Build unread map
     unread_map = {p.conversation_id: p.unread_count for p in participants}
 
+    # Build participants map per conversation
+    all_participants = (
+        db.query(ConversationParticipant)
+        .filter(ConversationParticipant.conversation_id.in_(conv_ids))
+        .all()
+    )
+    participant_user_ids = list({p.user_id for p in all_participants})
+    user_info = _resolve_user_names(db, participant_user_ids)
+
+    conv_participants: dict[str, list[dict]] = {}
+    for p in all_participants:
+        info = user_info.get(p.user_id, {"name": "Unknown", "avatarUrl": None})
+        entry = {
+            "userId": p.user_id,
+            "name": info["name"] or "Unknown",
+            "avatarUrl": info.get("avatarUrl"),
+            "online": False,
+        }
+        conv_participants.setdefault(p.conversation_id, []).append(entry)
+
+    # Build lastMessage map — latest message per conversation
+    last_messages: dict[str, dict] = {}
+    for conv_id in conv_ids:
+        latest_msg = (
+            db.query(Message)
+            .filter(
+                Message.conversation_id == conv_id,
+                Message.deleted_at.is_(None),
+            )
+            .order_by(desc(Message.created_at))
+            .first()
+        )
+        if latest_msg:
+            sender_info = user_info.get(
+                latest_msg.sender_id or "", {"name": "System", "avatarUrl": None}
+            )
+            last_messages[conv_id] = {
+                "authorName": sender_info["name"] or "Unknown",
+                "content": latest_msg.content,
+                "timestamp": (latest_msg.created_at.isoformat() if latest_msg.created_at else None),
+            }
+
     return [
         {
             "id": c.id,
+            "type": c.conversation_type,
             "name": c.name,
-            "conversation_type": c.conversation_type,
-            "vault_id": c.vault_id,
-            "module_scope": c.module_scope,
+            "moduleId": c.module_scope,
+            "vaultId": c.vault_id,
             "chamber": c.chamber,
-            "last_message_at": c.last_message_at.isoformat() if c.last_message_at else None,
-            "unread_count": unread_map.get(c.id, 0),
-            "created_at": c.created_at.isoformat() if c.created_at else None,
+            "participants": conv_participants.get(c.id, []),
+            "lastMessage": last_messages.get(c.id),
+            "unreadCount": unread_map.get(c.id, 0),
+            "muted": False,
+            "createdAt": c.created_at.isoformat() if c.created_at else None,
         }
         for c in conversations
     ]
@@ -100,16 +155,31 @@ def create_conversation(
     db.commit()
     db.refresh(conv)
 
+    # Resolve participant info for response
+    all_pids = [user_id] + [pid for pid in (participant_ids or []) if pid != user_id]
+    user_info = _resolve_user_names(db, all_pids)
+    participants_list = [
+        {
+            "userId": pid,
+            "name": user_info.get(pid, {"name": "Unknown"})["name"] or "Unknown",
+            "avatarUrl": user_info.get(pid, {"avatarUrl": None}).get("avatarUrl"),
+            "online": False,
+        }
+        for pid in all_pids
+    ]
+
     return {
         "id": conv.id,
+        "type": conv.conversation_type,
         "name": conv.name,
-        "conversation_type": conv.conversation_type,
-        "vault_id": conv.vault_id,
-        "module_scope": conv.module_scope,
+        "moduleId": conv.module_scope,
+        "vaultId": conv.vault_id,
         "chamber": conv.chamber,
-        "last_message_at": None,
-        "unread_count": 0,
-        "created_at": conv.created_at.isoformat() if conv.created_at else None,
+        "participants": participants_list,
+        "lastMessage": None,
+        "unreadCount": 0,
+        "muted": False,
+        "createdAt": conv.created_at.isoformat() if conv.created_at else None,
     }
 
 
@@ -129,15 +199,20 @@ def list_messages(
         .all()
     )
 
+    # Batch resolve sender names
+    sender_ids = list({m.sender_id for m in messages if m.sender_id})
+    user_info = _resolve_user_names(db, sender_ids)
+
     return [
         {
             "id": m.id,
-            "conversation_id": m.conversation_id,
-            "sender_id": m.sender_id,
+            "conversationId": m.conversation_id,
+            "authorId": m.sender_id,
+            "authorName": user_info.get(m.sender_id or "", {"name": "System"})["name"] or "Unknown",
             "content": m.content,
-            "message_type": m.message_type,
-            "reply_to_id": m.reply_to_id,
-            "created_at": m.created_at.isoformat() if m.created_at else None,
+            "messageType": m.message_type,
+            "replyToId": m.reply_to_id,
+            "createdAt": m.created_at.isoformat() if m.created_at else None,
         }
         for m in messages
     ]
@@ -178,14 +253,19 @@ def send_message(
     db.commit()
     db.refresh(msg)
 
+    # Resolve sender name
+    user_info = _resolve_user_names(db, [sender_id])
+    author_name = user_info.get(sender_id, {"name": "Unknown"})["name"] or "Unknown"
+
     return {
         "id": msg.id,
-        "conversation_id": msg.conversation_id,
-        "sender_id": msg.sender_id,
+        "conversationId": msg.conversation_id,
+        "authorId": msg.sender_id,
+        "authorName": author_name,
         "content": msg.content,
-        "message_type": msg.message_type,
-        "reply_to_id": msg.reply_to_id,
-        "created_at": msg.created_at.isoformat() if msg.created_at else None,
+        "messageType": msg.message_type,
+        "replyToId": msg.reply_to_id,
+        "createdAt": msg.created_at.isoformat() if msg.created_at else None,
     }
 
 
