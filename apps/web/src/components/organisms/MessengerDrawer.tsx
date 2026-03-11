@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import { useMessengerStore } from "@/stores/messenger.store";
 import { useModuleStore } from "@/stores/module.store";
 import ConversationList from "@/components/organisms/ConversationList";
 import ChatView from "@/components/organisms/ChatView";
+import ChatPreferences from "@/components/organisms/ChatPreferences";
 
 export default function MessengerDrawer() {
+  const [showPrefs, setShowPrefs] = useState(false);
+
   const {
     isDrawerOpen,
     closeDrawer,
@@ -67,18 +70,41 @@ export default function MessengerDrawer() {
               Messenger
             </span>
           </div>
-          <button
-            onClick={closeDrawer}
-            className="text-text-muted hover:text-text-primary transition-colors"
-            aria-label="Close messenger"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowPrefs(true)}
+              className="p-1.5 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
+              aria-label="Chat preferences"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+              </svg>
+            </button>
+            <button
+              onClick={closeDrawer}
+              className="text-text-muted hover:text-text-primary transition-colors"
+              aria-label="Close messenger"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-hidden">
-          {activeConversation ? (
+          {showPrefs ? (
+            <ChatPreferences onClose={() => setShowPrefs(false)} />
+          ) : activeConversation ? (
             <ChatView
               conversation={activeConversation}
               messages={activeMessages}
