@@ -1,5 +1,7 @@
 """Patch service — CRUD and state-machine transitions for field corrections."""
 
+import asyncio
+import logging
 from datetime import UTC, datetime
 
 from sqlalchemy import select
@@ -7,6 +9,29 @@ from sqlalchemy.orm import Session
 from ulid import ULID
 
 from src.models.patch import Patch
+from src.realtime.emitter import emit_domain_event
+
+logger = logging.getLogger(__name__)
+
+
+def _fire_event(
+    topic: str, event_type: str, payload: dict, workspace_id: str, actor_id: str | None = None
+) -> None:
+    """Schedule an emit_domain_event call on the running event loop (fire-and-forget)."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(
+            emit_domain_event(
+                topic=topic,
+                event_type=event_type,
+                payload=payload,
+                workspace_id=workspace_id,
+                actor_id=actor_id,
+            )
+        )
+    except Exception:
+        logger.warning("Failed to emit %s event for topic %s", event_type, topic)
+
 
 # Valid transitions: (from_status, action) -> to_status
 TRANSITIONS: dict[tuple[str, str], str] = {
@@ -70,6 +95,20 @@ def create_patch(
     db.add(patch)
     db.commit()
     db.refresh(patch)
+
+    _fire_event(
+        topic=f"vault:{vault_id}",
+        event_type="patch.created",
+        payload={
+            "patch_id": patch.id,
+            "vault_id": vault_id,
+            "field_key": field_key,
+            "status": patch.status,
+        },
+        workspace_id=workspace_id,
+        actor_id=submitted_by,
+    )
+
     return patch
 
 
@@ -124,6 +163,29 @@ def transition_patch(
 
     db.commit()
     db.refresh(patch)
+
+    # Map actions to event types for real-time updates
+    action_event_map = {
+        "submit": "patch.submitted",
+        "approve": "patch.approved",
+        "reject": "patch.rejected",
+    }
+    event_type = action_event_map.get(action, f"patch.{action}")
+
+    _fire_event(
+        topic=f"vault:{patch.vault_id}",
+        event_type=event_type,
+        payload={
+            "patch_id": patch.id,
+            "vault_id": patch.vault_id,
+            "action": action,
+            "from_status": key[0],
+            "to_status": next_status,
+        },
+        workspace_id=patch.workspace_id,
+        actor_id=actor_id,
+    )
+
     return patch
 
 

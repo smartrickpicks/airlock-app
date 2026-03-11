@@ -4,12 +4,14 @@ import { useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchStore, SEARCH_CATEGORIES } from "@/stores/search.store";
 import type { SearchCategory } from "@/stores/search.store";
+import { useModuleStore } from "@/stores/module.store";
 import { SEARCH_TYPE_CONFIG } from "@/lib/mock-search";
 
 export default function CommandPalette() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeModule = useModuleStore((s) => s.activeModule);
   const {
     isOpen,
     query,
@@ -17,9 +19,11 @@ export default function CommandPalette() {
     selectedIndex,
     isSearching,
     activeCategory,
+    moduleScope,
     close,
     setQuery,
     setCategory,
+    setModuleScope,
     selectNext,
     selectPrev,
     getSelectedItem,
@@ -31,6 +35,13 @@ export default function CommandPalette() {
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   }, [isOpen]);
+
+  // Auto-scope to current module when palette opens (US-078)
+  useEffect(() => {
+    if (isOpen && activeModule && activeModule !== "home") {
+      useSearchStore.setState({ moduleScope: activeModule });
+    }
+  }, [isOpen, activeModule]);
 
   // Debounced input handler — 300ms for queries > 2 chars
   const handleInputChange = useCallback(
@@ -114,13 +125,18 @@ export default function CommandPalette() {
             type="text"
             value={query}
             onChange={(e) => handleInputChange(e.target.value)}
-            placeholder="Search vaults, tasks, documents, pages..."
+            placeholder={
+              moduleScope
+                ? `Search in ${moduleScope}...`
+                : "Search vaults, tasks, documents, pages..."
+            }
             className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
           />
           {isSearching && (
-            <span className="text-[10px] text-text-muted animate-pulse">
-              Searching...
-            </span>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent-primary animate-pulse" />
+              <span className="text-[10px] text-text-muted">Loading</span>
+            </div>
           )}
           <button
             onClick={close}
@@ -130,8 +146,17 @@ export default function CommandPalette() {
           </button>
         </div>
 
-        {/* Category filter chips */}
+        {/* Module scope indicator + category filter chips */}
         <div className="flex items-center gap-1.5 border-b border-surface-border px-4 py-2 overflow-x-auto">
+          {moduleScope && (
+            <button
+              onClick={() => setModuleScope(null)}
+              className="flex items-center gap-1 rounded-full bg-accent-primary/15 px-2.5 py-1 text-[11px] font-medium text-accent-primary whitespace-nowrap mr-1"
+            >
+              {moduleScope}
+              <span className="ml-0.5 text-[9px] opacity-70">✕</span>
+            </button>
+          )}
           {SEARCH_CATEGORIES.map((cat) => (
             <CategoryChip
               key={cat.key}
@@ -151,6 +176,14 @@ export default function CommandPalette() {
           ) : results.length === 0 && query.trim() ? (
             <div className="px-3 py-8 text-center text-sm text-text-muted">
               No results for &ldquo;{query}&rdquo;
+              {moduleScope && (
+                <button
+                  onClick={() => setModuleScope(null)}
+                  className="mt-2 block mx-auto text-accent-primary text-[11px] hover:underline"
+                >
+                  Search all modules
+                </button>
+              )}
             </div>
           ) : results.length === 0 ? (
             <div className="px-3 py-8 text-center text-sm text-text-muted">
