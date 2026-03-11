@@ -97,6 +97,12 @@ def validate_production_settings() -> None:
             'print(Fernet.generate_key().decode())"'
         )
 
+    if settings.rp_id == "localhost":
+        errors.append("RP_ID must be set to your domain (e.g. brainbrigade.xyz) in production")
+
+    if settings.app_url.startswith("http://localhost"):
+        errors.append("APP_URL must be set to your production URL (e.g. https://brainbrigade.xyz)")
+
     if errors:
         for err in errors:
             logger.critical("STARTUP BLOCKED: %s", err)
