@@ -1,18 +1,13 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/auth.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
-import { apiFetch } from "@/lib/api";
-import {
-  fadeInUp,
-  fadeIn,
-  staggerContainer,
-  staggerItem,
-} from "@/lib/animations";
+import { ApiError, apiFetch } from "@/lib/api";
+import { fadeIn, staggerContainer, staggerItem } from "@/lib/animations";
 
 interface AuthResponse {
   access_token: string;
@@ -26,10 +21,41 @@ interface AuthResponse {
   };
 }
 
+interface AuthConfigResponse {
+  google_client_id: string;
+  configured: boolean;
+}
+
+function formatLoginError(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 401) {
+      return "Google sign-in was rejected by the API. Check that GOOGLE_CLIENT_ID on the API matches NEXT_PUBLIC_GOOGLE_CLIENT_ID on the web app.";
+    }
+
+    if (error.status === 503) {
+      return "Google sign-in is unavailable right now. Verify the API has GOOGLE_CLIENT_ID configured and can reach Google's token verification endpoint.";
+    }
+
+    if (error.status >= 500) {
+      return "The app could not complete /api/v1/auth/google/verify. On Railway, confirm NEXT_PUBLIC_API_URL points to the API service instead of the default http://127.0.0.1:8000.";
+    }
+
+    return error.message;
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Google sign-in failed for an unknown reason.";
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { hydrateFromLoginResponse } = useAuthStore();
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authConfigReady, setAuthConfigReady] = useState(false);
 
   const DEFAULT_AUTHENTICATED_ROUTE = "/contracts/triage";
   const rawNext = searchParams.get("next");
@@ -38,12 +64,37 @@ function LoginForm() {
       ? rawNext
       : DEFAULT_AUTHENTICATED_ROUTE;
 
+  useEffect(() => {
+    let cancelled = false;
+
+    apiFetch<AuthConfigResponse>("/api/v1/auth/config")
+      .then((data) => {
+        if (cancelled) return;
+        if (!data.configured) {
+          setAuthError(
+            "Google OAuth is not configured on the API. Set GOOGLE_CLIENT_ID on the backend service.",
+          );
+          return;
+        }
+        setAuthConfigReady(true);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setAuthError(formatLoginError(error));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleGoogleSuccess = async (credentialResponse: {
     credential?: string;
   }) => {
     if (!credentialResponse.credential) return;
 
     try {
+      setAuthError(null);
       const data = await apiFetch<AuthResponse>("/api/v1/auth/google/verify", {
         method: "POST",
         body: JSON.stringify({
@@ -61,8 +112,8 @@ function LoginForm() {
         return;
       }
       router.push(nextUrl);
-    } catch {
-      // Login failed — Google login error is shown inline
+    } catch (error) {
+      setAuthError(formatLoginError(error));
     }
   };
 
@@ -176,16 +227,35 @@ function LoginForm() {
           animate="animate"
         >
           <motion.div variants={staggerItem}>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => {
-                // Google login error
-              }}
-              theme="filled_black"
-              size="large"
-              width="320"
-            />
+            {authConfigReady ? (
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  setAuthError(
+                    "Google sign-in was interrupted before the credential reached the API.",
+                  );
+                }}
+                theme="filled_black"
+                size="large"
+                width="320"
+              />
+            ) : (
+              <div className="flex h-10 w-[320px] items-center justify-center rounded-md border border-surface-border bg-surface-overlay px-4 text-xs text-text-muted">
+                {authError
+                  ? "Google sign-in unavailable"
+                  : "Checking Google sign-in..."}
+              </div>
+            )}
           </motion.div>
+
+          {authError ? (
+            <motion.p
+              className="w-full rounded-lg border border-accent-warning/30 bg-accent-warning/10 px-3 py-2 text-xs leading-5 text-text-secondary"
+              variants={staggerItem}
+            >
+              {authError}
+            </motion.p>
+          ) : null}
 
           {process.env.NODE_ENV === "development" && (
             <>

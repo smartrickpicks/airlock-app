@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 import { MOCK_VAULTS } from "@/lib/mock-vaults";
 import { mergeDemoVaults } from "@/stores/demo-lifecycle.store";
 import { getWorkspaceMode } from "@/stores/onboarding.store";
@@ -31,6 +31,15 @@ interface VaultListResponse {
   total: number;
 }
 
+interface ApprovalState {
+  gatekeeper_approved: boolean;
+  gatekeeper_approved_by: string | null;
+  gatekeeper_approved_at: string | null;
+  owner_approved: boolean;
+  owner_approved_by: string | null;
+  owner_approved_at: string | null;
+}
+
 interface VaultState {
   /** List of vaults for current view */
   vaults: Vault[];
@@ -44,6 +53,10 @@ interface VaultState {
   error: string | null;
   /** Active grouping mode for SubPanel sidebar */
   groupingMode: GroupingMode;
+  /** Current approval state for selected vault */
+  approvalState: ApprovalState | null;
+  /** Error from last advance attempt (e.g. unmet requirements) */
+  advanceError: { message: string; unmet_requirements: string[] } | null;
 
   /** Fetch vaults with optional filters */
   fetchVaults: (params?: {
@@ -67,6 +80,12 @@ interface VaultState {
   }) => Promise<Vault>;
   /** Advance vault to next chamber */
   advanceChamber: (vaultId: string) => Promise<void>;
+  /** Approve a vault (POST to approval endpoint, mock fallback) */
+  approveVault: (vaultId: string) => Promise<void>;
+  /** Fetch approval state for a vault (GET, mock fallback) */
+  fetchApprovals: (vaultId: string) => Promise<void>;
+  /** Clear advance error */
+  clearAdvanceError: () => void;
   /** Archive a vault */
   archiveVault: (vaultId: string) => Promise<void>;
   /** Add a vault to the local list (for mock/offline intake) */
@@ -84,6 +103,8 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   isLoading: false,
   error: null,
   groupingMode: "chamber",
+  approvalState: null,
+  advanceError: null,
 
   fetchVaults: async (params) => {
     set({ isLoading: true, error: null });
@@ -183,6 +204,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   },
 
   advanceChamber: async (vaultId) => {
+    set({ advanceError: null });
     try {
       const updated = await apiFetch<Vault>(
         `/api/v1/vaults/${vaultId}/advance`,
@@ -192,8 +214,30 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         vaults: state.vaults.map((v) => (v.id === vaultId ? updated : v)),
         selectedVault:
           state.selectedVault?.id === vaultId ? updated : state.selectedVault,
+        approvalState: null,
       }));
-    } catch {
+    } catch (e) {
+      // Check for 422 gate rule failure
+      if (
+        e instanceof ApiError &&
+        e.status === 422 &&
+        typeof e.details === "object" &&
+        e.details &&
+        "detail" in e.details
+      ) {
+        const detail = (
+          e.details as {
+            detail: { message: string; unmet_requirements: string[] };
+          }
+        ).detail;
+        set({
+          advanceError: {
+            message: detail.message ?? "Cannot advance vault",
+            unmet_requirements: detail.unmet_requirements ?? [],
+          },
+        });
+        return;
+      }
       // Mock fallback — advance chamber locally
       const CHAMBER_ORDER: Chamber[] = ["discover", "build", "review", "ship"];
       const vault =
@@ -211,9 +255,74 @@ export const useVaultStore = create<VaultState>((set, get) => ({
         vaults: state.vaults.map((v) => (v.id === vaultId ? updated : v)),
         selectedVault:
           state.selectedVault?.id === vaultId ? updated : state.selectedVault,
+        approvalState: null,
       }));
     }
   },
+
+  approveVault: async (vaultId) => {
+    try {
+      await apiFetch(`/api/v1/vaults/${vaultId}/approve`, {
+        method: "POST",
+      });
+      // Re-fetch approval state after recording
+      await get().fetchApprovals(vaultId);
+    } catch {
+      // Mock fallback — toggle gatekeeper then owner
+      set((state) => {
+        const current = state.approvalState ?? {
+          gatekeeper_approved: false,
+          gatekeeper_approved_by: null,
+          gatekeeper_approved_at: null,
+          owner_approved: false,
+          owner_approved_by: null,
+          owner_approved_at: null,
+        };
+        // If gatekeeper not yet approved, approve as gatekeeper; else approve as owner
+        if (!current.gatekeeper_approved) {
+          return {
+            approvalState: {
+              ...current,
+              gatekeeper_approved: true,
+              gatekeeper_approved_by: "mock-user",
+              gatekeeper_approved_at: new Date().toISOString(),
+            },
+          };
+        }
+        return {
+          approvalState: {
+            ...current,
+            owner_approved: true,
+            owner_approved_by: "mock-user",
+            owner_approved_at: new Date().toISOString(),
+          },
+        };
+      });
+    }
+  },
+
+  fetchApprovals: async (vaultId) => {
+    try {
+      const state = await apiFetch<ApprovalState>(
+        `/api/v1/vaults/${vaultId}/approvals`,
+      );
+      set({ approvalState: state });
+    } catch {
+      // Mock fallback — default empty approvals
+      set({
+        approvalState: {
+          gatekeeper_approved: false,
+          gatekeeper_approved_by: null,
+          gatekeeper_approved_at: null,
+          owner_approved: false,
+          owner_approved_by: null,
+          owner_approved_at: null,
+        },
+      });
+    }
+  },
+
+  clearAdvanceError: () => set({ advanceError: null }),
 
   archiveVault: async (vaultId) => {
     await apiFetch(`/api/v1/vaults/${vaultId}/archive`, { method: "POST" });
@@ -231,4 +340,4 @@ export const useVaultStore = create<VaultState>((set, get) => ({
   setGroupingMode: (mode) => set({ groupingMode: mode }),
 }));
 
-export type { Vault, VaultLevel, Chamber, GroupingMode };
+export type { Vault, VaultLevel, Chamber, GroupingMode, ApprovalState };

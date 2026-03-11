@@ -2,6 +2,7 @@
 
 from src.models.document import Document
 from src.models.event import Event
+from src.models.invite import Invite
 from src.models.mcp_permission import McpToolPermission
 from src.models.passkey import PasskeyCredential
 from src.models.patch import Patch
@@ -21,6 +22,7 @@ from src.models.workspace_membership import WorkspaceMembership
 __all__ = [
     "Document",
     "Event",
+    "Invite",
     "McpToolPermission",
     "PasskeyCredential",
     "Patch",

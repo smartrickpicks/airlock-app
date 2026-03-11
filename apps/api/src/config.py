@@ -42,6 +42,8 @@ class Settings(BaseSettings):
         "https://www.brainbrigade.xyz",
         "https://airlock-api.fly.dev",
     ]
+    # Additional CORS origins (set via env, e.g. Railway production URLs)
+    cors_extra_origins: str = ""
 
     # LiteLLM
     litellm_api_base: str = "http://localhost:4000"

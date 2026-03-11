@@ -1,23 +1,20 @@
 """Invite routes — create, validate, and accept workspace invitations.
 
-Uses database-backed auth for invite acceptance (real user creation + JWT).
-Invite records still in-memory (DB table migration planned).
+Database-backed invite records with real auth for acceptance.
 """
 
 import logging
-import secrets
-from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
-from ulid import ULID
 
 from src.config import settings
 from src.db import get_db
 from src.middleware.auth import get_current_user
 from src.models.user import User
 from src.models.workspace import Workspace
+from src.services import invite_service
 from src.services.auth import authenticate_google_user
 from src.services.email import send_invite_email
 
@@ -26,7 +23,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/invites", tags=["invites"])
 
 
-# -- Pydantic schemas ---------------------------------------------------------
+# -- Request / Response schemas (route-specific) ------------------------------
 
 
 class CreateInviteRequest(BaseModel):
@@ -55,12 +52,7 @@ class AcceptInviteRequest(BaseModel):
     display_name: str | None = None
 
 
-# -- In-memory invite store (migrate to DB table in future migration) ----------
-
-_invites: dict[str, dict] = {}
-
-
-# -- Routes --------------------------------------------------------------------
+# -- Routes -------------------------------------------------------------------
 
 
 @router.post("", response_model=CreateInviteResponse)
@@ -80,68 +72,60 @@ async def create_invite(
     inviter = db.query(User).filter(User.id == user_id).first()
     inviter_name = inviter.display_name if inviter else "Team"
 
-    invite_id = str(ULID())
-    token = secrets.token_urlsafe(32)
-    expires_at = datetime.now(UTC) + timedelta(days=7)
+    invite = invite_service.create_invite(
+        db=db,
+        workspace_id=workspace_id,
+        email=req.email,
+        role=req.org_role,
+        module_roles={},
+        invited_by=user_id,
+    )
 
-    invite = {
-        "id": invite_id,
-        "workspace_id": workspace_id,
-        "email": req.email,
-        "token": token,
-        "invited_by": user_id,
-        "inviter_name": inviter_name,
+    # Store workspace/inviter info in metadata for later retrieval
+    invite.metadata_ = {
         "workspace_name": workspace_name,
-        "org_role": req.org_role,
-        "status": "pending",
-        "created_at": datetime.now(UTC).isoformat(),
-        "expires_at": expires_at.isoformat(),
+        "inviter_name": inviter_name,
     }
-    _invites[token] = invite
+    db.commit()
 
     try:
         await send_invite_email(
             to_email=req.email,
             workspace_name=workspace_name,
             inviter_name=inviter_name,
-            token=token,
+            token=invite.code,
         )
     except Exception as e:
         logger.warning("Email send failed (non-blocking): %s", e)
 
     return CreateInviteResponse(
-        id=invite_id,
-        token=token,
-        email=req.email,
-        join_url=f"{settings.app_url}/join/{token}",
-        expires_at=expires_at.isoformat(),
+        id=invite.id,
+        token=invite.code,
+        email=invite.email,
+        join_url=f"{settings.app_url}/join/{invite.code}",
+        expires_at=invite.expires_at.isoformat(),
     )
 
 
 @router.get("/{token}", response_model=InviteInfo)
-async def validate_invite(token: str):
+async def validate_invite(
+    token: str,
+    db: Session = Depends(get_db),  # noqa: B008
+):
     """Validate an invite token — returns workspace info if valid."""
-    invite = _invites.get(token)
+    invite = invite_service.validate_invite(db, code=token)
     if not invite:
         raise HTTPException(status_code=404, detail="Invalid or expired invite")
 
-    if invite["status"] != "pending":
-        raise HTTPException(
-            status_code=status.HTTP_410_GONE,
-            detail=f"Invite already {invite['status']}",
-        )
-
-    expires = datetime.fromisoformat(invite["expires_at"])
-    if datetime.now(UTC) > expires:
-        invite["status"] = "expired"
-        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Invite has expired")
+    meta = invite.metadata_ or {}
+    status_str = "accepted" if invite.accepted_by else "pending"
 
     return InviteInfo(
-        workspace_name=invite.get("workspace_name", "Airlock"),
-        inviter_name=invite.get("inviter_name", "Team"),
-        email=invite["email"],
-        status=invite["status"],
-        expires_at=invite["expires_at"],
+        workspace_name=meta.get("workspace_name", "Airlock"),
+        inviter_name=meta.get("inviter_name", "Team"),
+        email=invite.email,
+        status=status_str,
+        expires_at=invite.expires_at.isoformat(),
     )
 
 
@@ -152,20 +136,14 @@ async def accept_invite(
     db: Session = Depends(get_db),  # noqa: B008
 ):
     """Accept an invite — verify Google credential, create real user + JWT."""
-    invite = _invites.get(token)
+    invite = invite_service.validate_invite(db, code=token)
     if not invite:
         raise HTTPException(status_code=404, detail="Invalid invite")
-
-    if invite["status"] != "pending":
-        raise HTTPException(
-            status_code=status.HTTP_410_GONE,
-            detail=f"Invite already {invite['status']}",
-        )
 
     # Use the real Google OAuth flow to verify credential and create/upsert user
     result = authenticate_google_user(
         credential=req.google_credential,
-        workspace_id=invite["workspace_id"],
+        workspace_id=invite.workspace_id,
         db=db,
     )
 
@@ -176,19 +154,18 @@ async def accept_invite(
         )
 
     # Update display name and role if provided
-    if req.display_name or invite.get("org_role"):
+    if req.display_name or invite.role:
         user = db.query(User).filter(User.id == result["user"]["id"]).first()
         if user:
             if req.display_name:
                 user.display_name = req.display_name
-            user.org_role = invite.get("org_role", "member")
+            user.org_role = invite.role or "member"
             db.commit()
             result["user"]["display_name"] = user.display_name
             result["user"]["org_role"] = user.org_role
 
     # Mark invite as accepted
-    invite["status"] = "accepted"
-    invite["accepted_at"] = datetime.now(UTC).isoformat()
+    invite_service.accept_invite(db, code=token, user_id=result["user"]["id"])
 
     return {
         "access_token": result["access_token"],

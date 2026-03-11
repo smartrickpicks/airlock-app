@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Check, X, AlertTriangle } from "lucide-react";
 import GateDot from "@/components/atoms/GateDot";
 import RecordInspector from "@/components/organisms/RecordInspector";
+import BuildFieldEditor from "@/components/organisms/BuildFieldEditor";
 import AuditTrailFullScreen from "@/components/organisms/AuditTrailFullScreen";
 import { useVaultStore } from "@/stores/vault.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
@@ -14,9 +15,19 @@ import type { ChamberName } from "@/lib/constants";
 
 export default function VaultDetailPage() {
   const params = useParams<{ vaultId: string }>();
-  const { selectedVault, fetchVault, advanceChamber, isLoading } =
-    useVaultStore();
+  const {
+    selectedVault,
+    fetchVault,
+    advanceChamber,
+    isLoading,
+    approvalState,
+    advanceError,
+    approveVault,
+    fetchApprovals,
+    clearAdvanceError,
+  } = useVaultStore();
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
 
   useEffect(() => {
     if (params.vaultId) {
@@ -25,6 +36,13 @@ export default function VaultDetailPage() {
       useOnboardingStore.getState().completeChecklistItem("view_vault");
     }
   }, [params.vaultId, fetchVault]);
+
+  // Fetch approval state when vault is in review chamber
+  useEffect(() => {
+    if (params.vaultId && selectedVault?.chamber === "review") {
+      fetchApprovals(params.vaultId);
+    }
+  }, [params.vaultId, selectedVault?.chamber, fetchApprovals]);
 
   if (isLoading) {
     return (
@@ -60,9 +78,17 @@ export default function VaultDetailPage() {
 
   const handleAdvance = async () => {
     if (!params.vaultId || !nextChamber) return;
+    clearAdvanceError();
     setIsAdvancing(true);
     await advanceChamber(params.vaultId);
     setIsAdvancing(false);
+  };
+
+  const handleApprove = async () => {
+    if (!params.vaultId) return;
+    setIsApproving(true);
+    await approveVault(params.vaultId);
+    setIsApproving(false);
   };
 
   return (
@@ -115,9 +141,69 @@ export default function VaultDetailPage() {
         </div>
       </div>
 
-      {/* Record Inspector */}
+      {/* Approval status panel — visible in Review chamber */}
+      {currentChamber === "review" && approvalState && (
+        <div className="flex-shrink-0 border-b border-surface-border bg-surface-secondary/30 px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                {approvalState.gatekeeper_approved ? (
+                  <Check size={14} className="text-gate-green" />
+                ) : (
+                  <X size={14} className="text-gate-red" />
+                )}
+                <span className="text-xs text-text-secondary">Gatekeeper</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {approvalState.owner_approved ? (
+                  <Check size={14} className="text-gate-green" />
+                ) : (
+                  <X size={14} className="text-gate-red" />
+                )}
+                <span className="text-xs text-text-secondary">Owner</span>
+              </div>
+            </div>
+            <button
+              onClick={handleApprove}
+              disabled={isApproving}
+              className="rounded-md bg-chamber-review/15 px-3 py-1.5 text-xs font-semibold text-chamber-review transition-colors hover:bg-chamber-review/25 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isApproving ? "Approving..." : "Approve"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Advance error panel — shown when gate rules block advancement */}
+      {advanceError && (
+        <div className="flex-shrink-0 border-b border-gate-red/30 bg-gate-red/5 px-6 py-3">
+          <div className="flex items-start gap-2">
+            <AlertTriangle size={14} className="mt-0.5 text-gate-red" />
+            <div>
+              <p className="text-xs font-semibold text-gate-red">
+                {advanceError.message}
+              </p>
+              {advanceError.unmet_requirements.length > 0 && (
+                <ul className="mt-1 space-y-0.5">
+                  {advanceError.unmet_requirements.map((req) => (
+                    <li key={req} className="text-xs text-text-muted">
+                      &bull; {req}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Chamber-aware content */}
       <div className="flex-1 overflow-hidden">
-        <RecordInspector vaultId={selectedVault.id} />
+        {currentChamber === "build" ? (
+          <BuildFieldEditor vaultId={selectedVault.id} />
+        ) : (
+          <RecordInspector vaultId={selectedVault.id} />
+        )}
       </div>
 
       <AuditTrailFullScreen />

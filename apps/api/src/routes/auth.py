@@ -9,7 +9,12 @@ from src.config import settings
 from src.db import get_db
 from src.middleware.auth import get_current_user
 from src.models.user import User
-from src.services.auth import authenticate_google_user
+from src.services.auth import (
+    GoogleAuthConfigurationError,
+    GoogleAuthPersistenceError,
+    GoogleAuthUnavailableError,
+    authenticate_google_user,
+)
 from src.services.jwt import create_access_token, create_refresh_token, verify_token
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -54,7 +59,24 @@ def google_verify(
     db: Session = Depends(get_db),  # noqa: B008
 ) -> dict:
     """Verify a Google ID token and return JWT pair + user info."""
-    result = authenticate_google_user(body.credential, body.workspace_id, db)
+    try:
+        result = authenticate_google_user(body.credential, body.workspace_id, db)
+    except GoogleAuthConfigurationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth is not configured on the API",
+        ) from exc
+    except GoogleAuthUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google token verification is temporarily unavailable",
+        ) from exc
+    except GoogleAuthPersistenceError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to persist Google-authenticated user",
+        ) from exc
+
     if result is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
