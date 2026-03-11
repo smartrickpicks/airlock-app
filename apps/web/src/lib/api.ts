@@ -3,7 +3,10 @@
  * Uses generated types from @airlock/shared-types (OpenAPI codegen).
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_BASE_URL =
+  typeof window !== "undefined"
+    ? ""
+    : process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
