@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { usePlaybookStore } from "@/stores/playbook.store";
+import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 import type {
   ForgeMessage,
   ForgeProfile,
@@ -57,6 +59,11 @@ interface ForgeState {
     interactionMode: string;
   } | null;
 
+  // Power state
+  isPowered: boolean;
+  apiKey: string | null;
+  powerUp: (key: string) => void;
+
   // UI state
   isLaunching: boolean;
   isComplete: boolean;
@@ -108,6 +115,9 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
   workspaceConfig: null,
   preloadedSkills: [],
   ottoConfig: null,
+
+  isPowered: false,
+  apiKey: null,
 
   isLaunching: false,
   isComplete: false,
@@ -397,8 +407,27 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     }));
   },
 
+  powerUp: (key: string) => {
+    set({ apiKey: key, isPowered: true });
+    const { saveNodeConfig } = useCapabilityTreeStore.getState();
+    saveNodeConfig("ai_provider", {
+      provider: "Anthropic",
+      apiKey: key,
+      model: "claude-sonnet-4-20250514",
+    });
+  },
+
   launchWorkspace: () => {
     set({ isLaunching: true });
+
+    // Sync modules to onboarding store
+    const { activeModules } = get();
+    const onboarding = useOnboardingStore.getState();
+    for (const mod of activeModules) {
+      if (!onboarding.setupState.enabledModules.includes(mod)) {
+        onboarding.toggleModule(mod);
+      }
+    }
 
     // Simulate launch delay, then load archetype-matched playbook
     setTimeout(() => {
@@ -428,6 +457,8 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       workspaceConfig: null,
       preloadedSkills: [],
       ottoConfig: null,
+      isPowered: false,
+      apiKey: null,
       isLaunching: false,
       isComplete: false,
       showProfilePanel: false,

@@ -24,6 +24,7 @@ export interface ForgeMessage {
   /** Optional interactive element attached to this message */
   interaction?:
     | "linkedin_input"
+    | "api_key"
     | "goal_chips"
     | "autonomy_cards"
     | "profile_result"
