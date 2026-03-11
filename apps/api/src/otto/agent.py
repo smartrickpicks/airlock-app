@@ -174,6 +174,25 @@ def _build_persona_block(persona: PersonaContext | None) -> str:
             lines.append(f"- Drive signature: {', '.join(drive_desc)}")
     if persona.team_type:
         lines.append(f"- Team type: {persona.team_type}")
+    if persona.sovereign_balance is not None:
+        sb = persona.sovereign_balance
+        if isinstance(sb, dict):
+            sb_desc = []
+            for label, key in [
+                ("dominance", "D"),
+                ("extraversion", "E"),
+                ("patience", "C"),
+                ("formality", "F"),
+            ]:
+                val = sb.get(key)
+                if val is None:
+                    continue
+                if val >= 7:
+                    sb_desc.append(f"high team {label}")
+                elif val <= 3:
+                    sb_desc.append(f"low team {label}")
+            if sb_desc:
+                lines.append(f"- Team sovereign balance: {', '.join(sb_desc)}")
     if persona.session_count > 0:
         lines.append(f"- Session #{persona.session_count}")
     if persona.open_items:

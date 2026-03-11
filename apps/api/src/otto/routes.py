@@ -27,6 +27,8 @@ from src.otto.session_service import (
     clear_session,
     get_or_create_session,
     get_session_with_messages,
+    is_new_session,
+    notify_new_session,
     save_message,
 )
 from src.otto.sse import (
@@ -152,6 +154,8 @@ async def otto_chat(
 
     # Get or create session
     session = get_or_create_session(db, vault_id, user_id, workspace_id, request.session_id)
+    if is_new_session(session):
+        await notify_new_session(user_id)
 
     # Save user message
     save_message(db, session, role="user", content=request.message)
@@ -332,14 +336,14 @@ async def otto_chat(
 
 
 @router.delete("/session")
-def delete_session(
+async def delete_session(
     vault_id: str,
     db: Session = Depends(get_db),  # noqa: B008
     user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
     """Clear session and messages."""
     workspace_id = user.get("workspace_id", "ws_dev")
-    success = clear_session(db, vault_id, user["sub"], workspace_id)
+    success = await clear_session(db, vault_id, user["sub"], workspace_id)
     if not success:
         raise HTTPException(status_code=404, detail="No session found")
     return {"status": "cleared"}
