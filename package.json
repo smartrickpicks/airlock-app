@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.23",
+    "eslint-config-next": "^14.2.35",
     "eslint-import-resolver-node": "^0.3.9",
     "eslint-import-resolver-typescript": "^3.10.1",
     "eslint-module-utils": "^2.12.1",
