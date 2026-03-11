@@ -13,6 +13,7 @@ import type {
 } from "@/lib/mock-forge";
 import {
   FORGE_LINKEDIN_ASK,
+  FORGE_API_KEY_ASK,
   FORGE_Q1,
   FORGE_Q2,
   FORGE_LAUNCH_READY,
@@ -30,9 +31,11 @@ import { apiFetch } from "@/lib/api";
 
 let messageCounter = 0;
 
+type PowerProvider = "anthropic" | "openrouter" | "claude_max" | "demo";
+
 interface ForgeState {
   // Conversation
-  step: number; // 0=linkedin, 1=Q1, 2=Q2, 3=result, 4=launch_ready
+  step: number; // 0=linkedin, 1=api_key, 2=Q1, 3=Q2, 4=result, 5=launch_ready
   messages: ForgeMessage[];
   isTyping: boolean;
   goalChipId: string | null;
@@ -62,7 +65,8 @@ interface ForgeState {
   // Power state
   isPowered: boolean;
   apiKey: string | null;
-  powerUp: (key: string) => void;
+  powerSource: PowerProvider | null;
+  powerUp: (key: string, provider: PowerProvider) => void;
 
   // UI state
   isLaunching: boolean;
@@ -118,6 +122,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
 
   isPowered: false,
   apiKey: null,
+  powerSource: null,
 
   isLaunching: false,
   isComplete: false,
@@ -143,12 +148,12 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
 
     set((s) => ({ messages: [...s.messages, userMsg] }));
 
-    if (step === 1) {
+    if (step === 2) {
       // Free-text answer to Q1 — infer goal from text and advance to Q2
       // In real app, LLM would extract signals from text
-      set({ step: 2 });
+      set({ step: 3 });
       addOttoMessage(set, FORGE_Q2);
-    } else if (step === 2) {
+    } else if (step === 3) {
       // Free-text answer to Q2 — run inference and show result
       const { goalChipId, linkedInDrives, linkedInProfile } = get();
       const { profile, drives, confidence } = mockInferProfile(
@@ -183,7 +188,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       const archetype = profile.metaArchetype;
 
       set({
-        step: 3,
+        step: 4,
         inferredProfile: profile,
         drives,
         confidence: adjustedConfidence,
@@ -199,7 +204,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       // After showing result, show launch ready
       setTimeout(() => {
         addOttoMessage(set, FORGE_LAUNCH_READY, 400);
-        set({ step: 4 });
+        set({ step: 5 });
       }, 2500);
     }
   },
@@ -258,10 +263,10 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     // Show Otto's LinkedIn summary
     addOttoMessage(set, createLinkedInResultMessage(profile), 1000);
 
-    // Then advance to Q1 (goal chips)
+    // Then advance to API key step
     setTimeout(() => {
       set({ step: 1 });
-      addOttoMessage(set, FORGE_Q1, 400);
+      addOttoMessage(set, FORGE_API_KEY_ASK, 400);
     }, 2000);
   },
 
@@ -280,7 +285,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       messages: [...s.messages, userMsg],
       goalChipId: chipId,
       activeModules: [...new Set([...s.activeModules, ...chip.modules])],
-      step: 2,
+      step: 3,
     }));
 
     addOttoMessage(set, FORGE_Q2);
@@ -335,7 +340,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     set((s) => ({
       messages: [...s.messages, userMsg],
       autonomyOptionId: optionId,
-      step: 3,
+      step: 4,
       inferredProfile: profile,
       drives,
       confidence: adjustedConfidence,
@@ -359,7 +364,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     // After showing result, show launch ready
     setTimeout(() => {
       addOttoMessage(set, FORGE_LAUNCH_READY, 400);
-      set({ step: 4 });
+      set({ step: 5 });
     }, 2500);
   },
 
@@ -407,14 +412,29 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     }));
   },
 
-  powerUp: (key: string) => {
-    set({ apiKey: key, isPowered: true });
+  powerUp: (key: string, provider: PowerProvider) => {
+    set({ apiKey: key, isPowered: true, powerSource: provider });
+
+    // Save to capability tree (maps provider for Otto routing)
+    const capProvider =
+      provider === "openrouter"
+        ? "OpenRouter"
+        : provider === "claude_max"
+          ? "Anthropic"
+          : "Anthropic";
     const { saveNodeConfig } = useCapabilityTreeStore.getState();
     saveNodeConfig("ai_provider", {
-      provider: "Anthropic",
+      provider: capProvider,
       apiKey: key,
-      model: "claude-sonnet-4-20250514",
+      model:
+        provider === "claude_max"
+          ? "claude-sonnet-4-6"
+          : "claude-sonnet-4-20250514",
     });
+
+    // Advance to Q1 (goal chips)
+    set({ step: 2 });
+    addOttoMessage(set, FORGE_Q1, 600);
   },
 
   launchWorkspace: () => {
@@ -459,6 +479,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       ottoConfig: null,
       isPowered: false,
       apiKey: null,
+      powerSource: null,
       isLaunching: false,
       isComplete: false,
       showProfilePanel: false,

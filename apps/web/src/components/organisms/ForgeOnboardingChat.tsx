@@ -13,6 +13,7 @@ import ProfileInferencePanel from "@/components/molecules/ProfileInferencePanel"
 import ForgeLinkedInInput from "@/components/molecules/ForgeLinkedInInput";
 import ForgeLaunchCard from "@/components/molecules/ForgeLaunchCard";
 import ForgeApiKeyInput from "@/components/molecules/ForgeApiKeyInput";
+import type { PowerProvider } from "@/components/molecules/ForgeApiKeyInput";
 import { GOAL_CHIPS, AUTONOMY_OPTIONS } from "@/lib/mock-forge";
 import type { ForgeMessage, MetaArchetype } from "@/lib/mock-forge";
 import type { OttoArchetype } from "@/components/atoms/OttoAvatar";
@@ -65,6 +66,9 @@ function ForgeMessageBubble({ msg, isLatest }: ForgeMessageBubbleProps) {
     activeModules,
     isLaunching,
     launchWorkspace,
+    isPowered,
+    powerSource,
+    powerUp,
   } = useForgeStore();
 
   const isOtto = msg.role === "otto";
@@ -128,9 +132,13 @@ function ForgeMessageBubble({ msg, isLatest }: ForgeMessageBubbleProps) {
             )}
 
             {msg.interaction === "api_key" && (
-              // TODO: isPowered and powerUp do not yet exist on forge store.
-              // Wire up once forge store exposes them.
-              <ForgeApiKeyInput onSubmit={() => {}} isPowered={false} />
+              <ForgeApiKeyInput
+                onSubmit={(key: string, provider: PowerProvider) =>
+                  powerUp(key, provider)
+                }
+                isPowered={isPowered}
+                powerSource={powerSource}
+              />
             )}
 
             {msg.interaction === "goal_chips" && (
@@ -198,8 +206,8 @@ export default function ForgeOnboardingChat() {
     setInputValue("");
   };
 
-  // Show ChatInput only during free-text steps (1, 2) and when not complete
-  const showChatInput = (step === 1 || step === 2) && !isComplete;
+  // Show ChatInput only during free-text steps (2=Q1, 3=Q2) and when not complete
+  const showChatInput = (step === 2 || step === 3) && !isComplete;
 
   return (
     <div className="flex h-full flex-col">

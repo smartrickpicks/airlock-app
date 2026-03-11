@@ -502,6 +502,15 @@ export function createProfileResultMessage(
   };
 }
 
+export const FORGE_API_KEY_ASK: ForgeMessage = {
+  id: "forge_api_key",
+  role: "otto",
+  content:
+    "Nice — now let's power up your Airlock. Connect an AI provider so I can actually think for you. Claude Max users get instant access.",
+  timestamp: new Date().toISOString(),
+  interaction: "api_key",
+};
+
 export const FORGE_LAUNCH_READY: ForgeMessage = {
   id: "forge_launch",
   role: "otto",

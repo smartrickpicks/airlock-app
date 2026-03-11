@@ -49,7 +49,7 @@ export default function OnboardingSetupPage() {
         <div className="flex flex-1 flex-col max-w-2xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-3 px-6 py-4 border-b border-surface-border/30">
-            <OttoOtterAvatar size="sm" state={step < 3 ? "idle" : "active"} />
+            <OttoOtterAvatar size="sm" state={step < 4 ? "idle" : "active"} />
             <div>
               <h1 className="text-sm font-bold text-text-primary">
                 Workspace Forge
@@ -61,7 +61,7 @@ export default function OnboardingSetupPage() {
 
             {/* Step indicator */}
             <div className="ml-auto flex gap-1">
-              {[0, 1, 2, 3, 4].map((s) => (
+              {[0, 1, 2, 3, 4, 5].map((s) => (
                 <div
                   key={s}
                   className={`h-1 rounded-full transition-all duration-500 ${
