@@ -64,14 +64,15 @@ Scopes: web, api, shared-types, docs, shell, contracts, crm, triage, dispatch, c
 
 This repo is a **consumer** — it reads from all MCP servers, writes to none.
 
-| Repo                       | MCP Mode   | What It Provides                                  |
-| -------------------------- | ---------- | ------------------------------------------------- |
-| **airlock-docs**           | Read-only  | Specs, vocabulary, security sub-specs, registries |
-| **airlock-config**         | Read-only  | MCP registry, pack schema, default settings       |
-| **airlock-skills-library** | Read-only  | Skills, components, templates, moodboard          |
-| **airlock-playbooks**      | Read-only  | Deployment, prospecting, onboarding workflows     |
-| **airlock-coordination**   | Read-write | Agent session state, locks, task queue            |
-| **airlock-gen-ui**         | Read-write | Generative UI prompts, configs, output            |
+| Repo                       | MCP Mode     | What It Provides                                  |
+| -------------------------- | ------------ | ------------------------------------------------- |
+| **airlock-docs**           | Read-only    | Specs, vocabulary, security sub-specs, registries |
+| **airlock-config**         | Read-only    | MCP registry, pack schema, default settings       |
+| **airlock-skills-library** | Read-only    | Skills, components, templates, moodboard          |
+| **airlock-playbooks**      | Read-only    | Deployment, prospecting, onboarding workflows     |
+| **airlock-persona**        | Read + Write | PI profiles, team dynamics, Otto session state    |
+| **airlock-coordination**   | Read-write   | Agent session state, locks, task queue            |
+| **airlock-gen-ui**         | Read-write   | Generative UI prompts, configs, output            |
 
 All repos live under `smartrickpicks/` on GitHub.
 
