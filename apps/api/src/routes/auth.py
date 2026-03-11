@@ -91,8 +91,15 @@ def google_verify(
 
 
 @router.post("/refresh")
-async def refresh_token(body: RefreshRequest) -> dict:
-    """Exchange a valid refresh token for a new access token."""
+def refresh_token(
+    body: RefreshRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+) -> dict:
+    """Exchange a valid refresh token for a new access token.
+
+    Looks up current user from DB so the new token reflects changes
+    like workspace_id updated after workspace creation.
+    """
     payload = verify_token(body.refresh_token)
     if payload is None or payload.get("type") != "refresh":
         raise HTTPException(
@@ -100,11 +107,15 @@ async def refresh_token(body: RefreshRequest) -> dict:
             detail="Invalid or expired refresh token",
         )
 
+    # Look up current user state from DB (workspace_id may have changed)
+    user_id = payload.get("sub")
+    user = db.query(User).filter(User.id == user_id).first() if user_id else None
+
     token_data = {
         "sub": payload["sub"],
-        "email": payload.get("email", ""),
-        "workspace_id": payload.get("workspace_id", ""),
-        "org_role": payload.get("org_role", ""),
+        "email": user.email if user else payload.get("email", ""),
+        "workspace_id": user.workspace_id if user else payload.get("workspace_id", ""),
+        "org_role": user.org_role if user else payload.get("org_role", ""),
     }
     return {
         "access_token": create_access_token(token_data),

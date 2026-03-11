@@ -222,6 +222,33 @@ function StepWorkspaceName({ onNext }: { onNext: () => void }) {
           body: JSON.stringify({ name: trimmed }),
         },
       );
+
+      // Workspace created — refresh JWT so token has the new workspace_id
+      try {
+        const refreshToken = localStorage.getItem("airlock_refresh_token");
+        if (refreshToken) {
+          const refreshed = await apiFetch<{
+            access_token: string;
+            refresh_token?: string;
+            user?: {
+              id: string;
+              email: string;
+              display_name: string;
+              avatar_url?: string;
+              org_role: string;
+            };
+          }>("/api/v1/auth/refresh", {
+            method: "POST",
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+          // Update stored token with new workspace_id claim
+          localStorage.setItem("airlock_access_token", refreshed.access_token);
+          document.cookie = `airlock_access_token=${refreshed.access_token}; path=/; max-age=900; SameSite=Lax`;
+        }
+      } catch {
+        // Token refresh failed — non-blocking, workspace was still created
+      }
+
       if (typeof window !== "undefined") {
         localStorage.removeItem("airlock_capability_tree");
       }
@@ -230,25 +257,28 @@ function StepWorkspaceName({ onNext }: { onNext: () => void }) {
         name: workspace.name,
         industry: setupState.industry,
         slug: workspace.slug,
+        id: workspace.id,
       });
     } catch (err) {
-      // Fallback: save locally if API is unavailable
-      const slug = trimmed.toLowerCase().replace(/\s+/g, "-");
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("airlock_capability_tree");
-      }
-      initTree(false);
-      saveNodeConfig("workspace", {
-        name: trimmed,
-        industry: setupState.industry,
-        slug,
-      });
+      setLoading(false);
 
       if (err instanceof Error && err.message.includes("409")) {
         setError("A workspace with that name already exists.");
-        setLoading(false);
         return;
       }
+
+      // Show the actual error instead of silently proceeding
+      if (err instanceof Error && err.message.includes("401")) {
+        setError(
+          "Your session expired. Please go back to the login page and sign in again.",
+        );
+        return;
+      }
+
+      setError(
+        "Could not create workspace. Check your connection and try again.",
+      );
+      return;
     }
 
     setLoading(false);
@@ -713,7 +743,7 @@ function StepReady({ onBack }: { onBack: () => void }) {
     });
 
     localStorage.setItem("airlock_onboarding_complete", "true");
-    router.push("/");
+    router.push("/contracts/triage");
   }
 
   return (

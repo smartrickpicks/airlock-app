@@ -13,10 +13,14 @@ interface PatchStoreState {
   selectedPatch: Patch | null;
   isLoading: boolean;
   error: string | null;
+  /** Whether the reviewer has viewed all evidence for the selected patch */
+  evidenceViewed: boolean;
 
   fetchPatches: (vaultId: string) => Promise<void>;
   selectPatch: (patchId: string) => void;
   clearSelectedPatch: () => void;
+  /** Mark evidence as viewed for the current selected patch */
+  markEvidenceViewed: () => void;
   createDraft: (
     vaultId: string,
     data: {
@@ -42,6 +46,9 @@ export const usePatchStore = create<PatchStoreState>((set, get) => ({
   selectedPatch: null,
   isLoading: false,
   error: null,
+  evidenceViewed: false,
+
+  markEvidenceViewed: () => set({ evidenceViewed: true }),
 
   fetchPatches: async (vaultId) => {
     set({ isLoading: true, error: null });
@@ -60,7 +67,7 @@ export const usePatchStore = create<PatchStoreState>((set, get) => ({
 
   selectPatch: (patchId) => {
     const patch = get().patches.find((p) => p.id === patchId) ?? null;
-    set({ selectedPatch: patch });
+    set({ selectedPatch: patch, evidenceViewed: false });
   },
 
   clearSelectedPatch: () => set({ selectedPatch: null }),
