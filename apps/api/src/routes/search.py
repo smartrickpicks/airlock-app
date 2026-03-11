@@ -23,7 +23,7 @@ async def search_all(
     the workspace_id is never accepted from query parameters.
     """
     workspace_id = user["workspace_id"]
-    return search_service.search(
+    return await search_service.search(
         query=q,
         workspace_id=workspace_id,
         module_type=module,

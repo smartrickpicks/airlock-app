@@ -54,7 +54,7 @@ class Settings(BaseSettings):
 
     # Email (Resend)
     resend_api_key: str = ""
-    resend_from_email: str = "Brain Brigade <invite@airlock.so>"
+    resend_from_email: str = "Brain Brigade <noreply@brainbrigade.xyz>"
     app_url: str = "http://localhost:3000"
 
     # Passkey / WebAuthn

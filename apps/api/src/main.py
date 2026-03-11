@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Initialize MeiliSearch indexes
     from src.services.search import ensure_indexes
 
-    ensure_indexes()
+    await ensure_indexes()
     yield
     # Shutdown
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSearchStore, SEARCH_CATEGORIES } from "@/stores/search.store";
 import type { SearchCategory } from "@/stores/search.store";
 import { useModuleStore } from "@/stores/module.store";
+import { useOnboardingStore } from "@/stores/onboarding.store";
 import { SEARCH_TYPE_CONFIG } from "@/lib/mock-search";
 
 export default function CommandPalette() {
@@ -29,10 +30,11 @@ export default function CommandPalette() {
     getSelectedItem,
   } = useSearchStore();
 
-  // Focus input when opened
+  // Focus input when opened + mark search checklist item
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 0);
+      useOnboardingStore.getState().completeChecklistItem("use_search");
     }
   }, [isOpen]);
 
