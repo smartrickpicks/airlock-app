@@ -51,6 +51,10 @@ interface MessengerState {
     emoji: string,
   ) => Promise<void>;
 
+  createConversation: (
+    participantIds: string[],
+    topic?: string,
+  ) => Promise<Conversation | null>;
   initRealtimeHandlers: () => void;
   sendTypingIndicator: (conversationId: string) => void;
 
@@ -61,6 +65,18 @@ interface MessengerState {
 let replyTimeout: ReturnType<typeof setTimeout> | null = null;
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 let lastTypingSent = 0;
+
+function subscribeToConversation(conversationId: string) {
+  try {
+    const ws = getWebSocket();
+    ws.subscribe(`chat:${conversationId}`);
+    ws.subscribe(`chat:${conversationId}:typing`);
+    ws.subscribe(`chat:${conversationId}:reactions`);
+    ws.subscribe(`chat:${conversationId}:read`);
+  } catch {
+    // WebSocket unavailable
+  }
+}
 
 export const useMessengerStore = create<MessengerState>((set, get) => ({
   conversations: [],
@@ -106,17 +122,7 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
       });
 
       // Subscribe to WebSocket topics for each conversation
-      try {
-        const ws = getWebSocket();
-        data.conversations.forEach((conv) => {
-          ws.subscribe(`chat:${conv.id}`);
-          ws.subscribe(`chat:${conv.id}:typing`);
-          ws.subscribe(`chat:${conv.id}:reactions`);
-          ws.subscribe(`chat:${conv.id}:read`);
-        });
-      } catch {
-        // WebSocket unavailable — mock mode
-      }
+      data.conversations.forEach((conv) => subscribeToConversation(conv.id));
     } catch {
       if (getWorkspaceMode() === "clean") {
         set({ conversations: [], messages: {}, isLoading: false });
@@ -378,6 +384,26 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
     }));
   },
 
+  createConversation: async (participantIds, topic) => {
+    try {
+      const conv = await apiFetch<Conversation>("/api/chat/conversations", {
+        method: "POST",
+        body: JSON.stringify({
+          conversation_type: participantIds.length === 1 ? "dm" : "group",
+          participant_ids: participantIds,
+          topic,
+        }),
+      });
+      set((s) => ({
+        conversations: [conv, ...s.conversations],
+      }));
+      subscribeToConversation(conv.id);
+      return conv;
+    } catch {
+      return null;
+    }
+  },
+
   initRealtimeHandlers: () => {
     let ws: ReturnType<typeof getWebSocket>;
     try {
@@ -395,7 +421,14 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
 
       if (event.event_type === "message.sent" && event.message) {
         const msg = event.message as Message;
+        // Skip own messages (optimistic update already applied)
         if (msg.authorId === "user_self") return;
+        // Skip Otto messages if we're viewing that conversation (we get them via SSE)
+        if (
+          msg.authorId === "otto" &&
+          get().activeConversationId === conversationId
+        )
+          return;
         get().handleIncomingMessage(conversationId, msg);
       }
     });
@@ -491,6 +524,17 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
               },
         ),
       }));
+    });
+
+    // Listen for being added to a conversation
+    ws.onEvent("user:*", (_topic: string, event: Record<string, unknown>) => {
+      if (event.event_type === "conversation.added" && event.conversation) {
+        const conv = event.conversation as Conversation;
+        set((s) => ({
+          conversations: [conv, ...s.conversations],
+        }));
+        subscribeToConversation(conv.id);
+      }
     });
   },
 

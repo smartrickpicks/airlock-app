@@ -7,6 +7,7 @@ import { CHAMBER_DOT_CONFIG } from "@/lib/mock-messenger";
 import MessageReactions from "@/components/molecules/MessageReactions";
 import EmojiPicker from "@/components/molecules/EmojiPicker";
 import GifPicker from "@/components/molecules/GifPicker";
+import { useMessengerStore } from "@/stores/messenger.store";
 
 interface GifData {
   gifUrl: string;
@@ -34,6 +35,7 @@ export default function ChatView({
 }: ChatViewProps) {
   const [input, setInput] = useState("");
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const sendTypingIndicator = useMessengerStore((s) => s.sendTypingIndicator);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -62,6 +64,9 @@ export default function ChatView({
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
+    if (conversation?.id) {
+      sendTypingIndicator(conversation.id);
+    }
     const textarea = e.target;
     textarea.style.height = "auto";
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
