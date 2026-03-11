@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from src.db import get_db
 from src.middleware.auth import get_current_user
 from src.models.user import User
-from src.models.workspace import WorkspaceMembership
+from src.models.workspace_membership import WorkspaceMembership
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
