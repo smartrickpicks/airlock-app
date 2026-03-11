@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { apiFetch } from "@/lib/api";
 import type {
   Meeting,
   MeetingIntelligence,
@@ -52,8 +53,13 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
 
   fetchMeetings: async () => {
     try {
-      const res = await fetch("/api/meetings");
-      const data = await res.json();
+      const data = await apiFetch<{
+        meetings: Meeting[];
+        intelligence: Record<string, MeetingIntelligence>;
+        prepBriefs: Record<string, PrepBrief>;
+        transcripts: Record<string, TranscriptEntry[]>;
+        threads: ConversationThread[];
+      }>("/api/v1/meetings");
       set({
         meetings: data.meetings,
         intelligence: data.intelligence,

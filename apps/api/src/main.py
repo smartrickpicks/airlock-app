@@ -13,6 +13,7 @@ from src.middleware.dynamic_cors import DynamicCORSMiddleware
 from src.otto.routes import general_router as otto_general_router
 from src.otto.routes import router as otto_router
 from src.realtime.ws import websocket_endpoint
+from src.routes.admin import router as admin_router
 from src.routes.auth import router as auth_router
 from src.routes.calendar import router as calendar_router
 from src.routes.crm import router as crm_router
@@ -94,6 +95,7 @@ def create_app() -> FastAPI:
     app.include_router(review_queue_router)
     app.include_router(search_router)
     app.include_router(notification_router)
+    app.include_router(admin_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")

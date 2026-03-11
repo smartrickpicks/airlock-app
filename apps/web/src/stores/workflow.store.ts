@@ -7,6 +7,7 @@ import {
   type NodeChange,
   type EdgeChange,
 } from "@xyflow/react";
+import { apiFetch } from "@/lib/api";
 import type {
   Workflow,
   WorkflowRun,
@@ -66,8 +67,10 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   fetchWorkflows: async () => {
     try {
-      const res = await fetch("/api/workflows");
-      const data = await res.json();
+      const data = await apiFetch<{
+        workflows: Workflow[];
+        runs: WorkflowRun[];
+      }>("/api/workflows");
       set({ workflows: data.workflows, runs: data.runs });
     } catch {
       if (getWorkspaceMode() === "clean") {
