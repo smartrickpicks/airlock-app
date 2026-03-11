@@ -1,15 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat apps/web/src/app/\\\\\\(shell\\\\\\)/\\\\\\(modules\\\\\\)/contracts/page.tsx)",
-      "Bash(ls apps/web/e2e/*.spec.ts)",
       "Bash(pnpm type-check)",
       "Bash(pnpm lint)",
-      "Bash(git push origin main)",
-      "Read(//Users/zacharyholwerda/Desktop/Airlock/Features/EventBus/**)",
-      "Read(//Users/zacharyholwerda/Desktop/Airlock/Features/BatchProcessing/**)",
-      "Read(//Users/zacharyholwerda/Desktop/Airlock/Features/Notifications/**)"
-    ],
-    "additionalDirectories": ["/Users/zacharyholwerda/Desktop/Airlock"]
+      "Bash(git push origin main)"
+    ]
   }
 }

@@ -9,7 +9,6 @@
 ## Quick Start
 
 ```bash
-cd /Users/zacharyholwerda/Desktop/airlock-app
 source ~/.nvm/nvm.sh && nvm use 20
 pnpm dev           # Dev server at localhost:3000
 pnpm type-check    # TypeScript check (NOT npx tsc)
