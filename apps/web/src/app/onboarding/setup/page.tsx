@@ -507,11 +507,57 @@ function StepInviteTeam({
   const [role, setRole] = useState<"builder" | "gatekeeper" | "owner">(
     "builder",
   );
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   function handleAdd() {
     if (!email.includes("@")) return;
     addInvitee({ email, role });
     setEmail("");
+  }
+
+  const roleMap: Record<string, string> = {
+    builder: "member",
+    gatekeeper: "member",
+    owner: "executive",
+  };
+
+  async function handleContinue() {
+    if (setupState.invitees.length === 0) {
+      onNext();
+      return;
+    }
+
+    setSending(true);
+    setSendError(null);
+    let sent = 0;
+
+    for (const inv of setupState.invitees) {
+      try {
+        await apiFetch("/api/v1/invites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: inv.email,
+            org_role: roleMap[inv.role] || "member",
+          }),
+        });
+        sent++;
+      } catch {
+        // Continue sending remaining invites
+      }
+    }
+
+    setSending(false);
+
+    if (sent === 0) {
+      setSendError(
+        "Could not send invites. Check your connection and try again.",
+      );
+      return;
+    }
+
+    onNext();
   }
 
   return (
@@ -545,7 +591,7 @@ function StepInviteTeam({
           </select>
           <button
             onClick={handleAdd}
-            disabled={!email.includes("@")}
+            disabled={!email.includes("@") || sending}
             className="rounded-lg bg-accent-primary px-4 py-2.5 text-xs font-semibold text-surface-base transition-colors hover:bg-accent-primary-hover disabled:opacity-40"
           >
             Add
@@ -570,7 +616,8 @@ function StepInviteTeam({
                 </div>
                 <button
                   onClick={() => removeInvitee(i)}
-                  className="text-xs text-text-muted hover:text-accent-danger transition-colors"
+                  disabled={sending}
+                  className="text-xs text-text-muted hover:text-accent-danger transition-colors disabled:opacity-40"
                 >
                   Remove
                 </button>
@@ -580,14 +627,23 @@ function StepInviteTeam({
         )}
       </div>
 
+      {sendError && (
+        <p className="mt-4 rounded-lg border border-accent-danger/30 bg-accent-danger/10 px-3 py-2 text-xs text-accent-danger">
+          {sendError}
+        </p>
+      )}
+
       <WizardNav
-        onNext={onNext}
+        onNext={handleContinue}
         onBack={onBack}
         nextLabel={
-          setupState.invitees.length > 0
-            ? `Continue (${setupState.invitees.length} invited)`
-            : "Continue"
+          sending
+            ? "Sending invites..."
+            : setupState.invitees.length > 0
+              ? `Send ${setupState.invitees.length} invite${setupState.invitees.length > 1 ? "s" : ""}`
+              : "Continue"
         }
+        nextDisabled={sending}
         skipLabel="Skip for now"
         onSkip={onNext}
       />
