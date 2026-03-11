@@ -60,6 +60,8 @@ class ChatRequest(BaseModel):
     surface: Literal["task_runner", "messenger", "context_menu"] = "task_runner"
     recipe_id: str | None = None
     node_index: int | None = Field(default=None, ge=0)
+    conversation_id: str | None = None  # For WS bridge
+    persona_mode: str | None = None
 
 
 def _resolve_provider(pc: ProviderConfig | None) -> tuple[str, str, str]:
@@ -125,7 +127,7 @@ def get_session(
 
 
 @router.post("/chat")
-def otto_chat(
+async def otto_chat(
     vault_id: str,
     request: ChatRequest,
     db: Session = Depends(get_db),  # noqa: B008
@@ -243,6 +245,21 @@ def otto_chat(
                 finish_reason="stop",
             )
 
+            # Bridge to WebSocket for other participants
+            import asyncio
+
+            from src.otto.bridge import bridge_otto_response_to_ws
+
+            loop = asyncio.get_event_loop()
+            loop.create_task(
+                bridge_otto_response_to_ws(
+                    conversation_id=request.conversation_id,
+                    message_id=f"msg_otto_{session.id}_{int(time.time())}",
+                    content=full_response,
+                    persona_mode=request.persona_mode,
+                )
+            )
+
             otto_circuit_breaker.record_success()
 
         except Exception:
@@ -250,6 +267,12 @@ def otto_chat(
             otto_circuit_breaker.record_error()
             yield format_sse_error("An internal error occurred. Please try again.")
             yield format_sse_done()
+
+    # Emit Otto typing indicator
+    if request.conversation_id:
+        from src.otto.bridge import emit_otto_typing
+
+        await emit_otto_typing(request.conversation_id)
 
     return StreamingResponse(
         stream_response(),
