@@ -87,6 +87,9 @@ export default function MessengerDrawer() {
               onSendMessage={(content) =>
                 sendMessage(activeConversation.id, content)
               }
+              onSendGif={(gifData) =>
+                sendMessage(activeConversation.id, "", gifData)
+              }
             />
           ) : (
             <ConversationList

@@ -383,6 +383,10 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
     }
 
     return filtered.sort((a, b) => {
+      // Otto conversations pinned at top
+      if (a.type === "otto" && b.type !== "otto") return -1;
+      if (b.type === "otto" && a.type !== "otto") return 1;
+      // Then by last message timestamp
       const aTime = a.lastMessage?.timestamp || a.createdAt;
       const bTime = b.lastMessage?.timestamp || b.createdAt;
       return new Date(bTime).getTime() - new Date(aTime).getTime();

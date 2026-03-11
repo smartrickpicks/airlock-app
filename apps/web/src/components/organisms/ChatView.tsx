@@ -6,6 +6,14 @@ import type { Conversation, Message } from "@/lib/mock-messenger";
 import { CHAMBER_DOT_CONFIG } from "@/lib/mock-messenger";
 import MessageReactions from "@/components/molecules/MessageReactions";
 import EmojiPicker from "@/components/molecules/EmojiPicker";
+import GifPicker from "@/components/molecules/GifPicker";
+
+interface GifData {
+  gifUrl: string;
+  gifProvider: string;
+  gifWidth: number;
+  gifHeight: number;
+}
 
 interface ChatViewProps {
   conversation: Conversation;
@@ -13,6 +21,7 @@ interface ChatViewProps {
   typingUsers: string[];
   onBack: () => void;
   onSendMessage: (content: string) => void;
+  onSendGif?: (gifData: GifData) => void;
 }
 
 export default function ChatView({
@@ -21,8 +30,10 @@ export default function ChatView({
   typingUsers,
   onBack,
   onSendMessage,
+  onSendGif,
 }: ChatViewProps) {
   const [input, setInput] = useState("");
+  const [showGifPicker, setShowGifPicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -56,6 +67,23 @@ export default function ChatView({
     textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   };
 
+  const handleGifSelect = (gif: {
+    url: string;
+    provider: string;
+    width: number;
+    height: number;
+  }) => {
+    if (onSendGif) {
+      onSendGif({
+        gifUrl: gif.url,
+        gifProvider: gif.provider,
+        gifWidth: gif.width,
+        gifHeight: gif.height,
+      });
+    }
+    setShowGifPicker(false);
+  };
+
   const otherParticipant = conversation.participants.find(
     (p) => p.userId !== "user_self",
   );
@@ -76,6 +104,11 @@ export default function ChatView({
               ? otherParticipant?.name || "Direct Message"
               : conversation.name || "Untitled"}
           </p>
+          {conversation.type === "otto" && conversation.personaMode && (
+            <span className="text-xs text-text-tertiary ml-2 capitalize">
+              {conversation.personaMode} mode
+            </span>
+          )}
         </div>
         {conversation.type === "vault_thread" && conversation.chamber && (
           <span
@@ -149,9 +182,23 @@ export default function ChatView({
                           </span>
                         </div>
                       )}
-                      <p className="text-sm leading-relaxed text-text-secondary break-words">
-                        {msg.content}
-                      </p>
+                      {msg.messageType === "gif" && msg.gifUrl ? (
+                        <img
+                          src={msg.gifUrl}
+                          alt="GIF"
+                          className="max-w-[240px] rounded-lg"
+                          style={{
+                            aspectRatio:
+                              msg.gifWidth && msg.gifHeight
+                                ? `${msg.gifWidth}/${msg.gifHeight}`
+                                : undefined,
+                          }}
+                        />
+                      ) : (
+                        <p className="text-sm leading-relaxed text-text-secondary break-words">
+                          {msg.content}
+                        </p>
+                      )}
                       <MessageReactions
                         messageId={msg.id}
                         conversationId={conversation.id}
@@ -188,24 +235,64 @@ export default function ChatView({
 
       {/* Composer */}
       <div className="border-t border-surface-border p-3">
-        <div className="flex items-end gap-2 rounded-lg border border-surface-border bg-surface-overlay px-3 py-2">
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={handleInput}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            rows={1}
-            className="flex-1 resize-none bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
-            style={{ maxHeight: 120 }}
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim()}
-            className="flex-shrink-0 text-text-muted hover:text-accent-primary disabled:opacity-30 transition-colors"
-          >
-            <Send size={16} />
-          </button>
+        <div className="relative">
+          {showGifPicker && (
+            <GifPicker
+              onSelect={handleGifSelect}
+              onClose={() => setShowGifPicker(false)}
+            />
+          )}
+          <div className="flex items-end gap-2 rounded-lg border border-surface-border bg-surface-overlay px-3 py-2">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={handleInput}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message..."
+              rows={1}
+              className="flex-1 resize-none bg-transparent text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
+              style={{ maxHeight: 120 }}
+            />
+            {onSendGif && (
+              <button
+                type="button"
+                onClick={() => setShowGifPicker(!showGifPicker)}
+                className="flex-shrink-0 p-1 text-text-muted hover:text-text-primary transition-colors"
+                aria-label="Send GIF"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="2" />
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="currentColor"
+                    stroke="none"
+                    fontWeight="bold"
+                  >
+                    GIF
+                  </text>
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={handleSend}
+              disabled={!input.trim()}
+              className="flex-shrink-0 text-text-muted hover:text-accent-primary disabled:opacity-30 transition-colors"
+            >
+              <Send size={16} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
