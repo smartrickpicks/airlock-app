@@ -1,12 +1,12 @@
 """Email service — sends transactional emails via Resend API."""
 
-import os
+import logging
 
 import httpx
 
-RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
-RESEND_FROM = os.getenv("RESEND_FROM_EMAIL", "Brain Brigade <invite@airlock.so>")
-APP_URL = os.getenv("APP_URL", "http://localhost:3000")
+from src.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 async def send_invite_email(
@@ -16,7 +16,7 @@ async def send_invite_email(
     token: str,
 ) -> dict:
     """Send a magic link invite email via Resend."""
-    join_url = f"{APP_URL}/join/{token}"
+    join_url = f"{settings.app_url}/join/{token}"
 
     html = f"""
     <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
@@ -42,19 +42,19 @@ async def send_invite_email(
     </div>
     """
 
-    if not RESEND_API_KEY:
-        print(f"[EMAIL] Would send invite to {to_email}: {join_url}")
+    if not settings.resend_api_key:
+        logger.info("[EMAIL] Would send invite to %s: %s", to_email, join_url)
         return {"id": "dev_mock", "join_url": join_url}
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
             "https://api.resend.com/emails",
             headers={
-                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Authorization": f"Bearer {settings.resend_api_key}",
                 "Content-Type": "application/json",
             },
             json={
-                "from": RESEND_FROM,
+                "from": settings.resend_from_email,
                 "to": [to_email],
                 "subject": f"You've been invited to {workspace_name}",
                 "html": html,

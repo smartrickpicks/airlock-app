@@ -21,16 +21,16 @@ from webauthn.helpers.structs import (
     UserVerificationRequirement,
 )
 
+from src.config import settings
 from src.models.passkey import PasskeyCredential
 from src.models.user import User
 from src.services.jwt import create_access_token, create_refresh_token
 
 logger = logging.getLogger(__name__)
 
-# RP (Relying Party) configuration
-RP_ID = "localhost"  # TODO: make configurable via settings
-RP_NAME = "Airlock"
-RP_ORIGIN = "http://localhost:3000"
+RP_ID = settings.rp_id
+RP_NAME = settings.rp_name
+RP_ORIGIN = settings.rp_origin
 
 # In-memory challenge store (use Redis in production)
 _challenge_store: dict[str, bytes] = {}
