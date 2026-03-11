@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.websockets import WebSocket
 
+from src.chat.routes import router as chat_router
 from src.event_bus.routes import router as event_bus_router
 from src.mcp.routes import router as mcp_router
 from src.messenger.routes import router as messenger_router
@@ -79,6 +80,7 @@ def create_app() -> FastAPI:
     app.include_router(otto_general_router)
     app.include_router(event_bus_router)
     app.include_router(messenger_router)
+    app.include_router(chat_router)
     app.include_router(workflow_router)
     app.include_router(mcp_router)
     app.include_router(workspace_router)
