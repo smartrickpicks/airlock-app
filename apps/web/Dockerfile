@@ -1,4 +1,6 @@
 FROM node:20-alpine AS base
+ENV COREPACK_ENABLE_STRICT=0
+RUN corepack disable 2>/dev/null || true
 
 # ── Dependencies ─────────────────────────────────────────────────────────────
 FROM base AS deps
