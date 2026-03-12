@@ -2,36 +2,37 @@
 
 import ForgeChat from "@/components/organisms/ForgeChat";
 import ForgePreview from "@/components/organisms/ForgePreview";
-import { useForgeStore } from "@/stores/forge.store";
+import { useCalibrationStore } from "@/stores/calibration.store";
+import { ARCHETYPE_SKILLS } from "@/lib/mock-forge";
 
 export default function WorkspaceForge() {
   const {
-    step,
     messages,
     isTyping,
-    goalChipId,
-    autonomyOptionId,
-    isScrapingLinkedIn,
-    inferredProfile,
-    drives,
     confidence,
+    phase,
+    drives,
+    driveSignalCounts,
+    inferredProfile,
     metaArchetype,
     activeModules,
     workspaceConfig,
-    preloadedSkills,
     provenance,
     confidenceBreakdown,
     showProfilePanel,
     isLaunching,
     isComplete,
-    sendMessage,
-    submitLinkedInUrl,
-    selectGoalChip,
-    selectAutonomyOption,
+    submitAnswer,
+    continueCalibration,
+    launchWorkspace,
     toggleModule,
     overrideProfile,
-    launchWorkspace,
-  } = useForgeStore();
+  } = useCalibrationStore();
+
+  // Derive preloaded skills from the current meta-archetype
+  const preloadedSkills = metaArchetype
+    ? ARCHETYPE_SKILLS[metaArchetype] || []
+    : [];
 
   return (
     <div className="flex h-full w-full overflow-hidden bg-surface-base">
@@ -40,25 +41,22 @@ export default function WorkspaceForge() {
         <ForgeChat
           messages={messages}
           isTyping={isTyping}
-          step={step}
-          goalChipId={goalChipId}
-          autonomyOptionId={autonomyOptionId}
-          isScrapingLinkedIn={isScrapingLinkedIn}
-          onSendMessage={sendMessage}
-          onSelectGoalChip={selectGoalChip}
-          onSelectAutonomyOption={selectAutonomyOption}
-          onSubmitLinkedInUrl={submitLinkedInUrl}
+          confidence={confidence}
+          phase={phase}
+          onSubmitAnswer={submitAnswer}
+          onContinueCalibration={continueCalibration}
+          onLaunchWorkspace={launchWorkspace}
         />
       </div>
 
       {/* Right Panel — Preview (55%) */}
       <div className="flex h-full flex-1 flex-col">
         <ForgePreview
-          step={step}
           activeModules={activeModules}
           inferredProfile={inferredProfile}
           drives={drives}
           confidence={confidence}
+          driveSignalCounts={driveSignalCounts}
           metaArchetype={metaArchetype}
           workspaceConfig={workspaceConfig}
           preloadedSkills={preloadedSkills}
