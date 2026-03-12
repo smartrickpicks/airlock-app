@@ -58,7 +58,7 @@ function LoginForm() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [authConfigReady, setAuthConfigReady] = useState(false);
 
-  const DEFAULT_AUTHENTICATED_ROUTE = "/contracts/triage";
+  const DEFAULT_AUTHENTICATED_ROUTE = "/";
   const rawNext = searchParams.get("next");
   const nextUrl =
     rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")

@@ -22,7 +22,7 @@ export default function OnboardingSetupPage() {
       completeAdminItem("create_workspace");
       completeAdminItem("enable_modules");
       localStorage.setItem("airlock_onboarding_complete", "true");
-      const timer = setTimeout(() => router.push("/contracts/triage"), 1200);
+      const timer = setTimeout(() => router.push("/"), 1200);
       return () => clearTimeout(timer);
     }
   }, [isComplete, completeAdminItem, router]);

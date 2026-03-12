@@ -87,7 +87,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-3">
           {user ? (
             <button
-              onClick={() => router.push("/contracts/triage")}
+              onClick={() => router.push("/")}
               className="rounded-md bg-accent-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-primary/80"
             >
               Go to Workspace
