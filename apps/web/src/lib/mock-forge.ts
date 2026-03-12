@@ -87,6 +87,82 @@ export interface GoalChip {
   driveSignals: Partial<ForgeDrives>;
 }
 
+/** Per-drive signal attribution for the Provenance Panel */
+export interface DriveSignalAttribution {
+  source: string;
+  contribution: number;
+  reason: string;
+}
+
+export interface DriveEvidence {
+  drive: keyof ForgeDrives;
+  value: number;
+  signals: DriveSignalAttribution[];
+}
+
+export interface BehavioralTension {
+  drive_a: string;
+  value_a: number;
+  drive_b: string;
+  value_b: number;
+  description: string;
+}
+
+export interface ProfileDistance {
+  profile_id: string;
+  profile_name: string;
+  distance: number;
+  meta_archetype: MetaArchetype;
+  is_match: boolean;
+  is_runner_up: boolean;
+  rejection_reason: string | null;
+}
+
+export interface ProvenanceData {
+  all_distances: ProfileDistance[];
+  drive_evidence: DriveEvidence[];
+  behavioral_tensions: BehavioralTension[];
+  raw_adjustments: Record<string, unknown>;
+}
+
+export interface BMYApiResponse {
+  drives: ForgeDrives;
+  signal_count: number;
+  profile: {
+    profile_id: string;
+    profile_name: string;
+    distance: number;
+    confidence: number;
+    meta_archetype: MetaArchetype;
+    drives: ForgeDrives;
+    workspace_config: ForgeWorkspaceConfig;
+    otto_config: {
+      default_archetype: string;
+      autonomy_ceiling: number;
+      interaction_mode: string;
+    };
+    runner_up_id: string | null;
+    runner_up_distance: number | null;
+  };
+  top_candidates: Array<{
+    profile_id: string;
+    profile_name: string;
+    distance: number;
+    meta_archetype: MetaArchetype;
+  }>;
+  workspace_config: ForgeWorkspaceConfig;
+  otto_config: {
+    default_archetype: string;
+    autonomy_ceiling: number;
+    interaction_mode: string;
+  };
+  confidence: number;
+  confidence_breakdown: Record<string, number>;
+  explanation: string;
+  enrichment_suggestions: string[];
+  provenance: ProvenanceData | null;
+}
+
 // LinkedIn scrape result type
 export interface LinkedInProfile {
   name: string;
