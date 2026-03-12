@@ -587,6 +587,62 @@ def remove_reaction(db: Session, message_id: str, user_id: str, emoji: str) -> b
     return True
 
 
+def edit_message(db: Session, message_id: str, sender_id: str, content: str) -> dict | None:
+    """Edit a message's content. Only the sender can edit."""
+    msg = (
+        db.query(Message)
+        .filter(
+            Message.id == message_id,
+            Message.sender_id == sender_id,
+            Message.deleted_at.is_(None),
+        )
+        .first()
+    )
+    if not msg:
+        return None
+
+    msg.content = content
+    msg.edited_at = datetime.now(UTC)
+    db.commit()
+    db.refresh(msg)
+
+    user_info = _resolve_user_names(db, [sender_id])
+    author_name = user_info.get(sender_id, {"name": "Unknown"})["name"] or "Unknown"
+    reactions = _aggregate_reactions(db, [message_id], sender_id).get(message_id, [])
+
+    return {
+        "id": msg.id,
+        "conversationId": msg.conversation_id,
+        "authorId": msg.sender_id,
+        "authorName": author_name,
+        "content": msg.content,
+        "messageType": msg.message_type,
+        "editedAt": msg.edited_at.isoformat() if msg.edited_at else None,
+        "reactions": reactions,
+        "createdAt": msg.created_at.isoformat() if msg.created_at else None,
+    }
+
+
+def soft_delete_message(db: Session, message_id: str, sender_id: str) -> str | None:
+    """Soft-delete a message. Returns conversation_id or None if not found."""
+    msg = (
+        db.query(Message)
+        .filter(
+            Message.id == message_id,
+            Message.sender_id == sender_id,
+            Message.deleted_at.is_(None),
+        )
+        .first()
+    )
+    if not msg:
+        return None
+
+    conversation_id = msg.conversation_id
+    msg.deleted_at = datetime.now(UTC)
+    db.commit()
+    return conversation_id
+
+
 def search_messages(
     db: Session, workspace_id: str, user_id: str, query: str, limit: int
 ) -> list[dict]:

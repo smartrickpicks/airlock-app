@@ -437,7 +437,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     addOttoMessage(set, FORGE_Q1, 600);
   },
 
-  launchWorkspace: () => {
+  launchWorkspace: async () => {
     set({ isLaunching: true });
 
     // Sync modules to onboarding store
@@ -449,13 +449,41 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       }
     }
 
-    // Simulate launch delay, then load archetype-matched playbook
-    setTimeout(() => {
-      set({ isLaunching: false, isComplete: true });
-      const { metaArchetype } = get();
-      const { loadDemoPlaybook } = usePlaybookStore.getState();
-      loadDemoPlaybook(metaArchetype || undefined);
-    }, 1500);
+    // Create workspace via API
+    const workspaceName = onboarding.setupState.workspaceName || "My Workspace";
+    try {
+      await apiFetch<{ id: string; name: string; slug: string }>(
+        "/api/v1/workspaces",
+        {
+          method: "POST",
+          body: JSON.stringify({ name: workspaceName }),
+        },
+      );
+
+      // Refresh JWT so it includes the new workspace_id
+      const refreshToken = localStorage.getItem("airlock_refresh_token");
+      if (refreshToken) {
+        const refreshData = await apiFetch<{ access_token: string }>(
+          "/api/v1/auth/refresh",
+          {
+            method: "POST",
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          },
+        );
+        localStorage.setItem("airlock_access_token", refreshData.access_token);
+        document.cookie = `airlock_access_token=${refreshData.access_token}; path=/; max-age=900; SameSite=Lax`;
+        const { useAuthStore } = await import("@/stores/auth.store");
+        useAuthStore.getState().setAccessToken(refreshData.access_token);
+      }
+    } catch (err) {
+      // Log but don't block — workspace may already exist (409) or API unreachable
+      console.warn("Workspace creation:", err);
+    }
+
+    set({ isLaunching: false, isComplete: true });
+    const { metaArchetype } = get();
+    const { loadDemoPlaybook } = usePlaybookStore.getState();
+    loadDemoPlaybook(metaArchetype || undefined);
   },
 
   reset: () => {

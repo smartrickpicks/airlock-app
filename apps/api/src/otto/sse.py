@@ -60,3 +60,9 @@ def format_sse_tier_info(tier: str, intent: str | None = None) -> str:
     """Tier info (which execution tier handled this): c:{tier, intent}"""
     payload = {"tier": tier, "intent": intent}
     return f"c:{json.dumps(payload)}\n"
+
+
+def format_sse_embed(embed_type: str, props: dict) -> str:
+    """Gen-UI embed: 4:{type, props} — rendered as rich component in chat."""
+    payload = {"type": embed_type, "props": props}
+    return f"4:{json.dumps(payload)}\n"

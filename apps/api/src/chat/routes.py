@@ -6,12 +6,14 @@ from sqlalchemy.orm import Session
 from src.chat.schemas import (
     AddReactionRequest,
     CreateConversationRequest,
+    EditMessageRequest,
     SendMessageRequest,
     UpdateConversationRequest,
 )
 from src.chat.service import (
     add_reaction,
     create_conversation_chat,
+    edit_message,
     list_conversations_cursor,
     list_messages_cursor,
     mark_message_read,
@@ -19,6 +21,7 @@ from src.chat.service import (
     search_messages,
     search_people,
     send_message_chat,
+    soft_delete_message,
     update_conversation,
 )
 from src.db import get_db
@@ -157,6 +160,43 @@ async def mark_read(
         },
     )
     return {"status": "read"}
+
+
+@router.patch("/messages/{message_id}")
+async def edit_message_route(
+    message_id: str,
+    request: EditMessageRequest,
+    db: Session = Depends(get_db),  # noqa: B008
+    user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Edit a message. Only the sender can edit their own messages."""
+    result = edit_message(db, message_id=message_id, sender_id=user["sub"], content=request.content)
+    if not result:
+        raise HTTPException(status_code=404, detail="Message not found or not yours")
+
+    await emit_event(
+        f"chat:{result['conversationId']}",
+        {"event_type": "message.edited", "message": result},
+    )
+    return result
+
+
+@router.delete("/messages/{message_id}")
+async def delete_message_route(
+    message_id: str,
+    db: Session = Depends(get_db),  # noqa: B008
+    user: dict = Depends(get_current_user),  # noqa: B008
+) -> dict:
+    """Soft-delete a message. Only the sender can delete their own messages."""
+    conversation_id = soft_delete_message(db, message_id=message_id, sender_id=user["sub"])
+    if not conversation_id:
+        raise HTTPException(status_code=404, detail="Message not found or not yours")
+
+    await emit_event(
+        f"chat:{conversation_id}",
+        {"event_type": "message.deleted", "message_id": message_id},
+    )
+    return {"status": "deleted"}
 
 
 @router.post("/messages/{message_id}/reactions")

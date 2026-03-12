@@ -31,3 +31,7 @@ class UpdateConversationRequest(BaseModel):
     archived: bool | None = None
     persona_mode: str | None = None
     muted: bool | None = None
+
+
+class EditMessageRequest(BaseModel):
+    content: str

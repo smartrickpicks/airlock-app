@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { OttoMessage } from "@/lib/mock-otto";
+import type { ChatEmbedData } from "@/components/molecules/ChatEmbed";
 import { OTTO_WELCOME, OTTO_MOCK_RESPONSES } from "@/lib/mock-otto";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 
@@ -101,7 +102,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
   personaMode: null,
 
   // Messenger state
-  messengerMessages: [],
+  messengerMessages: [{ ...OTTO_WELCOME, id: "otto_messenger_welcome" }],
   messengerSessionId: null,
   isMessengerOpen: false,
   isMessengerStreaming: false,
@@ -192,6 +193,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
 
         const decoder = new TextDecoder();
         let accumulated = "";
+        const embeds: ChatEmbedData[] = [];
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
@@ -202,7 +204,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
           const lines = chunk.split("\n").filter((l: string) => l.trim());
 
           for (const line of lines) {
-            // Vercel AI SDK wire format: 0: text, d: done
+            // Vercel AI SDK wire format: 0: text, 4: embed, d: done
             if (line.startsWith("0:")) {
               try {
                 const token = JSON.parse(line.slice(2)) as string;
@@ -214,6 +216,18 @@ export const useOttoStore = create<OttoState>((set, get) => ({
                 }));
               } catch {
                 // Skip malformed tokens
+              }
+            } else if (line.startsWith("4:")) {
+              try {
+                const embed = JSON.parse(line.slice(2)) as ChatEmbedData;
+                embeds.push(embed);
+                set((s) => ({
+                  messages: s.messages.map((m) =>
+                    m.id === assistantId ? { ...m, embeds: [...embeds] } : m,
+                  ),
+                }));
+              } catch {
+                // Skip malformed embeds
               }
             }
           }
@@ -334,6 +348,7 @@ export const useOttoStore = create<OttoState>((set, get) => ({
         if (!reader) throw new Error("No response body");
         const decoder = new TextDecoder();
         let accumulated = "";
+        const messengerEmbeds: ChatEmbedData[] = [];
         // eslint-disable-next-line no-constant-condition
         while (true) {
           const { done, value } = await reader.read();
@@ -348,6 +363,20 @@ export const useOttoStore = create<OttoState>((set, get) => ({
                 set((s) => ({
                   messengerMessages: s.messengerMessages.map((m) =>
                     m.id === assistantId ? { ...m, content: accumulated } : m,
+                  ),
+                }));
+              } catch {
+                /* skip malformed */
+              }
+            } else if (line.startsWith("4:")) {
+              try {
+                const embed = JSON.parse(line.slice(2)) as ChatEmbedData;
+                messengerEmbeds.push(embed);
+                set((s) => ({
+                  messengerMessages: s.messengerMessages.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, embeds: [...messengerEmbeds] }
+                      : m,
                   ),
                 }));
               } catch {

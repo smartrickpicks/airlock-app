@@ -33,6 +33,7 @@ from src.otto.session_service import (
 )
 from src.otto.sse import (
     format_sse_done,
+    format_sse_embed,
     format_sse_error,
     format_sse_finish,
     format_sse_text,
@@ -45,6 +46,31 @@ from src.services.credit_service import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Drive label mapping for sovereign balance embed
+_DRIVE_LABELS = {"D": "D", "E": "E", "C": "C", "F": "F"}
+_DRIVE_TARGET = 5.5  # Midpoint of 1-10 PI scale
+
+
+def _build_sovereign_balance_embed(persona_ctx) -> dict | None:
+    """Build sovereign_balance embed props from PersonaContext if data is available."""
+    sb = getattr(persona_ctx, "sovereign_balance", None)
+    if not sb or not isinstance(sb, dict):
+        return None
+
+    # sovereign_balance dict may have drive means directly or nested
+    scores = []
+    for drive in ["D", "E", "C", "F"]:
+        value = sb.get(drive) or sb.get(drive.lower())
+        if value is not None:
+            scores.append({"label": drive, "value": float(value), "target": _DRIVE_TARGET})
+
+    if not scores:
+        return None
+
+    team_size = sb.get("team_size", sb.get("roster_count", 1))
+    return {"scores": scores, "teamSize": int(team_size)}
+
 
 router = APIRouter(prefix="/api/v3/vaults/{vault_id}/otto", tags=["otto"])
 general_router = APIRouter(prefix="/api/v3/otto", tags=["otto"])
@@ -298,6 +324,12 @@ async def otto_chat(
             for i, word in enumerate(words):
                 token = word if i == 0 else " " + word
                 yield format_sse_text(token)
+
+            # Emit Gen-UI embeds if enrichment data is available
+            if agent_ctx and agent_ctx.persona:
+                sb_props = _build_sovereign_balance_embed(agent_ctx.persona)
+                if sb_props:
+                    yield format_sse_embed("sovereign_balance", sb_props)
 
             prompt_tokens = (
                 len(system_prompt.split()) * 2
