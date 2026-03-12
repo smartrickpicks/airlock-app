@@ -515,7 +515,7 @@ class CalibrationEngine:
                     score += max(0, 2.0 - deviation * 0.4)
 
             # Archetype affinity/confirmation (weighted more at higher confidence)
-            if confidence > 0.4 and archetype:
+            if confidence >= 0.65 and archetype:
                 affinity = q.get("archetype_affinity", {})
                 if archetype in affinity:
                     score += affinity[archetype] * confidence * 2
