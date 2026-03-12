@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useAuthStore } from "@/stores/auth.store";
 import { useOnboardingStore } from "@/stores/onboarding.store";
 import { ApiError, apiFetch } from "@/lib/api";
@@ -195,28 +196,24 @@ function LoginForm() {
       >
         {/* Logo / brand */}
         <motion.div className="mb-8 text-center" {...fadeIn}>
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-primary/10 border border-accent-primary/20">
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="text-accent-primary"
-            >
-              <path
-                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center">
+            <Image
+              src="/assets/brand/airlock-256.png"
+              alt="Airlock"
+              width={56}
+              height={56}
+              className="drop-shadow-[0_0_12px_rgba(0,209,255,0.3)]"
+              priority
+            />
           </div>
           <h1 className="text-2xl font-bold gradient-text">Airlock</h1>
+          <p className="mt-1 text-xs font-mono uppercase tracking-widest text-text-muted">
+            by Brain Brigade
+          </p>
           <p className="mt-2 text-sm text-text-secondary">
             {nextUrl.includes("onboarding")
               ? "Sign in to create your workspace"
-              : "Enterprise data operations platform"}
+              : "Your data has a bodyguard now."}
           </p>
         </motion.div>
 
@@ -315,7 +312,7 @@ export default function LoginPage() {
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-surface-base">
           <div className="w-full max-w-sm space-y-4 px-8">
-            <div className="mx-auto h-14 w-14 rounded-2xl bg-surface-border/50 animate-airlock-pulse-glow" />
+            <div className="mx-auto h-16 w-16 rounded-full bg-surface-border/50 animate-airlock-pulse-glow" />
             <div className="mx-auto h-6 w-32 rounded-md bg-surface-border/50 animate-airlock-pulse-glow" />
             <div
               className="mx-auto h-4 w-48 rounded-md bg-surface-border/30 animate-airlock-pulse-glow"
