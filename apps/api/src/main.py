@@ -17,6 +17,9 @@ from src.realtime.ws import websocket_endpoint
 from src.routes.admin import router as admin_router
 from src.routes.auth import router as auth_router
 from src.routes.calendar import router as calendar_router
+from src.routes.calibration import init_calibration_engine
+from src.routes.calibration import router as calibration_router
+from src.routes.connections import router as connections_router
 from src.routes.constellation import router as constellation_router
 from src.routes.credits import router as credits_router
 from src.routes.crm import router as crm_router
@@ -30,14 +33,17 @@ from src.routes.invites import router as invite_router
 from src.routes.linkedin import router as linkedin_router
 from src.routes.mags import router as mags_router
 from src.routes.notifications import router as notification_router
+from src.routes.onboarding import router as onboarding_router
 from src.routes.patches import router as patch_router
 from src.routes.playbooks import router as playbook_router
 from src.routes.pool import router as pool_router
 from src.routes.profile import router as profile_router
 from src.routes.review_queue import router as review_queue_router
 from src.routes.search import router as search_router
+from src.routes.sync import router as sync_router
 from src.routes.tasks import router as tasks_router
 from src.routes.vaults import router as vault_router
+from src.routes.waitlist import router as waitlist_router
 from src.routes.workspaces import router as workspace_router
 from src.workflows.routes import router as workflow_router
 
@@ -47,6 +53,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown events."""
     # Startup — cache airlock-persona profiles for inference engine
     init_inference_engine()
+    init_calibration_engine()
     # Initialize MeiliSearch indexes
     from src.services.search import ensure_indexes
 
@@ -90,6 +97,7 @@ def create_app() -> FastAPI:
     app.include_router(crm_router)
     app.include_router(tasks_router)
     app.include_router(inference_router)
+    app.include_router(calibration_router)
     app.include_router(profile_router)
     app.include_router(mags_router)
     app.include_router(playbook_router)
@@ -104,6 +112,10 @@ def create_app() -> FastAPI:
     app.include_router(credits_router)
     app.include_router(pool_router)
     app.include_router(constellation_router)
+    app.include_router(connections_router)
+    app.include_router(sync_router)
+    app.include_router(onboarding_router)
+    app.include_router(waitlist_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
