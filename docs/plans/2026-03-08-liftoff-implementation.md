@@ -380,7 +380,7 @@ Find the chamber navigation / transition buttons. Wire them to PATCH `/api/v1/va
 
 **Step 6: Test**
 
-1. Create vault "Win Back CMG" → appears in Discover
+1. Create vault "Win Back CEG" → appears in Discover
 2. Click "Move to Build" → vault moves to Build chamber
 3. Click "Move to Review" → check role requirements
 4. Refresh browser → vault persists in correct chamber
@@ -395,7 +395,7 @@ git commit -m "feat(contracts): wire vault CRUD and chamber transitions to real 
 
 ### Task A5: Otto Live LLM
 
-**Goal:** Otto responds with real LLM calls. "Research Create Music Group" returns real intel.
+**Goal:** Otto responds with real LLM calls. "Research Crescendo Entertainment Group" returns real intel.
 
 **Files:**
 
@@ -431,7 +431,7 @@ Read `apps/web/src/hooks/useOttoChat.ts`. Confirm it:
 
 1. Open a vault
 2. Open Otto panel (Control panel / chat interface)
-3. Type "Research Create Music Group"
+3. Type "Research Crescendo Entertainment Group"
 4. Verify: Real LLM response streams back with company information
 
 **Step 5: Test the general Otto endpoint (not vault-scoped)**
@@ -515,7 +515,7 @@ When a task card is dragged between Kanban columns, send PATCH to update the tas
 **Step 4: Test**
 
 1. Navigate to Triage module
-2. Create task "Prepare CMG pitch deck"
+2. Create task "Prepare CEG pitch deck"
 3. Drag between columns (To Do → In Progress → Done)
 4. Refresh → persists
 
@@ -658,13 +658,13 @@ git commit -m "feat(seeds): add Liftoff workspace seed script"
 
 ### Task B2: CRM Contacts
 
-**Goal:** Seed prospect contacts — CMG execs, agency contacts, investors (anonymized).
+**Goal:** Seed prospect contacts — CEG execs, agency contacts, investors (anonymized).
 
 **Step 1: Add contacts to seed script**
 
 Add CRM contact vaults to `liftoff-seed.py`:
 
-- 3-5 CMG contacts (anonymized names, real roles)
+- 3-5 CEG contacts (anonymized names, real roles)
 - 2-3 agency contacts
 - 2-3 potential investor contacts
 
@@ -686,7 +686,7 @@ git commit -m "feat(seeds): add CRM prospect contacts for Airlock HQ"
 
 Seed vaults:
 
-- "Win Back CMG" — Discover chamber (prospect research)
+- "Win Back CEG" — Discover chamber (prospect research)
 - "Investor Pitch Round" — Build chamber (assembling materials)
 - "Sample Distribution Agreement" — Review chamber (contract verification)
 - "Standard NDA Template" — Ship chamber (verified, reusable template)
@@ -705,7 +705,7 @@ Seed 8-10 real triage items:
 - "Otto research tool — web search integration" (In Progress)
 - "CRM pipeline drag-and-drop polish" (In Progress)
 - "Liftoff validation — full checklist pass" (To Do)
-- "Prepare CMG pitch deck" (To Do)
+- "Prepare CEG pitch deck" (To Do)
 - etc.
 
 **Commit:** `feat(seeds): add real Airlock backlog to Triage`
@@ -788,8 +788,8 @@ When all tracks complete, the Orchestrator runs this checklist:
 [ ] Fresh browser → /login → Google OAuth → JWT issued
 [ ] First-time user → /onboarding/setup → create "Airlock HQ"
 [ ] Dispatch loads with workspace context
-[ ] Create vault "Win Back CMG" → lands in Discover
-[ ] Ask Otto: "Research Create Music Group" → real LLM response streams
+[ ] Create vault "Win Back CEG" → lands in Discover
+[ ] Ask Otto: "Research Crescendo Entertainment Group" → real LLM response streams
 [ ] CRM: Contact visible in pipeline view
 [ ] Move vault Discover → Build → gate transition works
 [ ] Attach document to vault → file persists

@@ -44,12 +44,12 @@ Liftoff is a fully operational Airlock HQ — real data, real LLM, real workflow
 
 Not every vault starts in Discover. The chamber a vault enters depends on context:
 
-| Entry Point                     | Chamber  | Example                                                                  |
-| ------------------------------- | -------- | ------------------------------------------------------------------------ |
-| **New prospect**                | Discover | "Research Create Music Group" — Otto builds org tree, finds stakeholders |
-| **New deal/partnership**        | Build    | Assembling terms, documents, action items, workflows                     |
-| **Existing contract ingestion** | Review   | M&A contracts — already executed, being verified and extracted           |
-| **Verified templates/configs**  | Ship     | Schema-verified rules, production configs, exportable playbooks          |
+| Entry Point                     | Chamber  | Example                                                                             |
+| ------------------------------- | -------- | ----------------------------------------------------------------------------------- |
+| **New prospect**                | Discover | "Research Crescendo Entertainment Group" — Otto builds org tree, finds stakeholders |
+| **New deal/partnership**        | Build    | Assembling terms, documents, action items, workflows                                |
+| **Existing contract ingestion** | Review   | M&A contracts — already executed, being verified and extracted                      |
+| **Verified templates/configs**  | Ship     | Schema-verified rules, production configs, exportable playbooks                     |
 
 ### Ship Chamber = Production Templates
 
@@ -62,18 +62,18 @@ Ship is where verified knowledge becomes reusable infrastructure:
 
 ---
 
-## The Story: Create Music Group
+## The Story: Crescendo Entertainment Group
 
 ### Background
 
-Create Music Group was a POC client for OrcestrateOS (Airlock's predecessor). They ended the engagement because the vision was "too big." Airlock is the realized version of that vision — built to prove them wrong and win the business back.
+Crescendo Entertainment Group was a POC client for OrcestrateOS (Airlock's predecessor). They ended the engagement because the vision was "too big." Airlock is the realized version of that vision — built to prove them wrong and win the business back.
 
 ### The Pitch Flow (Post-Liftoff)
 
 **Act 1: "Watch me use Airlock to prospect YOU"**
 
-- Open Airlock HQ, create vault "Win Back CMG" in Discover
-- Otto researches CMG live: org structure, M&A activity, key people
+- Open Airlock HQ, create vault "Win Back CEG" in Discover
+- Otto researches CEG live: org structure, M&A activity, key people
 - CRM populates from Otto's findings
 - Show them: "This is how I found the right person to call"
 
@@ -86,7 +86,7 @@ Create Music Group was a POC client for OrcestrateOS (Airlock's predecessor). Th
 
 **Act 3: "Now imagine this is YOUR workflow"**
 
-- Show the CMG workspace concept — M&A contracts in Review
+- Show the CEG workspace concept — M&A contracts in Review
 - Extraction engine pulling terms from existing contracts
 - Verification pipeline with gates and approvals
 - Show them: "The same tool that brought me here can run your operation"
@@ -94,7 +94,7 @@ Create Music Group was a POC client for OrcestrateOS (Airlock's predecessor). Th
 ### Two-Phase Proof
 
 1. **Liftoff proves the 1-person theory** — solo founder runs everything through Airlock
-2. **CMG onboarding proves enterprise scaling** — 1000+ person org with M&A contract ingestion
+2. **CEG onboarding proves enterprise scaling** — 1000+ person org with M&A contract ingestion
 3. **After both proof points** — open season: 1-2 years of building, testing, piloting, winning deals
 
 ---
@@ -103,8 +103,8 @@ Create Music Group was a POC client for OrcestrateOS (Airlock's predecessor). Th
 
 Seed data reflects Zachary's actual situation, not fictional scenarios:
 
-- **CRM contacts:** CMG execs, agency contacts, potential investors (anonymized as needed)
-- **Vaults:** "Win Back CMG" (Discover), "Investor Pitch Round" (Build), contract samples (Review)
+- **CRM contacts:** CEG execs, agency contacts, potential investors (anonymized as needed)
+- **Vaults:** "Win Back CEG" (Discover), "Investor Pitch Round" (Build), contract samples (Review)
 - **Triage items:** Airlock's real feature backlog
 - **Documents:** Pitch deck template, one-pager, contract samples from OrcestrateOS (anonymized)
 - **Contract samples:** Real samples from OrcestrateOS POC work
@@ -133,7 +133,7 @@ Replace mock with real on the critical path:
 | Priority | Task                                                |
 | -------- | --------------------------------------------------- |
 | B1       | Workspace seed: Airlock HQ (workspace, user, roles) |
-| B2       | CRM contacts (CMG, agency, investors — anonymized)  |
+| B2       | CRM contacts (CEG, agency, investors — anonymized)  |
 | B3       | Vaults at different chambers                        |
 | B4       | Triage items (Airlock backlog)                      |
 | B5       | Documents (templates, samples from OrcestrateOS)    |
@@ -159,12 +159,12 @@ Replace mock with real on the critical path:
 ```
 [ ] Fresh browser → login → Google OAuth → lands on Dispatch
 [ ] Create workspace "Airlock HQ" via onboarding wizard
-[ ] Create vault "Win Back CMG" → lands in Discover chamber
-[ ] Ask Otto: "Research Create Music Group" → real LLM response
+[ ] Create vault "Win Back CEG" → lands in Discover chamber
+[ ] Ask Otto: "Research Crescendo Entertainment Group" → real LLM response
 [ ] CRM: Create contact from Otto's research
 [ ] Move vault to Build → gate transition works
 [ ] Attach document to vault
-[ ] Triage: Create task "Prepare CMG pitch deck"
+[ ] Triage: Create task "Prepare CEG pitch deck"
 [ ] Move vault to Review → gate requires Gatekeeper approval
 [ ] Move vault to Ship → produces exportable template
 [ ] All data persists after browser refresh

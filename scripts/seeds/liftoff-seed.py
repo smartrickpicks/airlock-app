@@ -60,13 +60,13 @@ def seed():
 
     # ── Contract Vaults ──────────────────────────────────────────────
 
-    # Vault 1: Win Back CMG (the pitch) — enters at Discover
+    # Vault 1: Win Back CEG (the pitch) — enters at Discover
     cmg_vault_id = str(ULID())
     cmg_vault = Vault(
         id=cmg_vault_id,
         workspace_id=ws_id,
-        name="Win Back CMG — M&A Contract Ingestion",
-        slug="win-back-cmg",
+        name="Win Back CEG — M&A Contract Ingestion",
+        slug="win-back-ceg",
         vault_type="opportunity",
         vault_level=4,
         module_type="contracts",
@@ -74,7 +74,7 @@ def seed():
         gate="gate_red",
         health_score=65.0,
         metadata_={
-            "prospect": "Create Music Group",
+            "prospect": "Crescendo Entertainment Group",
             "contact": "Kevin Liles",
             "deal_size": "Enterprise",
             "pitch": "M&A contract ingestion + drift detection",
@@ -136,15 +136,15 @@ def seed():
     cmg_contact = Vault(
         id=cmg_contact_id,
         workspace_id=ws_id,
-        name="Create Music Group",
-        slug="create-music-group",
+        name="Crescendo Entertainment Group",
+        slug="crescendo-entertainment-group",
         vault_type="account",
         vault_level=4,
         module_type="crm",
         chamber="discover",
         gate="gate_red",
         metadata_={
-            "company": "Create Music Group",
+            "company": "Crescendo Entertainment Group",
             "ceo": "Kevin Liles",
             "industry": "Music",
             "size": "Enterprise",
@@ -167,7 +167,7 @@ def seed():
         chamber="discover",
         metadata_={
             "title": "CEO",
-            "company": "Create Music Group",
+            "company": "Crescendo Entertainment Group",
             "email": "",
             "relationship": "Decision maker",
         },
@@ -178,8 +178,8 @@ def seed():
 
     triage_items = [
         {
-            "name": "Prepare CMG pitch deck",
-            "slug": "prepare-cmg-pitch-deck",
+            "name": "Prepare CEG pitch deck",
+            "slug": "prepare-ceg-pitch-deck",
             "metadata": {"status": "todo", "priority": "high", "assignee": zach_id},
         },
         {
@@ -228,7 +228,7 @@ def seed():
             "vault_id": cmg_vault_id,
             "event_type": "vault_created",
             "actor_id": zach_id,
-            "payload": {"name": "Win Back CMG", "chamber": "discover"},
+            "payload": {"name": "Win Back CEG", "chamber": "discover"},
         },
         {
             "vault_id": dist_vault_id,
@@ -261,8 +261,8 @@ def seed():
     print("=== Liftoff Seed Complete ===")
     print(f"Workspace: {ws.name} ({ws.id})")
     print(f"User: {zach.display_name} ({zach.id})")
-    print(f"Contract vaults: 3 (CMG pitch, distribution agreement, master template)")
-    print(f"CRM vaults: 2 (CMG account + Kevin Liles contact)")
+    print(f"Contract vaults: 3 (CEG pitch, distribution agreement, master template)")
+    print(f"CRM vaults: 2 (CEG account + Kevin Liles contact)")
     print(f"Triage items: {len(triage_items)}")
     print(f"Events: {len(events)}")
     db.close()

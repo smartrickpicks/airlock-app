@@ -38,7 +38,7 @@ class TestMatchAgainstVaults:
     def self_vaults(self):
         return [
             {"id": "V1", "name": "Capitol Music Group", "vault_type": "entity", "vault_level": 1},
-            {"id": "V2", "name": "CMG Nashville", "vault_type": "division", "vault_level": 2},
+            {"id": "V2", "name": "CEG Nashville", "vault_type": "division", "vault_level": 2},
         ]
 
     @pytest.fixture()
@@ -90,10 +90,10 @@ class TestMatchAgainstVaults:
                 "name": "Capitol Music Group",
                 "vault_type": "entity",
                 "vault_level": 1,
-                "aliases": ["CMG", "Capitol"],
+                "aliases": ["CEG", "Capitol"],
             },
         ]
-        result = match_against_vaults("CMG", vaults)
+        result = match_against_vaults("CEG", vaults)
         assert result is not None
         assert result.vault_id == "V1"
         assert result.confidence == 1.0

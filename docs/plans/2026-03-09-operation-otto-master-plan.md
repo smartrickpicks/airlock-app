@@ -577,7 +577,7 @@ Ten concepts from PaperClip map directly to the coordination layer:
 
 **Day 1: First Playbook** 13. Opens Playbook Builder (as Architect, sees full workspace scope) 14. Otto generates a 7-node Contract Intake playbook 15. Every node shows "Otto filling" (purple) — no team members yet 16. Coverage: 100% Otto, 0% human. Sovereign Balance: skewed (Otto compensates with Guardian + Analyst nodes) 17. Zachary assigns himself to 3 nodes (Research, Draft, Publish) 18. Coverage recalculates: 43% human (Zachary), 57% Otto, balance improves
 
-**Week 1: Working Solo** 19. Zachary is nodes 2, 4, and 7 in his own playbook 20. Otto handles nodes 1, 3, 5, 6 autonomously (triage, extraction, compliance check, stakeholder alignment) 21. Personal Otto routes signals: "New extraction complete on vault CMG-001" → Zachary's Dispatch 22. Otto adjusts communication to the founder's inferred style: summary-first, action-oriented, minimal detail
+**Week 1: Working Solo** 19. Zachary is nodes 2, 4, and 7 in his own playbook 20. Otto handles nodes 1, 3, 5, 6 autonomously (triage, extraction, compliance check, stakeholder alignment) 21. Personal Otto routes signals: "New extraction complete on vault CEG-001" → Zachary's Dispatch 22. Otto adjusts communication to the founder's inferred style: summary-first, action-oriented, minimal detail
 
 **Month 1: Behavioral Refinement** 23. Otto observes: Zachary skips compliance review nodes, consistently edits extraction outputs rather than approving as-is 24. Profile refinement: confidence increases to 0.92, autonomy ceiling adjusts down on extraction (Zachary prefers to review), up on compliance (he trusts Otto's judgment)
 

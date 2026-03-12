@@ -346,7 +346,7 @@ export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
       checks: [
         {
           code: "ENT_LEGAL_ENTITY",
-          label: "Legal Entity (CMG)",
+          label: "Legal Entity (CEG)",
           status: "pass",
           value: "Capitol Music Group",
           confidence: 1.0,
@@ -385,7 +385,7 @@ export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
       checks: [
         {
           code: "ENT_LEGAL_ENTITY",
-          label: "Legal Entity (CMG)",
+          label: "Legal Entity (CEG)",
           status: "pass",
           value: "Capitol Music Group",
           confidence: 1.0,
@@ -423,7 +423,7 @@ export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
       checks: [
         {
           code: "ENT_LEGAL_ENTITY",
-          label: "Legal Entity (CMG)",
+          label: "Legal Entity (CEG)",
           status: "pass",
           value: "Capitol Music Group",
           confidence: 1.0,
@@ -462,9 +462,9 @@ export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
       checks: [
         {
           code: "ENT_LEGAL_ENTITY",
-          label: "Legal Entity (CMG)",
+          label: "Legal Entity (CEG)",
           status: "pass",
-          value: "CMG Nashville",
+          value: "CEG Nashville",
           confidence: 1.0,
           vault_id: "V2",
         },
@@ -501,7 +501,7 @@ export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
       checks: [
         {
           code: "ENT_LEGAL_ENTITY",
-          label: "Legal Entity (CMG)",
+          label: "Legal Entity (CEG)",
           status: "pass",
           value: "Capitol Music Group",
           confidence: 1.0,
@@ -539,7 +539,7 @@ export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
       checks: [
         {
           code: "ENT_LEGAL_ENTITY",
-          label: "Legal Entity (CMG)",
+          label: "Legal Entity (CEG)",
           status: "pass",
           value: "Capitol Music Group",
           confidence: 1.0,
@@ -577,7 +577,7 @@ export const MOCK_ENTITY_RESOLUTIONS: Record<string, EntityResolutionSummary> =
       checks: [
         {
           code: "ENT_LEGAL_ENTITY",
-          label: "Legal Entity (CMG)",
+          label: "Legal Entity (CEG)",
           status: "pass",
           value: "Capitol Music Group",
           confidence: 1.0,
@@ -617,7 +617,7 @@ export const FALLBACK_ENTITY_RESOLUTION: EntityResolutionSummary = {
   checks: [
     {
       code: "ENT_LEGAL_ENTITY",
-      label: "Legal Entity (CMG)",
+      label: "Legal Entity (CEG)",
       status: "pass",
       value: "Capitol Music Group",
       confidence: 0.92,

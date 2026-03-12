@@ -106,7 +106,7 @@ class TestMatchAgainstVaults:
     def self_vaults(self):
         return [
             {"id": "V1", "name": "Capitol Music Group", "vault_type": "entity", "vault_level": 1},
-            {"id": "V2", "name": "CMG Nashville", "vault_type": "division", "vault_level": 2},
+            {"id": "V2", "name": "CEG Nashville", "vault_type": "division", "vault_level": 2},
         ]
 
     @pytest.fixture
@@ -833,7 +833,7 @@ Replace lines 229-249 with:
         checks.append(
             {
                 "code": "ENT_LEGAL_ENTITY",
-                "label": "Legal Entity (CMG)",
+                "label": "Legal Entity (CEG)",
                 "status": check_status,
                 "value": legal.get("name", ""),
                 "confidence": confidence,
@@ -844,7 +844,7 @@ Replace lines 229-249 with:
         checks.append(
             {
                 "code": "ENT_LEGAL_ENTITY",
-                "label": "Legal Entity (CMG)",
+                "label": "Legal Entity (CEG)",
                 "status": "fail",
                 "value": "",
                 "confidence": 0.0,
