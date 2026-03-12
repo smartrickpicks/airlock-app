@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   ArrowRight,
   BellDot,
@@ -417,7 +418,14 @@ export default function Home() {
           <div className="theme-card rounded-2xl p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="theme-section-label theme-label-main">
+                <div className="theme-section-label theme-label-main flex items-center gap-1.5">
+                  <Image
+                    src="/assets/brand/icons/concept-dispatch.png"
+                    alt="Dispatch"
+                    width={28}
+                    height={28}
+                    className="rounded"
+                  />
                   Operator Hub
                 </div>
                 <h1 className="mt-2 text-2xl font-bold text-text-primary">

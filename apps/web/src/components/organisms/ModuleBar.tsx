@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { SlidersHorizontal, DoorOpen } from "lucide-react";
 import type { ModuleName } from "@/lib/constants";
@@ -7,24 +8,24 @@ import { MODULES } from "@/lib/constants";
 import { useModuleStore } from "@/stores/module.store";
 import { useAuthStore } from "@/stores/auth.store";
 import AirlockIcon from "@/components/atoms/AirlockIcon";
-import type { AirlockIconName } from "@/components/atoms/airlock-icons/types";
 import ModuleIcon from "@/components/molecules/ModuleIcon";
 import ConnectionStatus from "@/components/atoms/ConnectionStatus";
 import PresenceAvatars from "@/components/molecules/PresenceAvatars";
 
-/** Map module keys to AirlockIcon names */
-const moduleAirlockIconMap: Record<ModuleName, AirlockIconName> = {
-  contracts: "module-contracts",
-  crm: "module-crm",
-  tasks: "module-triage",
-  calendar: "module-calendar",
-  documents: "module-documents",
+/** Map module keys to brand PNG paths */
+const MODULE_BRAND_ICONS: Record<ModuleName, string> = {
+  contracts: "/assets/brand/icons/mod-contracts.png",
+  crm: "/assets/brand/icons/mod-crm.png",
+  tasks: "/assets/brand/icons/mod-triage.png",
+  calendar: "/assets/brand/icons/mod-calendar.png",
+  documents: "/assets/brand/icons/mod-documents.png",
 };
 
 export default function ModuleBar() {
   const pathname = usePathname();
   const router = useRouter();
   const { activeModule, setActiveModule } = useModuleStore();
+  const user = useAuthStore((s) => s.user);
 
   const handleLogout = () => {
     useAuthStore.getState().logout();
@@ -42,6 +43,15 @@ export default function ModuleBar() {
     >
       {/* Top section: logo + module icons */}
       <div className="flex-1 flex flex-col items-center pt-4">
+        {/* Airlock brand mark */}
+        <Image
+          src="/assets/brand/airlock-256.png"
+          alt="Airlock"
+          width={32}
+          height={32}
+          className="rounded-lg mb-2"
+        />
+
         {/* Airlock home icon */}
         <button
           className="
@@ -95,10 +105,12 @@ export default function ModuleBar() {
                   router.push(lastView || mod.path);
                 }}
               >
-                <AirlockIcon
-                  name={moduleAirlockIconMap[key]}
-                  size="md"
-                  animate={isActive ? ["entrance", "activeGlow"] : undefined}
+                <Image
+                  src={MODULE_BRAND_ICONS[key]}
+                  alt={mod.label}
+                  width={24}
+                  height={24}
+                  className="rounded"
                 />
               </ModuleIcon>
             );
@@ -117,19 +129,28 @@ export default function ModuleBar() {
         {/* Divider */}
         <div className="w-8 h-px bg-surface-border mx-auto" />
 
-        {/* User avatar placeholder */}
-        <div
-          className="
-            w-9 h-9 rounded-full
-            bg-surface-overlay
-            flex items-center justify-center
-            text-text-muted text-sm font-medium
-            select-none
-          "
-          aria-label="User avatar"
-        >
-          ?
-        </div>
+        {/* User avatar */}
+        {user?.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt={user.name || "User"}
+            className="w-9 h-9 rounded-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div
+            className="
+              w-9 h-9 rounded-full
+              bg-surface-overlay
+              flex items-center justify-center
+              text-text-muted text-sm font-medium
+              select-none
+            "
+            aria-label="User avatar"
+          >
+            {user?.name?.charAt(0)?.toUpperCase() || "?"}
+          </div>
+        )}
 
         {/* Logout */}
         <button

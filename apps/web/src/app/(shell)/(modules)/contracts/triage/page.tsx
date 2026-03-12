@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -23,6 +24,12 @@ const VIEW_OPTIONS: { id: TriageView; label: string }[] = [
   { id: "table", label: "Table" },
   { id: "agenda", label: "Agenda" },
 ];
+
+const VIEW_ICONS: Record<TriageView, string> = {
+  board: "/assets/brand/icons/view-gantt.png",
+  table: "/assets/brand/icons/view-timeline.png",
+  agenda: "/assets/brand/icons/view-review-queue.png",
+};
 
 export default function TriagePage() {
   const router = useRouter();
@@ -71,12 +78,19 @@ export default function TriagePage() {
               <button
                 key={opt.id}
                 onClick={() => setActiveView(opt.id)}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                   activeView === opt.id
                     ? "bg-accent-primary text-text-inverse"
                     : "text-text-secondary hover:text-text-primary"
                 }`}
               >
+                <Image
+                  src={VIEW_ICONS[opt.id]}
+                  alt=""
+                  width={14}
+                  height={14}
+                  className="rounded-sm"
+                />
                 {opt.label}
               </button>
             ))}

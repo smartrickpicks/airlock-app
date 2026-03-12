@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ChevronRight, Check, X, AlertTriangle } from "lucide-react";
@@ -100,6 +101,13 @@ export default function VaultDetailPage() {
             <GateDot
               gate={(selectedVault.chamber as Chamber) || "discover"}
               className="h-3 w-3"
+            />
+            <Image
+              src={`/assets/brand/icons/chamber-${currentChamber}.png`}
+              alt={currentChamber}
+              width={20}
+              height={20}
+              className="rounded"
             />
             <div>
               <h2 className="text-lg font-semibold text-text-primary">

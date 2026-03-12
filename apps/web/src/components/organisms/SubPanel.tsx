@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
   AlertTriangle,
@@ -43,6 +44,12 @@ import { useNotificationStore } from "@/stores/notification.store";
 import { useCapabilityTreeStore } from "@/stores/capability-tree.store";
 import { useRealtimeStore } from "@/stores/realtime.store";
 import { MODULES, CHAMBERS, type ChamberName } from "@/lib/constants";
+
+const CALENDAR_VIEW_ICONS: Record<string, string> = {
+  Month: "/assets/brand/icons/view-timeline.png",
+  Week: "/assets/brand/icons/view-gantt.png",
+  Agenda: "/assets/brand/icons/view-review-queue.png",
+};
 
 const GROUPING_OPTIONS: { value: GroupingMode; label: string }[] = [
   { value: "chamber", label: "By Chamber" },
@@ -532,15 +539,41 @@ export default function SubPanel() {
 
             {/* Pinned channels */}
             <div className="px-1">
-              {pinned.map((pin) => (
-                <PinnedChannel
-                  key={pin.label}
-                  icon={pin.icon}
-                  label={pin.label}
-                  isActive={false}
-                  onClick={() => handlePinnedClick(pin.path)}
-                />
-              ))}
+              {pinned.map((pin) => {
+                const calendarIcon =
+                  activeModule === "calendar"
+                    ? CALENDAR_VIEW_ICONS[pin.label]
+                    : undefined;
+                if (calendarIcon) {
+                  return (
+                    <button
+                      key={pin.label}
+                      onClick={() => handlePinnedClick(pin.path)}
+                      className="flex h-9 w-full items-center gap-2 rounded px-3 text-text-secondary transition-colors duration-fast hover:bg-surface-overlay hover:text-text-primary"
+                    >
+                      <Image
+                        src={calendarIcon}
+                        alt=""
+                        width={14}
+                        height={14}
+                        className="rounded-sm flex-shrink-0"
+                      />
+                      <span className="flex-1 truncate text-left text-[13px] font-semibold text-text-primary">
+                        {pin.label}
+                      </span>
+                    </button>
+                  );
+                }
+                return (
+                  <PinnedChannel
+                    key={pin.label}
+                    icon={pin.icon}
+                    label={pin.label}
+                    isActive={false}
+                    onClick={() => handlePinnedClick(pin.path)}
+                  />
+                );
+              })}
             </div>
 
             <div className="mx-3 my-2 h-px bg-surface-border" />

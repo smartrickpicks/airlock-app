@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Send } from "lucide-react";
+import Image from "next/image";
+import { X } from "lucide-react";
 import { useOttoStore } from "@/stores/otto.store";
+import ChatMessage from "@/components/molecules/ChatMessage";
+import ChatInput from "@/components/molecules/ChatInput";
 
 export default function OttoMessengerWindow() {
   const messengerMessages = useOttoStore((s) => s.messengerMessages);
@@ -30,7 +33,16 @@ export default function OttoMessengerWindow() {
     <div className="fixed bottom-12 right-4 z-50 flex w-80 flex-col rounded-t-lg border border-surface-border bg-surface-base shadow-xl">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-surface-border px-3 py-2">
-        <span className="text-sm font-semibold text-text-primary">Otto</span>
+        <div className="flex items-center gap-2">
+          <Image
+            src="/assets/brand/otto-256.png"
+            alt="Otto"
+            width={32}
+            height={32}
+            className="rounded-full"
+          />
+          <span className="text-sm font-semibold text-text-primary">Otto</span>
+        </div>
         <button
           onClick={toggleMessenger}
           className="text-text-muted hover:text-text-primary"
@@ -42,7 +54,7 @@ export default function OttoMessengerWindow() {
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex-1 space-y-2 overflow-y-auto p-3"
+        className="flex-1 space-y-3 overflow-y-auto p-3"
         style={{ maxHeight: 320 }}
       >
         {messengerMessages.length === 0 && (
@@ -50,48 +62,32 @@ export default function OttoMessengerWindow() {
             Ask Otto anything about your workspace.
           </p>
         )}
-        {messengerMessages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`text-xs leading-relaxed ${
-              msg.role === "user"
-                ? "text-right text-text-primary"
-                : "text-text-secondary"
-            }`}
-          >
-            <div
-              className={`inline-block max-w-[90%] rounded-lg px-3 py-1.5 ${
-                msg.role === "user"
-                  ? "bg-accent-primary/15 text-text-primary"
-                  : "bg-surface-raised text-text-secondary"
-              }`}
-            >
-              {msg.content || (isMessengerStreaming ? "..." : "")}
-            </div>
-          </div>
-        ))}
+        {messengerMessages.map((msg, i) => {
+          const isLastAssistant =
+            msg.role === "assistant" && i === messengerMessages.length - 1;
+          return (
+            <ChatMessage
+              key={msg.id}
+              role={msg.role}
+              content={msg.content || (isMessengerStreaming ? "" : "")}
+              embeds={msg.embeds}
+              isStreaming={isLastAssistant && isMessengerStreaming}
+              ottoState={
+                isLastAssistant && isMessengerStreaming ? "thinking" : "idle"
+              }
+            />
+          );
+        })}
       </div>
 
       {/* Input */}
-      <div className="border-t border-surface-border p-2">
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Message Otto..."
-            className="flex-1 rounded bg-surface-raised px-3 py-1.5 text-xs text-text-primary placeholder:text-text-muted outline-none"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!input.trim() || isMessengerStreaming}
-            className="text-accent-primary disabled:opacity-30"
-          >
-            <Send size={14} />
-          </button>
-        </div>
-      </div>
+      <ChatInput
+        value={input}
+        onChange={setInput}
+        onSend={handleSend}
+        disabled={isMessengerStreaming}
+        placeholder="Message Otto..."
+      />
     </div>
   );
 }
