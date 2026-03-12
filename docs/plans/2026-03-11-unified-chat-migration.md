@@ -395,25 +395,25 @@ git commit -m "feat(api): add /api/chat/ unified chat routes with cursor paginat
 
 - Create: `apps/api/src/chat/gif_service.py`
 - Modify: `apps/api/src/chat/routes.py`
-- Modify: `apps/api/src/config.py` (add TENOR_API_KEY)
+- Modify: `apps/api/src/config.py` (add KLIPY_API_KEY)
 
-Proxy Tenor API through our backend to avoid exposing the API key:
+Proxy Klipy API through our backend to avoid exposing the API key:
 
 | Endpoint                                | Purpose       |
 | --------------------------------------- | ------------- |
 | `GET /api/chat/gifs/search?q=&limit=20` | Search GIFs   |
 | `GET /api/chat/gifs/trending?limit=20`  | Trending GIFs |
 
-**Step 1: Add Tenor API key to config**
+**Step 1: Add Klipy API key to config**
 
 ```python
 # In config.py Settings:
-tenor_api_key: str = ""
+klipy_api_key: str = ""
 ```
 
 **Step 2: Create gif_service.py**
 
-Uses `httpx` to call `https://tenor.googleapis.com/v2/search` and `https://tenor.googleapis.com/v2/featured`.
+Uses `httpx` to call the Klipy GIF search and trending endpoints.
 
 **Step 3: Add routes**
 
@@ -421,7 +421,7 @@ Uses `httpx` to call `https://tenor.googleapis.com/v2/search` and `https://tenor
 
 ```bash
 git add apps/api/src/chat/gif_service.py apps/api/src/chat/routes.py apps/api/src/config.py
-git commit -m "feat(api): add Tenor GIF proxy endpoints"
+git commit -m "feat(api): add Klipy GIF proxy endpoints"
 ```
 
 ---

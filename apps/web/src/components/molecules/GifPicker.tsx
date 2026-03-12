@@ -120,9 +120,9 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
         )}
       </div>
 
-      {/* Tenor attribution */}
+      {/* KLIPY attribution */}
       <div className="px-2 py-1 border-t border-border-subtle text-[10px] text-text-tertiary text-right">
-        Powered by Tenor
+        Powered by KLIPY
       </div>
     </div>
   );

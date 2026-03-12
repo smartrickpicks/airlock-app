@@ -1,4 +1,4 @@
-"""GIF proxy service — Tenor API wrapper."""
+"""GIF proxy service — KLIPY API wrapper."""
 
 import logging
 
@@ -8,24 +8,26 @@ from src.config import settings
 
 logger = logging.getLogger(__name__)
 
-TENOR_BASE = "https://tenor.googleapis.com/v2"
+KLIPY_BASE = "https://api.klipy.com/v1"
 
 
 async def search_gifs(query: str, limit: int = 20) -> list[dict]:
-    """Search Tenor for GIFs matching a query."""
-    if not settings.tenor_api_key:
-        logger.warning("TENOR_API_KEY not set — returning empty results")
+    """Search KLIPY for GIFs matching a query."""
+    if not settings.klipy_api_key:
+        logger.warning("KLIPY_API_KEY not set — returning empty results")
         return []
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.get(
-            f"{TENOR_BASE}/search",
+            f"{KLIPY_BASE}/search",
             params={
-                "key": settings.tenor_api_key,
                 "q": query,
                 "limit": min(limit, 50),
                 "media_filter": "gif,tinygif",
                 "contentfilter": "medium",
+            },
+            headers={
+                "Authorization": f"Bearer {settings.klipy_api_key}",
             },
         )
         resp.raise_for_status()
@@ -35,19 +37,21 @@ async def search_gifs(query: str, limit: int = 20) -> list[dict]:
 
 
 async def trending_gifs(limit: int = 20) -> list[dict]:
-    """Get trending GIFs from Tenor."""
-    if not settings.tenor_api_key:
-        logger.warning("TENOR_API_KEY not set — returning empty results")
+    """Get trending GIFs from KLIPY."""
+    if not settings.klipy_api_key:
+        logger.warning("KLIPY_API_KEY not set — returning empty results")
         return []
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.get(
-            f"{TENOR_BASE}/featured",
+            f"{KLIPY_BASE}/trending",
             params={
-                "key": settings.tenor_api_key,
                 "limit": min(limit, 50),
                 "media_filter": "gif,tinygif",
                 "contentfilter": "medium",
+            },
+            headers={
+                "Authorization": f"Bearer {settings.klipy_api_key}",
             },
         )
         resp.raise_for_status()
@@ -57,7 +61,7 @@ async def trending_gifs(limit: int = 20) -> list[dict]:
 
 
 def _format_results(results: list[dict]) -> list[dict]:
-    """Format Tenor API results to a simpler structure."""
+    """Format KLIPY API results to a simpler structure."""
     gifs = []
     for item in results:
         media_formats = item.get("media_formats", {})
@@ -77,7 +81,7 @@ def _format_results(results: list[dict]) -> list[dict]:
                 "previewUrl": tinygif.get("url", gif["url"]),
                 "previewWidth": tinygif.get("dims", [0, 0])[0],
                 "previewHeight": tinygif.get("dims", [0, 0])[1],
-                "provider": "tenor",
+                "provider": "klipy",
             }
         )
     return gifs

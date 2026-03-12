@@ -316,7 +316,7 @@ async def search_gifs_route(
     limit: int = Query(default=20, le=50),  # noqa: B008
     _user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
-    """Search for GIFs via Tenor proxy."""
+    """Search for GIFs via KLIPY proxy."""
     from src.chat.gif_service import search_gifs
 
     results = await search_gifs(q, limit=limit)
@@ -328,7 +328,7 @@ async def trending_gifs_route(
     limit: int = Query(default=20, le=50),  # noqa: B008
     _user: dict = Depends(get_current_user),  # noqa: B008
 ) -> dict:
-    """Get trending GIFs via Tenor proxy."""
+    """Get trending GIFs via KLIPY proxy."""
     from src.chat.gif_service import trending_gifs
 
     results = await trending_gifs(limit=limit)

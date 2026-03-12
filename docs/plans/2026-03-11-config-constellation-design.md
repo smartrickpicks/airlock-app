@@ -207,9 +207,9 @@ secrets:
     last_rotated: null
 
   # ── GIFs ────────────────────────────────────────────────────────────────
-  TENOR_API_KEY:
-    description: "Tenor GIF search in chat"
-    provider: "https://developers.google.com/tenor/guides/quickstart"
+  KLIPY_API_KEY:
+    description: "Klipy GIF search in chat"
+    provider: "https://developers.klipy.com/quickstart"
     required_by: [airlock-app/api]
     rotation: "Only on compromise"
     format: "AI*"
@@ -284,7 +284,7 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 
 # ── Optional ─────────────────────────────────────────────────────────────────
-TENOR_API_KEY=
+KLIPY_API_KEY=
 ```
 
 **Step 3: Copy template to actual file (gitignored)**
@@ -587,7 +587,7 @@ STATIC
   for key in JWT_SECRET TOKEN_ENCRYPTION_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET \
              ANTHROPIC_API_KEY OPENAI_API_KEY OPENROUTER_API_KEY LITELLM_MASTER_KEY \
              RESEND_API_KEY MEILI_MASTER_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET \
-             TENOR_API_KEY; do
+             KLIPY_API_KEY; do
     if [[ -n "${SECRETS[$key]:-}" ]]; then
       echo "${key}=${SECRETS[$key]}" >> "$API_DIR/.env"
     else
