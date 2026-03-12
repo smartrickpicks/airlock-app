@@ -172,6 +172,64 @@ class ProfileCandidate(BaseModel):
     otto_config: OttoConfig
 
 
+# --- Provenance Models ---
+
+
+class DriveEvidence(BaseModel):
+    """Per-drive signal attribution for provenance transparency."""
+
+    drive: str = Field(description="Drive name: dominance, extraversion, patience, formality")
+    value: float = Field(ge=1.0, le=10.0, description="Final inferred value for this drive")
+    signals: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="List of signal contributions: [{source, contribution, reason}]",
+    )
+
+
+class BehavioralTension(BaseModel):
+    """A detected conflict between two behavioral signals."""
+
+    drive_a: str
+    value_a: float
+    drive_b: str
+    value_b: float
+    description: str = Field(description="Otto-voice explanation of the tension")
+
+
+class ProfileDistance(BaseModel):
+    """Distance from inferred drives to a canonical profile — all 17 shown."""
+
+    profile_id: str
+    profile_name: str
+    distance: float = Field(ge=0.0)
+    meta_archetype: MetaArchetype
+    is_match: bool = False
+    is_runner_up: bool = False
+    rejection_reason: str | None = Field(
+        default=None,
+        description="Why this profile wasn't selected (only for non-matches)",
+    )
+
+
+class ProvenanceData(BaseModel):
+    """Full inference reasoning chain for the Provenance Panel."""
+
+    all_distances: list[ProfileDistance] = Field(
+        description="Euclidean distances to all 17 canonical profiles, sorted closest-first"
+    )
+    drive_evidence: list[DriveEvidence] = Field(
+        description="Per-drive signal attribution with source citations"
+    )
+    behavioral_tensions: list[BehavioralTension] = Field(
+        default_factory=list,
+        description="Detected conflicts between behavioral signals",
+    )
+    raw_adjustments: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Raw signal processing breakdown from inference engine",
+    )
+
+
 # --- Request / Response Models ---
 
 
@@ -285,6 +343,12 @@ class BMYResponse(BaseModel):
     # Narrative (for Otto to explain)
     explanation: str = Field(
         description="Human-readable explanation of why this profile was matched",
+    )
+
+    # Provenance (for Inference Provenance Panel)
+    provenance: ProvenanceData | None = Field(
+        default=None,
+        description="Full inference reasoning chain for transparency panel",
     )
 
     # Suggested next steps
