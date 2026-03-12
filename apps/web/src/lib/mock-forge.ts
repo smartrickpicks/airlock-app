@@ -163,6 +163,69 @@ export interface BMYApiResponse {
   provenance: ProvenanceData | null;
 }
 
+// === Calibration Journey Types ===
+
+export interface QuestionOption {
+  id: string;
+  label: string;
+  description?: string;
+  emoji?: string;
+}
+
+export interface NextQuestion {
+  id: string;
+  text: string;
+  format: "card_tap" | "conversational";
+  options: QuestionOption[];
+}
+
+export interface UnlockEvent {
+  threshold: number;
+  message: string;
+  visual:
+    | "first_drive_bar"
+    | "archetype_silhouette"
+    | "full_profile_reveal"
+    | "provenance_unlock";
+}
+
+export interface CalibrationResponse {
+  drives: ForgeDrives;
+  confidence: number;
+  micro_insight: string;
+  unlock_events: UnlockEvent[];
+  next_question: NextQuestion | null;
+  bmy_complete: boolean;
+  profile_match: {
+    profile_id: string;
+    profile_name: string;
+    distance: number;
+    confidence: number;
+    meta_archetype: string;
+  } | null;
+  phase:
+    | "in_progress"
+    | "bmy_complete"
+    | "deep_calibration"
+    | "fully_calibrated";
+  questions_asked: string[];
+  archetype_hypothesis: string | null;
+}
+
+export interface CalibrationState {
+  drives: ForgeDrives;
+  confidence: number;
+  questions_asked: string[];
+  drive_signal_counts: Record<string, number>;
+  archetype_hypothesis: string | null;
+  phase: string;
+  answers: Array<{
+    question_id: string;
+    selected_option_id: string | null;
+    free_text: string | null;
+  }>;
+}
+
 // LinkedIn scrape result type
 export interface LinkedInProfile {
   name: string;
