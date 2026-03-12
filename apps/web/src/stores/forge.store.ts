@@ -604,6 +604,21 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     const { metaArchetype } = get();
     const { loadDemoPlaybook } = usePlaybookStore.getState();
     loadDemoPlaybook(metaArchetype || undefined);
+
+    // Fetch Otto's Opening Move and inject into chat
+    try {
+      const token = localStorage.getItem("airlock_access_token");
+      const moveRes = await fetch("/api/v1/onboarding/opening-move", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (moveRes.ok) {
+        const move = await moveRes.json();
+        const { useOttoStore } = await import("@/stores/otto.store");
+        useOttoStore.getState().injectOpeningMove(move);
+      }
+    } catch (err) {
+      console.warn("[forge] Opening move fetch failed:", err);
+    }
   },
 
   reset: () => {

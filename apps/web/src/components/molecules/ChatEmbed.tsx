@@ -13,6 +13,7 @@ import MultiChoiceCard from "@/components/molecules/chat-actions/MultiChoiceCard
 import ConfirmationCard from "@/components/molecules/chat-actions/ConfirmationCard";
 import GateDecisionCard from "@/components/molecules/chat-actions/GateDecisionCard";
 import SelectRoster from "@/components/molecules/chat-actions/SelectRoster";
+import QuickActionCard from "@/components/molecules/QuickActionCard";
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 
@@ -30,7 +31,8 @@ export type ActionType =
   | "multi_choice_card"
   | "confirmation_card"
   | "gate_decision"
-  | "select_roster";
+  | "select_roster"
+  | "quick_action";
 
 export interface ChatEmbedData {
   type: EmbedType | ActionType;
@@ -151,6 +153,18 @@ export default function ChatEmbed({ embed, onAction }: ChatEmbedProps) {
         <SelectRoster
           {...rosterProps}
           onSelect={(userId: string) => onAction?.("select_roster", { userId })}
+        />
+      );
+    }
+
+    case "quick_action": {
+      const qaProps = p<React.ComponentProps<typeof QuickActionCard>>(props);
+      return (
+        <QuickActionCard
+          {...qaProps}
+          onSelect={(actionId: string) =>
+            onAction?.("quick_action", { actionId })
+          }
         />
       );
     }

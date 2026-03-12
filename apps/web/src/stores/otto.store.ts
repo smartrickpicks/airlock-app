@@ -49,6 +49,19 @@ interface OttoState {
   toggleMessenger: () => void;
   sendMessengerMessage: (content: string) => void;
   clearMessengerHistory: () => void;
+
+  // --- Opening Move ---
+  injectOpeningMove: (move: {
+    hook_text: string;
+    actions: Array<{
+      id: string;
+      title: string;
+      description: string;
+      output_type: string;
+      tag: string;
+    }>;
+    escape_text: string;
+  }) => void;
 }
 
 /** Pick a canned response when no API is available. */
@@ -279,6 +292,33 @@ export const useOttoStore = create<OttoState>((set, get) => ({
 
   clearMessengerHistory: () =>
     set({ messengerMessages: [], messengerSessionId: null }),
+
+  // --- Opening Move ---
+  injectOpeningMove: (move) => {
+    const embeds: ChatEmbedData[] = move.actions.map((a) => ({
+      type: "quick_action" as const,
+      props: {
+        id: a.id,
+        title: a.title,
+        description: a.description,
+        tag: a.tag,
+      },
+    }));
+
+    const openingMsg: OttoMessage = {
+      id: `msg_${++messageCounter}`,
+      role: "assistant" as const,
+      content: `${move.hook_text}\n\n${move.escape_text}`,
+      timestamp: new Date().toISOString(),
+      embeds,
+    };
+
+    set((s) => ({
+      messengerMessages: [openingMsg, ...s.messengerMessages],
+      isMessengerOpen: true,
+      unreadCount: s.isMessengerOpen ? 0 : s.unreadCount + 1,
+    }));
+  },
 
   sendMessengerMessage: (content) => {
     if (get().isMessengerStreaming) return; // Prevent concurrent requests
