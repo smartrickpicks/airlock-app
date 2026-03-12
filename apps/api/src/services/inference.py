@@ -26,10 +26,12 @@ import yaml
 
 from src.config import settings
 from src.schemas.inference import (
+    BehavioralTension,
     BMYRequest,
     BMYResponse,
     CognitiveMode,
     DECFDrives,
+    DriveEvidence,
     ExplanationStyle,
     InferDrivesRequest,
     InferDrivesResponse,
@@ -41,7 +43,9 @@ from src.schemas.inference import (
     MetaArchetype,
     OttoConfig,
     ProfileCandidate,
+    ProfileDistance,
     ProfileMatch,
+    ProvenanceData,
     SignalSource,
     UpdatePace,
     WorkspaceConfig,
@@ -445,6 +449,21 @@ class InferenceService:
         # Step 7: Determine enrichment suggestions
         enrichment_suggestions = self._suggest_enrichment(confidence, drive_response.signal_sources)
 
+        # Step 8: Build provenance data
+        provenance = ProvenanceData(
+            all_distances=self._compute_all_distances(
+                drive_response.drives,
+                match_id=match.profile_id,
+                runner_up_id=match.runner_up_id,
+            ),
+            drive_evidence=self._build_drive_evidence(
+                drive_response.drives,
+                drive_response.raw_adjustments,
+            ),
+            behavioral_tensions=self._detect_behavioral_tensions(drive_response.drives),
+            raw_adjustments=drive_response.raw_adjustments,
+        )
+
         return BMYResponse(
             drives=drive_response.drives,
             signal_count=drive_response.signal_count,
@@ -455,6 +474,7 @@ class InferenceService:
             confidence=confidence,
             confidence_breakdown=confidence_breakdown,
             explanation=explanation,
+            provenance=provenance,
             enrichment_suggestions=enrichment_suggestions,
         )
 
@@ -833,6 +853,207 @@ class InferenceService:
             )
 
         return " ".join(parts)
+
+    # --- Provenance Methods ---
+
+    def _build_drive_evidence(
+        self,
+        drives: DECFDrives,
+        raw_adjustments: dict[str, Any],
+    ) -> list[DriveEvidence]:
+        """Build per-drive signal attribution for provenance transparency."""
+        drive_names = ["dominance", "extraversion", "patience", "formality"]
+        drive_values = {
+            "dominance": drives.dominance,
+            "extraversion": drives.extraversion,
+            "patience": drives.patience,
+            "formality": drives.formality,
+        }
+
+        evidence_list = []
+        for drive in drive_names:
+            signals = []
+
+            # Goal statement contributions
+            goal_adj = raw_adjustments.get("goal_statement", {})
+            if drive in goal_adj and goal_adj[drive] != 0:
+                direction = "+" if goal_adj[drive] > 0 else ""
+                signals.append(
+                    {
+                        "source": "goal_statement",
+                        "contribution": goal_adj[drive],
+                        "reason": f"Language analysis of your goals ({direction}{goal_adj[drive]})",
+                    }
+                )
+
+            # Autonomy preference
+            auto_adj = raw_adjustments.get("autonomy_preference", {})
+            if drive == "formality" and "formality" in auto_adj:
+                signals.append(
+                    {
+                        "source": "autonomy_preference",
+                        "contribution": auto_adj["formality"] - 5,  # delta from neutral
+                        "reason": f"Autonomy selection set formality to {auto_adj['formality']}",
+                    }
+                )
+
+            # Report style
+            report_adj = raw_adjustments.get("report_style", {})
+            adj_key = f"{drive}_adjust"
+            if adj_key in report_adj and report_adj[adj_key] != 0:
+                signals.append(
+                    {
+                        "source": "report_style",
+                        "contribution": report_adj[adj_key],
+                        "reason": f"Report style preference ({report_adj.get('meta_archetype', 'unknown')} pattern)",
+                    }
+                )
+
+            # Team size
+            team_adj = raw_adjustments.get("team_size", {})
+            if adj_key in team_adj and team_adj[adj_key] != 0:
+                signals.append(
+                    {
+                        "source": "team_size",
+                        "contribution": team_adj[adj_key],
+                        "reason": f"Team scale: {team_adj.get('tier', 'unknown')}",
+                    }
+                )
+
+            # Career signals
+            career_adj = raw_adjustments.get("career", {})
+            if adj_key in career_adj and career_adj[adj_key] != 0:
+                signals.append(
+                    {
+                        "source": "career",
+                        "contribution": career_adj[adj_key],
+                        "reason": "Career title and tenure pattern",
+                    }
+                )
+
+            # Baseline signal (always present if no other signals)
+            if not signals:
+                signals.append(
+                    {
+                        "source": "baseline",
+                        "contribution": 0,
+                        "reason": "No direct signal — neutral midpoint (5.0)",
+                    }
+                )
+
+            evidence_list.append(
+                DriveEvidence(
+                    drive=drive,
+                    value=drive_values[drive],
+                    signals=signals,
+                )
+            )
+
+        return evidence_list
+
+    def _detect_behavioral_tensions(self, drives: DECFDrives) -> list[BehavioralTension]:
+        """Detect conflicts where drives that typically correlate are in opposition."""
+        tensions = []
+
+        # Low patience + high formality = "wants speed but demands process"
+        if drives.patience <= 3 and drives.formality >= 7:
+            tensions.append(
+                BehavioralTension(
+                    drive_a="patience",
+                    value_a=drives.patience,
+                    drive_b="formality",
+                    value_b=drives.formality,
+                    description=f"Your patience is {drives.patience} (move fast) but formality is {drives.formality} (want structure). Fast movers who demand heavy process often hit friction with themselves. Which one wins on a Tuesday?",
+                )
+            )
+
+        # High dominance + high patience = "wants control but moves slowly"
+        if drives.dominance >= 7 and drives.patience >= 7:
+            tensions.append(
+                BehavioralTension(
+                    drive_a="dominance",
+                    value_a=drives.dominance,
+                    drive_b="patience",
+                    value_b=drives.patience,
+                    description=f"Your dominance is {drives.dominance} (drive for results) but patience is {drives.patience} (methodical pace). You want to be in charge but you don't rush. That's rare — and it means your bottleneck is usually other people's speed, not your own.",
+                )
+            )
+
+        # High extraversion + high formality
+        if drives.extraversion >= 7 and drives.formality >= 7:
+            tensions.append(
+                BehavioralTension(
+                    drive_a="extraversion",
+                    value_a=drives.extraversion,
+                    drive_b="formality",
+                    value_b=drives.formality,
+                    description=f"Your extraversion is {drives.extraversion} (collaborative) but formality is {drives.formality} (structured). You want to work with people but you also want things done right. You're the one who enjoys the brainstorm but writes the follow-up email with action items.",
+                )
+            )
+
+        # Low dominance + low patience
+        if drives.dominance <= 3 and drives.patience <= 3:
+            tensions.append(
+                BehavioralTension(
+                    drive_a="dominance",
+                    value_a=drives.dominance,
+                    drive_b="patience",
+                    value_b=drives.patience,
+                    description=f"Your dominance is {drives.dominance} (supportive) but patience is {drives.patience} (urgent). You don't want to lead the charge but you want the charge to happen now. That tension usually means you're the one who sees what needs doing before anyone else — and gets frustrated waiting for someone to call the play.",
+                )
+            )
+
+        return tensions
+
+    def _compute_all_distances(
+        self,
+        drives: DECFDrives,
+        match_id: str,
+        runner_up_id: str | None,
+    ) -> list[ProfileDistance]:
+        """Compute distances to all 17 profiles with rejection reasons for non-matches."""
+        raw_distances = self._engine.compute_distances(drives)
+        inferred_vec = drives.as_vector()
+        result = []
+
+        for profile_id, dist in raw_distances:
+            profile_data = self._engine.get_profile_data(profile_id)
+            canonical_vec = self._engine._canonical_vectors.get(profile_id, [5, 5, 5, 5])
+            is_match = profile_id == match_id
+            is_runner = profile_id == runner_up_id
+
+            rejection_reason = None
+            if not is_match and not is_runner:
+                drive_names = ["dominance", "extraversion", "patience", "formality"]
+                deltas = [
+                    (abs(a - b), name, a, b)
+                    for (a, b, name) in zip(inferred_vec, canonical_vec, drive_names, strict=True)
+                ]
+                deltas.sort(reverse=True)
+                biggest = deltas[0]
+                rejection_reason = (
+                    f"{biggest[1].title()} divergence: "
+                    f"you're {biggest[2]:.1f}, {profile_data.get('name', profile_id)} "
+                    f"canonical is {biggest[3]:.0f} (gap: {biggest[0]:.1f})"
+                )
+
+            meta = self._engine._resolve_meta_archetype(profile_id, drives)
+
+            result.append(
+                ProfileDistance(
+                    profile_id=profile_id,
+                    profile_name=profile_data.get("name", profile_id.title())
+                    if profile_data
+                    else profile_id.title(),
+                    distance=round(dist, 4),
+                    meta_archetype=meta,
+                    is_match=is_match,
+                    is_runner_up=is_runner,
+                    rejection_reason=rejection_reason,
+                )
+            )
+
+        return result
 
     def _suggest_enrichment(
         self, confidence: float, signal_sources: list[SignalSource]
