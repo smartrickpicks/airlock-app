@@ -17,6 +17,7 @@ from src.realtime.ws import websocket_endpoint
 from src.routes.admin import router as admin_router
 from src.routes.auth import router as auth_router
 from src.routes.calendar import router as calendar_router
+from src.routes.constellation import router as constellation_router
 from src.routes.credits import router as credits_router
 from src.routes.crm import router as crm_router
 from src.routes.documents import router as document_router
@@ -102,6 +103,7 @@ def create_app() -> FastAPI:
     app.include_router(admin_router)
     app.include_router(credits_router)
     app.include_router(pool_router)
+    app.include_router(constellation_router)
 
     # WebSocket endpoint
     @app.websocket("/ws")
