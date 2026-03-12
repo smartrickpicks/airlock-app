@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
 import { useOttoStore } from "@/stores/otto.store";
@@ -16,6 +16,15 @@ export default function OttoMessengerWindow() {
 
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const handleEmbedAction = useCallback(
+    (type: string, payload: Record<string, unknown>) => {
+      if (type === "quick_action" && payload.actionId) {
+        sendMessengerMessage(`[opening-move:${payload.actionId}]`);
+      }
+    },
+    [sendMessengerMessage],
+  );
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -71,6 +80,7 @@ export default function OttoMessengerWindow() {
               role={msg.role}
               content={msg.content || (isMessengerStreaming ? "" : "")}
               embeds={msg.embeds}
+              onEmbedAction={handleEmbedAction}
               isStreaming={isLastAssistant && isMessengerStreaming}
               ottoState={
                 isLastAssistant && isMessengerStreaming ? "thinking" : "idle"

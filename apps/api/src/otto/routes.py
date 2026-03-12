@@ -20,6 +20,7 @@ from src.otto.agent import (
     generate_stub_response,
     resolve_model_for_persona,
 )
+from src.otto.deps import OttoState
 from src.otto.enrichment import build_user_agent_context, build_vault_context
 from src.otto.feature_gate import is_otto_enabled, otto_circuit_breaker
 from src.otto.moderation import check_moderation
@@ -72,6 +73,82 @@ def _build_sovereign_balance_embed(persona_ctx) -> dict | None:
     return {"scores": scores, "teamSize": int(team_size)}
 
 
+def _detect_gen_ui_embeds(
+    agent_type: str,
+    ctx,
+    persona_ctx,
+) -> list[tuple[str, dict]]:
+    """Detect which gen-UI embeds to emit based on agent type and enrichment data.
+
+    Returns list of (embed_type, props) tuples for SSE emission.
+    """
+    embeds: list[tuple[str, dict]] = []
+
+    # Sovereign balance — always emit if available
+    if persona_ctx:
+        sb_props = _build_sovereign_balance_embed(persona_ctx)
+        if sb_props:
+            embeds.append(("sovereign_balance", sb_props))
+
+    # Vault-specific embeds — only for vault and recipe agents
+    if agent_type in ("vault", "recipe"):
+        if getattr(ctx, "gate_state", None):
+            gs = ctx.gate_state
+            embeds.append(
+                (
+                    "gate_status",
+                    {
+                        "color": gs.gate_color,
+                        "healthScore": gs.health_score,
+                        "status": gs.processing_status,
+                    },
+                )
+            )
+
+        if getattr(ctx, "field_summary", None):
+            fs = ctx.field_summary
+            embeds.append(
+                (
+                    "field_summary",
+                    {
+                        "pass": fs.pass_count,
+                        "fail": fs.fail_count,
+                        "review": fs.review_count,
+                        "skip": fs.skip_count,
+                    },
+                )
+            )
+
+        if getattr(ctx, "contract_health", None):
+            ch = ctx.contract_health
+            embeds.append(
+                (
+                    "contract_health",
+                    {
+                        "score": ch.score,
+                        "gateColor": ch.gate_color,
+                        "totalChecks": ch.total_checks,
+                    },
+                )
+            )
+
+        if getattr(ctx, "patch_summary", None):
+            ps = ctx.patch_summary
+            embeds.append(
+                (
+                    "patch_summary",
+                    {
+                        "open": ps.open,
+                        "inReview": ps.in_review,
+                        "resolved": ps.resolved,
+                        "dismissed": ps.dismissed,
+                    },
+                )
+            )
+
+    return embeds
+
+
 router = APIRouter(prefix="/api/v3/vaults/{vault_id}/otto", tags=["otto"])
 general_router = APIRouter(prefix="/api/v3/otto", tags=["otto"])
 
@@ -102,6 +179,7 @@ class ChatRequest(BaseModel):
     node_index: int | None = Field(default=None, ge=0)
     conversation_id: str | None = None  # For WS bridge
     persona_mode: str | None = None
+    action_id: str | None = None  # Opening Move quick action trigger
 
 
 def _resolve_provider(pc: ProviderConfig | None) -> tuple[str, str, str]:
@@ -292,31 +370,54 @@ async def otto_chat(
         """Generate SSE stream — tries PydanticAI agent, falls back to stub."""
         start_time = time.time()
         full_response = ""
+        agent_type = "vault"  # default, overwritten on success
 
         try:
-            # Try to use PydanticAI agent with configured provider
+            # Route through agent graph: persona-aware routing, tools, voice guard
             try:
                 if not api_key:
                     raise ValueError("No API key configured")  # noqa: TRY301
 
-                from pydantic_ai import Agent
-                from pydantic_ai.models.openai import OpenAIModel
+                from src.otto.graph.executor import run_agent_sync
 
-                model = OpenAIModel(
-                    model_name,
+                otto_state = OttoState(
+                    user_id=user_id,
+                    workspace_id=workspace_id,
+                    org_role=user_role,
+                    module_roles={request.module or "contracts": user_role},
+                    archetype=(
+                        agent_ctx.persona.archetype if agent_ctx and agent_ctx.persona else None
+                    ),
+                    surface=request.surface or "task_runner",
+                    module=request.module or "contracts",
+                    chamber=request.chamber or "discover",
+                    vault_id=vault_id,
+                    active_recipe_id=request.recipe_id,
+                    current_node_index=request.node_index,
+                    session_id=session.id,
+                )
+
+                full_response, agent_type, tool_names = run_agent_sync(
+                    otto_state,
+                    request.message,
+                    model_name=model_name,
                     base_url=base_url,
                     api_key=api_key,
+                    vault_context=ctx,
                 )
-                agent = Agent(
-                    model=model,
-                    system_prompt=system_prompt,
+                logger.info(
+                    "Otto graph response: type=%s, tools=%s, model=%s",
+                    agent_type,
+                    tool_names,
+                    model_name,
                 )
-                result = agent.run_sync(request.message)
-                full_response = result.data
-                logger.info("Otto LLM response via %s/%s", base_url, model_name)
 
             except Exception:
-                logger.info("LLM unavailable (provider=%s), using stub response", base_url)
+                logger.warning(
+                    "LLM call failed, falling back to stub (provider=%s)",
+                    base_url,
+                    exc_info=True,
+                )
                 full_response = generate_stub_response(request.message, ctx)
 
             # Stream the response word by word
@@ -325,11 +426,13 @@ async def otto_chat(
                 token = word if i == 0 else " " + word
                 yield format_sse_text(token)
 
-            # Emit Gen-UI embeds if enrichment data is available
-            if agent_ctx and agent_ctx.persona:
-                sb_props = _build_sovereign_balance_embed(agent_ctx.persona)
-                if sb_props:
-                    yield format_sse_embed("sovereign_balance", sb_props)
+            # Emit Gen-UI embeds based on agent type and enrichment data
+            for embed_type, embed_props in _detect_gen_ui_embeds(
+                agent_type,
+                ctx,
+                agent_ctx.persona if agent_ctx else None,
+            ):
+                yield format_sse_embed(embed_type, embed_props)
 
             prompt_tokens = (
                 len(system_prompt.split()) * 2
@@ -489,6 +592,36 @@ async def otto_general_chat(
     # Resolve provider from request config or env
     base_url, api_key, model_name = _resolve_provider(request.provider_config)
 
+    # ── Opening Move action resolution ─────────────────────────────
+    effective_message = request.message
+    if request.action_id:
+        try:
+            from pathlib import Path
+
+            from src.services import profile as profile_service
+            from src.services.action_resolver import ActionResolver
+
+            profile = profile_service.get_profile_by_user(db, user_id=user_id)
+            if profile:
+                mags = profile.mags_config or {}
+                signals = {
+                    "meta_archetype": profile.meta_archetype,
+                    "role": mags.get("role", ""),
+                    "industry": mags.get("industry", ""),
+                    "company_size": mags.get("company_size", ""),
+                    "seniority": mags.get("seniority", ""),
+                    "goals": mags.get("goals", []),
+                }
+                catalog_path = Path(settings.persona_repo_path) / "actions" / "catalog.yaml"
+                resolver = ActionResolver(catalog_path=catalog_path)
+                result = resolver.resolve(signals)
+                for action in result.actions:
+                    if action.id == request.action_id:
+                        effective_message = action.prompt_template
+                        break
+        except Exception:
+            logger.exception("Opening move action resolution failed for %s", request.action_id)
+
     def stream_response() -> Generator[str, None, None]:
         start_time = time.time()
         full_response = ""
@@ -510,7 +643,7 @@ async def otto_general_chat(
                     model=model,
                     system_prompt=OTTO_GENERAL_SYSTEM_PROMPT,
                 )
-                result = agent.run_sync(request.message)
+                result = agent.run_sync(effective_message)
                 full_response = result.data
                 logger.info("Otto general LLM response via %s/%s", base_url, model_name)
 

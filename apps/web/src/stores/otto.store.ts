@@ -359,10 +359,16 @@ export const useOttoStore = create<OttoState>((set, get) => ({
     messengerAbort = abort;
 
     const { personaMode: messengerPersona } = get();
+
+    // Parse opening-move action trigger
+    const openingMoveMatch = content.match(/^\[opening-move:(\w+)\]$/);
+    const actionId = openingMoveMatch?.[1] ?? null;
+
     const body: Record<string, unknown> = {
-      message: content,
+      message: actionId ? `Run opening move action: ${actionId}` : content,
       surface: "messenger",
       ...(messengerPersona && { persona_mode: messengerPersona }),
+      ...(actionId && { action_id: actionId }),
       provider_config: {
         provider: aiConfig.provider ?? "Anthropic",
         api_key: aiConfig.apiKey,
