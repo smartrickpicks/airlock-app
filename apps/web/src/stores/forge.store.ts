@@ -10,6 +10,8 @@ import type {
   ForgeSkill,
   MetaArchetype,
   LinkedInProfile,
+  ProvenanceData,
+  BMYApiResponse,
 } from "@/lib/mock-forge";
 import {
   FORGE_LINKEDIN_ASK,
@@ -68,6 +70,18 @@ interface ForgeState {
   powerSource: PowerProvider | null;
   powerUp: (key: string, provider: PowerProvider) => void;
 
+  // Provenance (from real API)
+  provenance: ProvenanceData | null;
+  confidenceBreakdown: Record<string, number> | null;
+  explanation: string | null;
+  enrichmentSuggestions: string[];
+  topCandidates: Array<{
+    profile_id: string;
+    profile_name: string;
+    distance: number;
+    meta_archetype: MetaArchetype;
+  }>;
+
   // UI state
   isLaunching: boolean;
   isComplete: boolean;
@@ -77,7 +91,7 @@ interface ForgeState {
   sendMessage: (content: string) => void;
   submitLinkedInUrl: (url: string) => Promise<void>;
   selectGoalChip: (chipId: string) => void;
-  selectAutonomyOption: (optionId: string) => void;
+  selectAutonomyOption: (optionId: string) => Promise<void>;
   toggleModule: (moduleId: string) => void;
   overrideProfile: (profileId: string) => void;
   launchWorkspace: () => void;
@@ -119,6 +133,12 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
   workspaceConfig: null,
   preloadedSkills: [],
   ottoConfig: null,
+
+  provenance: null,
+  confidenceBreakdown: null,
+  explanation: null,
+  enrichmentSuggestions: [],
+  topCandidates: [],
 
   isPowered: false,
   apiKey: null,
@@ -291,7 +311,7 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
     addOttoMessage(set, FORGE_Q2);
   },
 
-  selectAutonomyOption: (optionId: string) => {
+  selectAutonomyOption: async (optionId: string) => {
     const { goalChipId } = get();
 
     const option = AUTONOMY_OPTIONS.find((o) => o.id === optionId);
@@ -304,62 +324,156 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       timestamp: new Date().toISOString(),
     };
 
-    // Run inference
-    const { profile, drives, confidence } = mockInferProfile(
-      goalChipId,
-      optionId,
-    );
-
-    // Merge LinkedIn pre-inferred drives if available
-    const { linkedInDrives, linkedInProfile } = get();
-    if (linkedInDrives) {
-      if (linkedInDrives.dominance != null)
-        drives.dominance = Math.round(
-          (drives.dominance + linkedInDrives.dominance) / 2,
-        );
-      if (linkedInDrives.extraversion != null)
-        drives.extraversion = Math.round(
-          (drives.extraversion + linkedInDrives.extraversion) / 2,
-        );
-      if (linkedInDrives.patience != null)
-        drives.patience = Math.round(
-          (drives.patience + linkedInDrives.patience) / 2,
-        );
-      if (linkedInDrives.formality != null)
-        drives.formality = Math.round(
-          (drives.formality + linkedInDrives.formality) / 2,
-        );
-    }
-
-    const hasLinkedIn = !!linkedInProfile;
-    const adjustedConfidence = hasLinkedIn
-      ? Math.min(0.95, confidence + 0.1)
-      : confidence;
-    const archetype = profile.metaArchetype;
-
     set((s) => ({
       messages: [...s.messages, userMsg],
       autonomyOptionId: optionId,
-      step: 4,
-      inferredProfile: profile,
-      drives,
-      confidence: adjustedConfidence,
-      metaArchetype: archetype,
-      activeModules: [
-        ...new Set([...s.activeModules, ...ARCHETYPE_MODULES[archetype]]),
-      ],
-      workspaceConfig: ARCHETYPE_WORKSPACE_CONFIGS[archetype],
-      preloadedSkills: ARCHETYPE_SKILLS[archetype],
-      ottoConfig: {
-        defaultArchetype:
-          option.interactionMode === "autonomous" ? "executor" : "connector",
-        autonomyCeiling: option.autonomyCeiling,
-        interactionMode: option.interactionMode,
-      },
-      showProfilePanel: true,
     }));
 
-    addOttoMessage(set, createProfileResultMessage(profile), 1200);
+    // Try real BMY API first, fall back to mock
+    try {
+      const signals: Record<string, unknown> = {
+        signal_sources: ["conversation"],
+      };
+
+      // Add goal from selected chip
+      const goalChip = GOAL_CHIPS.find((c) => c.id === goalChipId);
+      if (goalChip) signals.goal_statement = goalChip.label;
+
+      // Add autonomy preference
+      const autoOption = AUTONOMY_OPTIONS.find((o) => o.id === optionId);
+      if (autoOption) signals.autonomy_preference = autoOption.label;
+
+      // Add LinkedIn signals if available
+      const linkedIn = get().linkedInProfile;
+      if (linkedIn) {
+        signals.job_title = linkedIn.headline;
+        signals.signal_sources = ["conversation", "linkedin"];
+      }
+
+      const res = await fetch("/api/v1/inference/bmy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ signals }),
+      });
+
+      if (!res.ok) throw new Error(`BMY API error: ${res.status}`);
+      const bmy: BMYApiResponse = await res.json();
+
+      // Map API profile to local ForgeProfile shape
+      const matchedProfile = MOCK_PROFILES.find(
+        (p) => p.id === bmy.profile.profile_id,
+      ) ?? {
+        id: bmy.profile.profile_id,
+        name: bmy.profile.profile_name,
+        bio: bmy.explanation.split(".")[0] + ".",
+        metaArchetype: bmy.profile.meta_archetype as MetaArchetype,
+        category: "Inferred",
+        strengths: [],
+        cautions: [],
+        drives: bmy.drives,
+      };
+
+      const archetype = matchedProfile.metaArchetype;
+
+      set((s) => ({
+        inferredProfile: matchedProfile,
+        drives: {
+          dominance: Math.round(bmy.drives.dominance),
+          extraversion: Math.round(bmy.drives.extraversion),
+          patience: Math.round(bmy.drives.patience),
+          formality: Math.round(bmy.drives.formality),
+        },
+        confidence: bmy.confidence,
+        metaArchetype: archetype,
+        provenance: bmy.provenance,
+        confidenceBreakdown: bmy.confidence_breakdown,
+        explanation: bmy.explanation,
+        enrichmentSuggestions: bmy.enrichment_suggestions,
+        topCandidates: bmy.top_candidates,
+        activeModules: [
+          ...new Set([...s.activeModules, ...ARCHETYPE_MODULES[archetype]]),
+        ],
+        workspaceConfig: {
+          cognitiveMode: bmy.workspace_config.cognitiveMode,
+          informationDensity: bmy.workspace_config.informationDensity,
+          interfaceStructure: bmy.workspace_config.interfaceStructure,
+          updatePace: bmy.workspace_config.updatePace,
+          explanationStyle: bmy.workspace_config.explanationStyle,
+        },
+        preloadedSkills: ARCHETYPE_SKILLS[archetype],
+        ottoConfig: {
+          defaultArchetype: bmy.otto_config.default_archetype,
+          autonomyCeiling: bmy.otto_config.autonomy_ceiling,
+          interactionMode: bmy.otto_config.interaction_mode,
+        },
+        showProfilePanel: true,
+        step: 4,
+      }));
+
+      addOttoMessage(set, createProfileResultMessage(matchedProfile), 1200);
+    } catch (err) {
+      console.error("BMY API unavailable, using mock inference:", err);
+
+      // Existing mockInferProfile fallback
+      const { profile, drives, confidence } = mockInferProfile(
+        goalChipId,
+        optionId,
+      );
+
+      // Merge LinkedIn pre-inferred drives if available
+      const { linkedInDrives, linkedInProfile } = get();
+      if (linkedInDrives) {
+        if (linkedInDrives.dominance != null)
+          drives.dominance = Math.round(
+            (drives.dominance + linkedInDrives.dominance) / 2,
+          );
+        if (linkedInDrives.extraversion != null)
+          drives.extraversion = Math.round(
+            (drives.extraversion + linkedInDrives.extraversion) / 2,
+          );
+        if (linkedInDrives.patience != null)
+          drives.patience = Math.round(
+            (drives.patience + linkedInDrives.patience) / 2,
+          );
+        if (linkedInDrives.formality != null)
+          drives.formality = Math.round(
+            (drives.formality + linkedInDrives.formality) / 2,
+          );
+      }
+
+      const hasLinkedIn = !!linkedInProfile;
+      const adjustedConfidence = hasLinkedIn
+        ? Math.min(0.95, confidence + 0.1)
+        : confidence;
+      const archetype = profile.metaArchetype;
+
+      set((s) => ({
+        step: 4,
+        inferredProfile: profile,
+        drives,
+        confidence: adjustedConfidence,
+        metaArchetype: archetype,
+        activeModules: [
+          ...new Set([...s.activeModules, ...ARCHETYPE_MODULES[archetype]]),
+        ],
+        workspaceConfig: ARCHETYPE_WORKSPACE_CONFIGS[archetype],
+        preloadedSkills: ARCHETYPE_SKILLS[archetype],
+        ottoConfig: {
+          defaultArchetype:
+            option.interactionMode === "autonomous" ? "executor" : "connector",
+          autonomyCeiling: option.autonomyCeiling,
+          interactionMode: option.interactionMode,
+        },
+        showProfilePanel: true,
+        provenance: null,
+        confidenceBreakdown: null,
+        explanation: null,
+        enrichmentSuggestions: [],
+        topCandidates: [],
+      }));
+
+      addOttoMessage(set, createProfileResultMessage(profile), 1200);
+    }
 
     // After showing result, show launch ready
     setTimeout(() => {
@@ -409,6 +523,12 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       ],
       workspaceConfig: ARCHETYPE_WORKSPACE_CONFIGS[archetype],
       preloadedSkills: ARCHETYPE_SKILLS[archetype],
+      // Override bypasses inference — clear provenance
+      provenance: null,
+      confidenceBreakdown: null,
+      explanation: null,
+      enrichmentSuggestions: [],
+      topCandidates: [],
     }));
   },
 
@@ -505,6 +625,11 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       workspaceConfig: null,
       preloadedSkills: [],
       ottoConfig: null,
+      provenance: null,
+      confidenceBreakdown: null,
+      explanation: null,
+      enrichmentSuggestions: [],
+      topCandidates: [],
       isPowered: false,
       apiKey: null,
       powerSource: null,
