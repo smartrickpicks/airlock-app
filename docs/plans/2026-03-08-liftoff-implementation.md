@@ -612,14 +612,14 @@ def seed():
         id=str(ULID()),
         name="Airlock HQ",
         slug="airlock-hq",
-        metadata_={"persona": "maverick", "plan": "founder"},
+        metadata_={"plan": "founder"},
     )
     db.add(ws)
 
     # Zachary's account
     user = User(
         id=str(ULID()),
-        email="zachary@airlock.dev",  # or real email
+        email="alex@airlock.dev",  # or real email
         display_name="Zachary Holwerda",
         workspace_id=ws.id,
         org_role="executive",

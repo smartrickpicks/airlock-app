@@ -121,8 +121,8 @@ user_vault:
 
   # Core identity (user-controlled)
   identity:
-    pi_profile: "maverick"
-    drives: { D: 9, E: 8, C: 3, F: 2 }
+    pi_profile: "<inferred>"
+    drives: { D: "<score>", E: "<score>", C: "<score>", F: "<score>" }
     confidence: 0.85
     source: "linkedin_import + conversation"
     last_assessed: "2026-03-09"
@@ -193,10 +193,10 @@ PI's 4-drive model (DECF) is powerful for work behavior but limited in dimension
 profile_layers:
   # Layer 1: PI Core (always present, minimum for system function)
   pi_core:
-    profile: "maverick"
-    drives: { D: 9, E: 8, C: 3, F: 2 }
-    team_types: ["exploring", "adapting"]
-    meta_archetype: "driver"
+    profile: "<example>"
+    drives: { D: "<score>", E: "<score>", C: "<score>", F: "<score>" }
+    team_types: ["<example>"]
+    meta_archetype: "<example>"
     confidence: 0.85
 
   # Layer 2: Work Dimensions (optional enrichment)
@@ -233,7 +233,6 @@ This maps directly to Agent You's P.E.R.S.O.N.A structure:
 
 Zachary IS the test case. His background makes him the ideal Patient Zero:
 
-- **Maverick profile** — high Dominance, high Extraversion, low Patience, low Formality
 - **Solo founder** (currently) — tests the Solo tier of roster-aware playbooks
 - **Agent You creator** — understands persona systems deeply, can spot UX failures
 - **Sonr/DID engineer** — will catch identity sovereignty violations
@@ -256,15 +255,15 @@ SIGNALS OTTO READS AUTOMATICALLY:
 OTTO ASKS (2-4 questions):
 Q1: "What are you here to accomplish first?"
     → Zachary: "Ship the product and close pilot customers"
-    → Otto infers: High Dominance, action-oriented, Ship-focused
+    → Otto infers: action-oriented, Ship-focused
 
 Q2: "How do you prefer to work — big picture strategy or detailed execution?"
     → Zachary: "Big picture. I'm the idea guy, I need the execution layer."
-    → Otto infers: Maverick/Captain, needs Producing/Executing support
+    → Otto infers: needs Producing/Executing support
 
 RESULT (BMY Profile):
-├── PI Profile: Maverick (confidence: 0.65)
-├── Drives: D:high, E:high, C:low, F:low (coarse)
+├── PI Profile: [inferred] (confidence: 0.65)
+├── Drives: [coarse estimate]
 ├── Otto Archetype: Strategist
 ├── Interaction Mode: direct, high-level, fast-paced
 ├── Suggested Modules: Contracts (primary), CRM (secondary)
@@ -284,9 +283,9 @@ OTTO: "I can learn a lot more about your work style from your LinkedIn.
 ZACHARY: [connects LinkedIn via MCP server]
 
 ENRICHMENT RESULT:
-├── PI Profile: Maverick (confidence: 0.85 ← upgraded)
-├── Drives: D:9, E:8, C:3, F:2 (precise)
-├── Career signal: Founder/CEO trajectory → high autonomy
+├── PI Profile: [enriched] (confidence: 0.85 ← upgraded)
+├── Drives: [precise estimate]
+├── Career signal: Founder/CEO trajectory
 ├── Sonr background → identity/blockchain expertise
 ├── Agent You background → AI/persona systems expertise
 ├── Network signal: Tech/startup/crypto cluster
@@ -317,8 +316,7 @@ OTTO: "Here's what I suggest for a solo founder with your profile:
   │ ◆ GATE: Post-demo decision [YOU decide]      │
   └─────────────────────────────────────────────┘
 
-  Your profile says you're a Maverick — fast-moving,
-  big-picture. So I kept this short and direct.
+  Based on your profile, I kept this short and direct.
   The 2 gates are where YOU need to be in the loop."
 ```
 
@@ -348,7 +346,7 @@ TEAM HEALTH UPDATE:
 │   - Technical Research Deep Dive [8 nodes]
 │   - Architecture Review Pipeline [6 nodes]
 │   - Inference Optimization Sprint [10 nodes]
-└── OTTO: "Jim's Scholar profile complements your Maverick.
+└── OTTO: "Jim's Scholar profile complements yours.
     You drive, he validates. But you still need a
     Cultivating type for customer relationships."
 ```
@@ -420,14 +418,14 @@ user_profile:
 
   # 3. PI Core (Agent You: "Personality and Style" — but PI-grounded)
   pi_core:
-    profile: "maverick"
+    profile: "<inferred>"
     drives:
-      dominance: 9 # A factor
-      extraversion: 8 # B factor
-      patience: 3 # C factor
-      formality: 2 # D factor
-    team_types: ["exploring", "adapting"]
-    meta_archetype: "driver"
+      dominance: "<score>"
+      extraversion: "<score>"
+      patience: "<score>"
+      formality: "<score>"
+    team_types: ["<inferred>"]
+    meta_archetype: "<inferred>"
     confidence: 0.85
     source: "linkedin_import"
     last_assessed: "2026-03-09"

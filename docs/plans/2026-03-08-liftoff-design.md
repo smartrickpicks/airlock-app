@@ -25,7 +25,7 @@ Liftoff is a fully operational Airlock HQ — real data, real LLM, real workflow
 **Name:** Airlock HQ
 **Purpose:** Dogfooding — using Airlock to build and sell Airlock
 **Owner:** Zachary Holwerda (solo founder)
-**Persona:** Maverick (power configurator who builds and customizes)
+**Persona:** Power configurator who builds and customizes
 
 ### Modules in Use
 

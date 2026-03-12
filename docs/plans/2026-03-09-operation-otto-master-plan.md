@@ -561,7 +561,7 @@ Ten concepts from PaperClip map directly to the coordination layer:
 
 ### Journey 1: Solo Founder (1 Person)
 
-**Persona:** Zachary — technical founder, Captain profile (high D, high E, low C, low F). Building Airlock HQ as the first workspace.
+**Persona:** Zachary — technical founder. Building Airlock HQ as the first workspace.
 
 **Day 1: Otto Learns You**
 
@@ -570,14 +570,14 @@ Ten concepts from PaperClip map directly to the coordination layer:
 3. Zachary connects LinkedIn (OAuth flow)
 4. Otto reads profile: tech founder, music industry background, 3-year avg tenure, high connection count, action-verb heavy headline
 5. Otto offers: "I can optimize your LinkedIn headline and suggest connections you might be missing. Want me to?"
-6. While Zachary reviews LinkedIn suggestions, Otto extracts: Captain profile, Driver meta-archetype, 0.87 confidence
+6. While Zachary reviews LinkedIn suggestions, Otto extracts the PI profile, meta-archetype, 0.87 confidence
 7. Otto syncs 142 LinkedIn contacts into CRM — 89 enriched with email/phone
 
 **Day 1: Workspace Forge** 8. Otto: "You're building something. What's the goal?" (Only 1 question needed — LinkedIn already provided most signals) 9. Zachary: "Prospecting music industry clients and managing contract workflows" 10. Right panel lights up: Contracts module active, CRM active, Triage active. Skills preloaded: lead-scoring-engine, deal-velocity-calculator 11. Otto suggests Contract Intake playbook template 12. Zachary hits "Launch" → lands on Dispatch
 
-**Day 1: First Playbook** 13. Opens Playbook Builder (as Architect, sees full workspace scope) 14. Otto generates a 7-node Contract Intake playbook 15. Every node shows "Otto filling" (purple) — no team members yet 16. Coverage: 100% Otto, 0% human. Sovereign Balance: skewed Driver (Otto compensates with Guardian + Analyst nodes) 17. Zachary assigns himself to 3 nodes (Research, Draft, Publish) 18. Coverage recalculates: 43% human (Zachary), 57% Otto, balance improves
+**Day 1: First Playbook** 13. Opens Playbook Builder (as Architect, sees full workspace scope) 14. Otto generates a 7-node Contract Intake playbook 15. Every node shows "Otto filling" (purple) — no team members yet 16. Coverage: 100% Otto, 0% human. Sovereign Balance: skewed (Otto compensates with Guardian + Analyst nodes) 17. Zachary assigns himself to 3 nodes (Research, Draft, Publish) 18. Coverage recalculates: 43% human (Zachary), 57% Otto, balance improves
 
-**Week 1: Working Solo** 19. Zachary is nodes 2, 4, and 7 in his own playbook 20. Otto handles nodes 1, 3, 5, 6 autonomously (triage, extraction, compliance check, stakeholder alignment) 21. Personal Otto routes signals: "New extraction complete on vault CMG-001" → Zachary's Dispatch 22. Otto adjusts communication to Captain style: summary-first, action-oriented, minimal detail
+**Week 1: Working Solo** 19. Zachary is nodes 2, 4, and 7 in his own playbook 20. Otto handles nodes 1, 3, 5, 6 autonomously (triage, extraction, compliance check, stakeholder alignment) 21. Personal Otto routes signals: "New extraction complete on vault CMG-001" → Zachary's Dispatch 22. Otto adjusts communication to the founder's inferred style: summary-first, action-oriented, minimal detail
 
 **Month 1: Behavioral Refinement** 23. Otto observes: Zachary skips compliance review nodes, consistently edits extraction outputs rather than approving as-is 24. Profile refinement: confidence increases to 0.92, autonomy ceiling adjusts down on extraction (Zachary prefers to review), up on compliance (he trusts Otto's judgment)
 
@@ -585,7 +585,7 @@ Ten concepts from PaperClip map directly to the coordination layer:
 
 ### Journey 2: Seed Stage (Founder + 4 Hires)
 
-**Persona:** Zachary (Captain/Architect) hires Jane (Guardian/Controller), Tom (Analyzer/Member), Lisa (Collaborator/Member), Mike (Maverick/Member).
+**Persona:** Zachary (Architect) hires Jane (Guardian/Controller), Tom (Analyzer/Member), Lisa (Collaborator/Member), Mike (Maverick/Member).
 
 **Hire 1: Jane (Head of Legal)**
 
@@ -610,12 +610,12 @@ Ten concepts from PaperClip map directly to the coordination layer:
 
 **Coverage Transformation** 17. Before hires: 7-node playbook, 43% Zachary / 57% Otto 18. After hires: Otto suggests reassignment:
 `     Node 1: Triage Incoming    → Lisa (Collaborator, Adapting team type)  ← was Otto
-    Node 2: Research           → Zachary (Captain, Exploring team type)    ← stays
+    Node 2: Research           → Zachary (Exploring team type)           ← stays
     Node 3: Extract Terms      → Tom (Analyzer, Producing team type)      ← was Otto
-    Node 4: Draft Agreement    → Zachary + Mike (hybrid)                   ← was Zachary solo
+    Node 4: Draft Agreement    → Zachary + Mike (hybrid)                 ← was Zachary solo
     Node 5: Compliance Review  → Jane (Guardian, Stabilizing team type)    ← was Otto
     Node 6: Stakeholder Align  → Lisa (Collaborator, Cultivating type)    ← was Otto
-    Node 7: Publish            → Zachary (Captain, Pathfinding type)       ← stays
+    Node 7: Publish            → Zachary (Pathfinding type)              ← stays
     ` 19. Coverage: 86% human, 14% Otto (Otto assists on Draft Agreement) 20. Sovereign Balance: [D=+1, E=+1, C=0, F=+1] — much closer to equilibrium
 
 **Jane's Playbook Building (as Controller)** 21. Jane opens Playbook Builder 22. Her "assign to" dropdown shows: Tom, herself (her subtree is just Tom for now) 23. She builds a Compliance Audit playbook scoped to her legal team 24. She cannot assign nodes to Mike or Lisa (outside her subtree) 25. Zachary (Architect) can see and override any assignment

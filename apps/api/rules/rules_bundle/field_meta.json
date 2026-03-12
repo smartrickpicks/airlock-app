@@ -2,8 +2,8 @@
   "version": "v1",
   "meta": {
     "generated_at_utc": "2026-02-05T04:43:09.759605Z",
-    "glossary_source": "/Users/zacharyholwerda/Desktop/CreateMusicFiles/Orchestrate_OS/Master Glossary [Holwerda, Data Dash].xlsx",
-    "hinge_source": "/Users/zacharyholwerda/Desktop/CreateMusicFiles/Orchestrate_OS/App_Build_Order_Hinges_v1.xlsx",
+    "glossary_source": "/app/data/Master Glossary.xlsx",
+    "hinge_source": "/app/data/App_Build_Order_Hinges_v1.xlsx",
     "description": "Canonical glossary — field definitions for all governed data sheets",
     "sheet_mapping": {
       "Accounts": "Account Fields Definitions",
@@ -19,8 +19,8 @@
     "updated_at": "2026-02-14T19:17:39.631Z",
     "schema_version": "3.0",
     "unified_enrichment": {
-      "source_canonical": "/Users/zacharyholwerda/Downloads/field_meta_glossary (2).json",
-      "source_rovo_pdf": "/Users/zacharyholwerda/Downloads/Field Json (glossary Master) .pdf",
+      "source_canonical": "/app/data/field_meta_glossary.json",
+      "source_rovo_pdf": "/app/data/field_glossary_master.pdf",
       "source_financials_fix": "docs/glossary_refresh_2026-02-14/financials_delta_v1.json",
       "source_add_ons_fix": "docs/glossary_refresh_2026-02-14/add_ons_delta_v1.json",
       "source_structured_sections": "docs/glossary_refresh_2026-02-14/sections_opportunities_financials_v1.json",

@@ -69,14 +69,14 @@ user_profile:
 
   # 3. PI Core (always present — minimum for system function)
   pi_core:
-    profile: "maverick"
+    profile: "<inferred>"
     drives:
-      dominance: 9
-      extraversion: 8
-      patience: 3
-      formality: 2
-    team_types: ["exploring", "adapting"]
-    meta_archetype: "driver"
+      dominance: "<score>"
+      extraversion: "<score>"
+      patience: "<score>"
+      formality: "<score>"
+    team_types: ["<inferred>"]
+    meta_archetype: "<inferred>"
     confidence: 0.85
     source: "linkedin_import"
     last_assessed: "2026-03-09"
@@ -174,7 +174,7 @@ Everything beyond BMY is progressive enrichment.
 
 ## Identity Sovereignty
 
-Informed by the founder's work at Sonr (W3C DID standards, WebAuthn/passkeys, decentralized web nodes). Not implemented as blockchain — implemented as **architectural principle and policy**.
+Informed by Zachary's work at Sonr (W3C DID standards, WebAuthn/passkeys, decentralized web nodes). Not implemented as blockchain — implemented as **architectural principle and policy**.
 
 | Rule                            | Meaning                                                                            |
 | ------------------------------- | ---------------------------------------------------------------------------------- |
@@ -254,7 +254,7 @@ Each user gets a personal Otto agent instance tuned to their PI profile. The Hiv
 otto_instance:
   id: "otto_zachary"
   user_id: "usr_zachary"
-  pi_profile: "maverick"
+  pi_profile: "<inferred>"
   active_archetype: "strategist" # shifts per module/chamber/node
   session_id: "sess_01ARZ..." # persists across interactions
   interaction_mode: "direct"
@@ -519,7 +519,6 @@ Cross-department workflows with dedicated convergence gates.
 
 The founder (Zachary) is the first test case. His background makes him ideal:
 
-- Maverick profile (high D, high E)
 - Solo founder (tests Solo tier)
 - Agent You creator (catches persona UX failures)
 - Sonr/DID engineer (catches sovereignty violations)

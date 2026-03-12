@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Liftoff seed — Zachary's Airlock HQ workspace with real-life data."""
+"""Liftoff seed — Airlock HQ workspace with demo data."""
 import os
 import sys
 
@@ -51,7 +51,7 @@ def seed():
         id=zach_id,
         workspace_id=ws_id,
         email="zachary@airlock.dev",
-        display_name="Zachary Holwerda",
+        display_name="Alex Chen",
         org_role="executive",
         metadata_={"persona": "maverick"},
     )

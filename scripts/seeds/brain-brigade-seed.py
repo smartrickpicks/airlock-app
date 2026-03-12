@@ -55,8 +55,8 @@ def seed():
     zach = User(
         id=zach_id,
         workspace_id=ws_id,
-        email="rick@brainbrigade.xyz",
-        display_name="Rick Holwerda",
+        email="team@airlock.dev",
+        display_name="Jordan Park",
         org_role="executive",
         metadata_={"persona": "maverick", "founder": True},
     )

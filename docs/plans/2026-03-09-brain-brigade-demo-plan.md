@@ -632,7 +632,7 @@ def _mock_profile(url: str) -> dict:
     slug = url.rstrip("/").split("/")[-1].replace("-", " ").title()
 
     return {
-        "name": slug if slug and len(slug) > 2 else "Alex Johnson",
+        "name": slug if slug and len(slug) > 2 else "Demo User",
         "headline": "VP of Product | Building the Future of Work",
         "location": "San Francisco Bay Area",
         "summary": (
@@ -1609,19 +1609,19 @@ export interface MemberDossier {
 export const MOCK_DOSSIERS: Record<string, MemberDossier> = {
   mem_001: {
     userId: "mem_001",
-    name: "Zach Holwerda",
-    email: "zach@airlock.so",
-    piProfile: "captain",
-    metaArchetype: "driver",
+    name: "Zachary Holwerda",
+    email: "alex@airlock.dev",
+    piProfile: "<inferred>",
+    metaArchetype: "<inferred>",
     confidence: 0.92,
     source: "conversation + linkedin",
-    drives: { dominance: 9, extraversion: 8, patience: 3, formality: 2 },
+    drives: { dominance: 0, extraversion: 0, patience: 0, formality: 0 }, // placeholder
     strengths: [
-      "Delegation mastery",
-      "Quick decision-making",
-      "Fearless risk-taking",
+      "Technical vision",
+      "Product strategy",
+      "Cross-domain expertise",
     ],
-    cautions: ["Authoritative presence", "Structure-resistant"],
+    cautions: ["Placeholder — inferred at runtime"],
     ottoConfig: {
       archetype: "executor",
       autonomyCeiling: 0.85,
