@@ -1,5 +1,8 @@
 // ─── Types ───────────────────────────────────────────────────────────
 
+import type { LinkPreviewData } from "@/components/molecules/LinkPreview";
+export type { LinkPreviewData };
+
 export type ConversationType =
   | "vault_thread"
   | "dm"
@@ -69,6 +72,8 @@ export interface Message {
   messageType: MessageType;
   fileName?: string;
   fileSize?: number;
+  fileUrl?: string;
+  fileMimeType?: string;
   createdAt: string;
   gifUrl?: string;
   gifProvider?: string;
@@ -77,7 +82,21 @@ export interface Message {
   embeds?: Embed[];
   personaMode?: string;
   readAt?: string;
+  editedAt?: string;
   reactions?: ReactionSummary[];
+  replyToId?: string;
+  replyPreview?: { authorName: string; content: string };
+  pinned?: boolean;
+  pinnedBy?: string;
+  pinnedAt?: string;
+  linkPreviews?: LinkPreviewData[];
+  bookmarked?: boolean;
+  bookmarkedAt?: string;
+  forwardedFrom?: {
+    messageId: string;
+    senderName: string;
+    conversationName: string;
+  };
 }
 
 // ─── Config ──────────────────────────────────────────────────────────
@@ -212,8 +231,8 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     participants: [MARCO, CURRENT_USER],
     lastMessage: {
       authorName: "Marco Li",
-      content: "Sent you the updated extraction report",
-      timestamp: "2026-03-04T16:20:00Z",
+      content: "extraction-report-acme-q1-2026.pdf",
+      timestamp: "2026-03-04T16:25:00Z",
     },
     unreadCount: 2,
     muted: false,
@@ -235,6 +254,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     unreadCount: 1,
     muted: false,
     createdAt: "2026-01-15T09:00:00Z",
+    topic: "Gate flow designs and review feedback",
   },
   {
     id: "conv_007",
@@ -269,6 +289,7 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     unreadCount: 0,
     muted: false,
     createdAt: "2025-11-01T09:00:00Z",
+    topic: "General contract workflow discussion",
   },
   {
     id: "conv_009",
@@ -327,6 +348,10 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       content: "Starting extraction on the Henderson MSA. 85-page document.",
       messageType: "text",
       createdAt: "2026-03-01T09:15:00Z",
+      reactions: [
+        { emoji: "👍", count: 2, userReacted: false },
+        { emoji: "🔥", count: 1, userReacted: false },
+      ],
     },
     {
       id: "msg_003",
@@ -337,6 +362,12 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
         "Extraction completed. 42 fields found, 5 need review. Confidence score is 87%.",
       messageType: "text",
       createdAt: "2026-03-02T10:30:00Z",
+      pinned: true,
+      pinnedBy: "Ana Chen",
+      pinnedAt: "2026-03-02T11:00:00Z",
+      bookmarked: true,
+      bookmarkedAt: "2026-03-11T10:00:00Z",
+      reactions: [{ emoji: "✅", count: 2, userReacted: true }],
     },
     {
       id: "msg_004",
@@ -357,6 +388,10 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
         "The SLA timer started at 10:30 — we have until 2:30 PM today for the review gate.",
       messageType: "text",
       createdAt: "2026-03-02T10:47:00Z",
+      reactions: [
+        { emoji: "😂", count: 1, userReacted: true },
+        { emoji: "❤️", count: 3, userReacted: false },
+      ],
     },
     {
       id: "msg_006",
@@ -364,9 +399,11 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       authorId: "user_self",
       authorName: "You",
       content:
-        "Submitted a patch for the territory field. Changed to 'Worldwide excl. Asia'.",
+        "Submitted a patch for the territory field. @Ana Chen can you verify?",
       messageType: "text",
       createdAt: "2026-03-04T14:00:00Z",
+      bookmarked: true,
+      bookmarkedAt: "2026-03-11T11:30:00Z",
     },
     {
       id: "msg_007",
@@ -385,6 +422,32 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       content: "Field extraction looks good, 5 fields need review",
       messageType: "text",
       createdAt: "2026-03-05T14:28:00Z",
+      replyToId: "msg_003",
+      replyPreview: {
+        authorName: "Ana Chen",
+        content:
+          "Extraction completed. 42 fields found, 5 need review. Confidence score is 87%.",
+      },
+    },
+    {
+      id: "msg_009",
+      conversationId: "conv_001",
+      authorId: "user_002",
+      authorName: "Marco Li",
+      content:
+        "Check out this article on contract automation https://example.com/article",
+      messageType: "text",
+      createdAt: "2026-03-11T14:30:00Z",
+      linkPreviews: [
+        {
+          url: "https://example.com/article",
+          title: "The Future of Contract Automation",
+          description:
+            "How AI is transforming contract lifecycle management for enterprise teams.",
+          siteName: "TechCrunch",
+          image: "https://placehold.co/400x300/1a1a2e/00D1FF?text=Article",
+        },
+      ],
     },
   ],
   conv_002: [
@@ -443,6 +506,10 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       content: "Approved for ship. Great work team!",
       messageType: "text",
       createdAt: "2026-03-05T09:30:00Z",
+      reactions: [
+        { emoji: "🎉", count: 4, userReacted: true },
+        { emoji: "👍", count: 2, userReacted: false },
+      ],
     },
   ],
   conv_004: [
@@ -520,6 +587,33 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       messageType: "text",
       createdAt: "2026-03-04T16:20:00Z",
     },
+    {
+      id: "msg_053",
+      conversationId: "conv_005",
+      authorId: "user_002",
+      authorName: "Marco Li",
+      content: "extraction-report-acme-q1-2026.pdf",
+      messageType: "file",
+      fileName: "extraction-report-acme-q1-2026.pdf",
+      fileSize: 2457600,
+      fileMimeType: "application/pdf",
+      createdAt: "2026-03-04T16:25:00Z",
+    },
+    {
+      id: "msg_055",
+      conversationId: "conv_005",
+      authorId: "user_self",
+      authorName: "You",
+      content:
+        "Check the approval chain status — forwarded from the contracts thread",
+      messageType: "text" as const,
+      createdAt: "2026-03-11T15:00:00Z",
+      forwardedFrom: {
+        messageId: "msg_003",
+        senderName: "Ana Chen",
+        conversationName: "Contracts Team",
+      },
+    },
   ],
   conv_006: [
     {
@@ -536,7 +630,8 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       conversationId: "conv_006",
       authorId: "user_004",
       authorName: "Tom Gatekeeper",
-      content: "Looks clean. One question about the approval chain step.",
+      content:
+        "Looks clean. One question about the **approval chain** step. Can we use `getGateStatus()` instead?",
       messageType: "text",
       createdAt: "2026-03-04T15:30:00Z",
     },
@@ -630,3 +725,34 @@ export const MOCK_REPLIES: Record<
     content: "Sounds good, I'll review the latest changes.",
   },
 };
+
+// ─── User Statuses ───────────────────────────────────────────────────
+
+export interface UserStatus {
+  userId: string;
+  emoji: string;
+  text: string;
+  expiresAt?: string; // ISO timestamp
+}
+
+export const MOCK_USER_STATUSES: Record<string, UserStatus> = {
+  user_001: {
+    userId: "user_001",
+    emoji: "🎯",
+    text: "Focused — deep work until 3pm",
+  },
+  user_002: { userId: "user_002", emoji: "📞", text: "In a meeting" },
+  user_004: {
+    userId: "user_004",
+    emoji: "🏖️",
+    text: "OOO until Monday",
+    expiresAt: "2026-03-17T00:00:00Z",
+  },
+};
+
+// ─── URL Utilities ───────────────────────────────────────────────────
+
+export function extractUrls(content: string): string[] {
+  const urlRegex = /https?:\/\/[^\s<>"')\]]+/g;
+  return content.match(urlRegex) || [];
+}

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useMessengerStore } from "@/stores/messenger.store";
 
-const QUICK_EMOJIS = ["👍", "❤️", "😂", "🎉", "🤔", "👀"];
+const QUICK_EMOJIS = ["👍", "❤️", "😂", "🎉", "🤔", "👀", "🔥", "✅"];
 
 interface EmojiPickerProps {
   messageId: string;
@@ -39,12 +39,13 @@ export default function EmojiPicker({
     <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-1 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors opacity-0 group-hover:opacity-100"
+        className="p-1 rounded text-text-muted hover:text-text-primary transition-colors"
         aria-label="Add reaction"
+        title="Add reaction"
       >
         <svg
-          width="16"
-          height="16"
+          width="14"
+          height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -59,12 +60,13 @@ export default function EmojiPicker({
         </svg>
       </button>
       {isOpen && (
-        <div className="absolute bottom-full right-0 mb-1 flex gap-1 bg-surface-overlay border border-border-subtle rounded-lg p-1.5 shadow-lg z-50">
+        <div className="absolute bottom-full right-0 z-50 mb-1 flex gap-0.5 rounded-lg border border-white/10 bg-[#1a1a2e] p-1.5 shadow-xl">
           {QUICK_EMOJIS.map((emoji) => (
             <button
               key={emoji}
               onClick={() => handleSelect(emoji)}
-              className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-hover transition-colors text-base"
+              className="flex h-7 w-7 items-center justify-center rounded text-sm transition-colors hover:bg-white/10"
+              aria-label={`React with ${emoji}`}
             >
               {emoji}
             </button>

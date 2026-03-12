@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { apiFetch } from "@/lib/api";
-import type { Conversation, Message } from "@/lib/mock-messenger";
+import type { Conversation, Message, UserStatus } from "@/lib/mock-messenger";
 import {
   MOCK_CONVERSATIONS,
   MOCK_MESSAGES,
   MOCK_REPLIES,
+  MOCK_USER_STATUSES,
 } from "@/lib/mock-messenger";
 import { getWorkspaceMode } from "@/stores/onboarding.store";
 import { getWebSocket } from "@/lib/websocket";
@@ -63,6 +64,45 @@ interface MessengerState {
     mode: string | null,
   ) => void;
 
+  replyTo: { messageId: string; authorName: string; content: string } | null;
+  setReplyTo: (messageId: string, authorName: string, content: string) => void;
+  clearReplyTo: () => void;
+
+  editingMessageId: string | null;
+  deletingMessageId: string | null;
+  setEditingMessage: (messageId: string | null) => void;
+  setDeletingMessage: (messageId: string | null) => void;
+  editMessage: (
+    conversationId: string,
+    messageId: string,
+    content: string,
+  ) => Promise<void>;
+  deleteMessage: (conversationId: string, messageId: string) => Promise<void>;
+
+  sendFileMessage: (
+    conversationId: string,
+    fileData: {
+      fileName: string;
+      fileSize: number;
+      fileUrl: string;
+      fileMimeType: string;
+    },
+  ) => void;
+
+  pinMessage: (conversationId: string, messageId: string) => void;
+  unpinMessage: (conversationId: string, messageId: string) => void;
+
+  bookmarkMessage: (messageId: string) => void;
+  unbookmarkMessage: (messageId: string) => void;
+
+  archiveConversation: (conversationId: string) => Promise<void>;
+
+  forwardMessage: (messageId: string, targetConversationId: string) => void;
+
+  userStatuses: Record<string, UserStatus>;
+  setUserStatus: (emoji: string, text: string, expiresAt?: string) => void;
+  clearUserStatus: () => void;
+
   filteredConversations: (activeModule: string) => Conversation[];
   totalUnread: () => number;
 }
@@ -93,6 +133,97 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
   scope: "module",
   searchQuery: "",
   typingUsers: {},
+  userStatuses: MOCK_USER_STATUSES,
+
+  replyTo: null,
+  setReplyTo: (messageId, authorName, content) =>
+    set({ replyTo: { messageId, authorName, content } }),
+  clearReplyTo: () => set({ replyTo: null }),
+
+  editingMessageId: null,
+  deletingMessageId: null,
+  setEditingMessage: (messageId) => set({ editingMessageId: messageId }),
+  setDeletingMessage: (messageId) => set({ deletingMessageId: messageId }),
+
+  editMessage: async (conversationId, messageId, content) => {
+    const now = new Date().toISOString();
+    // Optimistic update
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [conversationId]:
+          s.messages[conversationId]?.map((m) =>
+            m.id === messageId ? { ...m, content, editedAt: now } : m,
+          ) || [],
+      },
+      editingMessageId: null,
+    }));
+
+    try {
+      await apiFetch(`/api/chat/messages/${messageId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ content }),
+      });
+    } catch {
+      // Keep optimistic update in mock mode
+    }
+  },
+
+  deleteMessage: async (conversationId, messageId) => {
+    // Optimistic remove
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [conversationId]:
+          s.messages[conversationId]?.filter((m) => m.id !== messageId) || [],
+      },
+      deletingMessageId: null,
+    }));
+
+    try {
+      await apiFetch(`/api/chat/messages/${messageId}`, {
+        method: "DELETE",
+      });
+    } catch {
+      // Keep optimistic update in mock mode
+    }
+  },
+
+  sendFileMessage: (conversationId, fileData) => {
+    const now = new Date().toISOString();
+    const newMsg: Message = {
+      id: `msg_${Date.now()}`,
+      conversationId,
+      authorId: "user_self",
+      authorName: "You",
+      content: fileData.fileName,
+      messageType: "file",
+      fileName: fileData.fileName,
+      fileSize: fileData.fileSize,
+      fileUrl: fileData.fileUrl,
+      fileMimeType: fileData.fileMimeType,
+      createdAt: now,
+    };
+
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [conversationId]: [...(s.messages[conversationId] || []), newMsg],
+      },
+      conversations: s.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              lastMessage: {
+                authorName: "You",
+                content: fileData.fileName,
+                timestamp: now,
+              },
+            }
+          : c,
+      ),
+    }));
+  },
 
   fetchMessenger: async () => {
     set({ isLoading: true });
@@ -135,6 +266,7 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
         set({
           conversations: MOCK_CONVERSATIONS,
           messages: MOCK_MESSAGES,
+          userStatuses: MOCK_USER_STATUSES,
           isLoading: false,
         });
       }
@@ -185,6 +317,7 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
   sendMessage: async (conversationId, content, gifData?) => {
     const now = new Date().toISOString();
     const messageType = gifData ? "gif" : "text";
+    const currentReplyTo = get().replyTo;
     const newMsg: Message = {
       id: `msg_${Date.now()}`,
       conversationId,
@@ -198,6 +331,13 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
         gifProvider: gifData.gifProvider,
         gifWidth: gifData.gifWidth,
         gifHeight: gifData.gifHeight,
+      }),
+      ...(currentReplyTo && {
+        replyToId: currentReplyTo.messageId,
+        replyPreview: {
+          authorName: currentReplyTo.authorName,
+          content: currentReplyTo.content,
+        },
       }),
     };
 
@@ -217,6 +357,8 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
       ),
     }));
 
+    get().clearReplyTo();
+
     try {
       const response = await apiFetch<Message>(
         `/api/chat/conversations/${conversationId}/messages`,
@@ -225,6 +367,7 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
           body: JSON.stringify({
             content,
             message_type: messageType,
+            ...(currentReplyTo && { reply_to_id: currentReplyTo.messageId }),
             ...(gifData && {
               gif_url: gifData.gifUrl,
               gif_provider: gifData.gifProvider,
@@ -551,6 +694,163 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
     }));
   },
 
+  pinMessage: (conversationId, messageId) => {
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [conversationId]:
+          s.messages[conversationId]?.map((m) =>
+            m.id === messageId
+              ? {
+                  ...m,
+                  pinned: true,
+                  pinnedBy: "You",
+                  pinnedAt: new Date().toISOString(),
+                }
+              : m,
+          ) || [],
+      },
+    }));
+  },
+
+  unpinMessage: (conversationId, messageId) => {
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [conversationId]:
+          s.messages[conversationId]?.map((m) =>
+            m.id === messageId
+              ? {
+                  ...m,
+                  pinned: false,
+                  pinnedBy: undefined,
+                  pinnedAt: undefined,
+                }
+              : m,
+          ) || [],
+      },
+    }));
+  },
+
+  bookmarkMessage: (messageId) => {
+    set((s) => ({
+      messages: Object.fromEntries(
+        Object.entries(s.messages).map(([convId, msgs]) => [
+          convId,
+          msgs.map((m) =>
+            m.id === messageId
+              ? {
+                  ...m,
+                  bookmarked: true,
+                  bookmarkedAt: new Date().toISOString(),
+                }
+              : m,
+          ),
+        ]),
+      ),
+    }));
+    apiFetch(`/api/chat/messages/${messageId}/bookmark`, {
+      method: "POST",
+    }).catch(() => {});
+  },
+
+  unbookmarkMessage: (messageId) => {
+    set((s) => ({
+      messages: Object.fromEntries(
+        Object.entries(s.messages).map(([convId, msgs]) => [
+          convId,
+          msgs.map((m) =>
+            m.id === messageId
+              ? { ...m, bookmarked: false, bookmarkedAt: undefined }
+              : m,
+          ),
+        ]),
+      ),
+    }));
+    apiFetch(`/api/chat/messages/${messageId}/bookmark`, {
+      method: "DELETE",
+    }).catch(() => {});
+  },
+
+  archiveConversation: async (conversationId) => {
+    // Optimistic: remove from list
+    set((s) => ({
+      conversations: s.conversations.filter((c) => c.id !== conversationId),
+      activeConversationId:
+        s.activeConversationId === conversationId
+          ? null
+          : s.activeConversationId,
+    }));
+
+    try {
+      await apiFetch(`/api/chat/conversations/${conversationId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ archived: true }),
+      });
+    } catch {
+      // Keep optimistic update in mock mode
+    }
+  },
+
+  forwardMessage: (messageId, targetConversationId) => {
+    const { messages, conversations } = get();
+    const originalMsg = Object.values(messages)
+      .flat()
+      .find((m) => m.id === messageId);
+    if (!originalMsg) return;
+
+    const sourceConv = conversations.find(
+      (c) => c.id === originalMsg.conversationId,
+    );
+    const now = new Date().toISOString();
+
+    const forwarded: Message = {
+      id: `msg_fwd_${Date.now()}`,
+      conversationId: targetConversationId,
+      authorId: "user_self",
+      authorName: "You",
+      content: originalMsg.content,
+      messageType: originalMsg.messageType,
+      createdAt: now,
+      forwardedFrom: {
+        messageId: originalMsg.id,
+        senderName: originalMsg.authorName,
+        conversationName: sourceConv?.name || "Unknown",
+      },
+    };
+
+    set((s) => ({
+      messages: {
+        ...s.messages,
+        [targetConversationId]: [
+          ...(s.messages[targetConversationId] || []),
+          forwarded,
+        ],
+      },
+      conversations: s.conversations.map((c) =>
+        c.id === targetConversationId
+          ? {
+              ...c,
+              lastMessage: {
+                authorName: "You",
+                content: originalMsg.content,
+                timestamp: now,
+              },
+            }
+          : c,
+      ),
+    }));
+
+    apiFetch(`/api/chat/conversations/${targetConversationId}/messages`, {
+      method: "POST",
+      body: JSON.stringify({
+        content: originalMsg.content,
+        type: originalMsg.messageType,
+        forwarded_from: originalMsg.id,
+      }),
+    }).catch(() => {});
+  },
+
   sendTypingIndicator: (conversationId: string) => {
     const now = Date.now();
     if (now - lastTypingSent < 3000) return;
@@ -561,6 +861,28 @@ export const useMessengerStore = create<MessengerState>((set, get) => ({
     }).catch(() => {
       // Fire-and-forget
     });
+  },
+
+  setUserStatus: (emoji, text, expiresAt) => {
+    const currentUserId = "user_001";
+    set({
+      userStatuses: {
+        ...get().userStatuses,
+        [currentUserId]: { userId: currentUserId, emoji, text, expiresAt },
+      },
+    });
+    apiFetch("/api/chat/status", {
+      method: "PUT",
+      body: JSON.stringify({ emoji, text, expires_at: expiresAt }),
+    }).catch(() => {});
+  },
+
+  clearUserStatus: () => {
+    const currentUserId = "user_001";
+    const statuses = { ...get().userStatuses };
+    delete statuses[currentUserId];
+    set({ userStatuses: statuses });
+    apiFetch("/api/chat/status", { method: "DELETE" }).catch(() => {});
   },
 
   filteredConversations: (activeModule) => {

@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, Search, X, Bookmark, Smile } from "lucide-react";
 import { useMessengerStore } from "@/stores/messenger.store";
 import { useModuleStore } from "@/stores/module.store";
 import ConversationList from "@/components/organisms/ConversationList";
 import ChatView from "@/components/organisms/ChatView";
 import ChatPreferences from "@/components/organisms/ChatPreferences";
+import SearchMessages from "@/components/molecules/SearchMessages";
+import SavedMessages from "@/components/molecules/SavedMessages";
+import SetStatusModal from "@/components/molecules/SetStatusModal";
 
 export default function MessengerDrawer() {
   const [showPrefs, setShowPrefs] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+  const [showSetStatus, setShowSetStatus] = useState(false);
+
+  const myStatus = useMessengerStore((s) => s.userStatuses["user_001"]);
 
   const {
     isDrawerOpen,
@@ -60,6 +68,10 @@ export default function MessengerDrawer() {
         onClick={closeDrawer}
       />
 
+      {showSetStatus && (
+        <SetStatusModal onClose={() => setShowSetStatus(false)} />
+      )}
+
       {/* Drawer panel */}
       <div className="fixed right-0 top-0 z-[var(--z-modal)] flex h-full w-[340px] flex-col border-l border-surface-border bg-surface-raised shadow-2xl">
         {/* Drawer header */}
@@ -72,7 +84,46 @@ export default function MessengerDrawer() {
           </div>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setShowPrefs(true)}
+              onClick={() => setShowSetStatus(true)}
+              className="p-1.5 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-1"
+              aria-label="Set status"
+              title={
+                myStatus ? `${myStatus.emoji} ${myStatus.text}` : "Set status"
+              }
+            >
+              {myStatus ? (
+                <span className="text-xs leading-none">{myStatus.emoji}</span>
+              ) : (
+                <Smile size={16} />
+              )}
+            </button>
+            <button
+              onClick={() => {
+                setShowSearch((v) => !v);
+                setShowPrefs(false);
+                setShowSaved(false);
+              }}
+              className="p-1.5 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
+              aria-label="Search messages"
+            >
+              <Search size={16} />
+            </button>
+            <button
+              onClick={() => {
+                setShowSaved((v) => !v);
+                setShowSearch(false);
+                setShowPrefs(false);
+              }}
+              className={`p-1.5 rounded transition-colors hover:bg-surface-hover ${showSaved ? "text-[#00D1FF]" : "text-text-tertiary hover:text-text-primary"}`}
+              aria-label="Saved messages"
+            >
+              <Bookmark size={16} />
+            </button>
+            <button
+              onClick={() => {
+                setShowPrefs(true);
+                setShowSearch(false);
+              }}
               className="p-1.5 rounded text-text-tertiary hover:text-text-primary hover:bg-surface-hover transition-colors"
               aria-label="Chat preferences"
             >
@@ -102,7 +153,17 @@ export default function MessengerDrawer() {
 
         {/* Content */}
         <div className="flex-1 overflow-hidden">
-          {showPrefs ? (
+          {showSearch ? (
+            <SearchMessages
+              onClose={() => setShowSearch(false)}
+              onResultClick={(id) => {
+                setShowSearch(false);
+                openConversation(id);
+              }}
+            />
+          ) : showSaved ? (
+            <SavedMessages onClose={() => setShowSaved(false)} />
+          ) : showPrefs ? (
             <ChatPreferences onClose={() => setShowPrefs(false)} />
           ) : activeConversation ? (
             <ChatView
