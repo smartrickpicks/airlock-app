@@ -19,6 +19,8 @@ export default function WorkspaceForge() {
     activeModules,
     workspaceConfig,
     preloadedSkills,
+    provenance,
+    confidenceBreakdown,
     showProfilePanel,
     isLaunching,
     isComplete,
@@ -60,6 +62,8 @@ export default function WorkspaceForge() {
           metaArchetype={metaArchetype}
           workspaceConfig={workspaceConfig}
           preloadedSkills={preloadedSkills}
+          provenance={provenance}
+          confidenceBreakdown={confidenceBreakdown}
           showProfilePanel={showProfilePanel}
           isLaunching={isLaunching}
           isComplete={isComplete}

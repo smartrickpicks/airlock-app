@@ -4,6 +4,7 @@ import { Rocket, LoaderCircle } from "lucide-react";
 import AirlockIcon from "@/components/atoms/AirlockIcon";
 import ModuleToggle from "@/components/molecules/ModuleToggle";
 import ProfileInferencePanel from "@/components/molecules/ProfileInferencePanel";
+import InferenceProvenancePanel from "@/components/molecules/InferenceProvenancePanel";
 import ArchetypeBadge from "@/components/atoms/ArchetypeBadge";
 import type {
   ForgeProfile,
@@ -11,6 +12,7 @@ import type {
   ForgeWorkspaceConfig,
   ForgeSkill,
   MetaArchetype,
+  ProvenanceData,
 } from "@/lib/mock-forge";
 import { MODULES } from "@/lib/constants";
 
@@ -23,6 +25,8 @@ interface ForgePreviewProps {
   metaArchetype: MetaArchetype | null;
   workspaceConfig: ForgeWorkspaceConfig | null;
   preloadedSkills: ForgeSkill[];
+  provenance: ProvenanceData | null;
+  confidenceBreakdown: Record<string, number> | null;
   showProfilePanel: boolean;
   isLaunching: boolean;
   isComplete: boolean;
@@ -68,6 +72,8 @@ export default function ForgePreview({
   metaArchetype,
   workspaceConfig,
   preloadedSkills,
+  provenance,
+  confidenceBreakdown,
   showProfilePanel,
   isLaunching,
   isComplete,
@@ -114,15 +120,24 @@ export default function ForgePreview({
 
           {/* Profile Inference Panel */}
           {showProfilePanel && inferredProfile && drives && metaArchetype && (
-            <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <ProfileInferencePanel
-                profile={inferredProfile}
-                drives={drives}
-                confidence={confidence}
-                archetype={metaArchetype}
-                onOverride={onOverrideProfile}
-              />
-            </section>
+            <>
+              <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <ProfileInferencePanel
+                  profile={inferredProfile}
+                  drives={drives}
+                  confidence={confidence}
+                  archetype={metaArchetype}
+                  onOverride={onOverrideProfile}
+                />
+              </section>
+              {provenance && confidenceBreakdown && (
+                <InferenceProvenancePanel
+                  provenance={provenance}
+                  confidenceBreakdown={confidenceBreakdown}
+                  drives={drives}
+                />
+              )}
+            </>
           )}
 
           {/* Workspace Config */}
