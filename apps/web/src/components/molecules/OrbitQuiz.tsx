@@ -15,7 +15,9 @@ interface OrbitQuizProps {
 export default function OrbitQuiz({ slug, theme }: OrbitQuizProps) {
   const [quizState, setQuizState] = useState<QuizState>("idle");
   const [session, setSession] = useState<QuizSession | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<QuizQuestion | null>(
+    null,
+  );
   const [resultPersona, setResultPersona] = useState<OrbitPersona | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +96,8 @@ export default function OrbitQuiz({ slug, theme }: OrbitQuizProps) {
             <div className="text-4xl">🔮</div>
             <h3 className="text-xl font-bold text-white">Find Your Type</h3>
             <p className="text-white/60 text-sm">
-              Answer a few questions to discover which persona resonates with you.
+              Answer a few questions to discover which persona resonates with
+              you.
             </p>
             {error && <p className="text-red-400 text-sm">{error}</p>}
             <button
@@ -115,7 +118,9 @@ export default function OrbitQuiz({ slug, theme }: OrbitQuizProps) {
             <p className="text-white font-medium text-center leading-snug">
               {currentQuestion.question_text}
             </p>
-            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+            {error && (
+              <p className="text-red-400 text-sm text-center">{error}</p>
+            )}
             <div className="space-y-3">
               <button
                 type="button"
@@ -153,8 +158,12 @@ export default function OrbitQuiz({ slug, theme }: OrbitQuizProps) {
           <div className="text-center space-y-4">
             <div className="text-5xl">{resultPersona.emoji}</div>
             <div>
-              <h3 className="text-xl font-bold text-white">{resultPersona.display_name}</h3>
-              <p className="text-white/60 text-sm mt-1">{resultPersona.description}</p>
+              <h3 className="text-xl font-bold text-white">
+                {resultPersona.display_name}
+              </h3>
+              <p className="text-white/60 text-sm mt-1">
+                {resultPersona.description}
+              </p>
             </div>
             {resultPersona.traits.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2">

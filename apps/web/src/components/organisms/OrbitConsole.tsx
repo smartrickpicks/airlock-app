@@ -7,7 +7,8 @@ import { orbitApi } from "@/lib/orbit-api";
 import Button from "@/components/atoms/Button";
 
 export default function OrbitConsole() {
-  const { profile, setProfile, updateSection, reorderSections } = useOrbitStore();
+  const { profile, setProfile, updateSection, reorderSections } =
+    useOrbitStore();
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
 
@@ -105,7 +106,9 @@ export default function OrbitConsole() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Orbit Console</h1>
+          <h1 className="text-2xl font-bold text-text-primary">
+            Orbit Console
+          </h1>
           <p className="text-sm text-text-secondary mt-0.5">
             <span className="font-mono text-text-muted">/{profile.slug}</span>
             {" — "}
@@ -148,23 +151,27 @@ export default function OrbitConsole() {
         </div>
       </div>
 
-      {publishError && (
-        <p className="text-sm text-red-400">{publishError}</p>
-      )}
+      {publishError && <p className="text-sm text-red-400">{publishError}</p>}
 
       {/* Stats row */}
       <div className="flex gap-4">
         <div className="rounded-lg border border-surface-border bg-surface-raised px-4 py-3">
           <p className="text-xs text-text-muted">Page views</p>
-          <p className="text-lg font-semibold text-text-primary">{profile.page_views.toLocaleString()}</p>
+          <p className="text-lg font-semibold text-text-primary">
+            {profile.page_views.toLocaleString()}
+          </p>
         </div>
         <div className="rounded-lg border border-surface-border bg-surface-raised px-4 py-3">
           <p className="text-xs text-text-muted">Sections</p>
-          <p className="text-lg font-semibold text-text-primary">{profile.sections.length}</p>
+          <p className="text-lg font-semibold text-text-primary">
+            {profile.sections.length}
+          </p>
         </div>
         <div className="rounded-lg border border-surface-border bg-surface-raised px-4 py-3">
           <p className="text-xs text-text-muted">Links</p>
-          <p className="text-lg font-semibold text-text-primary">{profile.links.length}</p>
+          <p className="text-lg font-semibold text-text-primary">
+            {profile.links.length}
+          </p>
         </div>
       </div>
 
@@ -233,7 +240,11 @@ export default function OrbitConsole() {
                       ? "text-text-secondary hover:text-text-primary"
                       : "text-text-muted hover:text-text-secondary"
                   }`}
-                  title={section.is_visible ? "Visible — click to hide" : "Hidden — click to show"}
+                  title={
+                    section.is_visible
+                      ? "Visible — click to hide"
+                      : "Hidden — click to show"
+                  }
                 >
                   {section.is_visible ? "Visible" : "Hidden"}
                 </button>

@@ -28,11 +28,7 @@ function renderSection(section: OrbitSection, profile: OrbitProfile) {
 
     case "persona_quiz":
       return (
-        <OrbitQuiz
-          key={section.id}
-          slug={profile.slug}
-          theme={profile.theme}
-        />
+        <OrbitQuiz key={section.id} slug={profile.slug} theme={profile.theme} />
       );
 
     default:
@@ -46,10 +42,7 @@ export default function OrbitPage({ profile }: OrbitPageProps) {
   );
 
   return (
-    <div
-      className="min-h-screen w-full"
-      style={{ backgroundColor: "#0a0a0f" }}
-    >
+    <div className="min-h-screen w-full" style={{ backgroundColor: "#0a0a0f" }}>
       <div className="max-w-lg mx-auto pb-16 space-y-8">
         {sortedSections.map((section) => renderSection(section, profile))}
       </div>

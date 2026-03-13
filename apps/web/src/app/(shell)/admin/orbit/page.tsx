@@ -43,7 +43,8 @@ export default function OrbitAdminPage() {
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Orbit</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            Your public creator page — links, personas, and brand identity in one place.
+            Your public creator page — links, personas, and brand identity in
+            one place.
           </p>
         </div>
 
@@ -53,7 +54,8 @@ export default function OrbitAdminPage() {
             You don&apos;t have an Orbit yet
           </h2>
           <p className="text-sm text-text-secondary max-w-sm mx-auto">
-            Orbit is your public creator page. Set up a slug to claim your space and start building.
+            Orbit is your public creator page. Set up a slug to claim your space
+            and start building.
           </p>
           <p className="text-xs text-text-muted">
             Orbit setup is coming soon. Stay tuned.

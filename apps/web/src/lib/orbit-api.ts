@@ -4,7 +4,12 @@
  */
 
 import { apiFetch } from "@/lib/api";
-import type { OrbitProfile, OrbitSection, OrbitPersona, OrbitLink } from "@/stores/orbit.store";
+import type {
+  OrbitProfile,
+  OrbitSection,
+  OrbitPersona,
+  OrbitLink,
+} from "@/stores/orbit.store";
 
 // ---------------------------------------------------------------------------
 // Request / Response types
@@ -21,7 +26,11 @@ export interface UpdateOrbitPayload {
   tagline?: string;
   avatar_url?: string;
   brand_pillars?: string[];
-  theme?: { primary_color?: string; accent_color?: string; layout_preset?: string };
+  theme?: {
+    primary_color?: string;
+    accent_color?: string;
+    layout_preset?: string;
+  };
   is_published?: boolean;
 }
 
@@ -116,7 +125,10 @@ export const orbitApi = {
   },
 
   /** Update an existing section */
-  updateSection(sectionId: string, payload: UpdateSectionPayload): Promise<OrbitSection> {
+  updateSection(
+    sectionId: string,
+    payload: UpdateSectionPayload,
+  ): Promise<OrbitSection> {
     return apiFetch<OrbitSection>(`/api/v1/orbit/me/sections/${sectionId}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
@@ -147,7 +159,10 @@ export const orbitApi = {
   },
 
   /** Update a persona */
-  updatePersona(personaId: string, payload: UpdatePersonaPayload): Promise<OrbitPersona> {
+  updatePersona(
+    personaId: string,
+    payload: UpdatePersonaPayload,
+  ): Promise<OrbitPersona> {
     return apiFetch<OrbitPersona>(`/api/v1/orbit/me/personas/${personaId}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
@@ -180,7 +195,9 @@ export const orbitApi = {
 
   /** Get the final quiz result by session ID */
   getQuizResult(slug: string, sessionId: string): Promise<QuizResult> {
-    return apiFetch<QuizResult>(`/api/v1/orbit/${slug}/quiz/result/${sessionId}`);
+    return apiFetch<QuizResult>(
+      `/api/v1/orbit/${slug}/quiz/result/${sessionId}`,
+    );
   },
 
   /** Track a link click (fire-and-forget) */

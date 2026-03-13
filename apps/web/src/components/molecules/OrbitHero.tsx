@@ -14,7 +14,9 @@ export default function OrbitHero({ profile }: OrbitHeroProps) {
       {/* Avatar */}
       <div
         className="h-24 w-24 rounded-full overflow-hidden border-4 flex-shrink-0"
-        style={{ borderColor: theme.accent_color || theme.primary_color || "#7c3aed" }}
+        style={{
+          borderColor: theme.accent_color || theme.primary_color || "#7c3aed",
+        }}
       >
         {avatar_url ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -48,7 +50,9 @@ export default function OrbitHero({ profile }: OrbitHeroProps) {
             <span
               key={pillar}
               className="rounded-full px-3 py-1 text-sm font-medium text-white/90"
-              style={{ backgroundColor: `${theme.primary_color || "#7c3aed"}33` }}
+              style={{
+                backgroundColor: `${theme.primary_color || "#7c3aed"}33`,
+              }}
             >
               {pillar}
             </span>
