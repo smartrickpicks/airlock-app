@@ -1,16 +1,25 @@
 """Airlock API — FastAPI application factory."""
 
+import asyncio
+import time
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
+import sentry_sdk
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from starlette.websockets import WebSocket
 
 from src.chat.routes import router as chat_router
+from src.config import settings
 from src.event_bus.routes import router as event_bus_router
+from src.logging_config import configure_logging
 from src.mcp.routes import router as mcp_router
 from src.messenger.routes import router as messenger_router
 from src.middleware.dynamic_cors import DynamicCORSMiddleware
+from src.middleware.rate_limit import RateLimitMiddleware
+from src.middleware.request_id import RequestIDMiddleware
 from src.otto.routes import general_router as otto_general_router
 from src.otto.routes import router as otto_router
 from src.realtime.ws import websocket_endpoint
@@ -34,6 +43,7 @@ from src.routes.linkedin import router as linkedin_router
 from src.routes.mags import router as mags_router
 from src.routes.notifications import router as notification_router
 from src.routes.onboarding import router as onboarding_router
+from src.routes.orbit import router as orbit_router
 from src.routes.patches import router as patch_router
 from src.routes.playbooks import router as playbook_router
 from src.routes.pool import router as pool_router
@@ -64,6 +74,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
+    configure_logging()
+
     app = FastAPI(
         title="Airlock API",
         description="Enterprise data operations platform API",
@@ -71,13 +83,106 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # Sentry — only initialize if DSN is configured
+    if settings.sentry_dsn:
+        sentry_sdk.init(
+            dsn=settings.sentry_dsn,
+            environment=settings.sentry_environment or settings.environment,
+            release=app.version,
+            traces_sample_rate=0.1,
+            profiles_sample_rate=0.1,
+        )
+
+    # Request ID — generates UUID per request, binds to structlog context
+    app.add_middleware(RequestIDMiddleware)
+
     # CORS — dynamic origin validation for white-label custom domains
     app.add_middleware(DynamicCORSMiddleware)
+
+    # Rate limiting — per-user, per-category daily limits keyed by tier
+    app.add_middleware(RateLimitMiddleware)
 
     # Health check
     @app.get("/health")
     async def health_check() -> dict[str, str]:
         return {"status": "healthy", "service": "airlock-api"}
+
+    # Deep readiness check — verifies database and search connectivity
+    @app.get("/health/ready")
+    async def health_ready() -> JSONResponse:
+        checks: dict[str, Any] = {}
+
+        # --- Database check ---
+        def _check_db() -> dict[str, Any]:
+            from sqlalchemy import text
+
+            from src.db import engine
+
+            t0 = time.monotonic()
+            try:
+                with engine.connect() as conn:
+                    conn.execute(text("SELECT 1"))
+                latency_ms = round((time.monotonic() - t0) * 1000, 2)
+                return {"status": "healthy", "latency_ms": latency_ms}
+            except Exception as exc:
+                return {"status": "unhealthy", "error": str(exc)}
+
+        # --- MeiliSearch check ---
+        def _check_search() -> dict[str, Any]:
+            import meilisearch
+
+            t0 = time.monotonic()
+            try:
+                client = meilisearch.Client(settings.meili_url, settings.meili_master_key)
+                client.health()
+                latency_ms = round((time.monotonic() - t0) * 1000, 2)
+                return {"status": "healthy", "latency_ms": latency_ms}
+            except Exception as exc:
+                return {"status": "unhealthy", "error": str(exc)}
+
+        _timeout = 3.0
+
+        db_result, search_result = await asyncio.gather(
+            asyncio.wait_for(asyncio.to_thread(_check_db), timeout=_timeout),
+            asyncio.wait_for(asyncio.to_thread(_check_search), timeout=_timeout),
+            return_exceptions=True,
+        )
+
+        # Resolve asyncio.TimeoutError or other unexpected exceptions
+        if isinstance(db_result, asyncio.TimeoutError):
+            db_result = {"status": "unhealthy", "error": "timeout after 3s"}
+        elif isinstance(db_result, BaseException):
+            db_result = {"status": "unhealthy", "error": str(db_result)}
+
+        if isinstance(search_result, asyncio.TimeoutError):
+            search_result = {"status": "unhealthy", "error": "timeout after 3s"}
+        elif isinstance(search_result, BaseException):
+            search_result = {"status": "unhealthy", "error": str(search_result)}
+
+        checks["database"] = db_result
+        checks["search"] = search_result
+
+        all_healthy = all(c.get("status") == "healthy" for c in checks.values())
+        all_unhealthy = all(c.get("status") == "unhealthy" for c in checks.values())
+
+        if all_healthy:
+            overall = "healthy"
+        elif all_unhealthy:
+            overall = "unhealthy"
+        else:
+            overall = "degraded"
+
+        http_status = 503 if overall == "unhealthy" else 200
+
+        return JSONResponse(
+            status_code=http_status,
+            content={
+                "status": overall,
+                "service": "airlock-api",
+                "version": "0.1.0",
+                "checks": checks,
+            },
+        )
 
     # Register routers
     app.include_router(auth_router)
@@ -115,6 +220,7 @@ def create_app() -> FastAPI:
     app.include_router(connections_router)
     app.include_router(sync_router)
     app.include_router(onboarding_router)
+    app.include_router(orbit_router)
     app.include_router(waitlist_router)
 
     # WebSocket endpoint
