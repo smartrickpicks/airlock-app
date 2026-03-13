@@ -51,3 +51,4 @@ apps/web/e2e/.auth/
 
 # === Claude Code local state ===
 .claude/settings.local.json
+.worktrees/
