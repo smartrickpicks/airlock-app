@@ -8,6 +8,7 @@ import uuid
 
 import pytest
 from sqlalchemy import JSON, create_engine, event
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.db import Base
@@ -17,10 +18,10 @@ from src.models.orbit_persona import OrbitPersona
 from src.models.orbit_profile import OrbitProfile
 from src.models.orbit_section import OrbitSection
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def db():
@@ -77,6 +78,7 @@ def _make_profile(db: Session, **overrides) -> OrbitProfile:
 # OrbitProfile
 # ---------------------------------------------------------------------------
 
+
 class TestOrbitProfile:
     def test_tablename(self):
         assert OrbitProfile.__tablename__ == "orbit_profiles"
@@ -94,13 +96,13 @@ class TestOrbitProfile:
 
     def test_slug_uniqueness(self, db):
         _make_profile(db, slug="unique-slug")
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             _make_profile(db, slug="unique-slug")
 
     def test_user_id_uniqueness(self, db):
         shared_user = _uid()
         _make_profile(db, user_id=shared_user, slug="slug-a")
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             _make_profile(db, user_id=shared_user, slug="slug-b")
 
     def test_theme_default(self, db):
@@ -112,6 +114,7 @@ class TestOrbitProfile:
 # ---------------------------------------------------------------------------
 # OrbitSection
 # ---------------------------------------------------------------------------
+
 
 class TestOrbitSection:
     def test_tablename(self):
@@ -157,6 +160,7 @@ class TestOrbitSection:
 # OrbitLink
 # ---------------------------------------------------------------------------
 
+
 class TestOrbitLink:
     def test_tablename(self):
         assert OrbitLink.__tablename__ == "orbit_links"
@@ -181,6 +185,7 @@ class TestOrbitLink:
 # ---------------------------------------------------------------------------
 # OrbitPersona
 # ---------------------------------------------------------------------------
+
 
 class TestOrbitPersona:
     def test_tablename(self):
@@ -209,6 +214,7 @@ class TestOrbitPersona:
 # ---------------------------------------------------------------------------
 # FanCalibration
 # ---------------------------------------------------------------------------
+
 
 class TestFanCalibration:
     def test_tablename(self):
@@ -269,13 +275,14 @@ class TestFanCalibration:
             confidence=0.0,
         )
         db.add(cal2)
-        with pytest.raises(Exception):
+        with pytest.raises(IntegrityError):
             db.commit()
 
 
 # ---------------------------------------------------------------------------
 # Import smoke test
 # ---------------------------------------------------------------------------
+
 
 class TestImports:
     def test_models_importable_from_init(self):
