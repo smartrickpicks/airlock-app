@@ -6,8 +6,13 @@ from src.models.credit_pool import CreditPool, CreditPoolTransaction
 from src.models.credit_transaction import CreditTransaction
 from src.models.document import Document
 from src.models.event import Event
+from src.models.fan_calibration import FanCalibration
 from src.models.invite import Invite
 from src.models.mcp_permission import McpToolPermission
+from src.models.orbit_link import OrbitLink
+from src.models.orbit_persona import OrbitPersona
+from src.models.orbit_profile import OrbitProfile
+from src.models.orbit_section import OrbitSection
 from src.models.passkey import PasskeyCredential
 from src.models.patch import Patch
 from src.models.playbook_instance import PlaybookInstance
@@ -24,10 +29,20 @@ from src.models.workspace_config import WorkspaceConfig
 from src.models.workspace_membership import WorkspaceMembership
 
 __all__ = [
+    "CreditAccount",
+    "CreditPlan",
+    "CreditPool",
+    "CreditPoolTransaction",
+    "CreditTransaction",
     "Document",
     "Event",
+    "FanCalibration",
     "Invite",
     "McpToolPermission",
+    "OrbitLink",
+    "OrbitPersona",
+    "OrbitProfile",
+    "OrbitSection",
     "PasskeyCredential",
     "Patch",
     "PlaybookInstance",
@@ -42,9 +57,4 @@ __all__ = [
     "Workspace",
     "WorkspaceConfig",
     "WorkspaceMembership",
-    "CreditAccount",
-    "CreditPlan",
-    "CreditPool",
-    "CreditPoolTransaction",
-    "CreditTransaction",
 ]
