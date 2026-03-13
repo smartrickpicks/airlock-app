@@ -6,7 +6,7 @@ and sections/links/personas for the Orbit creator platform.
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -17,7 +17,9 @@ class OrbitProfile(Base):
     __tablename__ = "orbit_profiles"
 
     id: Mapped[str] = mapped_column(Text, primary_key=True)
-    user_id: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    user_id: Mapped[str] = mapped_column(
+        Text, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False
+    )
     slug: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
     display_name: Mapped[str] = mapped_column(String(128), nullable=False, server_default="")
     tagline: Mapped[str] = mapped_column(String(256), nullable=False, server_default="")
@@ -33,7 +35,9 @@ class OrbitProfile(Base):
 
     # State flags
     is_published: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
-    spellcast_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+    spellcast_completed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false"
+    )
     page_views: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
 
     # Standard timestamps

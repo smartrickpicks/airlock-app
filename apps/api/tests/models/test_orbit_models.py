@@ -17,6 +17,7 @@ from src.models.orbit_link import OrbitLink
 from src.models.orbit_persona import OrbitPersona
 from src.models.orbit_profile import OrbitProfile
 from src.models.orbit_section import OrbitSection
+from src.models.user import User
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -40,13 +41,13 @@ def db():
 
     # Swap JSONB -> JSON so SQLite can handle it
     orbit_tables = []
-    for model in [OrbitProfile, OrbitSection, OrbitLink, OrbitPersona, FanCalibration]:
+    for model in [User, OrbitProfile, OrbitSection, OrbitLink, OrbitPersona, FanCalibration]:
         for col in model.__table__.columns:
             if hasattr(col.type, "__class__") and col.type.__class__.__name__ == "JSONB":
                 col.type = JSON()
         orbit_tables.append(model.__table__)
 
-    # Only create Orbit tables, not the entire metadata (avoids JSONB in other models)
+    # Only create Orbit tables (+ users for FK), not the entire metadata
     Base.metadata.create_all(engine, tables=orbit_tables)
     session = sessionmaker(bind=engine)()
     yield session
@@ -58,10 +59,31 @@ def _uid() -> str:
     return str(uuid.uuid4())
 
 
+def _make_user(db: Session, user_id: str | None = None) -> User:
+    uid = user_id or _uid()
+    user = User(
+        id=uid,
+        workspace_id=_uid(),
+        email=f"{uid[:8]}@test.com",
+        display_name="Test User",
+    )
+    db.add(user)
+    db.flush()
+    return user
+
+
 def _make_profile(db: Session, **overrides) -> OrbitProfile:
+    user_id = overrides.pop("user_id", None)
+    if user_id is None:
+        user = _make_user(db)
+        user_id = user.id
+    else:
+        existing = db.get(User, user_id)
+        if existing is None:
+            _make_user(db, user_id=user_id)
     defaults = {
         "id": _uid(),
-        "user_id": _uid(),
+        "user_id": user_id,
         "slug": f"test-{uuid.uuid4().hex[:8]}",
         "display_name": "Test Creator",
         "tagline": "Building cool things",
@@ -105,10 +127,10 @@ class TestOrbitProfile:
         with pytest.raises(IntegrityError):
             _make_profile(db, user_id=shared_user, slug="slug-b")
 
-    def test_theme_default(self, db):
-        profile = _make_profile(db)
-        # Theme should be the JSON default or None depending on SQLite handling
-        assert profile.theme is not None or profile.theme is None  # exists in schema
+    def test_theme_set(self, db):
+        theme = {"primary_color": "#ff0000", "accent_color": "#00ff00", "layout_preset": "minimal"}
+        profile = _make_profile(db, theme=theme)
+        assert profile.theme["primary_color"] == "#ff0000"
 
 
 # ---------------------------------------------------------------------------

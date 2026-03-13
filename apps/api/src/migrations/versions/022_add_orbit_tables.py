@@ -13,6 +13,7 @@ from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision: str = "022"
 down_revision: str = "021"
@@ -37,10 +38,10 @@ def upgrade() -> None:
         sa.Column("display_name", sa.String(128), nullable=False, server_default=""),
         sa.Column("tagline", sa.String(256), nullable=False, server_default=""),
         sa.Column("avatar_url", sa.Text(), nullable=True),
-        sa.Column("brand_pillars", sa.JSON(), nullable=False, server_default="[]"),
+        sa.Column("brand_pillars", postgresql.JSONB(), nullable=False, server_default="[]"),
         sa.Column(
             "theme",
-            sa.JSON(),
+            postgresql.JSONB(),
             nullable=False,
             server_default='{"primary_color": "#8e6bc7", "accent_color": "#e8bcfd", "layout_preset": "default"}',
         ),
@@ -80,7 +81,7 @@ def upgrade() -> None:
         sa.Column("title", sa.String(128), nullable=False, server_default=""),
         sa.Column("order_index", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("is_visible", sa.Boolean(), nullable=False, server_default="true"),
-        sa.Column("content", sa.JSON(), nullable=False, server_default="{}"),
+        sa.Column("content", postgresql.JSONB(), nullable=False, server_default="{}"),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -188,7 +189,7 @@ def upgrade() -> None:
         sa.Column("pi_profile", sa.String(32), nullable=False),
         sa.Column("display_name", sa.String(64), nullable=False),
         sa.Column("description", sa.Text(), nullable=False, server_default=""),
-        sa.Column("traits", sa.JSON(), nullable=False, server_default="[]"),
+        sa.Column("traits", postgresql.JSONB(), nullable=False, server_default="[]"),
         sa.Column("emoji", sa.String(8), nullable=True),
         sa.Column("order_index", sa.Integer(), nullable=False, server_default="0"),
         sa.Column(
@@ -224,8 +225,8 @@ def upgrade() -> None:
             nullable=True,
         ),
         sa.Column("session_token", sa.String(128), nullable=False),
-        sa.Column("drives", sa.JSON(), nullable=False, server_default="{}"),
-        sa.Column("answers", sa.JSON(), nullable=False, server_default="[]"),
+        sa.Column("drives", postgresql.JSONB(), nullable=False, server_default="{}"),
+        sa.Column("answers", postgresql.JSONB(), nullable=False, server_default="[]"),
         sa.Column("confidence", sa.Float(), nullable=False, server_default="0.0"),
         sa.Column("share_card_url", sa.Text(), nullable=True),
         sa.Column(
