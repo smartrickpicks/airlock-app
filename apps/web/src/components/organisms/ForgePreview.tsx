@@ -15,6 +15,8 @@ import type {
   ProvenanceData,
 } from "@/lib/mock-forge";
 import { MODULES } from "@/lib/constants";
+import { useRef, useEffect } from "react";
+import { useOttoSound } from "@/hooks/useOttoSound";
 
 interface ForgePreviewProps {
   activeModules: string[];
@@ -94,6 +96,35 @@ export default function ForgePreview({
     label: mod.label,
     active: activeModules.includes(id),
   }));
+
+  const { play, setContext } = useOttoSound();
+  const firedThresholds = useRef(new Set<string>());
+
+  // Update sound context when archetype changes
+  useEffect(() => {
+    setContext({ archetype: metaArchetype, confidence });
+  }, [metaArchetype, confidence, setContext]);
+
+  // Fire threshold sounds once when confidence thresholds are crossed
+  useEffect(() => {
+    const fired = firedThresholds.current;
+    if (confidence >= 0.55 && !fired.has("driveReveal")) {
+      fired.add("driveReveal");
+      play("cal.driveReveal");
+    }
+    if (confidence >= 0.65 && !fired.has("archetypeHint")) {
+      fired.add("archetypeHint");
+      play("cal.archetypeHint");
+    }
+    if (confidence >= 0.75 && !fired.has("profileReveal")) {
+      fired.add("profileReveal");
+      play("cal.profileReveal");
+    }
+    if (confidence >= 0.85 && !fired.has("provenanceUnlock")) {
+      fired.add("provenanceUnlock");
+      play("cal.provenanceUnlock");
+    }
+  }, [confidence, play]);
 
   const headerSubtext =
     confidence < 0.55
