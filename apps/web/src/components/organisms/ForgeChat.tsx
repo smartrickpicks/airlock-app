@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { SendHorizonal, UserRound } from "lucide-react";
 import AirlockIcon from "@/components/atoms/AirlockIcon";
-import { useOttoSounds } from "@/hooks/useOttoSounds";
+import { useOttoSound } from "@/hooks/useOttoSound";
 import type { CalibrationMessage } from "@/stores/calibration.store";
 import type { NextQuestion } from "@/lib/mock-forge";
 
@@ -183,7 +183,7 @@ export default function ForgeChat({
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const prevMessageCountRef = useRef(messages.length);
-  const sounds = useOttoSounds();
+  const { play } = useOttoSound();
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -203,31 +203,31 @@ export default function ForgeChat({
         const interaction = msg.calibrationInteraction;
 
         if (interaction?.type === "profile_result") {
-          sounds.dmReceived();
+          play("cal.profileReveal");
         } else if (interaction?.type === "launch_ready") {
-          sounds.userJoin();
+          play("cal.launchReady");
         } else if (
           UNLOCK_PATTERNS.some((p) => msg.content.toLowerCase().includes(p))
         ) {
-          sounds.success();
+          play("module.unlock");
         } else {
-          sounds.msgReceived();
+          play("cal.insight");
         }
       }
     }
-  }, [messages, sounds]);
+  }, [messages, play]);
 
   // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------
 
   const handleCardSelect = (questionId: string, optionId: string) => {
-    sounds.msgSent();
+    play("cal.answer");
     onSubmitAnswer(questionId, optionId, null);
   };
 
   const handleTextSubmit = (questionId: string, text: string) => {
-    sounds.msgSent();
+    play("cal.answer");
     onSubmitAnswer(questionId, null, text);
   };
 
