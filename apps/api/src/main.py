@@ -51,13 +51,27 @@ from src.workflows.routes import router as workflow_router
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown events."""
-    # Startup — cache airlock-persona profiles for inference engine
-    init_inference_engine()
-    init_calibration_engine()
+    # Startup — cache airlock-persona profiles for inference engine.
+    # These depend on airlock-persona yaml files which may not be in the
+    # deployed image. Fail soft so the API still starts even if the persona
+    # repo bundle is missing — affected routes will 503/log on demand.
+    import logging as _logging
+    _log = _logging.getLogger(__name__)
+    try:
+        init_inference_engine()
+    except Exception as _exc:  # noqa: BLE001
+        _log.warning("init_inference_engine failed (non-fatal): %s", _exc)
+    try:
+        init_calibration_engine()
+    except Exception as _exc:  # noqa: BLE001
+        _log.warning("init_calibration_engine failed (non-fatal): %s", _exc)
     # Initialize MeiliSearch indexes
-    from src.services.search import ensure_indexes
+    try:
+        from src.services.search import ensure_indexes
 
-    await ensure_indexes()
+        await ensure_indexes()
+    except Exception as _exc:  # noqa: BLE001
+        _log.warning("ensure_indexes failed (non-fatal): %s", _exc)
     yield
     # Shutdown
 
