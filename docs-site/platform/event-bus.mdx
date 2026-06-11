@@ -1,0 +1,40 @@
+---
+title: Event Bus
+description: BullMQ-powered cross-module event routing. The backbone of all automation.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+The Event Bus is the internal messaging backbone. Every significant action in Airlock — vault created, patch approved, gate passed — publishes an event. Handlers subscribe and react.
+
+## Stack
+
+- **BullMQ** — queue management and job scheduling (Redis-backed)
+- **Trigger.dev** — workflow orchestration layer (planned)
+
+## Event types
+
+| Category | Example events |
+|---|---|
+| Vault | `vault.created`, `vault.promoted`, `vault.archived` |
+| Patch | `patch.submitted`, `patch.approved`, `patch.applied` |
+| Gate | `gate.passed`, `gate.failed`, `gate.overridden` |
+| Extraction | `extraction.started`, `extraction.completed`, `extraction.failed` |
+| User | `user.invited`, `user.role_changed` |
+
+## Handler pattern
+
+```python
+@event_handler("gate.passed")
+async def on_gate_passed(event: GatePassedEvent):
+    await notify_assignees(event.vault_id)
+    await trigger_next_chamber_setup(event.vault_id)
+```
+
+## Relationship to Workflows
+
+The Workflow Engine builds on top of the Event Bus. Visual automation workflows (built in the React Flow canvas) compile to BullMQ jobs that listen for and emit Event Bus events.

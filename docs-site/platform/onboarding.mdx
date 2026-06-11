@@ -1,0 +1,31 @@
+---
+title: Onboarding
+description: Workspace setup wizard and new user onboarding flow.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Workspace Setup
+
+When a new workspace is created, the admin is walked through a setup wizard:
+
+1. Workspace name and branding
+2. Invite team members
+3. Assign org roles
+4. Enable modules (which of Contracts / CRM / Tasks / Calendar / Documents to activate)
+5. Configure first playbook (or use default)
+
+## User Onboarding
+
+When a new user accepts an invitation:
+
+1. Name and profile setup
+2. Role explanation — plain-English description of their org role and module role
+3. Module tour — a guided walkthrough of the modules they have access to
+4. First vault — prompted to create or open their first vault
+
+## Progressive Complexity
+
+Airlock hides advanced features until a user has used the basics. The Feature Control Plane respects this by showing calibration controls only to users who have completed basic onboarding milestones.

@@ -1,0 +1,32 @@
+---
+title: Shell & Layout
+description: The master layout — module bar, vault sidebar, and the Triptych.
+---
+
+<Note>
+  **Build status:** In development. Spec complete.
+</Note>
+
+## Layout Structure
+
+```
+┌──┬────────────────────────────────────────────────────────┐
+│  │  Module Bar (top or left icon strip)                   │
+│  ├──────────┬───────────────────────────────────────────  │
+│  │ Sidebar  │         Triptych (Signal | Orch | Control)  │
+│  │ Vaults   │                                             │
+│  │ list     │                                             │
+└──┴──────────┴─────────────────────────────────────────────┘
+```
+
+## Module Bar
+Far-left icon strip — one icon per module (Contracts, CRM, Tasks, Calendar, Documents) plus Admin overlay access. Inspired by Discord's server list.
+
+## Vault Sidebar
+Context-sensitive list of vaults for the active module. Grouped by entity, filterable by chamber and assignee.
+
+## Triptych
+See [Core Concepts: Triptych](/concepts/triptych).
+
+## Theme
+OLED dark. Primary accent: `#00D1FF` (cyan). Chamber colors: Discover = red, Build = amber, Review = purple, Ship = green. All colors via CSS custom properties — no raw hex values in components.

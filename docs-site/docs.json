@@ -1,0 +1,159 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Airlock",
+  "colors": {
+    "primary": "#00D1FF",
+    "light": "#00D1FF",
+    "dark": "#0090B3"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Status",
+        "href": "https://status.airlock.app"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Request Access",
+      "href": "https://airlock.app"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Platform",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "mvp-readiness"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/vault-hierarchy",
+              "concepts/chambers-and-gates",
+              "concepts/roles",
+              "concepts/triptych"
+            ]
+          },
+          {
+            "group": "Contracts",
+            "pages": [
+              "contracts/overview",
+              "contracts/triage-dashboard",
+              "contracts/record-inspector",
+              "contracts/patch-workflow",
+              "contracts/contract-generator",
+              "contracts/review-queue"
+            ]
+          },
+          {
+            "group": "CRM",
+            "pages": [
+              "crm/overview",
+              "crm/pipeline",
+              "crm/communications"
+            ]
+          },
+          {
+            "group": "Tasks",
+            "pages": [
+              "tasks/overview"
+            ]
+          },
+          {
+            "group": "Calendar",
+            "pages": [
+              "calendar/overview"
+            ]
+          },
+          {
+            "group": "Documents",
+            "pages": [
+              "documents/overview"
+            ]
+          },
+          {
+            "group": "Admin",
+            "pages": [
+              "admin/overview",
+              "admin/roles-and-permissions",
+              "admin/feature-control-plane"
+            ]
+          },
+          {
+            "group": "Platform",
+            "pages": [
+              "platform/shell",
+              "platform/otto",
+              "platform/search",
+              "platform/notifications",
+              "platform/real-time",
+              "platform/event-bus",
+              "platform/batch-processing",
+              "platform/onboarding",
+              "platform/security"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication"
+            ]
+          },
+          {
+            "group": "Vaults",
+            "pages": [
+              "api-reference/vaults/list",
+              "api-reference/vaults/create",
+              "api-reference/vaults/get",
+              "api-reference/vaults/update"
+            ]
+          },
+          {
+            "group": "Events",
+            "pages": [
+              "api-reference/events/list",
+              "api-reference/events/create"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "api-reference/users/me"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "claude"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://airlock.app"
+    }
+  }
+}

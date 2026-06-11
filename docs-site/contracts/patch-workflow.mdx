@@ -1,0 +1,42 @@
+---
+title: Patch Workflow
+description: Propose, review, and approve field changes through a structured approval chain.
+---
+
+<Note>
+  **Build status:** In development. Spec complete.
+</Note>
+
+## Overview
+
+A patch is a proposed change to one or more fields on a vault. Every patch goes through a structured workflow — it cannot be silently applied.
+
+## Patch States
+
+A patch moves through up to 12 states:
+
+`draft` → `submitted` → `in_review` → `approved` / `rejected` / `revision_requested` → `applied` / `withdrawn`
+
+## Authoring a Patch
+
+Patches are authored in **Action Focus** — a dedicated full-screen editor that replaces the Orchestrate panel. This is not inline editing.
+
+In Action Focus, you can:
+- Edit field values with full formatting support
+- Add a comment explaining the change
+- Attach supporting documents
+- Tag specific reviewers
+
+## Approval Chain
+
+Patches route through approvers based on:
+
+1. The field's tier (Tier 1 fields require gatekeeper sign-off)
+2. The vault's current chamber
+3. The workspace's configured approval rules
+
+**Self-approval is blocked** — the user who proposes a patch cannot be the sole approver.
+
+## Gate Integration
+
+A vault cannot advance to the next chamber if any patches are in `submitted` or `in_review` state. All patches must reach a terminal state (applied, rejected, or withdrawn) before the gate can pass.

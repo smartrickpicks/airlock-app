@@ -1,0 +1,34 @@
+---
+title: Calendar
+description: A computed calendar view derived from vault dates and task due dates — no stored calendar events.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+The Calendar module is a date-centric view. There are no stored calendar events — every date you see is computed from:
+
+- Extracted vault dates (effective dates, expiry dates, option windows)
+- Task due dates from the universal task system
+- Gate SLA deadlines
+
+## Key principle
+
+> No stored calendar events. Airlock renders dates from vault extraction + task due dates.
+
+## Built on Schedule-X
+
+The calendar UI uses [Schedule-X](https://schedule-x.dev/) — a headless, customizable calendar library for React.
+
+## Views
+
+- **Month** — Overview of all upcoming vault and task dates
+- **Week** — Detailed view with time slots for meetings (when Google Meet integration is live)
+- **Agenda** — List view of upcoming events, sorted by date
+
+<Note>
+  Google Meet integration (in-app calls with AI transcription) is a post-MVP feature.
+</Note>

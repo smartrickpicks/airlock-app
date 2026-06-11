@@ -1,0 +1,35 @@
+---
+title: Get Vault
+description: GET /vaults/:id — retrieve a single vault with all fields.
+---
+
+<Note>
+  **Build status:** Not yet built.
+</Note>
+
+## Endpoint
+
+```
+GET /v1/vaults/:id
+```
+
+## Response
+
+```json
+{
+  "data": {
+    "id": "01HXYZ...",
+    "title": "Distribution Agreement — Acme × Summit",
+    "module": "contracts",
+    "chamber": "review",
+    "fields": {
+      "OPP_CONTRACT_TYPE": "Distribution",
+      "OPP_TERRITORY": "Worldwide",
+      "OPP_EFFECTIVE_DATE": "2026-01-15"
+    },
+    "workspace_id": "01HABC...",
+    "created_at": "2026-03-01T10:00:00Z",
+    "updated_at": "2026-03-08T09:30:00Z"
+  }
+}
+```

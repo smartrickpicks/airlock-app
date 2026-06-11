@@ -1,0 +1,35 @@
+---
+title: Tasks
+description: One unified task system across every module. Kanban, table, and agenda views.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+Tasks is a universal module — one master task table that spans the entire platform. Every task created anywhere in Airlock (in a vault, in CRM, assigned by Otto) lives here.
+
+## Views
+
+| View | Description |
+|---|---|
+| **Kanban** | Drag-and-drop board organized by status |
+| **Table** | Filterable, sortable grid — all tasks in one place |
+| **Agenda** | Timeline view grouped by due date |
+
+## Key Properties
+
+Every task has:
+- Title
+- Assignee(s)
+- Due date
+- Priority
+- Status (backlog / in progress / blocked / done)
+- Linked vault (optional)
+- Module origin tag
+
+## Module Triage Views
+
+Each module (Contracts, CRM, Calendar) shows a filtered subset of the master task table relevant to that module. There is no separate task storage per module — it's all SQL views over the same table.

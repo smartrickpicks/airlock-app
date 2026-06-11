@@ -1,0 +1,45 @@
+---
+title: Create Vault
+description: POST /vaults — create a new vault.
+---
+
+<Note>
+  **Build status:** Not yet built.
+</Note>
+
+## Endpoint
+
+```
+POST /v1/vaults
+```
+
+## Request Body
+
+```json
+{
+  "title": "Distribution Agreement — Acme × Summit",
+  "module": "contracts",
+  "parent_id": "01HXYZ...",
+  "metadata": {
+    "contract_type": "distribution"
+  }
+}
+```
+
+## Response
+
+```json
+{
+  "data": {
+    "id": "01HNEW...",
+    "title": "Distribution Agreement — Acme × Summit",
+    "module": "contracts",
+    "chamber": "discover",
+    "workspace_id": "01HABC...",
+    "created_at": "2026-03-08T12:00:00Z",
+    "updated_at": "2026-03-08T12:00:00Z"
+  }
+}
+```
+
+New vaults always start in the `discover` chamber.

@@ -1,0 +1,53 @@
+---
+title: The Triptych
+description: Every vault opens in a three-panel layout — Signal, Orchestrate, Control.
+---
+
+## Overview
+
+When you open any vault, you enter the **Triptych** — a three-panel layout that gives you full context, action space, and control in a single view.
+
+```
+┌─────────────────┬───────────────────────┬─────────────────┐
+│     SIGNAL      │      ORCHESTRATE      │     CONTROL     │
+│                 │                       │                 │
+│  Activity feed  │  Primary work surface │  Inspector /    │
+│  Events         │  Document viewer      │  Otto agent     │
+│  Notifications  │  Field editor         │  Approvals      │
+│  Signals        │  Contract preview     │  Metadata       │
+└─────────────────┴───────────────────────┴─────────────────┘
+```
+
+## The Three Panels
+
+### Signal (Left)
+The live activity feed for the vault. Shows every event — extraction runs, patch proposals, gate transitions, approvals, comments. The Signal panel is append-only and immutable.
+
+### Orchestrate (Center)
+The primary work surface. Context-sensitive — it shows whatever the current chamber and gate require:
+- **Discover**: Document viewer with extraction overlay
+- **Build**: Field editor and patch authoring surface
+- **Review**: Approval interface with diff view
+- **Ship**: Execution checklist and file management
+
+### Control (Right)
+The inspection and AI panel. Contains:
+- Record Inspector (field cards, grouped by section)
+- Otto AI agent tab
+- Gate status and approval chain
+- Vault metadata
+
+## Panel States
+
+Each panel can be in one of several states depending on context:
+
+| State | Description |
+|---|---|
+| **Overview** | Summary — collapsed field groups, recent events |
+| **Inspect** | Full field detail with confidence scores |
+| **Edit** | Action Focus — full editor for patch authoring |
+| **Approve** | Approval interface with diff and sign-off |
+
+<Tip>
+  Panel widths are adjustable. Airlock remembers your layout per vault type.
+</Tip>

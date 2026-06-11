@@ -1,0 +1,50 @@
+---
+title: Roles & Permissions
+description: Airlock uses a three-layer role system. All three layers must align for any action to be permitted.
+---
+
+## Three Layers
+
+Airlock permissions are not a single flat role. There are three distinct layers:
+
+### Org Role
+Platform-wide. The absolute ceiling on what a user can ever do, regardless of module.
+
+| Org Role | Description |
+|---|---|
+| `member` | Standard user — works within assigned modules |
+| `lead` | Can manage vaults and review lower-tier work |
+| `director` | Can override gates, configure playbooks, manage team |
+| `executive` | Full platform access, workspace admin capabilities |
+
+### Module Role
+Per-module. A user can have a different module role in Contracts vs CRM.
+
+| Module Role | Description |
+|---|---|
+| `builder` | Creates and enriches vaults |
+| `gatekeeper` | Reviews and approves at gates |
+| `owner` | Responsible for vault outcomes — has final authority |
+| `designer` | Configures module settings and playbooks |
+| `viewer` | Read-only access |
+
+### Agentic Role
+Interface personalization only — 16 types. Does **not** change what actions are permitted. Changes how information is surfaced and how Otto communicates.
+
+<Warning>
+  Never conflate agentic role with permissions. A user's agentic role is aesthetic, not functional.
+</Warning>
+
+## Permission Evaluation
+
+When a user attempts any action:
+
+```
+Can act? = (Org Role ceiling allows) AND (Module Role permits) AND (Gate context matches)
+```
+
+All three must pass. A `director` org role cannot override a module role that doesn't include the action.
+
+## Otto and Role-Gating
+
+Otto's available MCP tools are also gated by role. A `viewer` module role will not be offered the same Otto tools as a `builder`.

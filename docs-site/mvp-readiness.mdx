@@ -1,0 +1,205 @@
+---
+title: MVP Readiness Matrix
+description: Every feature, its build status, and its docs coverage — all in one place.
+---
+
+<Info>
+  This page is the source of truth for MVP scope. If a feature has no docs page, it's a gap. If it has no build status, it hasn't been started.
+</Info>
+
+## How to read this
+
+| Column | Meaning |
+|---|---|
+| **Spec** | Design specification written and decisions locked |
+| **Built** | Code shipped — backend + frontend complete |
+| **Docs** | Mintlify page written (not a stub) |
+| **MVP** | Required for MVP launch |
+
+### Status icons
+- ✅ Done
+- 🔨 In progress
+- ⬜ Not started
+- 🚫 Post-MVP (out of scope for v1)
+
+---
+
+## Shell & Navigation
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Module bar (far-left icon strip) | ✅ | ⬜ | 🔨 | ✅ |
+| Vault sidebar | ✅ | ⬜ | 🔨 | ✅ |
+| Triptych layout (Signal / Orchestrate / Control) | ✅ | ⬜ | ✅ | ✅ |
+| View state switching (auto, not manual) | ✅ | ⬜ | ⬜ | ✅ |
+| OLED dark theme + token system | ✅ | 🔨 | ⬜ | ✅ |
+
+---
+
+## Core Platform
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Vault hierarchy (Parent > Division > Counterparty > Item) | ✅ | ⬜ | ✅ | ✅ |
+| Chambers & Gates | ✅ | ⬜ | ✅ | ✅ |
+| Three-layer role system (Org / Module / Agentic) | ✅ | ⬜ | ✅ | ✅ |
+| Row-Level Security (workspace_id RLS) | ✅ | ⬜ | 🔨 | ✅ |
+| Soft deletes (deleted_at) | ✅ | ⬜ | ⬜ | ✅ |
+| Event bus (BullMQ) | ✅ | ⬜ | 🔨 | ✅ |
+| Real-time (WebSocket + Redis Pub/Sub) | ✅ | ⬜ | 🔨 | ✅ |
+| Batch processing pipeline (semaphore 5) | ✅ | ⬜ | 🔨 | ✅ |
+| Search / Cmd+K (MeiliSearch) | ✅ | ⬜ | 🔨 | ✅ |
+| Onboarding wizard | ✅ | ⬜ | 🔨 | ✅ |
+| Security architecture (RLS, JWT, rate limit) | ✅ | ⬜ | 🔨 | ✅ |
+
+---
+
+## Contracts Module
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Triage Dashboard | ✅ | ⬜ | ✅ | ✅ |
+| Record Inspector (field cards + sections) | ✅ | ⬜ | ✅ | ✅ |
+| Confidence scoring | ✅ | ⬜ | ✅ | ✅ |
+| Entity resolution (inline disambiguation) | ✅ | ⬜ | ✅ | ✅ |
+| Patch Workflow (12 states, 20 transitions) | ✅ | ⬜ | ✅ | ✅ |
+| Action Focus editor | ✅ | ⬜ | ✅ | ✅ |
+| Self-approval block | ✅ | ⬜ | ✅ | ✅ |
+| Review Queue (gatekeeper cross-vault view) | ✅ | ⬜ | ✅ | ✅ |
+| Contract Generator (24 templates, v2 clause library) | ✅ | 🔨 | ✅ | ✅ |
+| SLA timers | ✅ | ⬜ | ✅ | ✅ |
+| Gate auto-pass | ✅ | ⬜ | ✅ | ✅ |
+
+---
+
+## CRM Module
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Vault hierarchy browser (levels 1–3) | ✅ | ⬜ | ✅ | ✅ |
+| Pipeline view (deal-stage kanban) | ✅ | ⬜ | 🔨 | ✅ |
+| Entity cards (company profile + attached vaults) | ✅ | ⬜ | ⬜ | ✅ |
+| react-admin integration | ✅ | ⬜ | ⬜ | ✅ |
+| Smart Line (shared iMessage inbox) | 🔨 | ⬜ | ✅ | 🚫 |
+| Web-to-iMessage handoff widget | 🔨 | ⬜ | ✅ | 🚫 |
+| Google Meet integration | 🔨 | ⬜ | ⬜ | 🚫 |
+
+---
+
+## Tasks Module
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Master task table (one table, all modules) | ✅ | ⬜ | ✅ | ✅ |
+| Kanban view | ✅ | ⬜ | 🔨 | ✅ |
+| Table view | ✅ | ⬜ | ⬜ | ✅ |
+| Agenda view | ✅ | ⬜ | ⬜ | ✅ |
+| Per-module filtered views (SQL views) | ✅ | ⬜ | ⬜ | ✅ |
+
+---
+
+## Calendar Module
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Computed calendar (no stored events) | ✅ | ⬜ | ✅ | ✅ |
+| Vault dates rendering | ✅ | ⬜ | ✅ | ✅ |
+| Task due dates rendering | ✅ | ⬜ | ✅ | ✅ |
+| Schedule-X integration | ✅ | ⬜ | ✅ | ✅ |
+| Google Meet calls in calendar | ⬜ | ⬜ | ⬜ | 🚫 |
+
+---
+
+## Documents Module
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| PDF viewer (PDF.js) | ✅ | ⬜ | 🔨 | ✅ |
+| TipTap rich text editor | ✅ | ⬜ | 🔨 | ✅ |
+| Template system | ✅ | ⬜ | ⬜ | ✅ |
+| DOCX support | ✅ | ⬜ | 🔨 | ✅ |
+| Multi-format (XLSX, PPTX, EPUB, MD…) | 🔨 | ⬜ | ✅ | 🚫 |
+
+---
+
+## AI Agent (Otto)
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Signal panel event streaming | ✅ | ⬜ | ✅ | ✅ |
+| Control panel Otto tab | ✅ | ⬜ | ✅ | ✅ |
+| MCP tool layer | ✅ | ⬜ | ✅ | ✅ |
+| Role-gated tool access | ✅ | ⬜ | ✅ | ✅ |
+| LiteLLM gateway (model routing) | ✅ | ⬜ | ✅ | ✅ |
+| Session persistence | ✅ | ⬜ | ⬜ | ✅ |
+| Streaming protocol | ✅ | ⬜ | ⬜ | ✅ |
+| Enrichment sources | ✅ | ⬜ | ⬜ | ✅ |
+
+---
+
+## Admin / Overlay
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Workspace settings (9 sections) | ✅ | ⬜ | 🔨 | ✅ |
+| Personal settings (5 sections) | ✅ | ⬜ | 🔨 | ✅ |
+| Feature Control Plane (toggle / calibrate / audit) | ✅ | ⬜ | ✅ | ✅ |
+| Template Compiler (corpus → extraction config) | 🔨 | ⬜ | ⬜ | 🚫 |
+| Custom roles (Discord-style) | 🔨 | ⬜ | ✅ | 🚫 |
+
+---
+
+## Notifications
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| In-app notifications (Signal panel) | ✅ | ⬜ | ✅ | ✅ |
+| Triage Dashboard as notification aggregator | ✅ | ⬜ | ✅ | ✅ |
+| Email notifications | ⬜ | ⬜ | ⬜ | 🚫 |
+| Push notifications | ⬜ | ⬜ | ⬜ | 🚫 |
+
+---
+
+## Workflow Engine
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| React Flow visual builder | 🔨 | ⬜ | ⬜ | 🚫 |
+| BullMQ execution layer | ✅ | ⬜ | ✅ | ✅ |
+| Conversational intake nodes | 🔨 | ⬜ | ⬜ | 🚫 |
+| Playbooks (team-level lifecycle config) | 🔨 | ⬜ | ⬜ | 🚫 |
+
+---
+
+## API
+
+| Feature | Spec | Built | Docs | MVP |
+|---|---|---|---|---|
+| Auth (JWT + API keys) | ✅ | ⬜ | 🔨 | ✅ |
+| Vaults CRUD | ✅ | ⬜ | ✅ | ✅ |
+| Events (list + append) | ✅ | ⬜ | ✅ | ✅ |
+| Users (me endpoint) | ✅ | ⬜ | ✅ | ✅ |
+| Patches API | ✅ | ⬜ | ⬜ | ✅ |
+| Extraction API | ✅ | ⬜ | ⬜ | ✅ |
+| Gates API | ✅ | ⬜ | ⬜ | ✅ |
+| Webhooks (outbound events) | ⬜ | ⬜ | ⬜ | 🚫 |
+
+---
+
+## MVP Gap Summary
+
+<CardGroup cols={3}>
+  <Card title="Specced, not built" icon="file-circle-check">
+    **~45 features** have full specs but no code yet. This is the build backlog.
+  </Card>
+  <Card title="Docs stubs" icon="file-pen">
+    **~20 pages** are currently stubs. Fill these as features ship.
+  </Card>
+  <Card title="Post-MVP" icon="clock">
+    **~12 features** are intentionally out of scope for v1: Smart Line, Workflow Builder, multi-format docs, custom roles, email/push notifications.
+  </Card>
+</CardGroup>
+
+<Tip>
+  **Rule of thumb:** A feature is MVP-complete when its row shows ✅ ✅ ✅ across Spec, Built, and Docs.
+</Tip>

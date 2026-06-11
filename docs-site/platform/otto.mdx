@@ -1,0 +1,41 @@
+---
+title: Otto (AI Agent)
+description: The AI agent embedded in every vault. Reads, extracts, patches, and explains.
+---
+
+<Note>
+  **Build status:** In development. Spec complete.
+</Note>
+
+## Overview
+
+Otto is Airlock's AI agent. Otto is not a chatbot bolted onto the side — it is embedded in every vault's Triptych and has direct access to vault data, field cards, and the event history.
+
+## Where Otto appears
+
+1. **Signal panel** — Otto events stream into the activity feed (extraction runs, patch proposals, gate evaluations)
+2. **Control panel, Otto tab** — Dedicated conversational interface for the current vault
+
+## What Otto can do
+
+Otto's capabilities are exposed as MCP tools, gated by your role:
+
+| Tool | Description | Minimum role |
+|---|---|---|
+| `extract_fields` | Run or re-run extraction on a document | builder |
+| `propose_patch` | Draft a field change with supporting reasoning | builder |
+| `evaluate_gate` | Assess whether a gate's conditions are met | gatekeeper |
+| `search_corpus` | Search across all vaults in the workspace | member |
+| `promote_vault` | Advance a vault to the next chamber | owner |
+
+## Context window
+
+Otto always has in context:
+- All extracted fields for the current vault
+- The vault's full event history
+- The active chamber and gate state
+- The requesting user's role and permissions
+
+## Model routing
+
+Otto routes requests through LiteLLM — a unified gateway that lets workspace admins switch between AI providers (Anthropic, OpenAI, etc.) without code changes.

@@ -1,0 +1,36 @@
+---
+title: List Events
+description: GET /vaults/:id/events — retrieve the immutable event log for a vault.
+---
+
+<Note>
+  **Build status:** Not yet built.
+</Note>
+
+## Endpoint
+
+```
+GET /v1/vaults/:id/events
+```
+
+## Response
+
+```json
+{
+  "data": [
+    {
+      "id": "01HEVT...",
+      "vault_id": "01HXYZ...",
+      "event_type": "extraction.completed",
+      "actor_id": "01HUSR...",
+      "payload": {
+        "fields_extracted": 24,
+        "confidence_avg": 87
+      },
+      "created_at": "2026-03-08T10:05:00Z"
+    }
+  ]
+}
+```
+
+Events are **append-only** and **immutable** — they cannot be updated or deleted.

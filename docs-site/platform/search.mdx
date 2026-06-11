@@ -1,0 +1,40 @@
+---
+title: Search & Command Palette
+description: Universal search across all modules via Cmd+K. Powered by MeiliSearch.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Cmd+K
+
+Press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux) from anywhere in Airlock to open the command palette.
+
+## What you can search
+
+- Vaults (by title, counterparty, contract type)
+- Fields (e.g. search for a territory value across all contracts)
+- Tasks
+- Team members
+- Admin settings
+
+Every result has a **module badge** so you know where a result lives.
+
+## Slash Commands
+
+The command palette also accepts slash commands:
+
+| Command | Action |
+|---|---|
+| `/new-vault` | Create a new vault in the current module |
+| `/go [module]` | Navigate to a module |
+| `/assign [user]` | Assign current vault |
+
+## Scoped Search
+
+When inside a vault, search defaults to vault-scoped — results from the current vault's fields and events first, then workspace-wide.
+
+## Engine
+
+MeiliSearch powers instant search with typo tolerance. PostgreSQL remains the source of truth. MeiliSearch syncs via BullMQ on INSERT/UPDATE events.

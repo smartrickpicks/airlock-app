@@ -1,0 +1,48 @@
+---
+title: API Introduction
+description: The Airlock REST API — access vaults, events, and users programmatically.
+---
+
+<Note>
+  **Build status:** Not yet built. API spec is in design.
+</Note>
+
+## Base URL
+
+```
+https://api.airlock.app/v1
+```
+
+## Authentication
+
+All API requests require a Bearer token. See [Authentication](/api-reference/authentication).
+
+## Response format
+
+All responses follow this envelope:
+
+```json
+{
+  "data": { ... },
+  "meta": {
+    "request_id": "01HXYZ...",
+    "timestamp": "2026-03-08T00:00:00Z"
+  }
+}
+```
+
+## Error codes
+
+| Code | Meaning |
+|---|---|
+| `400` | Bad request — invalid parameters |
+| `401` | Unauthorized — missing or invalid token |
+| `403` | Forbidden — valid token but insufficient role |
+| `404` | Not found |
+| `429` | Rate limited |
+| `500` | Server error |
+
+## Rate limits
+
+- 1000 requests per minute per API key
+- Batch endpoints: 10 concurrent requests maximum

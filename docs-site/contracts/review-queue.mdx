@@ -1,0 +1,33 @@
+---
+title: Review Queue
+description: The gatekeeper's cross-vault view — everything awaiting approval in one place.
+---
+
+<Note>
+  **Build status:** In development. Spec complete.
+</Note>
+
+## Overview
+
+The Review Queue is a Gatekeeper's command center. It aggregates every vault sitting at a Review gate across all entities — so Gatekeepers never have to hunt for what needs their attention.
+
+## What you see
+
+- Entity cards grouped by account
+- Handoff signals — what the Builder passed along
+- Activity feed per vault
+- SLA timer — time remaining before escalation
+- Quick approve / request revision / reject actions
+
+## Approval Actions
+
+| Action | Result |
+|---|---|
+| **Approve** | Patch or gate passes; vault advances if all approvers have approved |
+| **Request Revision** | Returns patch to `revision_requested` state; Builder is notified |
+| **Reject** | Patch or gate fails; vault is blocked |
+| **Override** | Available to Director / Executive org roles only — bypasses approval requirement |
+
+## Bulk Actions
+
+Gatekeepers can select multiple vaults and apply actions in bulk when the vaults share the same contract type and all patches are non-conflicting.

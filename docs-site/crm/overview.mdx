@@ -1,0 +1,32 @@
+---
+title: CRM
+description: The CRM module is a lens over the vault hierarchy — no separate CRM tables.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+The CRM module displays levels 1–3 of the vault hierarchy: Parents, Divisions, and Counterparties. Every entity you see here is the same vault node attached to your contracts — there are no separate CRM records to sync.
+
+## Key principle
+
+> The vault hierarchy IS the CRM.
+
+Adding a counterparty to the CRM is the same as creating a vault node. All contracts attached to that counterparty appear automatically.
+
+## Views
+
+- **Pipeline** — Deal-stage view across all counterparties
+- **Entity cards** — Company profile with attached vaults, contacts, and activity
+- **Communications** — Shared inbox and Smart Line (coming soon)
+
+## Built on react-admin
+
+The CRM module uses react-admin with Atomic CRM patterns. This gives you a full data table, filtering, search, and CRUD operations without custom implementation.
+
+<Card title="CRM Pipeline" href="/crm/pipeline">
+  Deal-stage kanban across all active counterparties
+</Card>

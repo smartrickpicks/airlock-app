@@ -1,0 +1,28 @@
+---
+title: Real-Time
+description: WebSocket + Redis Pub/Sub — live updates across every panel.
+---
+
+<Note>
+  **Build status:** Specced. Not yet built.
+</Note>
+
+## Overview
+
+Airlock is real-time by default. Any change to a vault — extraction complete, patch submitted, gate advanced — is broadcast immediately to all users viewing that vault.
+
+## Stack
+
+- **WebSocket** — persistent connection per client session
+- **Redis Pub/Sub** — server-side event broadcasting
+- **Topic subscriptions** — clients subscribe to specific vault and workspace topics
+
+## Auto-reconnect
+
+The client automatically reconnects on network interruption with exponential backoff. While disconnected, a banner is shown and a polling fallback fires every 30 seconds.
+
+## Event flow
+
+```
+DB write → BullMQ event → Redis Pub/Sub → WebSocket broadcast → Client state update
+```
