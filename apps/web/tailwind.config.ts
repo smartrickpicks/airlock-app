@@ -16,6 +16,7 @@ const config: Config = {
           overlay: "var(--surface-overlay)",
           sunken: "var(--surface-sunken)",
           border: "var(--surface-border)",
+          "border-subtle": "var(--surface-border-subtle)",
         },
         // Chamber colors
         chamber: {
@@ -45,6 +46,10 @@ const config: Config = {
           warning: "var(--accent-warning)",
           success: "var(--accent-success)",
         },
+        // Brand identity tokens
+        otto: "var(--otto)",
+        gold: "var(--gold)",
+        pareto: "var(--pareto)",
         // Text colors
         text: {
           primary: "var(--text-primary)",

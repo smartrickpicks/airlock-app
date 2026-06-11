@@ -48,24 +48,24 @@ Governance gate indicators use a fixed semantic palette. These colors are not co
 
 ### Font Stack
 
-| Role      | Font Family | Fallback                                                    | Usage                                                            |
-| --------- | ----------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
-| Monospace | Fira Code   | `monospace`                                                 | Timestamps, IDs, SLA countdowns, code blocks, health percentages |
-| UI Text   | Fira Sans   | `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | All labels, body text, headers, buttons, navigation              |
+| Role      | Font Family    | Fallback                                                    | Usage                                                            |
+| --------- | -------------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| Monospace | JetBrains Mono | `monospace`                                                 | Timestamps, IDs, SLA countdowns, code blocks, health percentages |
+| UI Text   | Inter          | `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` | All labels, body text, headers, buttons, navigation              |
 
 ### Type Scale
 
-| Element               | Font      | Size    | Weight                                        | Color                        |
-| --------------------- | --------- | ------- | --------------------------------------------- | ---------------------------- |
-| Module header         | Fira Sans | 15px    | 600 (semibold)                                | `--airlock-text`             |
-| Section header        | Fira Sans | 13px    | 600 (semibold)                                | `--airlock-text`             |
-| Group header          | Fira Sans | 11px    | 500 (medium), uppercase, letter-spacing 0.5px | `--airlock-muted`            |
-| Body text             | Fira Sans | 13px    | 400 (regular)                                 | `--airlock-text`             |
-| Secondary text        | Fira Sans | 12px    | 400 (regular)                                 | `--airlock-muted`            |
-| Timestamp             | Fira Code | 11px    | 400 (regular)                                 | `--airlock-muted`            |
-| SLA countdown (large) | Fira Code | 15px    | 700 (bold)                                    | Contextual (green/amber/red) |
-| Badge text            | Fira Sans | 10-11px | 700 (bold)                                    | White on red                 |
-| Button text           | Fira Sans | 13px    | 600 (semibold)                                | Contextual                   |
+| Element               | Font           | Size    | Weight                                        | Color                        |
+| --------------------- | -------------- | ------- | --------------------------------------------- | ---------------------------- |
+| Module header         | Inter          | 15px    | 600 (semibold)                                | `--text-primary`             |
+| Section header        | Inter          | 13px    | 600 (semibold)                                | `--text-primary`             |
+| Group header          | Inter          | 11px    | 500 (medium), uppercase, letter-spacing 0.5px | `--text-muted`               |
+| Body text             | Inter          | 13px    | 400 (regular)                                 | `--text-primary`             |
+| Secondary text        | Inter          | 12px    | 400 (regular)                                 | `--text-muted`               |
+| Timestamp             | JetBrains Mono | 11px    | 400 (regular)                                 | `--text-muted`               |
+| SLA countdown (large) | JetBrains Mono | 15px    | 700 (bold)                                    | Contextual (green/amber/red) |
+| Badge text            | Inter          | 10-11px | 700 (bold)                                    | White on red                 |
+| Button text           | Inter          | 13px    | 600 (semibold)                                | Contextual                   |
 
 ---
 
@@ -124,7 +124,7 @@ Small filled circles used in channel items, signal cards, and the Governance Bar
 
 | Property | Value                                                                    |
 | -------- | ------------------------------------------------------------------------ |
-| Font     | Fira Code                                                                |
+| Font     | JetBrains Mono                                                           |
 | Size     | 15px bold (Governance Bar), 13px regular (Control panel), 11px (inline)  |
 | Color    | Green (#22C55E) > 50%, Amber (#F59E0B) 25-50%, Red (#EF4444) < 25%       |
 | Pulse    | When < 10% remaining, gentle pulse animation (opacity 0.8-1.0, 2s cycle) |

@@ -13,13 +13,13 @@
  */
 
 :root {
-  /* === Surface Palette (Spec-Aligned OLED Dark) === */
-  --surface-base: #0B0E14;
-  --surface-raised: #0F1219;
-  --surface-overlay: #151923;
-  --surface-sunken: #080A0F;
-  --surface-border: #1E2330;
-  --surface-border-subtle: #161B25;
+  /* === Surface Palette (OLED Dark — brand.html anchored) === */
+  --surface-base: #07090D;
+  --surface-raised: #0C0F16;
+  --surface-overlay: #121620;
+  --surface-sunken: #04060A;
+  --surface-border: #1B2030;
+  --surface-border-subtle: #141920;
 
   /* === Chamber Colors === */
   --chamber-discover: #EF4444;
@@ -41,20 +41,25 @@
   /* === Accent Colors === */
   --accent-primary: #00D1FF;
   --accent-primary-hover: #00B8E6;
-  --accent-secondary: #6366F1;
+  --accent-secondary: #7C5CFC;  /* Otto purple */
   --accent-danger: #EF4444;
   --accent-warning: #F59E0B;
   --accent-success: #22C55E;
 
+  /* === Brand Identity Tokens === */
+  --otto: #7C5CFC;        /* Otto AI companion accent */
+  --gold: #F5A623;        /* Brand gold / highlight */
+  --pareto: #FF6B35;      /* Cost / efficiency framing */
+
   /* === Text Colors === */
-  --text-primary: #E2E8F0;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --text-inverse: #0B0E14;
+  --text-primary: #E8ECF2;
+  --text-secondary: #8B95A8;
+  --text-muted: #505A6E;
+  --text-inverse: #07090D;
 
   /* === Typography === */
-  --font-sans: var(--font-fira-sans), "Fira Sans", system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-fira-code), "Fira Code", monospace;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
 
   /* === Spacing Scale === */
   --space-xs: 0.25rem;   /* 4px */

@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
-import { Fira_Sans, Fira_Code } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import AuthProvider from "@/providers/AuthProvider";
 
-const firaSans = Fira_Sans({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-fira-sans",
+  variable: "--font-inter",
   display: "swap",
 });
 
-const firaCode = Fira_Code({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-fira-code",
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Airlock",
-  description: "Enterprise data operations platform",
+  description: "Making complex systems legible.",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${firaSans.variable} ${firaCode.variable}`}
+      className={`dark ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="bg-surface-base text-text-primary min-h-screen">
         <AuthProvider>{children}</AuthProvider>
