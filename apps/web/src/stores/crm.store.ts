@@ -9,6 +9,8 @@ import {
   type CrmLead,
   type PipelineStage,
 } from "@/lib/mock-crm";
+import { mergeDemoAccounts } from "@/stores/demo-lifecycle.store";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface CrmState {
   accounts: CrmAccount[];
@@ -36,20 +38,30 @@ export const useCrmStore = create<CrmState>((set) => ({
         leads: CrmLead[];
       }>("/api/v1/crm");
       set({
-        accounts: data.accounts,
+        accounts: mergeDemoAccounts(data.accounts),
         deals: data.deals,
         leads: data.leads,
         isLoading: false,
       });
     } catch {
-      // API not running — use mock data for dev preview
-      set({
-        accounts: MOCK_CRM_ACCOUNTS,
-        deals: MOCK_CRM_DEALS,
-        leads: MOCK_CRM_LEADS,
-        isLoading: false,
-        error: null,
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          accounts: [],
+          deals: [],
+          leads: [],
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        // API not running — use mock data for dev preview
+        set({
+          accounts: mergeDemoAccounts(MOCK_CRM_ACCOUNTS),
+          deals: MOCK_CRM_DEALS,
+          leads: MOCK_CRM_LEADS,
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
 

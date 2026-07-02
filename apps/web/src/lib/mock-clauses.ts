@@ -1,7 +1,7 @@
 /**
  * Mock clause library data for dev preview.
  * Represents a subset of the 188-clause unified library (v2).
- * Schema matches docs/specs/contract-generator/overview.md
+ * Schema matches airlock-docs repo — specs/contract-generator/overview.md (via MCP)
  */
 
 export type RiskLevel = "standard" | "elevated" | "critical" | "high";

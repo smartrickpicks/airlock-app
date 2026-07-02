@@ -1,5 +1,6 @@
 """Alembic environment configuration."""
 
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -9,16 +10,42 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# Override sqlalchemy.url from DATABASE_URL env var if set
+database_url = os.environ.get("DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url)
+
 # Import Base and all models so Alembic can detect them
 from src.db import Base  # noqa: E402
+
+# Models outside src/models/
+from src.mcp.models import McpServer, Skill  # noqa: E402, F401
+from src.messenger.models import (  # noqa: E402, F401
+    Conversation,
+    ConversationParticipant,
+    Message,
+)
 from src.models import (  # noqa: E402, F401
+    Document,
     Event,
+    McpToolPermission,
+    PasskeyCredential,
+    Patch,
+    PlaybookInstance,
+    PlaybookNodeState,
     User,
+    UserConnection,
     UserModuleRole,
+    UserProfile,
+    UserProfileChangelog,
     Vault,
     VaultMember,
     Workspace,
+    WorkspaceConfig,
+    WorkspaceMembership,
 )
+from src.otto.models import OttoMessage, OttoSession  # noqa: E402, F401
+from src.workflows.models import Workflow, WorkflowRun  # noqa: E402, F401
 
 target_metadata = Base.metadata
 

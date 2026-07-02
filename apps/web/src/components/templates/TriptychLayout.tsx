@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useCallback } from "react";
 import { useTriptychStore } from "@/stores/triptych.store";
+import { usePatchStore } from "@/stores/patch.store";
 import { useResizable } from "@/hooks/useResizable";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import SignalPanel from "@/components/organisms/SignalPanel";
@@ -82,19 +83,60 @@ export default function TriptychLayout({
     onResize: setControlWidth,
   });
 
+  // Patch store for governance bar actions
+  const { selectedPatch, transitionPatch } = usePatchStore();
+
+  const handleGovAction = useCallback(
+    (targetState: string) => {
+      if (!selectedPatch || !vaultId) return;
+      transitionPatch(
+        vaultId,
+        selectedPatch.id,
+        targetState,
+        selectedPatch.version,
+      );
+    },
+    [selectedPatch, vaultId, transitionPatch],
+  );
+
   // Determine whether we're in Artifact Focus (amber glow on Orchestrate)
   const isArtifactFocus = viewState === "artifact-focus";
   const isGateLock = viewState === "gate-lock";
 
-  // Governance bar for Gate Lock mode
+  // SLA time remaining for governance bar
+  const slaTime = (() => {
+    if (!selectedPatch?.sla_deadline) return "—";
+    const remaining =
+      new Date(selectedPatch.sla_deadline).getTime() - Date.now();
+    if (remaining <= 0) return "OVERDUE";
+    const hours = Math.floor(remaining / 3600000);
+    const minutes = Math.floor((remaining % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+  })();
+
+  const slaUrgency = (() => {
+    if (!selectedPatch?.sla_deadline) return "green" as const;
+    const remaining =
+      new Date(selectedPatch.sla_deadline).getTime() - Date.now();
+    if (remaining <= 0) return "red" as const;
+    if (remaining < 4 * 3600000) return "amber" as const;
+    return "green" as const;
+  })();
+
+  // Governance bar for Gate Lock mode — wired to patch actions
   const governanceBar = isGateLock ? (
     <GovernanceBar
       gateLabel="GATE REVIEW REQUIRED"
-      slaTimeRemaining="4h 12m"
-      onApprove={() => {}}
-      onReject={() => {}}
-      onClarify={() => {}}
-      onHold={() => {}}
+      slaTimeRemaining={slaTime}
+      slaUrgency={slaUrgency}
+      onApprove={
+        selectedPatch ? () => handleGovAction("verifier_approved") : undefined
+      }
+      onReject={selectedPatch ? () => handleGovAction("rejected") : undefined}
+      onClarify={
+        selectedPatch ? () => handleGovAction("needs_clarification") : undefined
+      }
+      onHold={selectedPatch ? () => handleGovAction("admin_hold") : undefined}
     />
   ) : null;
 
@@ -154,7 +196,7 @@ export default function TriptychLayout({
 
       {/* === Orchestrate Panel (center) === */}
       <div
-        className={`flex-1 min-w-[400px] transition-all ${
+        className={`flex-1 min-w-[400px] overflow-hidden transition-all ${
           isArtifactFocus
             ? "ring-1 ring-gate-amber/30 shadow-[0_0_20px_rgba(245,158,11,0.1)]"
             : ""

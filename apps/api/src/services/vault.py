@@ -1,6 +1,7 @@
 """Vault service — business logic for vault CRUD and hierarchy."""
 
-import re
+import asyncio
+import logging
 from datetime import UTC
 
 from sqlalchemy import select
@@ -9,6 +10,31 @@ from ulid import ULID
 
 from src.models.vault import Vault
 from src.models.vault_member import VaultMember
+from src.realtime.emitter import emit_domain_event
+from src.services.search import index_vault
+from src.services.workspace_service import slugify
+
+logger = logging.getLogger(__name__)
+
+
+def _fire_event(
+    topic: str, event_type: str, payload: dict, workspace_id: str, actor_id: str | None = None
+) -> None:
+    """Schedule an emit_domain_event call on the running event loop (fire-and-forget)."""
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(
+            emit_domain_event(
+                topic=topic,
+                event_type=event_type,
+                payload=payload,
+                workspace_id=workspace_id,
+                actor_id=actor_id,
+            )
+        )
+    except Exception:
+        logger.warning("Failed to emit %s event for topic %s", event_type, topic)
+
 
 VALID_CHAMBERS = ("discover", "build", "review", "ship")
 CHAMBER_ORDER = {c: i for i, c in enumerate(VALID_CHAMBERS)}
@@ -25,13 +51,21 @@ GATES_BY_CHAMBER: dict[str, list[str]] = {
 }
 
 
-def slugify(name: str) -> str:
-    """Convert a name to a URL-friendly slug."""
-    slug = name.lower().strip()
-    slug = re.sub(r"[^\w\s-]", "", slug)
-    slug = re.sub(r"[\s_]+", "-", slug)
-    slug = re.sub(r"-+", "-", slug)
-    return slug.strip("-")
+def _vault_to_search_dict(vault: Vault) -> dict:
+    """Convert a Vault ORM instance to a dict suitable for search indexing."""
+    return {
+        "id": vault.id,
+        "name": vault.name,
+        "metadata": vault.metadata_ or {},
+        "module_type": vault.module_type,
+        "chamber": vault.chamber,
+        "vault_level": vault.vault_level,
+        "workspace_id": vault.workspace_id,
+        "health_score": vault.health_score,
+        "archived_at": vault.archived_at,
+        "created_at": str(vault.created_at) if vault.created_at else "",
+        "updated_at": str(vault.updated_at) if vault.updated_at else "",
+    }
 
 
 def create_vault(
@@ -86,6 +120,26 @@ def create_vault(
 
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search", vault.id)
+
+    _fire_event(
+        topic=f"workspace:{workspace_id}",
+        event_type="vault.created",
+        payload={
+            "vault_id": vault.id,
+            "name": vault.name,
+            "vault_type": vault_type,
+            "module_type": module_type,
+            "chamber": vault.chamber,
+        },
+        workspace_id=workspace_id,
+        actor_id=creator_id,
+    )
+
     return vault
 
 
@@ -160,6 +214,12 @@ def update_vault(
 
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search after update", vault.id)
+
     return vault
 
 
@@ -183,6 +243,24 @@ def advance_chamber(db: Session, vault: Vault) -> Vault:
 
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search after chamber advance", vault.id)
+
+    _fire_event(
+        topic=f"vault:{vault.id}",
+        event_type="vault.chamber_advanced",
+        payload={
+            "vault_id": vault.id,
+            "from_chamber": VALID_CHAMBERS[current_idx],
+            "to_chamber": next_chamber,
+            "gate": vault.gate,
+        },
+        workspace_id=vault.workspace_id,
+    )
+
     return vault
 
 
@@ -193,4 +271,17 @@ def archive_vault(db: Session, vault: Vault) -> Vault:
     vault.archived_at = datetime.now(UTC)
     db.commit()
     db.refresh(vault)
+
+    try:
+        index_vault(_vault_to_search_dict(vault))
+    except Exception:
+        logger.warning("Failed to index vault %s in search after archive", vault.id)
+
+    _fire_event(
+        topic=f"vault:{vault.id}",
+        event_type="vault.archived",
+        payload={"vault_id": vault.id},
+        workspace_id=vault.workspace_id,
+    )
+
     return vault

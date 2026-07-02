@@ -1,17 +1,28 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useCalendarStore } from "@/stores/calendar.store";
-import MonthGrid from "@/components/organisms/MonthGrid";
-import FilterPills from "@/components/molecules/FilterPills";
-import type { CalendarEventSource } from "@/lib/mock-calendar";
+import type { CalendarEvent, CalendarEventSource } from "@/lib/mock-calendar";
+import CalendarDayModal from "@/components/organisms/CalendarDayModal";
+import CalendarEventModal from "@/components/organisms/CalendarEventModal";
 
-const SOURCE_OPTIONS = [
-  { value: "all", label: "All Modules" },
-  { value: "contracts", label: "Contracts" },
-  { value: "tasks", label: "Tasks" },
-  { value: "crm", label: "CRM" },
-  { value: "calendar", label: "Calendar" },
+const FullCalendarView = dynamic(
+  () => import("@/components/organisms/FullCalendarView"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 animate-pulse rounded-lg bg-surface-raised" />
+    ),
+  },
+);
+
+const SOURCES: { id: CalendarEventSource | "all"; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "contracts", label: "Contracts" },
+  { id: "tasks", label: "Tasks" },
+  { id: "crm", label: "CRM" },
+  { id: "calendar", label: "Calendar" },
 ];
 
 export default function CalendarMonthPage() {
@@ -20,46 +31,94 @@ export default function CalendarMonthPage() {
     isLoading,
     currentDate,
     sourceFilter,
-    getFilteredEvents,
-    navigateMonth,
     setSourceFilter,
-    setCurrentDate,
+    getFilteredEvents,
+    getEventsForDate,
   } = useCalendarStore();
+
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null,
+  );
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
 
-  const filteredEvents = getFilteredEvents();
+  const events = getFilteredEvents();
+  const dayEvents = selectedDate
+    ? getEventsForDate(selectedDate.toISOString())
+    : [];
+
+  const handleDateClick = useCallback((dateStr: string) => {
+    setSelectedDate(new Date(dateStr));
+  }, []);
+
+  const handleEventClick = useCallback(
+    (eventId: string) => {
+      const event = events.find((e) => e.id === eventId);
+      if (event) setSelectedEvent(event);
+    },
+    [events],
+  );
 
   return (
-    <div className="h-full overflow-y-auto flex flex-col gap-6 p-6">
-      <div className="flex items-start justify-between">
+    <div className="flex h-full flex-col gap-4 overflow-y-auto p-6">
+      {/* Header + filters */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-text-primary">Calendar</h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            Dates from vaults and task due dates
-          </p>
+          <h1 className="text-lg font-semibold text-text-primary">Calendar</h1>
+          <p className="text-xs text-text-muted">{events.length} events</p>
         </div>
-        <FilterPills
-          filters={SOURCE_OPTIONS}
-          activeValue={sourceFilter}
-          onChange={(v) => setSourceFilter(v as CalendarEventSource | "all")}
-        />
+        <div className="flex items-center gap-2">
+          {SOURCES.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setSourceFilter(s.id)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                sourceFilter === s.id
+                  ? "bg-accent-primary text-white"
+                  : "bg-surface-overlay text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* Calendar */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <p className="text-sm text-text-muted">Loading events...</p>
         </div>
       ) : (
-        <MonthGrid
+        <FullCalendarView
+          events={events}
           currentDate={currentDate}
-          events={filteredEvents}
-          onNavigate={navigateMonth}
-          onDateClick={(date) => setCurrentDate(date)}
+          onDateClick={handleDateClick}
+          onEventClick={handleEventClick}
         />
       )}
+
+      {/* Day modal */}
+      <CalendarDayModal
+        date={selectedDate}
+        events={dayEvents}
+        isOpen={selectedDate !== null}
+        onClose={() => setSelectedDate(null)}
+        onSelectEvent={(event) => {
+          setSelectedDate(null);
+          setSelectedEvent(event);
+        }}
+      />
+
+      {/* Event detail modal */}
+      <CalendarEventModal
+        event={selectedEvent}
+        isOpen={selectedEvent !== null}
+        onClose={() => setSelectedEvent(null)}
+      />
     </div>
   );
 }

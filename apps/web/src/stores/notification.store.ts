@@ -1,10 +1,12 @@
 import { create } from "zustand";
+import { apiFetch } from "@/lib/api";
 import type {
   Notification,
   ToastItem,
   NotificationCategory,
 } from "@/lib/mock-notifications";
 import { MOCK_NOTIFICATIONS } from "@/lib/mock-notifications";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 let toastCounter = 0;
 
@@ -25,7 +27,7 @@ interface NotificationState {
   markRead: (id: string) => void;
   markAllRead: () => void;
   dismiss: (id: string) => void;
-  fetchNotifications: () => void;
+  fetchNotifications: () => Promise<void>;
 
   // Actions — toasts
   addToast: (toast: Omit<ToastItem, "id">) => void;
@@ -65,9 +67,19 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       notifications: s.notifications.filter((n) => n.id !== id),
     })),
 
-  fetchNotifications: () => {
-    // Mock: load from static data. Will be replaced with API call.
-    set({ notifications: [...MOCK_NOTIFICATIONS] });
+  fetchNotifications: async () => {
+    try {
+      const data = await apiFetch<{ notifications: Notification[] }>(
+        "/api/v1/notifications",
+      );
+      set({ notifications: data.notifications });
+    } catch {
+      if (getWorkspaceMode() === "clean") {
+        set({ notifications: [] });
+      } else {
+        set({ notifications: [...MOCK_NOTIFICATIONS] });
+      }
+    }
   },
 
   addToast: (toast) => {

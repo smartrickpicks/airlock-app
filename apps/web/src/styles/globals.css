@@ -4,6 +4,153 @@
 
 @import "./tokens.css";
 
+/* ===================================================================
+   Airlock Animations — Ported from airlock-landing, extended for app
+   =================================================================== */
+
+/* Floating / bobbing */
+@keyframes airlock-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+/* Pulse glow (opacity breathing) */
+@keyframes airlock-pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* Shimmer sweep (skeleton loaders, button accents) */
+@keyframes airlock-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Fade in up (CSS fallback for non-FM elements) */
+@keyframes airlock-fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade in (simple) */
+@keyframes airlock-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Organic drift (orb backgrounds) */
+@keyframes airlock-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-10px, 15px) scale(0.95); }
+  75% { transform: translate(-25px, -10px) scale(1.02); }
+}
+
+/* Glow breathe (orbs) */
+@keyframes airlock-glow-breathe {
+  0%, 100% { opacity: 0.3; filter: blur(40px); }
+  50% { opacity: 0.6; filter: blur(60px); }
+}
+
+/* Gradient background shift */
+@keyframes airlock-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Beam scan line */
+@keyframes airlock-beam-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Scale in (pop) */
+@keyframes airlock-scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Utility animation classes */
+.animate-airlock-float { animation: airlock-float 6s ease-in-out infinite; }
+.animate-airlock-pulse-glow { animation: airlock-pulse-glow 4s ease-in-out infinite; }
+.animate-airlock-drift { animation: airlock-drift 8s ease-in-out infinite; }
+.animate-airlock-glow-breathe { animation: airlock-glow-breathe 4s ease-in-out infinite; }
+.animate-airlock-fade-in-up { animation: airlock-fade-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-airlock-fade-in { animation: airlock-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-airlock-scale-in { animation: airlock-scale-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 50%, var(--chamber-review) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow card hover effect */
+.glow-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+.glow-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 209, 255, 0.06), transparent 40%);
+  pointer-events: none;
+}
+.glow-card:hover::after { opacity: 1; }
+.glow-card:hover {
+  border-color: rgba(0, 209, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Grid pattern background */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(0, 209, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 209, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Stagger delay utilities (apply to children for CSS-only stagger) */
+.stagger-delay-1 { animation-delay: 0.08s; }
+.stagger-delay-2 { animation-delay: 0.16s; }
+.stagger-delay-3 { animation-delay: 0.24s; }
+.stagger-delay-4 { animation-delay: 0.32s; }
+.stagger-delay-5 { animation-delay: 0.40s; }
+.stagger-delay-6 { animation-delay: 0.48s; }
+
+/* Shimmer animation class (for Skeleton component) */
+.animate-airlock-shimmer { animation: airlock-shimmer 2s infinite; }
+
+/* ─── Reduced Motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-airlock-float,
+  .animate-airlock-pulse-glow,
+  .animate-airlock-drift,
+  .animate-airlock-glow-breathe,
+  .animate-airlock-fade-in-up,
+  .animate-airlock-fade-in,
+  .animate-airlock-scale-in,
+  .animate-airlock-shimmer {
+    animation: none !important;
+  }
+
+  .glow-card:hover {
+    transform: none;
+  }
+
+  /* Tell Framer Motion to skip animations */
+  * {
+    --framer-motion-reduced: 1;
+  }
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -38,5 +185,252 @@
 
   ::-webkit-scrollbar-thumb:hover {
     background: var(--text-muted);
+  }
+}
+
+/* ===================================================================
+   TipTap / ProseMirror — Document Viewer Content Styles
+   Scoped to .tiptap-content to avoid polluting global styles
+   =================================================================== */
+@layer components {
+  .tiptap-content .ProseMirror {
+    outline: none;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    font-size: 0.875rem;
+  }
+
+  .tiptap-content .ProseMirror > * + * {
+    margin-top: 0.85em;
+  }
+
+  /* Headings */
+  .tiptap-content .ProseMirror h1 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .tiptap-content .ProseMirror h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.35;
+    margin-top: 1.25em;
+    margin-bottom: 0.4em;
+  }
+
+  .tiptap-content .ProseMirror h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 1em;
+    margin-bottom: 0.35em;
+  }
+
+  /* Paragraph */
+  .tiptap-content .ProseMirror p {
+    color: var(--text-secondary);
+  }
+
+  .tiptap-content .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+    float: left;
+    height: 0;
+  }
+
+  /* Strong / em */
+  .tiptap-content .ProseMirror strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .tiptap-content .ProseMirror em {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  /* Lists */
+  .tiptap-content .ProseMirror ul,
+  .tiptap-content .ProseMirror ol {
+    padding-left: 1.5rem;
+    color: var(--text-secondary);
+  }
+
+  .tiptap-content .ProseMirror ul {
+    list-style-type: disc;
+  }
+
+  .tiptap-content .ProseMirror ol {
+    list-style-type: decimal;
+  }
+
+  .tiptap-content .ProseMirror li + li {
+    margin-top: 0.25em;
+  }
+
+  /* Blockquote */
+  .tiptap-content .ProseMirror blockquote {
+    border-left: 2px solid var(--accent-primary);
+    padding-left: 1rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 1em 0;
+  }
+
+  /* Horizontal rule */
+  .tiptap-content .ProseMirror hr {
+    border: none;
+    border-top: 1px solid var(--surface-border);
+    margin: 1.5em 0;
+  }
+
+  /* Inline code */
+  .tiptap-content .ProseMirror code {
+    background: var(--surface-sunken);
+    color: var(--accent-primary);
+    font-family: var(--font-mono);
+    font-size: 0.8125em;
+    padding: 0.1em 0.35em;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--surface-border);
+  }
+
+  /* Code block */
+  .tiptap-content .ProseMirror pre {
+    background: var(--surface-sunken);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+    overflow-x: auto;
+  }
+
+  .tiptap-content .ProseMirror pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  /* Links */
+  .tiptap-content .ProseMirror a {
+    color: var(--accent-primary);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent-primary) 40%, transparent);
+    text-underline-offset: 3px;
+  }
+
+  .tiptap-content .ProseMirror a:hover {
+    text-decoration-color: var(--accent-primary);
+  }
+
+  /* Selection */
+  .tiptap-content .ProseMirror ::selection {
+    background: color-mix(in srgb, var(--accent-primary) 20%, transparent);
+  }
+
+  /* ===================================================================
+     FullCalendar — Dark Theme Overrides
+     Scoped to .full-calendar-dark
+     =================================================================== */
+  .full-calendar-dark .fc {
+    --fc-border-color: var(--surface-border);
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: var(--surface-overlay);
+    --fc-list-event-hover-bg-color: var(--surface-overlay);
+    --fc-today-bg-color: rgba(99, 102, 241, 0.08);
+    --fc-event-text-color: #f5f5f5;
+    font-family: inherit;
+  }
+
+  .full-calendar-dark .fc-toolbar-title {
+    color: var(--text-primary) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+  }
+
+  .full-calendar-dark .fc-button {
+    background: var(--surface-overlay) !important;
+    border-color: var(--surface-border) !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .full-calendar-dark .fc-button-active {
+    background: var(--accent-primary) !important;
+    color: white !important;
+  }
+
+  .full-calendar-dark .fc-col-header-cell-cushion,
+  .full-calendar-dark .fc-daygrid-day-number,
+  .full-calendar-dark .fc-list-day-text,
+  .full-calendar-dark .fc-list-day-side-text {
+    color: var(--text-secondary) !important;
+    font-size: 0.75rem !important;
+  }
+
+  .full-calendar-dark .fc-daygrid-event {
+    border-radius: 4px !important;
+    font-size: 0.7rem !important;
+    padding: 1px 4px !important;
+  }
+
+  .full-calendar-dark .fc-scrollgrid {
+    border-color: var(--surface-border) !important;
+  }
+
+  /* ===================================================================
+     frappe-gantt — Dark Theme Overrides
+     =================================================================== */
+  .gantt .grid-background {
+    fill: transparent !important;
+  }
+
+  .gantt .grid-header {
+    fill: var(--surface-overlay) !important;
+    stroke: var(--surface-border) !important;
+  }
+
+  .gantt .grid-row {
+    fill: transparent !important;
+  }
+
+  .gantt .grid-row:nth-child(even) {
+    fill: rgba(255, 255, 255, 0.02) !important;
+  }
+
+  .gantt .row-line {
+    stroke: var(--surface-border) !important;
+  }
+
+  .gantt .tick {
+    stroke: var(--surface-border) !important;
+  }
+
+  .gantt .bar {
+    fill: var(--accent-primary) !important;
+    stroke: none !important;
+  }
+
+  .gantt .bar-progress {
+    fill: var(--accent-success) !important;
+  }
+
+  .gantt .bar-label {
+    fill: var(--text-primary) !important;
+    font-size: 11px !important;
+  }
+
+  .gantt .lower-text,
+  .gantt .upper-text {
+    fill: var(--text-muted) !important;
+    font-size: 11px !important;
   }
 }

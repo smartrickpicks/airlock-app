@@ -9,7 +9,6 @@
 ## Quick Start
 
 ```bash
-cd /Users/zacharyholwerda/Desktop/airlock-app
 source ~/.nvm/nvm.sh && nvm use 20
 pnpm dev           # Dev server at localhost:3000
 pnpm type-check    # TypeScript check (NOT npx tsc)
@@ -34,8 +33,8 @@ Enterprise data ops platform. Discord-like interface for contract lifecycle mana
 apps/web/     — Next.js 14 (App Router, TypeScript, Zustand, Tailwind)
 apps/api/     — FastAPI (Python, PostgreSQL 16, Redis 7) — NOT RUNNING YET
 packages/shared-types/ — OpenAPI-generated TS client
-docs/specs/   — Design specs (source of truth)
 docs/plans/   — Implementation plans per milestone
+# Specs, concepts, registries → airlock-docs repo (via MCP)
 ```
 
 ---
@@ -112,7 +111,7 @@ Real API integration comes in M25 (engine ports from OrcestrateOS).
 
 ## How to Build a Milestone
 
-1. **Read spec:** `docs/specs/<feature>/overview.md` + sub-specs
+1. **Read spec:** `airlock-docs/specs/<feature>/overview.md` + sub-specs (via MCP)
 2. **Write plan:** Use `writing-plans` skill, save to `docs/plans/YYYY-MM-DD-<feature>.md`
 3. **Execute:** Use `subagent-driven-development` skill (user always picks option 1)
    - Fresh subagent per task, parallel dispatch for independent tasks
@@ -130,8 +129,8 @@ Real API integration comes in M25 (engine ports from OrcestrateOS).
 | Project rules      | `CLAUDE.md`                                            |
 | Web rules          | `apps/web/CLAUDE.md`                                   |
 | Design tokens      | `apps/web/src/styles/tokens.css`                       |
-| Specs index        | `docs/specs/start.md`                                  |
-| Component registry | `docs/registry/components.json`                        |
+| Specs index        | `airlock-docs/specs/start.md` (via MCP)                |
+| Component registry | `airlock-docs/registry/components.json` (via MCP)      |
 | Plans              | `docs/plans/`                                          |
 | Mock data          | `apps/web/src/lib/mock-*.ts`                           |
 | Stores             | `apps/web/src/stores/*.store.ts`                       |
@@ -151,7 +150,7 @@ Real API integration comes in M25 (engine ports from OrcestrateOS).
 3. **No raw colors:** Tailwind tokens from `tokens.css` only
 4. **App Router only:** No Pages Router, no getServerSideProps
 5. **`"use client"`:** Required for components with hooks/state
-6. **Specs first:** Read `docs/specs/<feature>/overview.md` before implementing
+6. **Specs first:** Read `airlock-docs/specs/<feature>/overview.md` (via MCP) before implementing
 7. **CRM = vault hierarchy:** Never create separate CRM database tables
 8. **Commits:** Conventional format, end with `Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>`
 9. **Commitlint quirks:** "deps" scope fails, use `build(web):` instead; "auth" scope fails, use "roles"

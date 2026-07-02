@@ -448,7 +448,7 @@ Here's the full picture for each chamber, with functional roles and their defaul
 │                    │ │ "Label" ←────│──│ [Worldwide]   │
 │                    │ │ "Artist" ←───│──│               │
 │                    │ └──────────────┘  │ Parties       │
-│                    │                    │ Self: CMG     │
+│                    │                    │ Self: CEG     │
 │                    │                    │ Cpty: DJ Nova │
 └────────────────────┴────────────────────┴───────────────┘
 ```
@@ -505,9 +505,9 @@ Here's the full picture for each chamber, with functional roles and their defaul
 │ ☑ Contract type    │ ┌──────────┬──────────┬──────────┐   │
 │ ☑ Territory        │ │ Deal     │ Value    │ Entity   │   │
 │ ☑ Counterparty     │ ├──────────┼──────────┼──────────┤   │
-│ ☑ Effective date   │ │ Acme Dist│ $2.4M    │ CMG Rec  │   │
-│ ⚠ Deal value (est) │ │ Summit   │ $1.1M    │ CMG Pub  │   │
-│                    │ │ Horizon  │ $800K    │ CMG Rec  │   │
+│ ☑ Effective date   │ │ Acme Dist│ $2.4M    │ CEG Rec  │   │
+│ ⚠ Deal value (est) │ │ Summit   │ $1.1M    │ CEG Pub  │   │
+│                    │ │ Horizon  │ $800K    │ CEG Rec  │   │
 │ Last refresh:      │ └──────────┴──────────┴──────────┘   │
 │ 2 min ago          │                                       │
 │                    │ [Export CSV] [Export to HubSpot]       │

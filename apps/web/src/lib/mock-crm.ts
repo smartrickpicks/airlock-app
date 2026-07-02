@@ -18,16 +18,93 @@ export type LeadStage = "new" | "mql" | "sal" | "sql";
 export type LeadSource =
   | "contract_upload"
   | "web_form"
+  | "website_form"
   | "smart_line"
   | "entity_resolution"
-  | "referral";
+  | "referral"
+  | "manual_rep_entry"
+  | "dedicated_text"
+  | "meeting_transcript";
 
 export type AccountSegment = "enterprise" | "mid_market" | "smb";
+
+export type StakeholderRole =
+  | "champion"
+  | "decision_maker"
+  | "legal"
+  | "finance"
+  | "procurement"
+  | "evaluator"
+  | "influencer";
+
+export interface AccountMemoryEntry {
+  id: string;
+  channelType: string;
+  direction: string;
+  visibility: string;
+  title: string;
+  body: string;
+  actorName: string;
+  createdAt: string;
+  targetLabel?: string;
+  workflowName?: string;
+  approvalState?: string;
+  linkedArtifactIds?: string[];
+}
+
+export interface AccountArtifact {
+  id: string;
+  label: string;
+  type: string;
+  status: string;
+  updatedAt: string;
+}
+
+export interface Stakeholder {
+  id: string;
+  contactId?: string;
+  name: string;
+  roleTitle: string;
+  stakeholderRole: StakeholderRole;
+  influence: string;
+  status: string;
+  sentiment: string;
+  decisionRole: string;
+  ownerName: string;
+  notes: string;
+  channelLabels: string[];
+  lastTouched: string;
+}
+
+export interface StakeholderGroup {
+  id: string;
+  name: string;
+  description: string;
+  members: string[];
+  channelModes: string[];
+}
+
+export interface AccountMemoryWorkspaceData {
+  label: string;
+  conceptBadge?: string;
+  primaryOwnerName: string;
+  pendingApprovals: number;
+  openActionItems: number;
+  nextRecommendedAction: string;
+  stakeholderGap?: string;
+  thread: AccountMemoryEntry[];
+  stakeholders: Stakeholder[];
+  stakeholderGroups: StakeholderGroup[];
+  artifacts: AccountArtifact[];
+  aiAssist: { id: string; title: string; detail: string; confidence: string }[];
+}
 
 export interface CrmContact {
   id: string;
   name: string;
   role: string;
+  email?: string;
+  phone?: string;
   interactionCount: number;
   lastInteraction: string;
 }
@@ -42,6 +119,14 @@ export interface CrmAccount {
   totalValue: number;
   contacts: CrmContact[];
   lastContact: string;
+  currentChamber?: string;
+  contractReadiness?: string;
+  accountMemory?: AccountMemoryWorkspaceData;
+  latestSummary?: string;
+  workflowName?: string;
+  primaryOwnerName?: string;
+  pendingGateCount?: number;
+  nextRecommendedAction?: string;
 }
 
 export interface CrmDeal {
@@ -57,6 +142,13 @@ export interface CrmDeal {
   daysInStage: number;
   progressPercent: number;
   nextTask: string | null;
+  currentChamber?: string;
+  contractReadiness?: string;
+  latestSummary?: string;
+  nextRecommendedAction?: string;
+  workflowName?: string;
+  pendingGateCount?: number;
+  intakeSource?: LeadSource;
 }
 
 export interface CrmLead {
@@ -68,6 +160,11 @@ export interface CrmLead {
   stage: LeadStage;
   assignedRep: string | null;
   ageDays: number;
+  currentChamber?: string;
+  contractReadiness?: string;
+  latestSummary?: string;
+  nextRecommendedAction?: string;
+  workflowName?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -82,7 +179,11 @@ function hoursAgo(n: number): string {
 
 // ─── Pipeline Stage Config ───────────────────────────────────────
 
-export const PIPELINE_STAGES: { id: PipelineStage; label: string; color: string }[] = [
+export const PIPELINE_STAGES: {
+  id: PipelineStage;
+  label: string;
+  color: string;
+}[] = [
   { id: "prospecting", label: "Prospecting", color: "bg-accent-primary" },
   { id: "discovery", label: "Discovery", color: "bg-accent-secondary" },
   { id: "proposal", label: "Proposal", color: "bg-chamber-review" },
@@ -93,12 +194,19 @@ export const PIPELINE_STAGES: { id: PipelineStage; label: string; color: string 
 export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
   contract_upload: "Contract Upload",
   web_form: "Web Form",
+  website_form: "Website Form",
   smart_line: "Smart Line",
   entity_resolution: "Entity Resolution",
   referral: "Referral",
+  manual_rep_entry: "Manual Rep Entry",
+  dedicated_text: "Dedicated Text",
+  meeting_transcript: "Meeting Transcript",
 };
 
-export const LEAD_STAGE_CONFIG: Record<LeadStage, { label: string; color: string }> = {
+export const LEAD_STAGE_CONFIG: Record<
+  LeadStage,
+  { label: string; color: string }
+> = {
   new: { label: "New", color: "bg-text-muted" },
   mql: { label: "MQL", color: "bg-accent-primary" },
   sal: { label: "SAL", color: "bg-accent-secondary" },
@@ -116,72 +224,161 @@ export const SEGMENT_LABELS: Record<AccountSegment, string> = {
 export const MOCK_CRM_ACCOUNTS: CrmAccount[] = [
   {
     id: "acct_001",
-    name: "Nova Entertainment",
+    name: "Empire Distribution",
     segment: "enterprise",
-    healthScore: 82,
-    healthTrend: 3,
+    healthScore: 88,
+    healthTrend: 5,
     dealCount: 2,
-    totalValue: 180000,
+    totalValue: 170000,
     contacts: [
-      { id: "cnt_001", name: "Jack Chen", role: "Biz Dev", interactionCount: 12, lastInteraction: hoursAgo(0.2) },
-      { id: "cnt_002", name: "Sarah Kim", role: "Legal", interactionCount: 5, lastInteraction: daysAgo(3) },
-      { id: "cnt_003", name: "Mike Torres", role: "CFO", interactionCount: 1, lastInteraction: daysAgo(1) },
+      {
+        id: "cnt_001",
+        name: "Marcus Webb",
+        role: "A&R Director",
+        interactionCount: 15,
+        lastInteraction: hoursAgo(2),
+      },
+      {
+        id: "cnt_002",
+        name: "Priya Shah",
+        role: "Contracts Manager",
+        interactionCount: 8,
+        lastInteraction: daysAgo(2),
+      },
+      {
+        id: "cnt_003",
+        name: "Daniel Reeves",
+        role: "VP Distribution",
+        interactionCount: 3,
+        lastInteraction: daysAgo(5),
+      },
     ],
-    lastContact: hoursAgo(0.2),
+    lastContact: hoursAgo(2),
+    currentChamber: "build",
+    contractReadiness: "terms_pending",
+    latestSummary:
+      "Two active deals — Nova Lux worldwide distro shipped, Barclay direct distro in discovery. Strong relationship.",
+    primaryOwnerName: "Luna Torres",
+    pendingGateCount: 1,
   },
   {
     id: "acct_002",
-    name: "Acme Inc",
+    name: "Nettwerk Music Group",
     segment: "mid_market",
-    healthScore: 91,
-    healthTrend: 1,
+    healthScore: 74,
+    healthTrend: -3,
     dealCount: 1,
-    totalValue: 85000,
+    totalValue: 18000,
     contacts: [
-      { id: "cnt_004", name: "Sarah Kim", role: "Billing", interactionCount: 3, lastInteraction: daysAgo(2) },
-      { id: "cnt_005", name: "Tom Barker", role: "Ops", interactionCount: 1, lastInteraction: daysAgo(5) },
+      {
+        id: "cnt_004",
+        name: "Jamie Ortiz",
+        role: "Sync Supervisor",
+        interactionCount: 6,
+        lastInteraction: daysAgo(1),
+      },
+      {
+        id: "cnt_005",
+        name: "Cass Nguyen",
+        role: "Creative Director",
+        interactionCount: 2,
+        lastInteraction: daysAgo(6),
+      },
     ],
-    lastContact: daysAgo(2),
+    lastContact: daysAgo(1),
+    currentChamber: "build",
+    contractReadiness: "extraction_complete",
+    latestSummary:
+      "Jay Solis Netflix sync in extraction. $18K non-exclusive. Need Mia's approval on fee.",
+    primaryOwnerName: "Kai Nakamura",
+    pendingGateCount: 1,
   },
   {
     id: "acct_003",
-    name: "Summit Media",
+    name: "Redbull Records",
     segment: "enterprise",
-    healthScore: 54,
-    healthTrend: -12,
+    healthScore: 65,
+    healthTrend: -8,
     dealCount: 1,
-    totalValue: 240000,
+    totalValue: 35000,
     contacts: [
-      { id: "cnt_006", name: "Rachel Adams", role: "VP Partnerships", interactionCount: 8, lastInteraction: daysAgo(14) },
+      {
+        id: "cnt_006",
+        name: "Tomas Hale",
+        role: "Brand Partnerships Lead",
+        interactionCount: 4,
+        lastInteraction: daysAgo(3),
+      },
+      {
+        id: "cnt_007",
+        name: "Lena Park",
+        role: "Event Producer",
+        interactionCount: 2,
+        lastInteraction: daysAgo(7),
+      },
     ],
-    lastContact: daysAgo(14),
+    lastContact: daysAgo(3),
+    currentChamber: "build",
+    contractReadiness: "preflight_pending",
+    latestSummary:
+      "Portals Sound Stage deal through preflight. Waiting on brand guidelines upload. Timeline is tight.",
+    primaryOwnerName: "Luna Torres",
+    pendingGateCount: 1,
   },
   {
     id: "acct_004",
-    name: "Ostereo Music Group",
-    segment: "enterprise",
-    healthScore: 78,
-    healthTrend: -2,
+    name: "Boiler Room",
+    segment: "mid_market",
+    healthScore: 82,
+    healthTrend: 2,
     dealCount: 1,
-    totalValue: 180000,
+    totalValue: 5000,
     contacts: [
-      { id: "cnt_007", name: "Daniele Leoni", role: "A&R", interactionCount: 15, lastInteraction: daysAgo(1) },
-      { id: "cnt_008", name: "Marco Bianchi", role: "Legal", interactionCount: 4, lastInteraction: daysAgo(7) },
+      {
+        id: "cnt_008",
+        name: "Zara Mills",
+        role: "Booking Manager",
+        interactionCount: 3,
+        lastInteraction: daysAgo(4),
+      },
+      {
+        id: "cnt_009",
+        name: "Nico Bauer",
+        role: "Content Producer",
+        interactionCount: 1,
+        lastInteraction: daysAgo(8),
+      },
     ],
-    lastContact: daysAgo(1),
+    lastContact: daysAgo(4),
+    currentChamber: "discover",
+    contractReadiness: "intake_pending",
+    latestSummary:
+      "Nova Lux Berlin set recording. Performance license in triage. SLA warning — 4 days without response.",
+    primaryOwnerName: "Luna Torres",
   },
   {
     id: "acct_005",
-    name: "TechFlow Inc",
+    name: "AWAL",
     segment: "smb",
-    healthScore: 65,
-    healthTrend: 0,
+    healthScore: 91,
+    healthTrend: 4,
     dealCount: 1,
-    totalValue: 60000,
+    totalValue: 8000,
     contacts: [
-      { id: "cnt_009", name: "Alex Turner", role: "CEO", interactionCount: 2, lastInteraction: daysAgo(3) },
+      {
+        id: "cnt_010",
+        name: "River Kim",
+        role: "Artist Services Rep",
+        interactionCount: 10,
+        lastInteraction: hoursAgo(18),
+      },
     ],
-    lastContact: daysAgo(3),
+    lastContact: hoursAgo(18),
+    currentChamber: "review",
+    contractReadiness: "gatekeeper_review",
+    latestSummary:
+      "Barclay Urban Fauna EP in gatekeeper review. Royalty split at 85/15 confirmed. Clean deal.",
+    primaryOwnerName: "Kai Nakamura",
   },
 ];
 
@@ -190,87 +387,88 @@ export const MOCK_CRM_ACCOUNTS: CrmAccount[] = [
 export const MOCK_CRM_DEALS: CrmDeal[] = [
   {
     id: "deal_001",
-    accountName: "Nova Entertainment",
-    vaultSlug: "henderson-msa",
-    title: "Henderson MSA",
+    accountName: "Empire Distribution",
+    vaultSlug: "barclay-direct-distro",
+    title: "Barclay — Direct Distribution",
     value: 120000,
     stage: "prospecting",
-    assignedRep: "Sarah Miller",
-    taskCount: 3,
-    overdueTaskCount: 1,
-    daysInStage: 5,
-    progressPercent: 40,
-    nextTask: "Send proposal",
+    assignedRep: "Luna Torres",
+    taskCount: 2,
+    overdueTaskCount: 0,
+    daysInStage: 3,
+    progressPercent: 15,
+    nextTask: "Review Empire terms",
+    currentChamber: "discover",
   },
   {
     id: "deal_002",
-    accountName: "TechFlow Inc",
-    vaultSlug: "techflow-dist",
-    title: "TechFlow Distribution",
-    value: 60000,
-    stage: "prospecting",
-    assignedRep: "",
-    taskCount: 0,
+    accountName: "Empire Distribution",
+    vaultSlug: "nova-lux-empire-distro",
+    title: "Nova Lux — Worldwide Distribution",
+    value: 50000,
+    stage: "close",
+    assignedRep: "Mia Okafor",
+    taskCount: 1,
     overdueTaskCount: 0,
-    daysInStage: 1,
-    progressPercent: 0,
-    nextTask: null,
+    daysInStage: 2,
+    progressPercent: 95,
+    nextTask: "Export finalized agreement",
   },
   {
     id: "deal_003",
-    accountName: "Acme Inc",
-    vaultSlug: "acme-license",
-    title: "Acme License Agreement",
-    value: 85000,
-    stage: "discovery",
-    assignedRep: "Ana Chen",
+    accountName: "Nettwerk Music Group",
+    vaultSlug: "jay-solis-nettwerk-sync",
+    title: "Jay Solis — Netflix Sync",
+    value: 18000,
+    stage: "negotiation",
+    assignedRep: "Kai Nakamura",
     taskCount: 2,
-    overdueTaskCount: 0,
-    daysInStage: 12,
-    progressPercent: 60,
-    nextTask: "Schedule demo",
+    overdueTaskCount: 1,
+    daysInStage: 5,
+    progressPercent: 65,
+    nextTask: "Approve sync fee",
   },
   {
     id: "deal_004",
-    accountName: "Summit Media",
-    vaultSlug: "summit-msa",
-    title: "Summit Master Agreement",
-    value: 240000,
+    accountName: "Redbull Records",
+    vaultSlug: "portals-redbull-stage",
+    title: "The Portals — Sound Stage",
+    value: 35000,
     stage: "proposal",
-    assignedRep: "Sarah Miller",
-    taskCount: 4,
+    assignedRep: "Luna Torres",
+    taskCount: 1,
     overdueTaskCount: 0,
-    daysInStage: 8,
-    progressPercent: 50,
-    nextTask: "Finalize pricing",
+    daysInStage: 7,
+    progressPercent: 40,
+    nextTask: "Upload brand guidelines",
   },
   {
     id: "deal_005",
-    accountName: "Ostereo Music Group",
-    vaultSlug: "ostereo-msa",
-    title: "Ostereo Master Services",
-    value: 180000,
+    accountName: "AWAL",
+    vaultSlug: "barclay-awal-release",
+    title: "Barclay — Urban Fauna EP",
+    value: 8000,
     stage: "close",
-    assignedRep: "David Park",
+    assignedRep: "Kai Nakamura",
     taskCount: 1,
     overdueTaskCount: 0,
-    daysInStage: 21,
+    daysInStage: 1,
     progressPercent: 90,
-    nextTask: "Final signature",
+    nextTask: "Final gatekeeper sign-off",
   },
   {
     id: "deal_006",
-    accountName: "Nova Entertainment",
-    vaultSlug: "nova-q2-expansion",
-    title: "Nova Q2 Expansion",
-    value: 60000,
+    accountName: "Boiler Room",
+    vaultSlug: "nova-lux-boiler-room",
+    title: "Nova Lux — Berlin Set Recording",
+    value: 5000,
     stage: "discovery",
-    assignedRep: "Ana Chen",
+    assignedRep: "Luna Torres",
     taskCount: 1,
-    overdueTaskCount: 0,
-    daysInStage: 3,
+    overdueTaskCount: 1,
+    daysInStage: 4,
     progressPercent: 20,
-    nextTask: "Needs assessment",
+    nextTask: "Respond to performance license",
   },
 ];
 
@@ -279,83 +477,43 @@ export const MOCK_CRM_DEALS: CrmDeal[] = [
 export const MOCK_CRM_LEADS: CrmLead[] = [
   {
     id: "lead_001",
-    name: "TechFlow Inc",
-    matchStatus: "matched",
-    source: "contract_upload",
+    name: "Splice Sample Pack Collab",
+    matchStatus: "unmatched",
+    source: "web_form",
     score: 72,
-    stage: "new",
-    assignedRep: null,
-    ageDays: 3,
+    stage: "mql",
+    assignedRep: "Luna Torres",
+    ageDays: 8,
   },
   {
     id: "lead_002",
-    name: "Lisa Park",
-    matchStatus: "unmatched",
-    source: "web_form",
-    score: null,
+    name: "Toyota Commercial Sync — Jay Solis",
+    matchStatus: "matched",
+    source: "referral",
+    score: 88,
+    stage: "sql",
+    assignedRep: "Kai Nakamura",
+    ageDays: 3,
+  },
+  {
+    id: "lead_003",
+    name: "Coachella Booking Inquiry — The Portals",
+    matchStatus: "unknown",
+    source: "meeting_transcript",
+    score: 45,
     stage: "new",
     assignedRep: null,
     ageDays: 1,
   },
   {
-    id: "lead_003",
-    name: "+1-555-0199",
-    matchStatus: "unknown",
-    source: "smart_line",
-    score: null,
-    stage: "new",
-    assignedRep: null,
-    ageDays: 0,
-  },
-  {
     id: "lead_004",
-    name: "MediaWorks LLC",
-    matchStatus: "matched",
-    source: "entity_resolution",
-    score: 65,
-    stage: "mql",
-    assignedRep: "Ana Chen",
-    ageDays: 5,
-  },
-  {
-    id: "lead_005",
-    name: "Pinnacle Partners",
-    matchStatus: "matched",
-    source: "referral",
-    score: 81,
+    name: "Pudgy Penguins Community Event",
+    matchStatus: "unmatched",
+    source: "web_form",
+    score: 60,
     stage: "sal",
-    assignedRep: "Sarah Miller",
-    ageDays: 7,
-  },
-  {
-    id: "lead_006",
-    name: "Cascade Audio",
-    matchStatus: "matched",
-    source: "entity_resolution",
-    score: 58,
-    stage: "new",
-    assignedRep: null,
-    ageDays: 2,
-  },
-  {
-    id: "lead_007",
-    name: "Rhythm & Blues Publishing",
-    matchStatus: "matched",
-    source: "contract_upload",
-    score: 44,
-    stage: "new",
-    assignedRep: null,
-    ageDays: 4,
-  },
-  {
-    id: "lead_008",
-    name: "Vertex Studios",
-    matchStatus: "matched",
-    source: "referral",
-    score: 88,
-    stage: "sql",
-    assignedRep: "Sarah Miller",
-    ageDays: 10,
+    assignedRep: "Luna Torres",
+    ageDays: 5,
   },
 ];
 
@@ -367,3 +525,27 @@ export const MOCK_CRM_REPS = [
   "David Park",
   "Marcus Webb",
 ];
+
+export const CHAMBER_LABELS: Record<string, string> = {
+  discover: "Discover",
+  build: "Build",
+  review: "Review",
+  ship: "Ship",
+};
+
+export const CONTRACT_READINESS_LABELS: Record<string, string> = {
+  not_started: "Not Started",
+  in_progress: "In Progress",
+  ready: "Ready",
+  blocked: "Blocked",
+};
+
+export const STAKEHOLDER_ROLE_LABELS: Record<StakeholderRole, string> = {
+  champion: "Champion",
+  decision_maker: "Decision Maker",
+  legal: "Legal",
+  finance: "Finance",
+  procurement: "Procurement",
+  evaluator: "Evaluator",
+  influencer: "Influencer",
+};

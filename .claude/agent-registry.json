@@ -1,0 +1,74 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-03-08T00:00:00Z",
+  "agents": [
+    {
+      "branch": "claude/brand-crm-features-YAE4f",
+      "domain": "crm-admin",
+      "description": "CRM polish, admin tree walk, feature flags, seed data, capability tree",
+      "owned_paths": [
+        "apps/web/src/stores/crm.store.ts",
+        "apps/web/src/stores/admin.store.ts",
+        "apps/web/src/stores/capability-tree.store.ts",
+        "apps/web/src/app/(shell)/(modules)/crm/",
+        "apps/web/src/app/(shell)/admin/ai-provider/",
+        "apps/web/src/app/(shell)/admin/audit-log/",
+        "apps/web/src/app/(shell)/admin/data-source/",
+        "apps/web/src/app/(shell)/admin/features/",
+        "apps/web/src/app/(shell)/admin/integrations/",
+        "apps/web/src/app/(shell)/admin/members/",
+        "apps/web/src/app/(shell)/admin/modules/",
+        "apps/web/src/app/(shell)/admin/roles/",
+        "apps/web/src/app/(shell)/admin/settings/",
+        "apps/web/src/app/(shell)/admin/workspace/",
+        "apps/web/src/components/organisms/FeatureFlags.tsx",
+        "apps/web/src/lib/mock-admin.ts",
+        "apps/web/src/lib/mock-crm.ts",
+        "scripts/seeds/"
+      ],
+      "shared_files": [
+        "apps/web/src/lib/constants.ts",
+        "apps/web/src/styles/tokens.css",
+        "airlock-docs/registry/components.json"
+      ],
+      "claimed_at": "2026-03-08T00:00:00Z",
+      "last_active": "2026-03-08T00:00:00Z",
+      "status": "active"
+    },
+    {
+      "branch": "claude/otto-agentic-layer-<session-id>",
+      "domain": "otto-agentic",
+      "description": "Otto AI, Messenger, Workflow Builder, WebSocket/Realtime, Event Bus, MCP, Skills",
+      "owned_paths": [
+        "apps/web/src/stores/otto.store.ts",
+        "apps/web/src/stores/messenger.store.ts",
+        "apps/web/src/stores/workflow.store.ts",
+        "apps/web/src/stores/realtime.store.ts",
+        "apps/web/src/stores/event-bus.store.ts",
+        "apps/web/src/components/organisms/OttoChat.tsx",
+        "apps/web/src/components/organisms/OttoDrawer.tsx",
+        "apps/web/src/components/organisms/MessengerDrawer.tsx",
+        "apps/web/src/components/organisms/WorkflowCanvas.tsx",
+        "apps/web/src/components/organisms/EventBusMonitor.tsx",
+        "apps/web/src/app/(shell)/admin/otto/",
+        "apps/web/src/app/(shell)/admin/mcp-servers/",
+        "apps/web/src/app/(shell)/admin/skills/",
+        "apps/web/src/app/(shell)/admin/workflows/",
+        "apps/web/src/lib/mock-otto.ts",
+        "apps/web/src/lib/mock-messenger.ts",
+        "apps/web/src/lib/mock-workflows.ts",
+        "apps/web/src/lib/mock-event-bus.ts",
+        "apps/web/src/lib/mock-realtime.ts",
+        "apps/api/"
+      ],
+      "shared_files": [
+        "apps/web/src/lib/constants.ts",
+        "apps/web/src/styles/tokens.css",
+        "airlock-docs/registry/components.json"
+      ],
+      "claimed_at": "2026-03-08T00:00:00Z",
+      "last_active": "2026-03-08T00:00:00Z",
+      "status": "pending"
+    }
+  ]
+}

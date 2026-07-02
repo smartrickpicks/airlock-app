@@ -9,7 +9,7 @@
  *   Review   = purple (#A855F7)
  *   Ship     = green  (#22C55E)
  *
- * Source of truth: docs/specs/shell/theme.md
+ * Source of truth: airlock-docs repo — specs/shell/theme.md (via MCP)
  */
 
 :root {
@@ -82,6 +82,12 @@
   --z-toast: 500;
   --z-tooltip: 600;
 
+  /* === Glassmorphic Surfaces === */
+  --surface-glass: rgba(21, 25, 35, 0.72);
+  --surface-glass-toolbar: rgba(15, 18, 25, 0.88);
+  --surface-glass-border: rgba(30, 35, 48, 0.5);
+  --surface-glass-highlight: rgba(255, 255, 255, 0.04);
+
   /* === Triptych Layout === */
   --triptych-signal-width: 280px;
   --triptych-control-width: 300px;
@@ -102,4 +108,16 @@
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
   --transition-panel: 300ms ease-in-out;
+
+  /* === Easing Curves === */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* === Animation Durations === */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-entrance: 400ms;
 }

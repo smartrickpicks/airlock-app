@@ -9,6 +9,11 @@ import {
   type FeedItem,
   type SignalType,
 } from "@/lib/mock-review-queue";
+import {
+  mergeDemoReviewFeedItems,
+  mergeDemoReviewParentVaults,
+} from "@/stores/demo-lifecycle.store";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface ReviewQueueState {
   parentVaults: ParentVaultCard[];
@@ -53,20 +58,30 @@ export const useReviewQueueStore = create<ReviewQueueState>((set) => ({
         feedItems: FeedItem[];
       }>("/api/v1/contracts/review-queue");
       set({
-        parentVaults: data.parentVaults,
+        parentVaults: mergeDemoReviewParentVaults(data.parentVaults),
         signals: data.signals,
-        feedItems: data.feedItems,
+        feedItems: mergeDemoReviewFeedItems(data.feedItems),
         isLoading: false,
       });
     } catch {
-      // API not running — use mock data for dev preview
-      set({
-        parentVaults: MOCK_PARENT_VAULTS,
-        signals: MOCK_HANDOFF_SIGNALS,
-        feedItems: MOCK_FEED_ITEMS,
-        isLoading: false,
-        error: null,
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          parentVaults: [],
+          signals: [],
+          feedItems: [],
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        // API not running — use mock data for dev preview
+        set({
+          parentVaults: mergeDemoReviewParentVaults(MOCK_PARENT_VAULTS),
+          signals: MOCK_HANDOFF_SIGNALS,
+          feedItems: mergeDemoReviewFeedItems(MOCK_FEED_ITEMS),
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
 

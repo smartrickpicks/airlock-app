@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airlock Readiness Audit — Synthetic User Testing</title>
+<style>
+  :root {
+    --bg-0: #08080d;
+    --bg-1: #0e0e16;
+    --bg-2: #14141e;
+    --bg-3: #1c1c2a;
+    --bg-card: #121219;
+    --border: #252538;
+    --border-light: #30304a;
+    --text-1: #eaeaf2;
+    --text-2: #9898b0;
+    --text-3: #606078;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --orange: #fb923c;
+    --cyan: #22d3ee;
+    --discover-red: #ff4d6a;
+    --build-yellow: #ffd666;
+    --review-purple: #a78bfa;
+    --ship-green: #52c98b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-0);
+    color: var(--text-1);
+    line-height: 1.65;
+  }
+
+  .hero {
+    background: linear-gradient(160deg, #120818 0%, #0a0a18 40%, #081018 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 56px 40px 48px;
+  }
+  .hero-inner { max-width: 1140px; margin: 0 auto; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.25);
+    border-radius: 20px; padding: 5px 16px;
+    font-size: 11px; color: var(--blue); font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 34px; font-weight: 800; margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--text-1) 0%, var(--purple) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p { color: var(--text-2); font-size: 15px; max-width: 720px; }
+  .hero-meta {
+    display: flex; gap: 28px; margin-top: 20px;
+    font-size: 12px; color: var(--text-3); flex-wrap: wrap;
+  }
+
+  .content { max-width: 1140px; margin: 0 auto; padding: 40px; }
+
+  .overview-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 40px;
+  }
+  .ov-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; text-align: center;
+  }
+  .ov-card .ov-score { font-size: 40px; font-weight: 900; line-height: 1; }
+  .ov-card .ov-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .ov-card .ov-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+  .persona-section { margin-bottom: 52px; }
+  .persona-header {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
+  }
+  .persona-avatar {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .persona-avatar.builder { background: rgba(255, 214, 102, 0.12); }
+  .persona-avatar.gatekeeper { background: rgba(167, 139, 250, 0.12); }
+  .persona-avatar.owner { background: rgba(82, 201, 139, 0.12); }
+  .persona-avatar.otto { background: rgba(96, 165, 250, 0.12); }
+  .persona-header h2 { font-size: 22px; font-weight: 700; }
+  .persona-header .persona-role { font-size: 13px; color: var(--text-2); }
+
+  .wf-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 860px) { .wf-grid { grid-template-columns: 1fr; } }
+
+  .wf-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .wf-card:hover { border-color: var(--border-light); }
+  .wf-card-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; user-select: none;
+  }
+  .wf-status {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .wf-status.green { background: var(--green); box-shadow: 0 0 8px rgba(52, 211, 153, 0.3); }
+  .wf-status.yellow { background: var(--yellow); }
+  .wf-status.red { background: var(--red); }
+  .wf-name { font-size: 14px; font-weight: 600; flex: 1; }
+  .wf-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 4px;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .wf-tag.works { background: rgba(52, 211, 153, 0.12); color: var(--green); }
+  .wf-tag.partial { background: rgba(251, 191, 36, 0.12); color: var(--yellow); }
+  .wf-tag.missing { background: rgba(248, 113, 113, 0.12); color: var(--red); }
+  .wf-toggle { color: var(--text-3); font-size: 12px; transition: transform 0.2s; }
+  .wf-card.open .wf-toggle { transform: rotate(90deg); }
+  .wf-body {
+    display: none; padding: 0 16px 14px;
+    font-size: 13px; color: var(--text-2); line-height: 1.7;
+  }
+  .wf-card.open .wf-body { display: block; }
+  .wf-body p { margin-bottom: 8px; }
+  .wf-body code {
+    background: var(--bg-3); padding: 1px 5px; border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--yellow);
+  }
+  .wf-body ul { margin: 6px 0 10px 20px; }
+  .wf-body li { margin-bottom: 4px; }
+  .wf-body .exists { color: var(--green); font-weight: 600; }
+  .wf-body .missing { color: var(--red); font-weight: 600; }
+  .wf-body .partial { color: var(--yellow); font-weight: 600; }
+
+  .verdict-banner {
+    background: var(--bg-2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px; margin-top: 16px;
+    font-size: 13px;
+  }
+  .verdict-banner strong { color: var(--text-1); }
+
+  .matrix-table {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin: 20px 0;
+  }
+  .matrix-table th {
+    text-align: left; padding: 10px 12px; background: var(--bg-3);
+    border: 1px solid var(--border); color: var(--text-3);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
+  }
+  .matrix-table td {
+    padding: 10px 12px; border: 1px solid var(--border); color: var(--text-2);
+  }
+
+  .plan-section {
+    margin-top: 56px; padding-top: 40px; border-top: 2px solid var(--blue);
+  }
+  .plan-header h2 {
+    font-size: 24px; font-weight: 700; color: var(--blue); margin-bottom: 6px;
+  }
+  .plan-desc { color: var(--text-2); font-size: 14px; margin-bottom: 32px; max-width: 700px; }
+
+  .sprint {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .sprint-head {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .sprint-num {
+    background: rgba(96, 165, 250, 0.12); color: var(--blue);
+    padding: 4px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+  }
+  .sprint-title { font-size: 16px; font-weight: 700; }
+  .sprint-meta { font-size: 12px; color: var(--text-3); margin-left: auto; }
+  .sprint-tasks { list-style: none; }
+  .sprint-tasks li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid rgba(37, 37, 56, 0.5);
+    font-size: 13px;
+  }
+  .sprint-tasks li:last-child { border-bottom: none; }
+  .task-pri {
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 3px; flex-shrink: 0; margin-top: 2px;
+  }
+  .task-pri.p0 { background: rgba(248, 113, 113, 0.15); color: var(--red); }
+  .task-pri.p1 { background: rgba(251, 191, 36, 0.15); color: var(--yellow); }
+  .task-pri.p2 { background: rgba(96, 165, 250, 0.15); color: var(--blue); }
+  .task-desc { flex: 1; }
+  .task-desc strong { color: var(--text-1); }
+  .task-roles {
+    font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
+
+  .footer {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border);
+    text-align: center; color: var(--text-3); font-size: 11px;
+  }
+
+  @media (max-width: 768px) {
+    .overview-grid { grid-template-columns: repeat(2, 1fr); }
+    .content { padding: 20px; }
+    .hero { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Synthetic User Testing</div>
+    <h1>Airlock Platform Readiness Audit</h1>
+    <p>Four AI agents simulated real users — Builder, Gatekeeper, Owner, and Otto — walking through every workflow. This is what they found, and what needs to be built before humans sit down.</p>
+    <div class="hero-meta">
+      <span>Date: March 11, 2026</span>
+      <span>Agents: Jane (Builder) · Tom (Gatekeeper) · Sarah (Owner) · Otto (AI)</span>
+      <span>Workflows Tested: 34</span>
+      <span>Platform Readiness: ~55%</span>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="overview-grid">
+    <div class="ov-card">
+      <div class="ov-score" style="color: var(--build-yellow);">60%</div>
+      <div class="ov-label">Builder Ready</div>
+      <div class="ov-sub">Intake works, Build blocked</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-score" style="color: var(--review-purple);">35%</div>
+      <div class="ov-label">Gatekeeper Ready</div>
+      <div class="ov-sub">Queue exists, approvals broken</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-score" style="color: var(--ship-green);">30%</div>
+      <div class="ov-label">Owner Ready</div>
+      <div class="ov-sub">Dispatch partial, Ship missing</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-score" style="color: var(--blue);">55%</div>
+      <div class="ov-label">Otto Ready</div>
+      <div class="ov-sub">Chat works, tools not wired</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-score" style="color: var(--text-1);">55%</div>
+      <div class="ov-label">Overall</div>
+      <div class="ov-sub">Strong foundation, gaps in flow</div>
+    </div>
+  </div>
+
+  <!-- JANE BUILDER -->
+  <div class="persona-section">
+    <div class="persona-header">
+      <div class="persona-avatar builder">👷</div>
+      <div>
+        <h2>Jane — Builder</h2>
+        <div class="persona-role">Discover + Build chambers · Drafts and assembles vault content</div>
+      </div>
+    </div>
+
+    <div class="wf-grid">
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Login & Onboarding</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> OAuth2 Google Sign-In flow, dev login buttons, onboarding store with checklist tracking, 32KB setup wizard page.</p>
+          <p><span class="missing">MISSING:</span> Real workspace creation (client-side mock only), email verification, team invitation during setup, module preference selection. First-time user detection is fragile (<code>org_role === "member"</code>). After login, route hardcoded to <code>/contracts/triage</code> regardless of role.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Dispatch (Homepage)</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Dispatch view (600+ lines), onboarding empty state, dynamic import of DispatchCharts, mock operator feed/signals/queue, notifications store, event feed.</p>
+          <p><span class="missing">MISSING:</span> Triptych layout (Signal | Orchestrate | Control) — current layout is single full-width. Triage Signals widget not integrated. All charts/feeds pull from hardcoded mock data. No dynamic widget configuration.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status green"></div>
+          <div class="wf-name">Contract Intake + Extraction</div>
+          <span class="wf-tag works">Works</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Full intake lab with PDF upload → parse → preflight → extraction. Six real extractors (boolean, split, picklist, date, pattern, text). Confidence scoring per field. 50+ field extraction. Create vault from document. Card grid triage view with health scores.</p>
+          <p><span class="partial">GAPS:</span> Uploaded document doesn't visually link to vault in downstream views. No field search/filter for 50+ fields. No bulk operations.</p>
+          <p><strong>This is the strongest workflow in the platform.</strong></p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Build Chamber (Field Editing)</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Patch route, patch store with full state management, patch model in DB, API routes for patch operations.</p>
+          <p><span class="missing">MISSING:</span> No Build chamber view (<code>/contracts/build/</code> doesn't exist). RecordInspector is read-only — no inline edit mode, no edit drawer, no field inputs. No patch creation workflow in the UI. No build progress metrics. No collaborative editing.</p>
+          <p><strong>This is the #1 blocking gap.</strong> Builders can extract data but cannot edit it. The entire Build phase is unusable.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">CRM Module</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Routes for accounts/contacts/activity. AccountsTable shows vault hierarchy as CRM. CRM store fetching from API. React Admin integration hinted (SSR disabled).</p>
+          <p><span class="missing">MISSING:</span> Contacts and deals views empty. No entity linking to vaults. No bulk actions (merge, reassign). No activity timeline. Spec says vault hierarchy IS the CRM, but UI suggests separate system.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Triage (Tasks)</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Kanban board (TasksKanban), drag-drop, tasks store, backend service and routes. Routes for inbox/board/my-tasks/timeline.</p>
+          <p><span class="missing">MISSING:</span> Triage Signals on Dispatch not integrated. Can't create tasks linked to vaults. No task templates. No cross-module assignment. No SLA visualization. Kanban is completely isolated from vault workflow.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Calendar Module</div>
+          <span class="wf-tag missing">Stub</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Month/agenda routes, calendar store, backend service, FullCalendarView wrapper.</p>
+          <p><span class="missing">MISSING:</span> No event creation. No vault deadline sync. No recurring events. No calendar integrations (Google, Outlook).</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Documents Module</div>
+          <span class="wf-tag missing">Stub</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Library route, documents store, backend service, document model in DB.</p>
+          <p><span class="missing">MISSING:</span> No document search. No full-text retrieval UI. No folder hierarchy. No sharing/permissions. No versioning. No tagging. Documents uploaded during intake but can't browse them later.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Chat & Messenger UI</div>
+          <span class="wf-tag missing">Backend Only</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Full backend chat service (conversations, messages, reactions, GIFs, read receipts, typing indicators). Messenger store (593 lines) with complete state management. WebSocket real-time delivery.</p>
+          <p><span class="missing">MISSING:</span> No chat panel visible in any view. ConversationList/ChatView components exist but not wired to Dispatch or shell. No conversation drawer. No unread badge. No message search.</p>
+          <p><strong>The backend is production-ready.</strong> The frontend just never connected it.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict-banner">
+      <strong>Jane's Day 1:</strong> "Extraction is impressive — I uploaded a contract and got 50+ fields extracted instantly. But then I couldn't <em>edit</em> any of them. No Build chamber, no chat to ask for help, no Otto to guide me. I'm stuck after step 3 of a 10-step workflow."
+    </div>
+  </div>
+
+  <!-- TOM GATEKEEPER -->
+  <div class="persona-section">
+    <div class="persona-header">
+      <div class="persona-avatar gatekeeper">⚖️</div>
+      <div>
+        <h2>Tom — Gatekeeper</h2>
+        <div class="persona-role">Review chamber · Reviews, approves, and rejects vaults and patches</div>
+      </div>
+    </div>
+
+    <div class="wf-grid">
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Review Queue</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Review queue route + store + API. Vaults in Review chamber grouped by entity with health scores. Filterable by builder/entity.</p>
+          <p><span class="missing">MISSING:</span> No notification when vaults enter Review. No priority ranking. No deadline/SLA indicators on queue items.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Patch Review System</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Complete patch state machine (draft → submitted → approved → applied). Self-approval properly blocked. Patch store, API routes, service layer.</p>
+          <p><span class="missing">MISSING:</span> No diff view (can't compare original vs. proposed values). No batch approve/reject. No patch comments.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Vault Approval Flow</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="missing">CRITICAL:</span> No formal approval model. Vaults can be advanced to Ship with just a role check — any Gatekeeper can click "Advance" without formal sign-off, owner approval, evidence pack review, or business rule validation.</p>
+          <p><code>chamber_rules.py</code> defines <code>check_review_to_ship()</code> that validates gate status, entity resolution, and patch approvals — but <strong>the advance_chamber route never calls it</strong>.</p>
+          <p><strong>Not safe for contracts worth real money.</strong></p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Evidence Packs</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="missing">MISSING:</span> No unified view bundling documents + extractions + patches for review. Gatekeepers see data in separate views but can't certify they've reviewed all supporting evidence for a contract.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Gate Response System</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Vault-level <code>gate</code> field in data model. ApprovalGate component. Playbook-level gate UI (DAG nodes).</p>
+          <p><span class="missing">MISSING:</span> No vault-level gate response routes. Can't formally pass/fail/override a gate. No gate criteria configuration. Business rules written but not called.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status green"></div>
+          <div class="wf-name">Audit Trail</div>
+          <span class="wf-tag works">Works</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> All vault operations logged as immutable events (who, when, what). AuditTrailPanel component. Event types: vault_created, chamber_advanced, gate_cleared, patch_created/submitted/approved/rejected, extraction_complete, etc.</p>
+          <p><span class="partial">GAP:</span> Admin actions (invites, role changes, settings) not captured.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict-banner">
+      <strong>Tom's Day 1:</strong> "I can see the review queue and approve individual patches, which is solid. But I can't formally approve a vault for Ship — there's no approval artifact, no evidence bundle, and the business rules exist in code but aren't enforced. I wouldn't sign off on a real contract this way."
+    </div>
+  </div>
+
+  <!-- SARAH OWNER -->
+  <div class="persona-section">
+    <div class="persona-header">
+      <div class="persona-avatar owner">👑</div>
+      <div>
+        <h2>Sarah — Owner</h2>
+        <div class="persona-role">Ship chamber + Admin Overlay · Publishes, manages workspace, oversees all modules</div>
+      </div>
+    </div>
+
+    <div class="wf-grid">
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Ship Chamber</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> "Advance to Ship" button works in vault detail. Chamber state stored in DB.</p>
+          <p><span class="missing">MISSING:</span> No <code>/contracts/ship</code> view. No finalization workflow. No final owner sign-off. No archive/handoff mechanism. No shipped-items metrics. The Ship chamber is a state with no UI.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Dispatch Overview</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Real vault counts per chamber. Recent events timeline. Chamber distribution chart. Quick Compose button. First-upload UX.</p>
+          <p><span class="missing">MISSING:</span> Signals panel uses hardcoded mock data. Pipeline chart hardcoded. No CRM/Tasks/Calendar KPIs. No cross-module analytics.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">User & Workspace Management</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Invite API with 7-day tokens, email sending, accept via OAuth, org_role assignment, members page, role hierarchy enforcement.</p>
+          <p><span class="missing">CRITICAL:</span> Invites stored in Python dict, not database — restart = data loss. No post-join role editing. No user deactivation. No module-specific roles. No bulk invite. No rate limiting.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Admin Overlay</div>
+          <span class="wf-tag partial">80% Nonfunctional</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> 25 admin routes (members, audit-log, roles, workspace, modules, workflows, playbooks, recipes, skills, otto, ai-provider, connectors, features, event-bus, constellation).</p>
+          <p><span class="missing">MISSING:</span> Config components render but don't save to database. Admin actions not logged. No workspace health/stats dashboard. No seat limits. No billing integration. All <code>*Config.tsx</code> files are UI shells with no backend persistence.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Persistent Settings</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="missing">NOTHING PERSISTS:</span> Gate criteria, extraction templates, Otto behavior, module enable/disable, workspace settings, email config, notification preferences, vault archival policy — all missing. Config UI exists but doesn't save.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Notifications</div>
+          <span class="wf-tag partial">Partial</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Real-time push via WebSocket, event categorization, notification types (success/warning/info), unread count.</p>
+          <p><span class="missing">MISSING:</span> No alert rules ("notify when health_score &lt; 50"). No email notifications. No preferences. No @mentions. No digest/batching.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict-banner">
+      <strong>Sarah's Day 1:</strong> "I can see the dashboard and invite team members, which is a start. But I can't ship contracts (no Ship UI), my admin settings don't save (restart = reset), invites are in memory (restart = gone), and there's no way to see cross-module health. Good for a demo, not for running a team."
+    </div>
+  </div>
+
+  <!-- OTTO AI -->
+  <div class="persona-section">
+    <div class="persona-header">
+      <div class="persona-avatar otto">🤖</div>
+      <div>
+        <h2>Otto — AI Assistant</h2>
+        <div class="persona-role">Embedded copilot · Chat, extraction, tools, gen-ui, persona routing</div>
+      </div>
+    </div>
+
+    <div class="wf-grid">
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status green"></div>
+          <div class="wf-name">Chat Interface</div>
+          <span class="wf-tag works">Works</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Otto chat drawer with vault-scoped and general modes. SSE streaming with abort support. Session persistence, message history. Admin configuration page. Provider switching (Anthropic, OpenRouter). Circuit breaker for reliability.</p>
+          <p>Users can invoke Otto from any vault and get streaming responses.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status green"></div>
+          <div class="wf-name">SSE Backend</div>
+          <span class="wf-tag works">Works</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> FastAPI SSE streaming, PydanticAI agent integration, graceful fallback chain (API key → agent → stub response), circuit breaker (trips after 5 errors/60s, recovers after 300s). Word-by-word streaming. Token count reporting.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Tool Execution</div>
+          <span class="wf-tag missing">Framework Only</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Tool definitions (get_gate_status, get_field_summary, get_contract_health, search_vaults, suggest_patch, etc.). PermittedTool authorization framework. Risk tier classification. 8 tool-calls-per-message budget.</p>
+          <p><span class="missing">MISSING:</span> No tool implementations — definitions exist but functions don't execute. PydanticAI agent doesn't call tool executors. Tool results can't be consumed into responses. Risk tier enforcement not active.</p>
+          <p><strong>Otto can talk about vaults but can't actually query or modify them via tools.</strong></p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status green"></div>
+          <div class="wf-name">Messenger Integration</div>
+          <span class="wf-tag works">Works</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Otto can send messages to conversations (authorId = "otto"). SSE-to-WebSocket bridge. Typing indicators during generation. DM deduplication. Reactions, read receipts, GIF picker.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status green"></div>
+          <div class="wf-name">Document Extraction</div>
+          <span class="wf-tag works">Works</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> Six extractors (boolean, split, picklist, date, pattern, text/LLM). Confidence scoring. Metrics tracking. Field normalization. Per-field enable flags.</p>
+          <p><span class="partial">GAP:</span> Otto receives extraction metadata in context but cannot trigger extraction on demand (no <code>run_extraction</code> tool implemented).</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Gen-UI Components</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="missing">MISSING:</span> No gen-ui schema integration in Otto routes. No rich component renderer in chat UI. Otto can't generate interactive embeds, forms, gate decisions, or progress trackers. Responses are plain text only.</p>
+          <p>Gen-UI schemas exist in <code>airlock-gen-ui/configs/</code> (7 embeds, 5 components, routing config) but aren't wired to the streaming pipeline.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status yellow"></div>
+          <div class="wf-name">Persona Routing</div>
+          <span class="wf-tag partial">Structure Only</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="exists">EXISTS:</span> PersonaContext dataclass, persona injection into system prompt, warm-start context block, DECF profile fields.</p>
+          <p><span class="missing">MISSING:</span> Persona service integration (OTTO_STATE_SERVICE_URL) not connected. No actual persona routing on session init. Session count always 0. No team dynamics.</p>
+        </div>
+      </div>
+
+      <div class="wf-card" onclick="this.classList.toggle('open')">
+        <div class="wf-card-head">
+          <div class="wf-status red"></div>
+          <div class="wf-name">Proactive Notifications</div>
+          <span class="wf-tag missing">Missing</span>
+          <span class="wf-toggle">&#9654;</span>
+        </div>
+        <div class="wf-body">
+          <p><span class="missing">MISSING:</span> Otto cannot create notifications, proactively alert users, push signals to Dispatch, or generate Triage items. Otto is fully reactive — user asks, Otto answers. No background processing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict-banner">
+      <strong>Otto's Day 1:</strong> "I can chat with users and stream responses. I know about their vaults from enrichment context. But I can't <em>do</em> anything — no tool calls, no rich UI, no proactive help. I'm a chatbot when I should be a copilot."
+    </div>
+  </div>
+
+  <!-- GAP MATRIX -->
+  <h2 style="font-size: 22px; margin-bottom: 16px; margin-top: 48px;">Complete Gap Matrix</h2>
+
+  <table class="matrix-table">
+    <thead>
+      <tr>
+        <th>Feature Area</th>
+        <th>Route</th>
+        <th>Backend API</th>
+        <th>Frontend UI</th>
+        <th>Builder</th>
+        <th>Gatekeeper</th>
+        <th>Owner</th>
+        <th>Otto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Login/Auth</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td>—</td></tr>
+      <tr><td><strong>Dispatch</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Contract Intake</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td>—</td><td>—</td><td style="color:var(--green)">✅</td></tr>
+      <tr><td><strong>Build (Edit Fields)</strong></td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td>—</td><td>—</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Review (Approval)</strong></td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td>—</td><td style="color:var(--red)">🔴</td><td>—</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Ship (Publish)</strong></td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td>—</td><td>—</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>CRM</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Triage</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Calendar</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Documents</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Chat/Messenger</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--green)">✅</td></tr>
+      <tr><td><strong>Otto Chat</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td></tr>
+      <tr><td><strong>Otto Tools</strong></td><td>—</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td><td style="color:var(--red)">🔴</td></tr>
+      <tr><td><strong>Admin Overlay</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td>—</td><td>—</td><td style="color:var(--yellow)">🟡</td><td>—</td></tr>
+      <tr><td><strong>WebSocket/Realtime</strong></td><td style="color:var(--green)">✅</td><td style="color:var(--green)">✅</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--yellow)">🟡</td><td style="color:var(--green)">✅</td></tr>
+    </tbody>
+  </table>
+
+  <!-- BUILD-OUT PLAN -->
+  <div class="plan-section">
+    <div class="plan-header">
+      <h2>Build-Out Plan: From Alpha to Human-Ready</h2>
+    </div>
+    <p class="plan-desc">
+      Prioritized by what unblocks the most users across all roles. Each sprint delivers a complete vertical slice — not just backend or frontend, but the full user workflow.
+    </p>
+
+    <div class="sprint">
+      <div class="sprint-head">
+        <span class="sprint-num">Sprint 1</span>
+        <span class="sprint-title">Unblock the Core Loop</span>
+        <span class="sprint-meta">5 days · Unblocks: Builder + Gatekeeper</span>
+      </div>
+      <ul class="sprint-tasks">
+        <li>
+          <span class="task-pri p0">P0</span>
+          <span class="task-desc"><strong>Build Chamber — Field Editing UI:</strong> Create editable field form (inline edit + edit drawer). Wire RecordInspector to patch store. Create → submit → track patches from the vault detail view.</span>
+          <span class="task-roles">Builder</span>
+        </li>
+        <li>
+          <span class="task-pri p0">P0</span>
+          <span class="task-desc"><strong>Vault Approval Model:</strong> Create <code>vault.approvals</code> JSONB model. Block review→ship until Gatekeeper + Owner approve. Call <code>check_review_to_ship()</code> in advance_chamber route. Log approval artifacts as events.</span>
+          <span class="task-roles">Gatekeeper</span>
+        </li>
+        <li>
+          <span class="task-pri p0">P0</span>
+          <span class="task-desc"><strong>Messenger UI Surface:</strong> Add chat drawer to shell layout. Wire ConversationList + ChatView to messenger store. Connect to WebSocket for real-time delivery. Show unread count badge.</span>
+          <span class="task-roles">All</span>
+        </li>
+        <li>
+          <span class="task-pri p0">P0</span>
+          <span class="task-desc"><strong>Migrate Invites to Database:</strong> Move from in-memory dict to invites table. Add Alembic migration. Add invite revocation and post-join role editing.</span>
+          <span class="task-roles">Owner</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-head">
+        <span class="sprint-num">Sprint 2</span>
+        <span class="sprint-title">Complete the Lifecycle</span>
+        <span class="sprint-meta">5 days · Unblocks: Owner + Otto</span>
+      </div>
+      <ul class="sprint-tasks">
+        <li>
+          <span class="task-pri p0">P0</span>
+          <span class="task-desc"><strong>Ship Chamber View:</strong> Create <code>/contracts/ship</code> page with finalization checklist, owner sign-off, archive/handoff actions. Display shipped vault metrics on Dispatch.</span>
+          <span class="task-roles">Owner</span>
+        </li>
+        <li>
+          <span class="task-pri p1">P1</span>
+          <span class="task-desc"><strong>Evidence Pack View:</strong> Bundle documents + extractions + patches into a single review surface. Show completeness status. Enable Gatekeeper certification stamp.</span>
+          <span class="task-roles">Gatekeeper</span>
+        </li>
+        <li>
+          <span class="task-pri p1">P1</span>
+          <span class="task-desc"><strong>Otto Tool Implementations:</strong> Wire 4 read tools (get_gate_status, get_field_summary, get_contract_health, search_vaults). Add tool execution handler in PydanticAI agent. Add suggest_patch as first write tool.</span>
+          <span class="task-roles">Otto</span>
+        </li>
+        <li>
+          <span class="task-pri p1">P1</span>
+          <span class="task-desc"><strong>Admin Settings Persistence:</strong> Create workspace_settings table. Wire config components to save/load via API. Add admin audit logging for setting changes.</span>
+          <span class="task-roles">Owner</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-head">
+        <span class="sprint-num">Sprint 3</span>
+        <span class="sprint-title">Connect the Ecosystem</span>
+        <span class="sprint-meta">5 days · Makes modules useful together</span>
+      </div>
+      <ul class="sprint-tasks">
+        <li>
+          <span class="task-pri p1">P1</span>
+          <span class="task-desc"><strong>Dispatch → Real Data:</strong> Replace all mock data (signals, queue, feed) with real API queries. Wire Triage Signals widget. Add cross-module KPIs.</span>
+          <span class="task-roles">All</span>
+        </li>
+        <li>
+          <span class="task-pri p1">P1</span>
+          <span class="task-desc"><strong>Triage ↔ Vault Integration:</strong> Create tasks from vault context. Link tasks to vaults bidirectionally. Auto-create tasks on gate failure. Show related tasks in vault Triptych.</span>
+          <span class="task-roles">Builder</span>
+        </li>
+        <li>
+          <span class="task-pri p1">P1</span>
+          <span class="task-desc"><strong>Gate Response Routes:</strong> Implement vault-level gate pass/fail/override endpoints. Wire ApprovalGate component. Add gate criteria configuration in Admin.</span>
+          <span class="task-roles">Gatekeeper</span>
+        </li>
+        <li>
+          <span class="task-pri p2">P2</span>
+          <span class="task-desc"><strong>Gen-UI Pipeline:</strong> Wire gen-ui schemas to Otto's streaming response. Add component renderer in chat UI. Start with 2 embeds (confidence_heatmap, gate_decision) and 1 component (action_buttons).</span>
+          <span class="task-roles">Otto</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-head">
+        <span class="sprint-num">Sprint 4</span>
+        <span class="sprint-title">Polish & Confidence</span>
+        <span class="sprint-meta">5 days · Makes it feel production-ready</span>
+      </div>
+      <ul class="sprint-tasks">
+        <li>
+          <span class="task-pri p2">P2</span>
+          <span class="task-desc"><strong>CRM Completion:</strong> Build contacts + deals views using vault hierarchy. Entity linking. Activity timeline. Merge duplicate entities.</span>
+          <span class="task-roles">Builder + Owner</span>
+        </li>
+        <li>
+          <span class="task-pri p2">P2</span>
+          <span class="task-desc"><strong>Document Library:</strong> Full-text search across uploaded documents. Folder hierarchy. Tagging. Link documents to vaults visually.</span>
+          <span class="task-roles">Builder</span>
+        </li>
+        <li>
+          <span class="task-pri p2">P2</span>
+          <span class="task-desc"><strong>Otto Persona Service:</strong> Connect OTTO_STATE_SERVICE_URL. Load persona data on session init. Route system prompt by chamber + user archetype. Track session counts.</span>
+          <span class="task-roles">Otto</span>
+        </li>
+        <li>
+          <span class="task-pri p2">P2</span>
+          <span class="task-desc"><strong>Email Notifications:</strong> Alert rules engine. Email delivery via Resend. Notification preferences in admin. @mention support in chat.</span>
+          <span class="task-roles">All</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    Airlock Readiness Audit · Generated March 11, 2026 · Synthetic User Testing
+  </div>
+</div>
+
+</body>
+</html>

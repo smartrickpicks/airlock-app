@@ -1,0 +1,95 @@
+"""Tests for Otto execution router — tier-based message routing."""
+
+from src.otto.deps import OttoState
+from src.otto.execution_router import ExecutionRouter
+from src.otto.feature_gate import default_tier_config
+
+
+def _make_state(**overrides) -> OttoState:
+    defaults = dict(
+        user_id="usr_01",
+        workspace_id="ws_01",
+        org_role="member",
+        module_roles={},
+        surface="task_runner",
+        session_id="ots_01",
+        messages=[],
+    )
+    defaults.update(overrides)
+    return OttoState(**defaults)
+
+
+def test_deterministic_gate_status():
+    router = ExecutionRouter(default_tier_config())
+    state = _make_state(vault_id="vlt_01")
+    result = router.route("what's the gate status?", state)
+    assert result.tier == "deterministic"
+    assert result.intent == "gate_status"
+
+
+def test_cloud_for_complex_query():
+    router = ExecutionRouter(default_tier_config())
+    state = _make_state(vault_id="vlt_01")
+    result = router.route("why is the health score dropping and what should I do?", state)
+    assert result.tier == "cloud_llm"
+
+
+def test_messenger_skips_deterministic_writes():
+    router = ExecutionRouter(default_tier_config())
+    state = _make_state(surface="messenger")
+    result = router.route("I'm done, next step", state)
+    # "node_advance" is a write action — messenger must escalate to LLM tier
+    assert not (result.tier == "deterministic" and result.intent == "node_advance")
+
+
+def test_disabled_tier_skipped():
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    router = ExecutionRouter(config)
+    state = _make_state(vault_id="vlt_01")
+    result = router.route("what's the gate status?", state)
+    assert result.tier == "cloud_llm"
+
+
+def test_all_disabled_returns_error():
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    config.tiers["cloud_llm"].enabled = False
+    router = ExecutionRouter(config)
+    state = _make_state()
+    result = router.route("hello", state)
+    assert result.tier == "error"
+
+
+def test_simple_query_routes_to_local_llm():
+    """Short message without complexity keywords → local LLM when enabled."""
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    config.tiers["local_llm"].enabled = True
+    router = ExecutionRouter(config)
+    state = _make_state()
+    result = router.route("what time is it?", state)
+    assert result.tier == "local_llm"
+
+
+def test_complex_query_skips_local_llm():
+    """Message with 'why' keyword → falls through to cloud even with local enabled."""
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    config.tiers["local_llm"].enabled = True
+    router = ExecutionRouter(config)
+    state = _make_state()
+    result = router.route("why is the extraction failing?", state)
+    assert result.tier == "cloud_llm"
+
+
+def test_long_message_skips_local_llm():
+    """Message > 30 words → falls through to cloud."""
+    config = default_tier_config()
+    config.tiers["deterministic"].enabled = False
+    config.tiers["local_llm"].enabled = True
+    router = ExecutionRouter(config)
+    state = _make_state()
+    long_msg = " ".join(["word"] * 31)
+    result = router.route(long_msg, state)
+    assert result.tier == "cloud_llm"

@@ -16,12 +16,12 @@ When a workspace owner uploads contracts — especially from acquired divisions 
 
 The current implementation (`_extract_parties()` in `readiness.py:165`) uses positional regex ("between X and Y") to extract exactly two parties, assigns them by position (first = legal entity, second = counterparty), and returns hardcoded confidence scores (0.5/0.45). It has no concept of self-recognition, no vault tree awareness, and no clause library integration.
 
-### Real-World Scenario: Create Music Group (CMG)
+### Real-World Scenario: Crescendo Entertainment Group (CEG)
 
-CMG is a VC firm with three divisions: Publishing, Distribution, and parent company (Records). They acquire other entities and process those entities' contracts. When CMG uploads Division B's contracts:
+CEG is a VC firm with three divisions: Publishing, Distribution, and parent company (Records). They acquire other entities and process those entities' contracts. When CEG uploads Division B's contracts:
 
 - Division B appears as a party name in the contract
-- The system must recognize Division B as "belonging to" CMG (self)
+- The system must recognize Division B as "belonging to" CEG (self)
 - The other party is the counterparty, to be resolved against known L3 vaults
 - If Division B is unknown, the system must ask: "Is this a new division?"
 
@@ -37,7 +37,7 @@ Rejected alternatives:
 - **Dedicated `workspace_entities` table** — creates a parallel data structure that duplicates what the vault hierarchy already provides. Per CLAUDE.md: "the vault hierarchy IS the CRM."
 - **Vector similarity search on entity names** — over-engineered for structured entity matching. The vault tree provides hierarchical context that vectors lose.
 
-The vault hierarchy IS the entity registry. Like PageIndex (github.com/VectifyAI/PageIndex), the system navigates a hierarchical tree structure rather than doing flat similarity search. Each vault node provides structural context — matching "Horizon Records" under "CMG Distribution" tells you the relationship, not just the identity.
+The vault hierarchy IS the entity registry. Like PageIndex (github.com/VectifyAI/PageIndex), the system navigates a hierarchical tree structure rather than doing flat similarity search. Each vault node provides structural context — matching "Horizon Records" under "CEG Distribution" tells you the relationship, not just the identity.
 
 ---
 
@@ -46,15 +46,15 @@ The vault hierarchy IS the entity registry. Like PageIndex (github.com/VectifyAI
 ### Tree Structure
 
 ```
-Workspace: Create Music Group (workspace table)
-├── L1 vault (entity):     CMG Records          vault_type="entity"
+Workspace: Crescendo Entertainment Group (workspace table)
+├── L1 vault (entity):     CEG Records          vault_type="entity"
 │   ├── L3 vault (cpty):   Horizon Records      vault_type="counterparty"
 │   │   └── L4 vault:      Distribution Agmt    vault_type="contract"
 │   └── L3 vault (cpty):   DJ Nova              vault_type="counterparty"
 │       └── L4 vault:      Recording Agmt       vault_type="contract"
-├── L1 vault (division):   CMG Publishing       vault_type="division"
+├── L1 vault (division):   CEG Publishing       vault_type="division"
 │   └── L3 vault (cpty):   Summit Writers       vault_type="counterparty"
-├── L1 vault (division):   CMG Distribution     vault_type="division"
+├── L1 vault (division):   CEG Distribution     vault_type="division"
 └── L1 vault (division):   Nova Entertainment   vault_type="division"  [acquired]
     └── ⚠ 3 unresolved counterparties
 ```
@@ -63,7 +63,7 @@ Workspace: Create Music Group (workspace table)
 
 | vault_level | vault_type                       | Role                                     | Example                           |
 | ----------- | -------------------------------- | ---------------------------------------- | --------------------------------- |
-| 1           | `entity` or `division`           | **Self** — workspace owner's entities    | CMG Records, CMG Publishing       |
+| 1           | `entity` or `division`           | **Self** — workspace owner's entities    | CEG Records, CEG Publishing       |
 | 2           | `division`                       | **Self** — sub-divisions (if needed)     | Rarely used; L1 covers most cases |
 | 3           | `counterparty`                   | **Other party** — resolved against       | Horizon Records, DJ Nova          |
 | 4           | `contract` / `task` / `document` | **Work items** — nest under counterparty | Distribution Agreement            |
@@ -260,7 +260,7 @@ New approach:
 
 ### Preserving Contract Roles
 
-Per design decision: **self-recognition is about ownership, not contract role.** If CMG acquires a division that was the "Artist" side of a recording contract, the system recognizes the division as "self" (ownership) but preserves "Artist" as the clause role. The clause role is metadata on the resolution, not a determinant of self vs. counterparty.
+Per design decision: **self-recognition is about ownership, not contract role.** If CEG acquires a division that was the "Artist" side of a recording contract, the system recognizes the division as "self" (ownership) but preserves "Artist" as the clause role. The clause role is metadata on the resolution, not a determinant of self vs. counterparty.
 
 ---
 
@@ -274,7 +274,7 @@ Everything lives in the existing vault hierarchy + JSONB metadata + append-only 
 
 ```python
 workspace.metadata_ = {
-    "default_entity": "Create Music Group",  # Set during onboarding
+    "default_entity": "Crescendo Entertainment Group",  # Set during onboarding
     # Fallback for self-recognition before any L1 vaults exist
 }
 ```
@@ -284,8 +284,8 @@ workspace.metadata_ = {
 ```python
 # L1/L2 vaults (divisions — "self" entities)
 vault.metadata_ = {
-    "aliases": ["CMG Records", "CMG Records LLC", "Create Music Group Records"],
-    "letterhead": "CMG Records, a division of Create Music Group",
+    "aliases": ["CEG Records", "CEG Records LLC", "Crescendo Entertainment Group Records"],
+    "letterhead": "CEG Records, a division of Crescendo Entertainment Group",
     "issuing_entity": True,   # Marks this vault as a "self" entity for resolution
     "entity_type": "division" # parent | division | subsidiary | dba
 }
@@ -307,7 +307,7 @@ vault.metadata_ = {
     "event_type": "entity.self_resolved",
     "vault_id": "<contract vault>",
     "payload": {
-        "extracted_name": "CMG Records LLC",
+        "extracted_name": "CEG Records LLC",
         "matched_vault_id": "<L1 division vault>",
         "confidence": 0.95,
         "evidence": ["name_fuzzy", "alias"],
@@ -359,9 +359,9 @@ Replaces the current stub output from `build_resolution_story()`:
 ```python
 {
     "self_entity": {
-        "extracted_name": "CMG Records LLC",
+        "extracted_name": "CEG Records LLC",
         "matched_vault_id": "vault_abc",
-        "matched_vault_name": "CMG Records",
+        "matched_vault_name": "CEG Records",
         "confidence": 0.95,
         "evidence": ["name_fuzzy", "alias"],
         "clause_role": "Label",
@@ -394,15 +394,15 @@ The vault hierarchy visualized as an interactive org chart in the CRM module.
 ```
 Org Tree Viewer (CRM Module — Signal panel or standalone view)
 
-Create Music Group (L0 - Workspace)
-├── CMG Records (L1 - Division) ·········· 47 contracts · 12 counterparties
+Crescendo Entertainment Group (L0 - Workspace)
+├── CEG Records (L1 - Division) ·········· 47 contracts · 12 counterparties
 │   ├── Horizon Records (L3) ············· 3 contracts · Distribution + License
 │   ├── DJ Nova (L3) ···················· 1 contract · Recording
 │   └── + 10 more
-├── CMG Publishing (L1 - Division) ······· 31 contracts · 8 counterparties
+├── CEG Publishing (L1 - Division) ······· 31 contracts · 8 counterparties
 │   ├── Summit Writers Group (L3) ········ 2 contracts · Publishing
 │   └── + 7 more
-├── CMG Distribution (L1 - Division) ····· 23 contracts · 6 counterparties
+├── CEG Distribution (L1 - Division) ····· 23 contracts · 6 counterparties
 └── [Acquired] Nova Entertainment (L1) ··· 15 contracts · importing...
     └── ⚠ 3 unresolved counterparties
 ```

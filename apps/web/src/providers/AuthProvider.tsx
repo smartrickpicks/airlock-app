@@ -15,9 +15,19 @@ export default function AuthProvider({
   const { setUser, setOrgRole, setAccessToken } = useAuthStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("airlock_access_token");
+    let token = localStorage.getItem("airlock_access_token");
+
     if (!token) {
       useAuthStore.getState().setUser(null);
+      // Redirect to login if not on a public route
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.startsWith("/login") &&
+        !window.location.pathname.startsWith("/landing") &&
+        window.location.pathname !== "/"
+      ) {
+        window.location.href = "/login";
+      }
       return;
     }
 
@@ -53,6 +63,13 @@ export default function AuthProvider({
         localStorage.removeItem("airlock_access_token");
         localStorage.removeItem("airlock_refresh_token");
         useAuthStore.getState().setUser(null);
+        // Redirect to login on auth failure
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.startsWith("/login")
+        ) {
+          window.location.href = "/login";
+        }
       });
   }, [setUser, setOrgRole, setAccessToken]);
 

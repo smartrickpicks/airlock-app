@@ -1,0 +1,72 @@
+playbook:
+  id: "pilot-close"
+  name: "Pilot Close"
+  description: "Close a pilot engagement — from success assessment through contract conversion. Designed for converting trial customers into committed deals."
+  module: "contracts"
+  version: "1.0"
+  team_composition: "Execution + Cultivation flywheel"
+
+  nodes:
+    - id: "assess_pilot"
+      name: "Assess Pilot Results"
+      description: "Analyze pilot performance metrics, usage data, and stakeholder feedback. Determine conversion readiness."
+      actor: "otto"
+      otto_archetype: "analyst"
+      chamber: "discover"
+      team_type: "adapting"
+      depends_on: []
+
+    - id: "build_case"
+      name: "Build Business Case"
+      description: "Compile ROI analysis, success metrics, and competitive positioning for the conversion proposal."
+      actor: "hybrid"
+      otto_archetype: "strategist"
+      chamber: "build"
+      team_type: "exploring"
+      depends_on: ["assess_pilot"]
+
+    - id: "draft_proposal"
+      name: "Draft Conversion Proposal"
+      description: "Create the formal conversion proposal with pricing, terms, and timeline. Include pilot success evidence."
+      actor: "hybrid"
+      otto_archetype: "executor"
+      chamber: "build"
+      team_type: "producing"
+      depends_on: ["build_case"]
+      gate:
+        type: "verification"
+        required_approvals: 1
+        roles: ["gatekeeper"]
+        description: "Verify proposal terms and pricing are accurate"
+
+    - id: "internal_review"
+      name: "Internal Review"
+      description: "Review the proposal against commercial guidelines and get pricing approval from leadership."
+      actor: "human"
+      otto_archetype: "guardian"
+      chamber: "review"
+      team_type: "stabilizing"
+      depends_on: ["draft_proposal"]
+      gate:
+        type: "approval"
+        required_approvals: 1
+        roles: ["owner"]
+        description: "Leadership approval for conversion terms"
+
+    - id: "negotiate"
+      name: "Customer Negotiation"
+      description: "Present the proposal to the customer. Handle objections, negotiate terms, and reach agreement."
+      actor: "human"
+      otto_archetype: "connector"
+      chamber: "review"
+      team_type: "cultivating"
+      depends_on: ["internal_review"]
+
+    - id: "execute_deal"
+      name: "Execute & Onboard"
+      description: "Finalize the contract, set up the production account, and kick off the full onboarding process."
+      actor: "hybrid"
+      otto_archetype: "executor"
+      chamber: "ship"
+      team_type: "executing"
+      depends_on: ["negotiate"]

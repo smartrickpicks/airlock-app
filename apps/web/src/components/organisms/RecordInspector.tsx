@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Flame } from "lucide-react";
 import { useExtractionStore } from "@/stores/extraction.store";
+import EntityResolutionCard from "@/components/organisms/EntityResolutionCard";
 import SectionGroup from "@/components/organisms/SectionGroup";
 
 interface RecordInspectorProps {
@@ -12,6 +13,7 @@ interface RecordInspectorProps {
 export default function RecordInspector({ vaultId }: RecordInspectorProps) {
   const {
     extraction,
+    entityResolution,
     isLoading,
     heatmapEnabled,
     fetchExtraction,
@@ -76,8 +78,19 @@ export default function RecordInspector({ vaultId }: RecordInspectorProps) {
         </button>
       </div>
 
-      {/* Sections */}
+      {/* Entity Resolution + Sections */}
       <div className="flex-1 overflow-y-auto p-4">
+        {entityResolution && (
+          <div className="mb-4">
+            <EntityResolutionCard
+              data={entityResolution}
+              requiresManualConfirmation={
+                entityResolution.requires_manual_confirmation
+              }
+              newEntryDetected={entityResolution.new_entry_detected}
+            />
+          </div>
+        )}
         {extraction.sections.map((section) => (
           <SectionGroup
             key={section.name}

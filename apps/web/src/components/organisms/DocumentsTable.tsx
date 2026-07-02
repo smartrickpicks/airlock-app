@@ -169,8 +169,14 @@ export default function DocumentsTable({
               </tr>
             ) : (
               sorted.map((doc) => {
-                const fmt = FORMAT_ICONS[doc.fileFormat];
-                const statusCfg = DOC_STATUS_CONFIG[doc.status];
+                const fmt = FORMAT_ICONS[doc.fileFormat] ?? {
+                  label: doc.fileFormat?.toUpperCase() ?? "?",
+                  color: "text-text-muted",
+                };
+                const statusCfg = DOC_STATUS_CONFIG[doc.status] ?? {
+                  label: doc.status ?? "unknown",
+                  color: "text-text-muted bg-text-muted",
+                };
                 const isSelected = doc.id === selectedId;
 
                 return (
@@ -202,7 +208,7 @@ export default function DocumentsTable({
                       </span>
                     </td>
                     <td className="px-3 py-2.5 text-xs text-text-secondary">
-                      {DOC_TYPE_LABELS[doc.documentType]}
+                      {DOC_TYPE_LABELS[doc.documentType] ?? doc.documentType}
                     </td>
                     <td className="px-3 py-2.5 text-xs text-text-muted">
                       {doc.vaultName || "—"}

@@ -14,6 +14,7 @@ interface VaultItemProps {
   unreadCount?: number;
   isActive: boolean;
   onClick: () => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
 }
 
 function getHealthColor(percent: number): string {
@@ -31,10 +32,12 @@ export default function VaultItem({
   unreadCount = 0,
   isActive,
   onClick,
+  onContextMenu,
 }: VaultItemProps) {
   return (
     <button
       onClick={onClick}
+      onContextMenu={onContextMenu}
       className={`
         w-full mx-2 h-11 py-1.5 px-3
         flex flex-col justify-center

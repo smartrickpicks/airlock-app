@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm type-check)",
+      "Bash(pnpm lint)",
+      "Bash(git push origin main)"
+    ]
+  }
+}

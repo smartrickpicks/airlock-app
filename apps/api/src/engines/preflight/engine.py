@@ -35,7 +35,12 @@ _READINESS_SEC_CODES = {
 }
 
 
-def run_preflight(pages_data: list[dict[str, Any]]) -> dict[str, Any]:
+def run_preflight(
+    pages_data: list[dict[str, Any]],
+    *,
+    self_vaults: list[dict[str, Any]] | None = None,
+    counterparty_vaults: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     """Run preflight checks across extracted page data."""
     if not pages_data:
         return {
@@ -119,7 +124,12 @@ def run_preflight(pages_data: list[dict[str, Any]]) -> dict[str, Any]:
 
     extracted_headers, low_signal_headers = extract_candidate_headers(full_text)
     salesforce_match: list[dict[str, Any]] = []
-    resolution_story = build_resolution_story(salesforce_match, full_text)
+    resolution_story = build_resolution_story(
+        salesforce_match,
+        full_text,
+        self_vaults=self_vaults,
+        counterparty_vaults=counterparty_vaults,
+    )
     entity_resolution = build_entity_resolution(
         resolution_story, salesforce_match, full_text=full_text
     )

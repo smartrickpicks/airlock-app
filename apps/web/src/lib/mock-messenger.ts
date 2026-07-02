@@ -1,7 +1,15 @@
 // ─── Types ───────────────────────────────────────────────────────────
 
-export type ConversationType = "vault_thread" | "dm" | "team" | "module";
-export type MessageType = "text" | "file" | "system";
+import type { LinkPreviewData } from "@/components/molecules/LinkPreview";
+export type { LinkPreviewData };
+
+export type ConversationType =
+  | "vault_thread"
+  | "dm"
+  | "team"
+  | "module"
+  | "otto";
+export type MessageType = "text" | "file" | "system" | "gif";
 export type ChamberName = "discover" | "build" | "review" | "ship";
 
 export interface Conversation {
@@ -16,6 +24,12 @@ export interface Conversation {
   unreadCount: number;
   muted: boolean;
   createdAt: string;
+  topic?: string;
+  contextType?: string;
+  contextId?: string;
+  contextName?: string;
+  personaMode?: string;
+  archived?: boolean;
 }
 
 export interface ConversationParticipant {
@@ -31,6 +45,23 @@ export interface MessagePreview {
   timestamp: string;
 }
 
+export interface Embed {
+  type:
+    | "sovereign_balance"
+    | "node_preview"
+    | "gate_alert"
+    | "roster_card"
+    | "playbook_diff"
+    | "code_block";
+  data: Record<string, unknown>;
+}
+
+export interface ReactionSummary {
+  emoji: string;
+  count: number;
+  userReacted: boolean;
+}
+
 export interface Message {
   id: string;
   conversationId: string;
@@ -41,7 +72,31 @@ export interface Message {
   messageType: MessageType;
   fileName?: string;
   fileSize?: number;
+  fileUrl?: string;
+  fileMimeType?: string;
   createdAt: string;
+  gifUrl?: string;
+  gifProvider?: string;
+  gifWidth?: number;
+  gifHeight?: number;
+  embeds?: Embed[];
+  personaMode?: string;
+  readAt?: string;
+  editedAt?: string;
+  reactions?: ReactionSummary[];
+  replyToId?: string;
+  replyPreview?: { authorName: string; content: string };
+  pinned?: boolean;
+  pinnedBy?: string;
+  pinnedAt?: string;
+  linkPreviews?: LinkPreviewData[];
+  bookmarked?: boolean;
+  bookmarkedAt?: string;
+  forwardedFrom?: {
+    messageId: string;
+    senderName: string;
+    conversationName: string;
+  };
 }
 
 // ─── Config ──────────────────────────────────────────────────────────
@@ -54,6 +109,7 @@ export const CONVERSATION_TYPE_CONFIG: Record<
   dm: { label: "Direct Message", icon: "User" },
   team: { label: "Team", icon: "Users" },
   module: { label: "Module", icon: "Hash" },
+  otto: { label: "Otto", icon: "Bot" },
 };
 
 export const CHAMBER_DOT_CONFIG: Record<
@@ -68,19 +124,19 @@ export const CHAMBER_DOT_CONFIG: Record<
 
 // ─── Mock Participants ───────────────────────────────────────────────
 
-const ANA: ConversationParticipant = {
+const LUNA: ConversationParticipant = {
   userId: "user_001",
-  name: "Ana Chen",
+  name: "Luna Torres",
   online: true,
 };
-const MARCO: ConversationParticipant = {
+const KAI: ConversationParticipant = {
   userId: "user_002",
-  name: "Marco Li",
+  name: "Kai Nakamura",
   online: false,
 };
-const SARAH: ConversationParticipant = {
+const MIA: ConversationParticipant = {
   userId: "user_003",
-  name: "Sarah Owner",
+  name: "Mia Okafor",
   online: true,
 };
 const CURRENT_USER: ConversationParticipant = {
@@ -88,9 +144,9 @@ const CURRENT_USER: ConversationParticipant = {
   name: "You",
   online: true,
 };
-const TOM: ConversationParticipant = {
+const DEX: ConversationParticipant = {
   userId: "user_004",
-  name: "Tom Gatekeeper",
+  name: "Dex Rollins",
   online: false,
 };
 
@@ -100,53 +156,55 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
   {
     id: "conv_001",
     type: "vault_thread",
-    name: "Henderson MSA",
+    name: "Barclay — Direct Distribution Deal",
     moduleId: "contracts",
-    vaultId: "vault_henderson",
-    chamber: "review",
-    participants: [ANA, MARCO, CURRENT_USER],
+    vaultId: "vault_001",
+    chamber: "discover",
+    participants: [LUNA, KAI, CURRENT_USER],
     lastMessage: {
-      authorName: "Ana Chen",
-      content: "Field extraction looks good, 5 fields need review",
-      timestamp: "2026-03-05T14:28:00Z",
+      authorName: "Luna Torres",
+      content:
+        "Empire just sent the updated term sheet — 80/20 split, 2-year lock",
+      timestamp: "2026-03-10T16:45:00Z",
     },
     unreadCount: 3,
     muted: false,
-    createdAt: "2026-03-01T09:00:00Z",
+    createdAt: "2026-01-15T09:00:00Z",
   },
   {
     id: "conv_002",
     type: "vault_thread",
-    name: "Acme Distribution Agreement",
+    name: "Jay Solis — Nettwerk Sync",
     moduleId: "contracts",
-    vaultId: "vault_acme",
+    vaultId: "vault_003",
     chamber: "build",
-    participants: [MARCO, CURRENT_USER],
+    participants: [KAI, DEX, CURRENT_USER],
     lastMessage: {
-      authorName: "Marco Li",
-      content: "Updated the territory clause",
-      timestamp: "2026-03-05T11:15:00Z",
+      authorName: "Kai Nakamura",
+      content:
+        "Extraction pulled 18 fields. Netflix placement fee is $18K non-exclusive.",
+      timestamp: "2026-03-09T14:20:00Z",
     },
-    unreadCount: 0,
+    unreadCount: 1,
     muted: false,
-    createdAt: "2026-02-28T10:00:00Z",
+    createdAt: "2026-02-01T10:00:00Z",
   },
   {
     id: "conv_003",
     type: "vault_thread",
-    name: "Summit Publishing License",
+    name: "Nova Lux — Empire Worldwide",
     moduleId: "contracts",
-    vaultId: "vault_summit",
+    vaultId: "vault_006",
     chamber: "ship",
-    participants: [SARAH, ANA, CURRENT_USER],
+    participants: [MIA, LUNA, CURRENT_USER],
     lastMessage: {
-      authorName: "Sarah Owner",
-      content: "Approved for ship. Great work team!",
-      timestamp: "2026-03-05T09:30:00Z",
+      authorName: "Mia Okafor",
+      content: "Approved. Glass Frequencies is shipping. Let's go.",
+      timestamp: "2026-03-08T11:00:00Z",
     },
-    unreadCount: 1,
+    unreadCount: 0,
     muted: false,
-    createdAt: "2026-02-20T14:00:00Z",
+    createdAt: "2026-01-20T14:00:00Z",
   },
   {
     id: "conv_004",
@@ -155,15 +213,16 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     moduleId: null,
     vaultId: null,
     chamber: null,
-    participants: [ANA, CURRENT_USER],
+    participants: [LUNA, CURRENT_USER],
     lastMessage: {
-      authorName: "Ana Chen",
-      content: "Can you check the SLA on Henderson?",
-      timestamp: "2026-03-05T13:45:00Z",
+      authorName: "Luna Torres",
+      content:
+        "Boiler Room just emailed — they want Nova Lux for a Berlin set. Should I triage it?",
+      timestamp: "2026-03-11T10:30:00Z",
     },
-    unreadCount: 0,
+    unreadCount: 2,
     muted: false,
-    createdAt: "2026-02-15T09:00:00Z",
+    createdAt: "2026-01-10T09:00:00Z",
   },
   {
     id: "conv_005",
@@ -172,49 +231,54 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     moduleId: null,
     vaultId: null,
     chamber: null,
-    participants: [MARCO, CURRENT_USER],
+    participants: [DEX, CURRENT_USER],
     lastMessage: {
-      authorName: "Marco Li",
-      content: "Sent you the updated extraction report",
-      timestamp: "2026-03-04T16:20:00Z",
+      authorName: "Dex Rollins",
+      content:
+        "Midnight Concrete masters are done. Jay is hyped. Sending the files now.",
+      timestamp: "2026-03-10T18:00:00Z",
     },
-    unreadCount: 2,
+    unreadCount: 1,
     muted: false,
-    createdAt: "2026-02-18T11:00:00Z",
+    createdAt: "2026-01-18T11:00:00Z",
   },
   {
     id: "conv_006",
     type: "team",
-    name: "#design-reviews",
+    name: "#artist-relations",
     moduleId: null,
     vaultId: null,
     chamber: null,
-    participants: [ANA, MARCO, SARAH, TOM, CURRENT_USER],
+    participants: [LUNA, MIA, DEX, CURRENT_USER],
     lastMessage: {
-      authorName: "Marco Li",
-      content: "Pushed the updated wireframes for the new gate flow",
-      timestamp: "2026-03-05T10:00:00Z",
+      authorName: "Luna Torres",
+      content:
+        "Barclay wants full ownership post-Dirtybird. He's serious about the direct deal.",
+      timestamp: "2026-03-10T13:00:00Z",
     },
     unreadCount: 1,
     muted: false,
-    createdAt: "2026-01-15T09:00:00Z",
+    createdAt: "2026-01-05T09:00:00Z",
+    topic: "Artist management and career development",
   },
   {
     id: "conv_007",
     type: "team",
-    name: "#onboarding",
+    name: "#release-planning",
     moduleId: null,
     vaultId: null,
     chamber: null,
-    participants: [ANA, TOM, CURRENT_USER],
+    participants: [LUNA, KAI, DEX, MIA, CURRENT_USER],
     lastMessage: {
-      authorName: "Tom Gatekeeper",
-      content: "Welcome guide is updated for the new dashboard",
-      timestamp: "2026-03-03T15:30:00Z",
+      authorName: "Dex Rollins",
+      content:
+        "Urban Fauna EP masters are locked. Metadata sheet is in the vault.",
+      timestamp: "2026-03-09T17:00:00Z",
     },
     unreadCount: 0,
     muted: false,
-    createdAt: "2026-01-10T09:00:00Z",
+    createdAt: "2026-01-08T09:00:00Z",
+    topic: "Release scheduling, distribution, and launch coordination",
   },
   {
     id: "conv_008",
@@ -223,15 +287,15 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     moduleId: "contracts",
     vaultId: null,
     chamber: null,
-    participants: [ANA, MARCO, SARAH, TOM, CURRENT_USER],
+    participants: [LUNA, KAI, MIA, DEX, CURRENT_USER],
     lastMessage: {
       authorName: "System",
-      content: "5 new vaults created today",
-      timestamp: "2026-03-05T08:00:00Z",
+      content: "3 vaults advanced this week",
+      timestamp: "2026-03-10T08:00:00Z",
     },
     unreadCount: 0,
     muted: false,
-    createdAt: "2025-11-01T09:00:00Z",
+    createdAt: "2026-01-01T09:00:00Z",
   },
   {
     id: "conv_009",
@@ -240,15 +304,16 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     moduleId: "crm",
     vaultId: null,
     chamber: null,
-    participants: [ANA, SARAH, CURRENT_USER],
+    participants: [LUNA, MIA, CURRENT_USER],
     lastMessage: {
-      authorName: "Sarah Owner",
-      content: "Pipeline review meeting moved to Thursday",
-      timestamp: "2026-03-04T14:00:00Z",
+      authorName: "Mia Okafor",
+      content:
+        "Redbull partnership is heating up — they want The Portals for the Sound Stage",
+      timestamp: "2026-03-09T12:00:00Z",
     },
     unreadCount: 0,
     muted: false,
-    createdAt: "2025-11-01T09:00:00Z",
+    createdAt: "2026-01-01T09:00:00Z",
   },
   {
     id: "conv_010",
@@ -257,15 +322,16 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     moduleId: "tasks",
     vaultId: null,
     chamber: null,
-    participants: [MARCO, TOM, CURRENT_USER],
+    participants: [LUNA, KAI, CURRENT_USER],
     lastMessage: {
-      authorName: "Tom Gatekeeper",
-      content: "Reminder: all overdue tasks need status updates",
-      timestamp: "2026-03-04T09:00:00Z",
+      authorName: "Luna Torres",
+      content:
+        "SLA warning on the Boiler Room license — we need to respond today",
+      timestamp: "2026-03-11T09:00:00Z",
     },
     unreadCount: 0,
     muted: true,
-    createdAt: "2025-11-01T09:00:00Z",
+    createdAt: "2026-01-01T09:00:00Z",
   },
 ];
 
@@ -278,48 +344,52 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       conversationId: "conv_001",
       authorId: null,
       authorName: "System",
-      content: "Vault thread created for Henderson MSA",
+      content: "Vault thread created for Barclay — Direct Distribution Deal",
       messageType: "system",
-      createdAt: "2026-03-01T09:00:00Z",
+      createdAt: "2026-01-15T09:00:00Z",
     },
     {
       id: "msg_002",
       conversationId: "conv_001",
       authorId: "user_self",
       authorName: "You",
-      content: "Starting extraction on the Henderson MSA. 85-page document.",
+      content:
+        "Luna found this lead — Barclay wants to own his masters post-Dirtybird. Let's see what Empire offers.",
       messageType: "text",
-      createdAt: "2026-03-01T09:15:00Z",
+      createdAt: "2026-01-15T09:15:00Z",
+      reactions: [{ emoji: "👀", count: 2, userReacted: false }],
     },
     {
       id: "msg_003",
       conversationId: "conv_001",
       authorId: "user_001",
-      authorName: "Ana Chen",
+      authorName: "Luna Torres",
       content:
-        "Extraction completed. 42 fields found, 5 need review. Confidence score is 87%.",
+        "Empire's A&R director is interested. They're sending a term sheet.",
       messageType: "text",
-      createdAt: "2026-03-02T10:30:00Z",
+      createdAt: "2026-02-10T11:00:00Z",
+      pinned: true,
+      pinnedBy: "Luna Torres",
+      pinnedAt: "2026-02-10T11:30:00Z",
     },
     {
       id: "msg_004",
       conversationId: "conv_001",
       authorId: "user_002",
-      authorName: "Marco Li",
-      content:
-        "Looking at the flagged fields now. Territory clause seems ambiguous.",
+      authorName: "Kai Nakamura",
+      content: "I'll run the term sheet through extraction once it lands.",
       messageType: "text",
-      createdAt: "2026-03-02T10:45:00Z",
+      createdAt: "2026-03-08T10:00:00Z",
     },
     {
       id: "msg_005",
       conversationId: "conv_001",
       authorId: "user_001",
-      authorName: "Ana Chen",
+      authorName: "Luna Torres",
       content:
-        "The SLA timer started at 10:30 — we have until 2:30 PM today for the review gate.",
+        "Empire just sent the updated term sheet — 80/20 split, 2-year lock",
       messageType: "text",
-      createdAt: "2026-03-02T10:47:00Z",
+      createdAt: "2026-03-10T16:30:00Z",
     },
     {
       id: "msg_006",
@@ -327,27 +397,13 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       authorId: "user_self",
       authorName: "You",
       content:
-        "Submitted a patch for the territory field. Changed to 'Worldwide excl. Asia'.",
+        "80/20 is below market for someone with Barclay's catalog. Push for 85/15.",
       messageType: "text",
-      createdAt: "2026-03-04T14:00:00Z",
-    },
-    {
-      id: "msg_007",
-      conversationId: "conv_001",
-      authorId: "user_001",
-      authorName: "Ana Chen",
-      content: "Patch approved. Moving to review gate now.",
-      messageType: "text",
-      createdAt: "2026-03-05T09:00:00Z",
-    },
-    {
-      id: "msg_008",
-      conversationId: "conv_001",
-      authorId: "user_001",
-      authorName: "Ana Chen",
-      content: "Field extraction looks good, 5 fields need review",
-      messageType: "text",
-      createdAt: "2026-03-05T14:28:00Z",
+      createdAt: "2026-03-10T16:45:00Z",
+      reactions: [
+        { emoji: "🔥", count: 3, userReacted: false },
+        { emoji: "💯", count: 1, userReacted: true },
+      ],
     },
   ],
   conv_002: [
@@ -356,27 +412,65 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       conversationId: "conv_002",
       authorId: null,
       authorName: "System",
-      content: "Vault thread created for Acme Distribution Agreement",
+      content: "Vault thread created for Jay Solis — Nettwerk Sync License",
       messageType: "system",
-      createdAt: "2026-02-28T10:00:00Z",
+      createdAt: "2026-02-01T10:00:00Z",
     },
     {
       id: "msg_021",
       conversationId: "conv_002",
-      authorId: "user_002",
-      authorName: "Marco Li",
-      content: "Draft is looking good. Need to finalize the royalty schedule.",
+      authorId: "user_self",
+      authorName: "You",
+      content:
+        "Nettwerk wants Jay for a Netflix series placement. This could be huge.",
       messageType: "text",
-      createdAt: "2026-03-04T09:00:00Z",
+      createdAt: "2026-02-01T10:15:00Z",
     },
     {
       id: "msg_022",
       conversationId: "conv_002",
       authorId: "user_002",
-      authorName: "Marco Li",
-      content: "Updated the territory clause",
+      authorName: "Kai Nakamura",
+      content:
+        "Extraction pulled 18 fields. Netflix placement fee is $18K non-exclusive.",
       messageType: "text",
-      createdAt: "2026-03-05T11:15:00Z",
+      createdAt: "2026-03-09T13:00:00Z",
+      pinned: true,
+      pinnedBy: "Kai Nakamura",
+      pinnedAt: "2026-03-09T13:05:00Z",
+      reactions: [{ emoji: "✅", count: 2, userReacted: true }],
+      embeds: [
+        {
+          type: "gate_alert",
+          data: {
+            vaultName: "Jay Solis — Nettwerk Sync License",
+            gate: "gate_preflight",
+            status: "passed",
+            fieldsExtracted: 18,
+            confidence: 0.94,
+          },
+        },
+      ],
+    },
+    {
+      id: "msg_023",
+      conversationId: "conv_002",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content:
+        "That's solid for a series placement. Is it the main title or background?",
+      messageType: "text",
+      createdAt: "2026-03-09T13:30:00Z",
+    },
+    {
+      id: "msg_024",
+      conversationId: "conv_002",
+      authorId: "user_002",
+      authorName: "Kai Nakamura",
+      content:
+        "Background — but 3 episodes guaranteed. Territory is worldwide.",
+      messageType: "text",
+      createdAt: "2026-03-09T14:20:00Z",
     },
   ],
   conv_003: [
@@ -385,152 +479,235 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       conversationId: "conv_003",
       authorId: null,
       authorName: "System",
-      content: "Vault thread created for Summit Publishing License",
+      content:
+        "Vault thread created for Nova Lux — Empire Worldwide Distribution",
       messageType: "system",
-      createdAt: "2026-02-20T14:00:00Z",
+      createdAt: "2026-01-20T14:00:00Z",
     },
     {
       id: "msg_031",
       conversationId: "conv_003",
-      authorId: "user_003",
-      authorName: "Sarah Owner",
-      content: "All gates passed. Ready for final review.",
+      authorId: "user_001",
+      authorName: "Luna Torres",
+      content:
+        "All extraction fields verified. Royalty split is 70/30. Territory worldwide.",
       messageType: "text",
-      createdAt: "2026-03-04T16:00:00Z",
+      createdAt: "2026-03-06T10:00:00Z",
     },
     {
       id: "msg_032",
       conversationId: "conv_003",
-      authorId: "user_003",
-      authorName: "Sarah Owner",
-      content: "Approved for ship. Great work team!",
+      authorId: "user_002",
+      authorName: "Kai Nakamura",
+      content: "Legal review complete. No red flags. Ready for Mia's sign-off.",
       messageType: "text",
-      createdAt: "2026-03-05T09:30:00Z",
+      createdAt: "2026-03-07T15:00:00Z",
+    },
+    {
+      id: "msg_033",
+      conversationId: "conv_003",
+      authorId: "user_003",
+      authorName: "Mia Okafor",
+      content: "Approved. Glass Frequencies is shipping. Let's go.",
+      messageType: "text",
+      createdAt: "2026-03-08T11:00:00Z",
+      reactions: [
+        { emoji: "🎉", count: 4, userReacted: true },
+        { emoji: "🚀", count: 2, userReacted: false },
+      ],
     },
   ],
   conv_004: [
     {
       id: "msg_040",
       conversationId: "conv_004",
-      authorId: "user_self",
-      authorName: "You",
-      content: "Hey Ana, can you take a look at the Henderson fields?",
+      authorId: "user_001",
+      authorName: "Luna Torres",
+      content: "Hey — Boiler Room just reached out about Nova Lux",
       messageType: "text",
-      createdAt: "2026-03-05T13:00:00Z",
+      createdAt: "2026-03-11T09:50:00Z",
     },
     {
       id: "msg_041",
       conversationId: "conv_004",
       authorId: "user_001",
-      authorName: "Ana Chen",
-      content: "Sure, I'll check it after lunch.",
+      authorName: "Luna Torres",
+      content:
+        "They want a live set recording for their Berlin series. Performance license needed.",
       messageType: "text",
-      createdAt: "2026-03-05T13:05:00Z",
+      createdAt: "2026-03-11T09:51:00Z",
     },
     {
       id: "msg_042",
       conversationId: "conv_004",
-      authorId: "user_001",
-      authorName: "Ana Chen",
-      content: "Done! Looks like 3 fields need attention.",
+      authorId: "user_self",
+      authorName: "You",
+      content: "That's amazing. Triage it — I'll loop in Kai for the license.",
       messageType: "text",
-      createdAt: "2026-03-05T13:40:00Z",
+      createdAt: "2026-03-11T10:00:00Z",
     },
     {
       id: "msg_043",
       conversationId: "conv_004",
-      authorId: "user_self",
-      authorName: "You",
-      content: "Thanks! I'll handle those now.",
+      authorId: "user_001",
+      authorName: "Luna Torres",
+      content:
+        "On it. Also — they asked about Barclay too but I think we should focus on Nova Lux first.",
       messageType: "text",
-      createdAt: "2026-03-05T13:42:00Z",
+      createdAt: "2026-03-11T10:15:00Z",
     },
     {
       id: "msg_044",
       conversationId: "conv_004",
       authorId: "user_001",
-      authorName: "Ana Chen",
-      content: "Can you check the SLA on Henderson?",
+      authorName: "Luna Torres",
+      content:
+        "Boiler Room just emailed — they want Nova Lux for a Berlin set. Should I triage it?",
       messageType: "text",
-      createdAt: "2026-03-05T13:45:00Z",
+      createdAt: "2026-03-11T10:30:00Z",
     },
   ],
   conv_005: [
     {
       id: "msg_050",
       conversationId: "conv_005",
-      authorId: "user_002",
-      authorName: "Marco Li",
-      content: "Hey, are you free for a quick sync on the Acme deal?",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content: "yo the Midnight Concrete sessions are wrapping up",
       messageType: "text",
-      createdAt: "2026-03-04T15:00:00Z",
+      createdAt: "2026-03-09T18:00:00Z",
     },
     {
       id: "msg_051",
       conversationId: "conv_005",
-      authorId: "user_self",
-      authorName: "You",
-      content: "Sure, give me 10 minutes.",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content: "Jay is in the zone. These tracks are something else.",
       messageType: "text",
-      createdAt: "2026-03-04T15:05:00Z",
+      createdAt: "2026-03-09T18:02:00Z",
     },
     {
       id: "msg_052",
       conversationId: "conv_005",
-      authorId: "user_002",
-      authorName: "Marco Li",
-      content: "Sent you the updated extraction report",
+      authorId: "user_self",
+      authorName: "You",
+      content: "Can't wait to hear it. When are masters due?",
       messageType: "text",
-      createdAt: "2026-03-04T16:20:00Z",
+      createdAt: "2026-03-09T18:10:00Z",
+    },
+    {
+      id: "msg_053",
+      conversationId: "conv_005",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content: "3 weeks. Sending you a preview now.",
+      messageType: "text",
+      createdAt: "2026-03-09T18:15:00Z",
+    },
+    {
+      id: "msg_054",
+      conversationId: "conv_005",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content: "midnight-concrete-preview-mix.wav",
+      messageType: "file",
+      fileName: "midnight-concrete-preview-mix.wav",
+      fileSize: 48000000,
+      fileMimeType: "audio/wav",
+      createdAt: "2026-03-09T18:16:00Z",
+    },
+    {
+      id: "msg_055",
+      conversationId: "conv_005",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content:
+        "Midnight Concrete masters are done. Jay is hyped. Sending the files now.",
+      messageType: "text",
+      createdAt: "2026-03-10T18:00:00Z",
     },
   ],
   conv_006: [
     {
       id: "msg_060",
       conversationId: "conv_006",
-      authorId: "user_001",
-      authorName: "Ana Chen",
-      content: "New gate flow designs are ready for review.",
+      authorId: "user_003",
+      authorName: "Mia Okafor",
+      content:
+        "Quick update — I talked to Barclay yesterday. He's done with the old label structure.",
       messageType: "text",
-      createdAt: "2026-03-04T14:00:00Z",
+      createdAt: "2026-03-09T11:00:00Z",
     },
     {
       id: "msg_061",
       conversationId: "conv_006",
-      authorId: "user_004",
-      authorName: "Tom Gatekeeper",
-      content: "Looks clean. One question about the approval chain step.",
+      authorId: "user_001",
+      authorName: "Luna Torres",
+      content:
+        "He wants full ownership post-Dirtybird. The direct deal through Empire is his priority.",
       messageType: "text",
-      createdAt: "2026-03-04T15:30:00Z",
+      createdAt: "2026-03-09T11:10:00Z",
     },
     {
       id: "msg_062",
       conversationId: "conv_006",
-      authorId: "user_001",
-      authorName: "Ana Chen",
-      content: "Good catch — updated the flow to show the two-step approval.",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content: "Makes sense. He built that whole sound. Should own it.",
       messageType: "text",
-      createdAt: "2026-03-05T09:00:00Z",
+      createdAt: "2026-03-10T12:00:00Z",
     },
     {
       id: "msg_063",
       conversationId: "conv_006",
-      authorId: "user_002",
-      authorName: "Marco Li",
-      content: "Pushed the updated wireframes for the new gate flow",
+      authorId: "user_001",
+      authorName: "Luna Torres",
+      content:
+        "Barclay wants full ownership post-Dirtybird. He's serious about the direct deal.",
       messageType: "text",
-      createdAt: "2026-03-05T10:00:00Z",
+      createdAt: "2026-03-10T13:00:00Z",
     },
   ],
   conv_007: [
     {
       id: "msg_070",
       conversationId: "conv_007",
-      authorId: "user_004",
-      authorName: "Tom Gatekeeper",
-      content: "Welcome guide is updated for the new dashboard",
+      authorId: "user_001",
+      authorName: "Luna Torres",
+      content:
+        "Two releases coming up: Urban Fauna EP (Barclay) and Glass Frequencies (Nova Lux)",
       messageType: "text",
-      createdAt: "2026-03-03T15:30:00Z",
+      createdAt: "2026-03-08T09:00:00Z",
+    },
+    {
+      id: "msg_071",
+      conversationId: "conv_007",
+      authorId: "user_002",
+      authorName: "Kai Nakamura",
+      content:
+        "Empire distro is locked for Nova Lux. AWAL is handling Barclay's release.",
+      messageType: "text",
+      createdAt: "2026-03-08T09:30:00Z",
+    },
+    {
+      id: "msg_072",
+      conversationId: "conv_007",
+      authorId: "user_004",
+      authorName: "Dex Rollins",
+      content:
+        "Urban Fauna EP masters are locked. Metadata sheet is in the vault.",
+      messageType: "text",
+      createdAt: "2026-03-09T17:00:00Z",
+    },
+    {
+      id: "msg_073",
+      conversationId: "conv_007",
+      authorId: "user_003",
+      authorName: "Mia Okafor",
+      content:
+        "Let's stagger the drops — Urban Fauna first, then Glass Frequencies 2 weeks later.",
+      messageType: "text",
+      createdAt: "2026-03-09T17:15:00Z",
     },
   ],
   conv_008: [
@@ -539,9 +716,9 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       conversationId: "conv_008",
       authorId: null,
       authorName: "System",
-      content: "5 new vaults created today",
+      content: "3 vaults advanced this week",
       messageType: "system",
-      createdAt: "2026-03-05T08:00:00Z",
+      createdAt: "2026-03-10T08:00:00Z",
     },
   ],
   conv_009: [
@@ -549,21 +726,23 @@ export const MOCK_MESSAGES: Record<string, Message[]> = {
       id: "msg_090",
       conversationId: "conv_009",
       authorId: "user_003",
-      authorName: "Sarah Owner",
-      content: "Pipeline review meeting moved to Thursday",
+      authorName: "Mia Okafor",
+      content:
+        "Redbull partnership is heating up — they want The Portals for the Sound Stage",
       messageType: "text",
-      createdAt: "2026-03-04T14:00:00Z",
+      createdAt: "2026-03-09T12:00:00Z",
     },
   ],
   conv_010: [
     {
       id: "msg_100",
       conversationId: "conv_010",
-      authorId: "user_004",
-      authorName: "Tom Gatekeeper",
-      content: "Reminder: all overdue tasks need status updates",
+      authorId: "user_001",
+      authorName: "Luna Torres",
+      content:
+        "SLA warning on the Boiler Room license — we need to respond today",
       messageType: "text",
-      createdAt: "2026-03-04T09:00:00Z",
+      createdAt: "2026-03-11T09:00:00Z",
     },
   ],
 };
@@ -575,21 +754,61 @@ export const MOCK_REPLIES: Record<
   { authorName: string; content: string }
 > = {
   conv_001: {
-    authorName: "Ana Chen",
-    content: "Got it, I'll take another look at those fields.",
+    authorName: "Luna Torres",
+    content: "I'll push back on the split. 85/15 or we walk.",
   },
   conv_002: {
-    authorName: "Marco Li",
-    content: "Thanks, I'll update the clause accordingly.",
+    authorName: "Kai Nakamura",
+    content: "Confirmed — background placement, 3 episodes.",
   },
-  conv_003: { authorName: "Sarah Owner", content: "Excellent — shipping now." },
-  conv_004: { authorName: "Ana Chen", content: "On it!" },
+  conv_003: {
+    authorName: "Mia Okafor",
+    content: "Congratulations team. This is a big one.",
+  },
+  conv_004: {
+    authorName: "Luna Torres",
+    content: "Triaging now. I'll create the vault.",
+  },
   conv_005: {
-    authorName: "Marco Li",
-    content: "Sure thing, let me know if you have questions.",
+    authorName: "Dex Rollins",
+    content: "Sending the final masters over now.",
   },
   conv_006: {
-    authorName: "Ana Chen",
-    content: "Sounds good, I'll review the latest changes.",
+    authorName: "Luna Torres",
+    content: "Setting up the Empire call for next week.",
   },
 };
+
+// ─── User Statuses ───────────────────────────────────────────────────
+
+export interface UserStatus {
+  userId: string;
+  emoji: string;
+  text: string;
+  expiresAt?: string; // ISO timestamp
+}
+
+export const MOCK_USER_STATUSES: Record<string, UserStatus> = {
+  user_001: {
+    userId: "user_001",
+    emoji: "🎧",
+    text: "Scouting new artists — in discovery mode",
+  },
+  user_002: {
+    userId: "user_002",
+    emoji: "📋",
+    text: "Reviewing Nettwerk sync terms",
+  },
+  user_004: {
+    userId: "user_004",
+    emoji: "🎹",
+    text: "In the studio — mixing Midnight Concrete",
+  },
+};
+
+// ─── URL Utilities ───────────────────────────────────────────────────
+
+export function extractUrls(content: string): string[] {
+  const urlRegex = /https?:\/\/[^\s<>"')\]]+/g;
+  return content.match(urlRegex) || [];
+}

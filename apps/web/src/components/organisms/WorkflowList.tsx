@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Plus, Play, Pause, Pencil } from "lucide-react";
+import { Plus, CirclePlay, CirclePause, PenLine } from "lucide-react";
 import { useWorkflowStore } from "@/stores/workflow.store";
 import {
   WORKFLOW_STATUS_CONFIG,
@@ -24,10 +24,10 @@ export default function WorkflowList({ onOpenBuilder }: WorkflowListProps) {
   } = useWorkflowStore();
 
   useEffect(() => {
-    if (workflows.length === 0) {
+    if (!workflows || workflows.length === 0) {
       fetchWorkflows();
     }
-  }, [workflows.length, fetchWorkflows]);
+  }, [workflows, fetchWorkflows]);
 
   const categories: (WorkflowCategory | "all")[] = [
     "all",
@@ -48,8 +48,8 @@ export default function WorkflowList({ onOpenBuilder }: WorkflowListProps) {
         <div>
           <h2 className="text-lg font-bold text-text-primary">Workflows</h2>
           <p className="text-xs text-text-muted">
-            Visual automation builder — {workflows.length} workflow
-            {workflows.length !== 1 ? "s" : ""}
+            Visual automation builder — {workflows?.length ?? 0} workflow
+            {(workflows?.length ?? 0) !== 1 ? "s" : ""}
           </p>
         </div>
         <button className="flex items-center gap-1.5 rounded-md bg-accent-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-primary/80">
@@ -115,9 +115,9 @@ export default function WorkflowList({ onOpenBuilder }: WorkflowListProps) {
                       className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium text-white ${statusCfg.color}`}
                     >
                       {wf.status === "active" ? (
-                        <Play size={9} fill="currentColor" />
+                        <CirclePlay size={9} fill="currentColor" />
                       ) : (
-                        <Pause size={9} />
+                        <CirclePause size={9} />
                       )}
                       {statusCfg.label}
                     </span>
@@ -144,7 +144,7 @@ export default function WorkflowList({ onOpenBuilder }: WorkflowListProps) {
                       className="rounded p-1 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
                       title="Open builder"
                     >
-                      <Pencil size={14} />
+                      <PenLine size={14} />
                     </button>
                   </td>
                 </tr>

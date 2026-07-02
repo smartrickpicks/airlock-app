@@ -2,7 +2,7 @@
 
 ## Before You Start
 
-1. Read `docs/concepts/00-glossary.mdx` for canonical vocabulary
+1. Read `airlock-docs/concepts/00-glossary.mdx` for canonical vocabulary (via MCP)
 2. Read the spec for the feature you're seeding data for
 3. Check existing scenario definitions in `scripts/seeds/definitions/`
 

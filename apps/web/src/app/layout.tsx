@@ -20,6 +20,10 @@ const firaCode = Fira_Code({
 export const metadata: Metadata = {
   title: "Airlock",
   description: "Enterprise data operations platform",
+  icons: {
+    icon: "/assets/brand/airlock-256.png",
+    apple: "/assets/brand/airlock-512.png",
+  },
 };
 
 export default function RootLayout({

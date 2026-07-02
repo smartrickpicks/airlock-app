@@ -1,9 +1,11 @@
 import { create } from "zustand";
+import { runGenerationEngine } from "@/lib/contract-engines";
 import {
   MOCK_TEMPLATES,
   getClausesForSection,
   type ContractTemplate,
 } from "@/lib/mock-clauses";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface GeneratorState {
   /** Selected contract type ID */
@@ -18,6 +20,10 @@ interface GeneratorState {
   clauseOverrides: Record<string, string>;
   /** Assembled preview markdown */
   preview: string;
+  /** Engine request state */
+  isGenerating: boolean;
+  generationError: string | null;
+  previewSource: "local" | "engine";
 
   /** Select a contract type and load its template */
   selectContractType: (typeId: string) => void;
@@ -33,6 +39,8 @@ interface GeneratorState {
   overrideClause: (sectionId: string, clauseId: string) => void;
   /** Assemble the preview from current state */
   assemblePreview: () => void;
+  /** Generate using backend engine */
+  generateWithEngine: () => Promise<void>;
   /** Reset the generator */
   reset: () => void;
 }
@@ -90,8 +98,24 @@ export const useGeneratorStore = create<GeneratorState>((set, get) => ({
   fieldValues: {},
   clauseOverrides: {},
   preview: "",
+  isGenerating: false,
+  generationError: null,
+  previewSource: "local",
 
   selectContractType: (typeId) => {
+    if (getWorkspaceMode() === "clean") {
+      set({
+        contractType: typeId,
+        template: null,
+        currentStep: 0,
+        fieldValues: {},
+        clauseOverrides: {},
+        preview: "",
+        generationError: null,
+        previewSource: "local",
+      });
+      return;
+    }
     const template = MOCK_TEMPLATES[typeId] ?? null;
     set({
       contractType: typeId,
@@ -100,12 +124,15 @@ export const useGeneratorStore = create<GeneratorState>((set, get) => ({
       fieldValues: {},
       clauseOverrides: {},
       preview: "",
+      generationError: null,
+      previewSource: "local",
     });
     if (template) {
       // Auto-assemble initial preview
       const state = get();
       set({
         preview: assemble(template, state.fieldValues, state.clauseOverrides),
+        previewSource: "local",
       });
     }
   },
@@ -131,7 +158,11 @@ export const useGeneratorStore = create<GeneratorState>((set, get) => ({
     const { template, clauseOverrides } = get();
     set({ fieldValues: newValues });
     if (template) {
-      set({ preview: assemble(template, newValues, clauseOverrides) });
+      set({
+        preview: assemble(template, newValues, clauseOverrides),
+        previewSource: "local",
+        generationError: null,
+      });
     }
   },
 
@@ -140,14 +171,47 @@ export const useGeneratorStore = create<GeneratorState>((set, get) => ({
     const { template, fieldValues } = get();
     set({ clauseOverrides: newOverrides });
     if (template) {
-      set({ preview: assemble(template, fieldValues, newOverrides) });
+      set({
+        preview: assemble(template, fieldValues, newOverrides),
+        previewSource: "local",
+        generationError: null,
+      });
     }
   },
 
   assemblePreview: () => {
     const { template, fieldValues, clauseOverrides } = get();
     if (template) {
-      set({ preview: assemble(template, fieldValues, clauseOverrides) });
+      set({
+        preview: assemble(template, fieldValues, clauseOverrides),
+        previewSource: "local",
+        generationError: null,
+      });
+    }
+  },
+
+  generateWithEngine: async () => {
+    const { contractType, fieldValues, preview } = get();
+    if (!contractType) return;
+
+    set({ isGenerating: true, generationError: null });
+    try {
+      const data = await runGenerationEngine({
+        contractType,
+        formValues: fieldValues,
+        seed: 42,
+      });
+      set({
+        preview: data.text || preview,
+        isGenerating: false,
+        previewSource: "engine",
+      });
+    } catch (error) {
+      set({
+        isGenerating: false,
+        generationError:
+          error instanceof Error ? error.message : "Engine generation failed",
+      });
     }
   },
 
@@ -159,5 +223,8 @@ export const useGeneratorStore = create<GeneratorState>((set, get) => ({
       fieldValues: {},
       clauseOverrides: {},
       preview: "",
+      isGenerating: false,
+      generationError: null,
+      previewSource: "local",
     }),
 }));

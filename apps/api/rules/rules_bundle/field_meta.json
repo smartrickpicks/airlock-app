@@ -2,8 +2,8 @@
   "version": "v1",
   "meta": {
     "generated_at_utc": "2026-02-05T04:43:09.759605Z",
-    "glossary_source": "/Users/zacharyholwerda/Desktop/CreateMusicFiles/Orchestrate_OS/Master Glossary [Holwerda, Data Dash].xlsx",
-    "hinge_source": "/Users/zacharyholwerda/Desktop/CreateMusicFiles/Orchestrate_OS/App_Build_Order_Hinges_v1.xlsx",
+    "glossary_source": "/app/data/Master Glossary.xlsx",
+    "hinge_source": "/app/data/App_Build_Order_Hinges_v1.xlsx",
     "description": "Canonical glossary — field definitions for all governed data sheets",
     "sheet_mapping": {
       "Accounts": "Account Fields Definitions",
@@ -19,8 +19,8 @@
     "updated_at": "2026-02-14T19:17:39.631Z",
     "schema_version": "3.0",
     "unified_enrichment": {
-      "source_canonical": "/Users/zacharyholwerda/Downloads/field_meta_glossary (2).json",
-      "source_rovo_pdf": "/Users/zacharyholwerda/Downloads/Field Json (glossary Master) .pdf",
+      "source_canonical": "/app/data/field_meta_glossary.json",
+      "source_rovo_pdf": "/app/data/field_glossary_master.pdf",
       "source_financials_fix": "docs/glossary_refresh_2026-02-14/financials_delta_v1.json",
       "source_add_ons_fix": "docs/glossary_refresh_2026-02-14/add_ons_delta_v1.json",
       "source_structured_sections": "docs/glossary_refresh_2026-02-14/sections_opportunities_financials_v1.json",
@@ -690,7 +690,7 @@
     {
       "sheet": "Accounts",
       "field_key": "account_prefill_link_c",
-      "field_label": "CMG Account Prefill link",
+      "field_label": "CEG Account Prefill link",
       "definition": "This field stores a prefilled Typeform or onboarding link for the account to complete required information. It is an operational tool URL, not a contract-derived value.",
       "return_format": "Url",
       "example_output": "",
@@ -810,7 +810,7 @@
     {
       "sheet": "Accounts",
       "field_key": "cmg_2022_profit_c",
-      "field_label": "CMG 2022 Profit",
+      "field_label": "CEG 2022 Profit",
       "definition": "This field stores the profit attributed to this account for the year 2022 according to internal reporting. It is a historical metric, not a contract extraction.",
       "return_format": "Currency",
       "example_output": "",
@@ -943,7 +943,7 @@
       "sheet": "Accounts",
       "field_key": "first_signed_date_c",
       "field_label": "First Signed Date",
-      "definition": "This field stores the date on which the account first signed any contract with CMG. It is derived from related Opportunities/agreements and is not taken from a single contract field.",
+      "definition": "This field stores the date on which the account first signed any contract with CEG. It is derived from related Opportunities/agreements and is not taken from a single contract field.",
       "return_format": "Date",
       "example_output": "",
       "requiredness": "not_needed",
@@ -2284,7 +2284,7 @@
       "sheet": "Contacts",
       "field_key": "Contact_City__c",
       "field_label": "Contact City",
-      "definition": "This field stores the normalized city for the contact’s primary address in a CMG-specific format, typically mirroring `MailingCity` for downstream templates or data flows.",
+      "definition": "This field stores the normalized city for the contact’s primary address in a CEG-specific format, typically mirroring `MailingCity` for downstream templates or data flows.",
       "return_format": "TextArea",
       "example_output": "",
       "requiredness": "not_needed",
@@ -2320,7 +2320,7 @@
       "sheet": "Contacts",
       "field_key": "Contact_First_Name__c",
       "field_label": "Contact First Name",
-      "definition": "This field mirrors or normalizes the contact’s first name for CMG-specific processes or document templates. It should stay consistent with the core `FirstName` field.",
+      "definition": "This field mirrors or normalizes the contact’s first name for CEG-specific processes or document templates. It should stay consistent with the core `FirstName` field.",
       "return_format": "Text",
       "example_output": "",
       "requiredness": "not_needed",
@@ -2344,7 +2344,7 @@
       "sheet": "Contacts",
       "field_key": "Contact_Last_Name__c",
       "field_label": "Contact Last Name",
-      "definition": "This field mirrors or normalizes the contact’s last name for CMG-specific processes or document templates. It should stay consistent with the core `LastName` field.",
+      "definition": "This field mirrors or normalizes the contact’s last name for CEG-specific processes or document templates. It should stay consistent with the core `LastName` field.",
       "return_format": "Text",
       "example_output": "",
       "requiredness": "not_needed",
@@ -2380,7 +2380,7 @@
       "sheet": "Contacts",
       "field_key": "Contact_State__c",
       "field_label": "Contact State",
-      "definition": "This field stores the normalized state or province value for the contact’s primary address, aligned to CMG’s internal formatting.",
+      "definition": "This field stores the normalized state or province value for the contact’s primary address, aligned to CEG’s internal formatting.",
       "return_format": "TextArea",
       "example_output": "",
       "requiredness": "not_needed",
@@ -2404,7 +2404,7 @@
       "sheet": "Contacts",
       "field_key": "Contact_Street_2__c",
       "field_label": "Contact Street 2",
-      "definition": "This field stores an additional address line for the contact (for example, apartment, suite, or building information) in CMG’s normalized format.",
+      "definition": "This field stores an additional address line for the contact (for example, apartment, suite, or building information) in CEG’s normalized format.",
       "return_format": "TextArea",
       "example_output": "",
       "requiredness": "not_needed",
@@ -2476,7 +2476,7 @@
       "sheet": "Contacts",
       "field_key": "Purpose__c",
       "field_label": "Purpose",
-      "definition": "This field captures the high-level purpose or reason this contact exists in CMG’s CRM (for example, signatory, legal contact, business contact, A&R liaison). It is an internal classification field.",
+      "definition": "This field captures the high-level purpose or reason this contact exists in CEG’s CRM (for example, signatory, legal contact, business contact, A&R liaison). It is an internal classification field.",
       "return_format": "TextArea",
       "example_output": "",
       "requiredness": "not_needed",
@@ -2500,7 +2500,7 @@
       "sheet": "Contacts",
       "field_key": "Role__c",
       "field_label": "Role",
-      "definition": "This multiselect picklist describes the roles the contact plays in CMG’s ecosystem (for example, Artist, Manager, Lawyer, Label Rep, Publisher). It is used to route communications and understand how this person interacts with deals and accounts.",
+      "definition": "This multiselect picklist describes the roles the contact plays in CEG’s ecosystem (for example, Artist, Manager, Lawyer, Label Rep, Publisher). It is used to route communications and understand how this person interacts with deals and accounts.",
       "return_format": "MultiselectPicklist",
       "example_output": "",
       "requiredness": "not_needed",
@@ -3368,7 +3368,7 @@
       "sheet": "Opportunities",
       "field_key": "Profit_Share__c",
       "field_label": "Division Profit Share",
-      "definition": "This is a percentage available in distribution and profit participation contracts. It represents the division of revenue of the label share of an agreement (the other share is called artist share) between the label and another entity. It's usually available in contracts between a company (CMG or one of its subsidiaries) and a company (record label, management company, etc).",
+      "definition": "This is a percentage available in distribution and profit participation contracts. It represents the division of revenue of the label share of an agreement (the other share is called artist share) between the label and another entity. It's usually available in contracts between a company (CEG or one of its subsidiaries) and a company (record label, management company, etc).",
       "return_format": "Percentage with 2 decimals",
       "example_output": "0.7423",
       "requiredness": "optional",
@@ -3659,7 +3659,7 @@
       "sheet": "Opportunities",
       "field_key": "Matching__c",
       "field_label": "Matching Rights/Right of First Refusal",
-      "definition": "This field indicates if CMG has the rights of first refusal during the term of the agreement or not. We only need to check if there's a paragraph for that in the agreement and return TRUE. Otherwise, return FALSE.",
+      "definition": "This field indicates if CEG has the rights of first refusal during the term of the agreement or not. We only need to check if there's a paragraph for that in the agreement and return TRUE. Otherwise, return FALSE.",
       "return_format": "True/False",
       "example_output": "0",
       "requiredness": "optional",
@@ -3683,7 +3683,7 @@
       "sheet": "Opportunities",
       "field_key": "Merch_Rights__c",
       "field_label": "Merch Rights",
-      "definition": "This field indicates if the contract includes a merchandising paragraph. And if it does, are the rights are exclusive to CMG or non-exclusive?\nthis is usually available in distribution contracts as well as recording and licensing agreements.",
+      "definition": "This field indicates if the contract includes a merchandising paragraph. And if it does, are the rights are exclusive to CEG or non-exclusive?\nthis is usually available in distribution contracts as well as recording and licensing agreements.",
       "return_format": "Dropdown with options",
       "example_output": "Non-Exclusive",
       "requiredness": "required",
@@ -4912,7 +4912,7 @@
       "sheet": "Catalog",
       "field_key": "Label__c",
       "field_label": "Label",
-      "definition": "This picklist identifies the label/imprint under which this catalog item is released or managed within CMG’s internal label structure. It is an internal classification field and is not necessarily spelled out in the contract schedules.",
+      "definition": "This picklist identifies the label/imprint under which this catalog item is released or managed within CEG’s internal label structure. It is an internal classification field and is not necessarily spelled out in the contract schedules.",
       "return_format": "Picklist",
       "example_output": "",
       "requiredness": "not_needed",
@@ -4920,7 +4920,7 @@
         "50UND a division of Elysian Records",
         "Broke",
         "Create Capital Holdings",
-        "Create Music",
+        "Crescendo Entertainment",
         "Disciple",
         "Elysian Records",
         "Flighthouse",
@@ -5076,7 +5076,7 @@
       "sheet": "Financials",
       "field_key": "Days_to_Payment__c",
       "field_label": "Days to Payment",
-      "definition": "This is a number field that defines the total number of days CMG has to pay the payment starting the day it’s triggered.",
+      "definition": "This is a number field that defines the total number of days CEG has to pay the payment starting the day it’s triggered.",
       "return_format": "Number with no decimals",
       "example_output": "23.0",
       "requiredness": "required",
@@ -6310,7 +6310,7 @@
         "sheet": "Accounts",
         "field_key": "status_c",
         "definition_original": "Won't be in the contract",
-        "expanded_definition_suggestion": "This picklist tracks the lifecycle status of the account in CMG’s systems (for example, Prospect, Active, Dormant, Offboarded). It is a CRM governance field that summarizes relationship state across deals, not a contract field."
+        "expanded_definition_suggestion": "This picklist tracks the lifecycle status of the account in CEG’s systems (for example, Prospect, Active, Dormant, Offboarded). It is a CRM governance field that summarizes relationship state across deals, not a contract field."
       },
       {
         "sheet": "Accounts",
@@ -6334,13 +6334,13 @@
         "sheet": "Add Ons",
         "field_key": "Exclusive_Negotiation_Period_Days__c",
         "definition_original": "This field is required when Type = First Negotiation Rights. It represents the number of days where the client can only negociate with us",
-        "expanded_definition_suggestion": "This field stores the length of the exclusive negotiation window, in days, during which the client must negotiate only with CMG under a First Negotiation Rights clause. Populate it when `Type__c = First Negotiation Rights` based on the period stated in the clause."
+        "expanded_definition_suggestion": "This field stores the length of the exclusive negotiation window, in days, during which the client must negotiate only with CEG under a First Negotiation Rights clause. Populate it when `Type__c = First Negotiation Rights` based on the period stated in the clause."
       },
       {
         "sheet": "Add Ons",
         "field_key": "Exclusivity__c",
         "definition_original": "For type = Merchandising or Pitching, this field is meant to indicate if the rights are exclusive to us or non-exclusive. The Exclusivity should be listed in the same paragraph as the right itself.",
-        "expanded_definition_suggestion": "This picklist indicates whether the merchandising or pitching right granted under this Add On is exclusive or non‑exclusive in favor of CMG. Populate it when `Type__c` is Merchandising or Pitching by mapping the rights clause to either Exclusive or Non‑Exclusive, as stated or clearly implied in the contract."
+        "expanded_definition_suggestion": "This picklist indicates whether the merchandising or pitching right granted under this Add On is exclusive or non‑exclusive in favor of CEG. Populate it when `Type__c` is Merchandising or Pitching by mapping the rights clause to either Exclusive or Non‑Exclusive, as stated or clearly implied in the contract."
       },
       {
         "sheet": "Add Ons",
@@ -6364,13 +6364,13 @@
         "sheet": "Add Ons",
         "field_key": "Fee_Type__c",
         "definition_original": "For type = Merchandising or Pitching, this field is meant to indicate if the we are taking a fee off the top. If Fee Type!= No Fee, we will need to extract the split.",
-        "expanded_definition_suggestion": "This picklist indicates the structure of any fee CMG takes for Merchandising or Pitching add‑ons before applying revenue splits (for example, no fee, fixed fee, or 'up to' a capped amount). Use it to distinguish between pure participation deals and deals where CMG takes a fee off the top prior to applying client splits."
+        "expanded_definition_suggestion": "This picklist indicates the structure of any fee CEG takes for Merchandising or Pitching add‑ons before applying revenue splits (for example, no fee, fixed fee, or 'up to' a capped amount). Use it to distinguish between pure participation deals and deals where CEG takes a fee off the top prior to applying client splits."
       },
       {
         "sheet": "Add Ons",
         "field_key": "Matching_Period_Days__c",
         "definition_original": "This field is required when Type = Matching Rights. It represents the period in days where the Licensee (usually US) agrees to match the Offer the client got from a 3rd party in all material commercial respects.",
-        "expanded_definition_suggestion": "This field captures the number of days CMG has to decide whether to match a bona fide third‑party offer under a Matching Rights clause. Use it when `Type__c = Matching Rights`, mapping directly from the matching period specified in the agreement."
+        "expanded_definition_suggestion": "This field captures the number of days CEG has to decide whether to match a bona fide third‑party offer under a Matching Rights clause. Use it when `Type__c = Matching Rights`, mapping directly from the matching period specified in the agreement."
       },
       {
         "sheet": "Add Ons",
@@ -6412,7 +6412,7 @@
         "sheet": "Add Ons",
         "field_key": "Third_Party_Agreement_Completion_Period__c",
         "definition_original": "This field is required when Type = Matching Rights. It refers to the time window in days the Licensor has to consummate the agreement with the third party after the Licensee declines to match the offer",
-        "expanded_definition_suggestion": "This field stores the number of days the client (Licensor) has to finalize an agreement with the third party after CMG declines to match the offer under a Matching Rights clause. Populate it when `Type__c = Matching Rights` so downstream processes can track whether the third‑party deal was completed within the allowed window."
+        "expanded_definition_suggestion": "This field stores the number of days the client (Licensor) has to finalize an agreement with the third party after CEG declines to match the offer under a Matching Rights clause. Populate it when `Type__c = Matching Rights` so downstream processes can track whether the third‑party deal was completed within the allowed window."
       },
       {
         "sheet": "Add Ons",
@@ -6496,7 +6496,7 @@
         "sheet": "Contacts",
         "field_key": "Division2__c",
         "definition_original": "This is the name of the label that the contract is with. It's usually at the top of the contract. Either in the title of the first paragraph. This is not the Artist or a thrid party name. If there is no specified Label, return \\\"None Specified\\\"",
-        "expanded_definition_suggestion": "This lookup identifies the label/division entity associated with this contact in the context of CMG’s structure (for example, the label they work for or represent). It should mirror the label party identified in the relevant contracts and is used to route label-facing contacts to the correct internal division."
+        "expanded_definition_suggestion": "This lookup identifies the label/division entity associated with this contact in the context of CEG’s structure (for example, the label they work for or represent). It should mirror the label party identified in the relevant contracts and is used to route label-facing contacts to the correct internal division."
       },
       {
         "sheet": "Contacts",
@@ -6526,7 +6526,7 @@
         "sheet": "Contacts",
         "field_key": "RecordTypeId",
         "definition_original": "This field indicates the type of the schedule. And as a result, different fields would be required in the schedule catalog object. Which is a joint table between schedule and catalog. This is an enumerated identifier that tags each Schedule with its specific deal subtype (e.g., “Ownership,” “Termination,”). This single value drives all conditional logic: it tells the system which extra fields, page layouts, and validation rules to load in the Schedule–Catalog junction, ensuring that only data relevant to that deal subtype can be displayed, entered, or processed. This field cannot be empty.",
-        "expanded_definition_suggestion": "In the Contacts context, this record type identifier classifies the contact into governed subtypes (for example, Client Contact, Legal Contact, A&R Contact) that control which fields, layouts, and business rules apply. The description referencing schedules is generic; here, treat it as the main driver of how the contact is presented and validated in CMG’s CRM."
+        "expanded_definition_suggestion": "In the Contacts context, this record type identifier classifies the contact into governed subtypes (for example, Client Contact, Legal Contact, A&R Contact) that control which fields, layouts, and business rules apply. The description referencing schedules is generic; here, treat it as the main driver of how the contact is presented and validated in CEG’s CRM."
       },
       {
         "sheet": "Financials",
@@ -6549,8 +6549,8 @@
       {
         "sheet": "Financials",
         "field_key": "Days_to_Payment__c",
-        "definition_original": "This is a number field that defines the total number of days CMG has to pay the payment starting the day it’s triggered.",
-        "expanded_definition_suggestion": "This field captures the number of days CMG has to make the payment after the triggering event occurs (for example, \"within 30 days of delivery\" or \"within 15 days after statement\"). It is mapped from the payment timing clause and is used with `Event_Completion_Date__c` to derive `Due_Date__c` for each financial row."
+        "definition_original": "This is a number field that defines the total number of days CEG has to pay the payment starting the day it’s triggered.",
+        "expanded_definition_suggestion": "This field captures the number of days CEG has to make the payment after the triggering event occurs (for example, \"within 30 days of delivery\" or \"within 15 days after statement\"). It is mapped from the payment timing clause and is used with `Event_Completion_Date__c` to derive `Due_Date__c` for each financial row."
       },
       {
         "sheet": "Financials",
@@ -6646,7 +6646,7 @@
         "sheet": "Opportunities",
         "field_key": "Division2__c",
         "definition_original": "This is the name of the label that the contract is with. It's usually at the top of the contract. Either in the title of the first paragraph.",
-        "expanded_definition_suggestion": "This field stores the contracting label/division for the opportunity, as named in the contract preamble or party‑identification section. It should represent the company entity (for example, CMG imprint or third‑party label), not the artist or management company. Normalize this value to the governed label/division records used across Accounts, Catalog, and Schedule so cross‑object reporting and routing remain consistent."
+        "expanded_definition_suggestion": "This field stores the contracting label/division for the opportunity, as named in the contract preamble or party‑identification section. It should represent the company entity (for example, CEG imprint or third‑party label), not the artist or management company. Normalize this value to the governed label/division records used across Accounts, Catalog, and Schedule so cross‑object reporting and routing remain consistent."
       },
       {
         "sheet": "Opportunities",
@@ -7488,7 +7488,7 @@
           {
             "section_key": "restrictions_and_approvals",
             "section_title": "Restrictions, Approvals & Special Conditions",
-            "section_description": "Higher-order governance around what CMG can do (sample/sync restrictions, sync approvals, restricted CMA content, approval and matching rights, what’s uncrossed).",
+            "section_description": "Higher-order governance around what CEG can do (sample/sync restrictions, sync approvals, restricted CMA content, approval and matching rights, what’s uncrossed).",
             "display_order": 7
           },
           {
@@ -8973,7 +8973,7 @@
         }
       },
       "Accounts": {
-        "section_focus": "The Accounts section is your party identity spine. It defines who the client is at a legal and operational level (individual vs company, artist vs label vs management), where they live and do business, and how CMG interacts with them (contact points, payment preferences, social links, onboarding status). Contracts, Opportunities, Contacts, and Catalog all hang off these governed Account records so analysts never have to guess “who is this deal actually with?” or “which legal entity owns this relationship?”.",
+        "section_focus": "The Accounts section is your party identity spine. It defines who the client is at a legal and operational level (individual vs company, artist vs label vs management), where they live and do business, and how CEG interacts with them (contact points, payment preferences, social links, onboarding status). Contracts, Opportunities, Contacts, and Catalog all hang off these governed Account records so analysts never have to guess “who is this deal actually with?” or “which legal entity owns this relationship?”.",
         "section_headers": [
           {
             "section_key": "accounts_core_legal_professional_identity",
@@ -9002,7 +9002,7 @@
           {
             "section_key": "accounts_deal_history_financial_signals_a_r_context",
             "section_title": "Accounts – Deal History, Financial Signals & A&R Context",
-            "section_description": "Fields that summarize how this party behaves across deals: ○ Roll-ups and metrics (total # of deals, term deals, won deals, CMG profit). ○ Current earnings, current advance total, payment frequency/interval/threshold. ○ A&R assignment, status, tiering/Einstein tier. These help analysts and A&R see the commercial footprint of an account.",
+            "section_description": "Fields that summarize how this party behaves across deals: ○ Roll-ups and metrics (total # of deals, term deals, won deals, CEG profit). ○ Current earnings, current advance total, payment frequency/interval/threshold. ○ A&R assignment, status, tiering/Einstein tier. These help analysts and A&R see the commercial footprint of an account.",
             "display_order": 5
           },
           {

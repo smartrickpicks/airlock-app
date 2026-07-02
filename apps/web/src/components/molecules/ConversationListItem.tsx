@@ -64,6 +64,11 @@ export default function ConversationListItem({
           >
             {displayName}
           </span>
+          {c.type === "otto" && (
+            <span className="ml-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">
+              Otto
+            </span>
+          )}
           {c.lastMessage && (
             <span className="flex-shrink-0 text-[10px] text-text-muted">
               {timeAgo(c.lastMessage.timestamp)}

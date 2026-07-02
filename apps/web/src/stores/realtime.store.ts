@@ -6,8 +6,21 @@ import type {
   RealtimeEvent,
 } from "@/lib/mock-realtime";
 import { MOCK_PRESENCE, MOCK_REALTIME_EVENTS } from "@/lib/mock-realtime";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 type EventHandler = (event: RealtimeEvent) => void;
+
+// Cached import promise — resolves once, used by both connectReal and disconnect
+let _wsModulePromise: Promise<typeof import("@/lib/websocket")> | null = null;
+function getWsModule() {
+  if (!_wsModulePromise) {
+    _wsModulePromise = import("@/lib/websocket");
+  }
+  return _wsModulePromise;
+}
+
+// Store cleanup ref outside the WS singleton to avoid monkey-patching
+let _storeCleanup: (() => void) | null = null;
 
 interface RealtimeState {
   // Connection
@@ -28,6 +41,7 @@ interface RealtimeState {
 
   // Actions
   connect: () => void;
+  connectReal: () => void;
   disconnect: () => void;
   subscribe: (topic: RealtimeTopic) => void;
   unsubscribe: (topic: RealtimeTopic) => void;
@@ -49,19 +63,96 @@ export const useRealtimeStore = create<RealtimeState>((set, get) => ({
 
     // Simulate connection delay
     setTimeout(() => {
-      set({
-        status: "connected",
-        presenceUsers: [...MOCK_PRESENCE],
-        recentEvents: [...MOCK_REALTIME_EVENTS],
-        subscriptions: new Set([
-          "notifications:*",
-          "presence:*",
-        ] as RealtimeTopic[]),
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          status: "connected",
+          presenceUsers: [],
+          recentEvents: [],
+          subscriptions: new Set([
+            "notifications:*",
+            "presence:*",
+          ] as RealtimeTopic[]),
+        });
+      } else {
+        set({
+          status: "connected",
+          presenceUsers: [...MOCK_PRESENCE],
+          recentEvents: [...MOCK_REALTIME_EVENTS],
+          subscriptions: new Set([
+            "notifications:*",
+            "presence:*",
+          ] as RealtimeTopic[]),
+        });
+      }
     }, 800);
   },
 
+  connectReal: () => {
+    // Clean up any existing handlers before re-registering
+    if (_storeCleanup) {
+      _storeCleanup();
+      _storeCleanup = null;
+    }
+
+    // Use real WebSocket — falls back to mock connect on failure
+    getWsModule()
+      .then(({ getWebSocket }) => {
+        // Guard: if disconnect() was called while the import was resolving, bail out
+        if (get().status === "disconnected") return;
+
+        const ws = getWebSocket();
+        set({ status: "reconnecting", reconnectAttempts: 0 });
+
+        const unsubStatus = ws.onStatusChange((wsStatus: string) => {
+          set({ status: wsStatus as ConnectionStatus });
+        });
+
+        const unsubEvent = ws.onEvent(
+          "*",
+          (topic: string, event: Record<string, unknown>) => {
+            const realtimeEvent: RealtimeEvent = {
+              id: (event.id as string) || `evt_${Date.now()}`,
+              topic: topic as RealtimeTopic,
+              type: (event.type as string) || "unknown",
+              payload: (event.payload as Record<string, unknown>) || {},
+              timestamp:
+                (event.created_at as string) || new Date().toISOString(),
+            };
+            get().simulateEvent(realtimeEvent);
+          },
+        );
+
+        _storeCleanup = () => {
+          unsubStatus();
+          unsubEvent();
+        };
+
+        ws.connect();
+      })
+      .catch(() => {
+        // Fall back to mock connect
+        get().connect();
+      });
+  },
+
   disconnect: () => {
+    // Synchronously clean up handlers — no race with async import
+    if (_storeCleanup) {
+      _storeCleanup();
+      _storeCleanup = null;
+    }
+
+    // Disconnect the WebSocket if the module is already loaded
+    if (_wsModulePromise) {
+      _wsModulePromise
+        .then(({ getWebSocket }) => {
+          getWebSocket().disconnect();
+        })
+        .catch(() => {
+          /* ignore */
+        });
+    }
+
     set({
       status: "disconnected",
       presenceUsers: [],

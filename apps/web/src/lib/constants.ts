@@ -1,6 +1,6 @@
 /**
  * Canonical vocabulary and constants for the Airlock platform.
- * Source of truth: docs/concepts/00-glossary.mdx
+ * Source of truth: airlock-docs repo — concepts/00-glossary.mdx (via MCP)
  */
 
 /** Module definitions — top-level functional domains */

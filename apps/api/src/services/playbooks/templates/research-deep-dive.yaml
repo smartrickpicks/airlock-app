@@ -1,0 +1,95 @@
+playbook:
+  id: "research-deep-dive"
+  name: "Research Deep Dive"
+  description: "Comprehensive research workflow for investigating a company, market, or topic. Produces a structured analysis with multiple evidence sources and a synthesized recommendation."
+  module: "crm"
+  version: "1.0"
+  team_composition: "Exploration + Analysis flywheel"
+
+  nodes:
+    - id: "scope_research"
+      name: "Scope Research"
+      description: "Define the research question, identify key areas to investigate, and set success criteria for the analysis."
+      actor: "hybrid"
+      otto_archetype: "strategist"
+      chamber: "discover"
+      team_type: "exploring"
+      depends_on: []
+
+    - id: "gather_public"
+      name: "Gather Public Data"
+      description: "Collect publicly available information — company filings, news articles, social media, industry reports."
+      actor: "otto"
+      otto_archetype: "analyst"
+      chamber: "discover"
+      team_type: "adapting"
+      depends_on: ["scope_research"]
+
+    - id: "gather_internal"
+      name: "Gather Internal Data"
+      description: "Search internal knowledge base, CRM records, previous vault data, and team notes for relevant context."
+      actor: "otto"
+      otto_archetype: "analyst"
+      chamber: "discover"
+      team_type: "producing"
+      depends_on: ["scope_research"]
+
+    - id: "analyze_findings"
+      name: "Analyze Findings"
+      description: "Cross-reference all gathered data. Identify patterns, contradictions, and key insights."
+      actor: "otto"
+      otto_archetype: "analyst"
+      chamber: "build"
+      team_type: "adapting"
+      depends_on: ["gather_public", "gather_internal"]
+      gate:
+        type: "verification"
+        required_approvals: 1
+        roles: ["gatekeeper"]
+        description: "Verify data sources and initial analysis are credible"
+
+    - id: "draft_report"
+      name: "Draft Analysis Report"
+      description: "Compile findings into a structured report with executive summary, detailed analysis, and recommendations."
+      actor: "hybrid"
+      otto_archetype: "architect"
+      chamber: "build"
+      team_type: "producing"
+      depends_on: ["analyze_findings"]
+
+    - id: "peer_review"
+      name: "Peer Review"
+      description: "Have a team member review the analysis for accuracy, bias, and completeness."
+      actor: "human"
+      otto_archetype: "guardian"
+      chamber: "review"
+      team_type: "stabilizing"
+      depends_on: ["draft_report"]
+      gate:
+        type: "approval"
+        required_approvals: 1
+        roles: ["gatekeeper"]
+        description: "Approve analysis quality and accuracy"
+
+    - id: "synthesize_recs"
+      name: "Synthesize Recommendations"
+      description: "Based on peer review feedback, finalize recommendations and action items."
+      actor: "hybrid"
+      otto_archetype: "strategist"
+      chamber: "review"
+      team_type: "exploring"
+      depends_on: ["peer_review"]
+      gate:
+        type: "approval"
+        required_approvals: 1
+        roles: ["owner"]
+        description: "Approve final recommendations before distribution"
+
+    - id: "distribute"
+      name: "Distribute & Brief"
+      description: "Share the analysis with stakeholders. Schedule briefing if needed. Archive in the vault."
+      actor: "hybrid"
+      otto_archetype: "connector"
+      chamber: "ship"
+      team_type: "cultivating"
+      depends_on: ["synthesize_recs"]

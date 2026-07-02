@@ -1,68 +1,81 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import {
-  FileText,
-  Users,
-  CheckSquare,
-  Calendar,
-  FolderOpen,
-  Settings,
-  Bell,
-  Bot,
-  MessageCircle,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { MODULES, type ModuleName } from "@/lib/constants";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { SlidersHorizontal, DoorOpen } from "lucide-react";
+import type { ModuleName } from "@/lib/constants";
+import { MODULES } from "@/lib/constants";
 import { useModuleStore } from "@/stores/module.store";
-import { useNotificationStore } from "@/stores/notification.store";
-import { useOttoStore } from "@/stores/otto.store";
-import { useMessengerStore } from "@/stores/messenger.store";
+import { useAuthStore } from "@/stores/auth.store";
+import AirlockIcon from "@/components/atoms/AirlockIcon";
 import ModuleIcon from "@/components/molecules/ModuleIcon";
 import ConnectionStatus from "@/components/atoms/ConnectionStatus";
 import PresenceAvatars from "@/components/molecules/PresenceAvatars";
 
-/** Map module icon string names to actual Lucide components */
-const moduleIconMap: Record<string, LucideIcon> = {
-  FileText,
-  Users,
-  CheckSquare,
-  Calendar,
-  File: FolderOpen,
+/** Map module keys to brand PNG paths */
+const MODULE_BRAND_ICONS: Record<ModuleName, string> = {
+  contracts: "/assets/brand/icons/mod-contracts.png",
+  crm: "/assets/brand/icons/mod-crm.png",
+  tasks: "/assets/brand/icons/mod-triage.png",
+  calendar: "/assets/brand/icons/mod-calendar.png",
+  documents: "/assets/brand/icons/mod-documents.png",
 };
 
 export default function ModuleBar() {
+  const pathname = usePathname();
   const router = useRouter();
   const { activeModule, setActiveModule } = useModuleStore();
-  const toggleNotifications = useNotificationStore((s) => s.toggle);
-  const unreadCount = useNotificationStore((s) => s.unreadCount);
-  const toggleOtto = useOttoStore((s) => s.toggleDrawer);
-  const toggleMessenger = useMessengerStore((s) => s.toggleDrawer);
-  const messengerUnread = useMessengerStore((s) => s.totalUnread);
+  const user = useAuthStore((s) => s.user);
+
+  const handleLogout = () => {
+    useAuthStore.getState().logout();
+    window.location.href = "/login";
+  };
 
   const moduleKeys = Object.keys(MODULES) as ModuleName[];
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isHomeActive = pathname === "/";
 
   return (
     <nav
-      className="w-[72px] h-full bg-surface-sunken border-r border-surface-border flex flex-col items-center flex-shrink-0"
+      className="theme-module-bar w-[72px] h-full border-r border-surface-border flex flex-col items-center flex-shrink-0"
       aria-label="Module navigation"
     >
       {/* Top section: logo + module icons */}
       <div className="flex-1 flex flex-col items-center pt-4">
+        {/* Airlock brand mark */}
+        <Image
+          src="/assets/brand/airlock-256.png"
+          alt="Airlock"
+          width={32}
+          height={32}
+          className="rounded-lg mb-2"
+        />
+
         {/* Airlock home icon */}
         <button
           className="
-            w-10 h-10 rounded-xl
-            bg-gradient-to-br from-blue-500 via-teal-400 to-cyan-400
+            relative
+            w-[58px] h-[58px] rounded-[20px]
+            bg-[#040916]
+            border border-cyan-400/20
             flex items-center justify-center
             cursor-pointer
-            transition-transform duration-fast
-            hover:scale-105
+            overflow-hidden
+            transition-all duration-fast
+            shadow-[0_0_0_1px_rgba(34,211,238,0.12),0_0_18px_rgba(34,211,238,0.18)]
+            hover:scale-105 hover:border-cyan-300/45 hover:shadow-[0_0_0_1px_rgba(103,232,249,0.25),0_0_26px_rgba(34,211,238,0.3)]
           "
           aria-label="Airlock home"
-          onClick={() => router.push("/")}
+          onClick={() => {
+            setActiveModule("home");
+            router.push("/dispatch");
+          }}
         >
-          <span className="text-white font-bold text-lg select-none">A</span>
+          {isHomeActive ? (
+            <span className="absolute -left-3 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-accent-primary" />
+          ) : null}
+          <AirlockIcon name="lockmark" size="xl" animate="entrance" />
         </button>
 
         {/* Spacer */}
@@ -78,13 +91,11 @@ export default function ModuleBar() {
         <div className="flex flex-col items-center gap-2">
           {moduleKeys.map((key) => {
             const mod = MODULES[key];
-            const IconComponent = moduleIconMap[mod.icon];
             const isActive = key === activeModule;
 
             return (
               <ModuleIcon
                 key={key}
-                icon={IconComponent}
                 label={mod.label}
                 isActive={isActive}
                 onClick={() => {
@@ -93,7 +104,15 @@ export default function ModuleBar() {
                     useModuleStore.getState().lastVisitedView[key];
                   router.push(lastView || mod.path);
                 }}
-              />
+              >
+                <Image
+                  src={MODULE_BRAND_ICONS[key]}
+                  alt={mod.label}
+                  width={24}
+                  height={24}
+                  className="rounded"
+                />
+              </ModuleIcon>
             );
           })}
         </div>
@@ -110,83 +129,58 @@ export default function ModuleBar() {
         {/* Divider */}
         <div className="w-8 h-px bg-surface-border mx-auto" />
 
-        {/* User avatar placeholder */}
-        <div
-          className="
-            w-9 h-9 rounded-full
-            bg-surface-overlay
-            flex items-center justify-center
-            text-text-muted text-sm font-medium
-            select-none
-          "
-          aria-label="User avatar"
-        >
-          ?
-        </div>
+        {/* User avatar */}
+        {user?.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt={user.name || "User"}
+            className="w-9 h-9 rounded-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div
+            className="
+              w-9 h-9 rounded-full
+              bg-surface-overlay
+              flex items-center justify-center
+              text-text-muted text-sm font-medium
+              select-none
+            "
+            aria-label="User avatar"
+          >
+            {user?.name?.charAt(0)?.toUpperCase() || "?"}
+          </div>
+        )}
 
-        {/* Messenger */}
+        {/* Logout */}
         <button
-          className="
-            relative
-            text-text-muted hover:text-accent-primary
-            cursor-pointer
-            transition-colors duration-fast
-          "
-          aria-label="Messenger"
-          title="Messenger (Cmd+M)"
-          onClick={toggleMessenger}
+          className="text-text-muted hover:text-text-primary cursor-pointer transition-colors duration-fast"
+          aria-label="Log out"
+          title="Log out"
+          onClick={handleLogout}
         >
-          <MessageCircle size={20} />
-          {messengerUnread() > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent-error text-[8px] font-bold text-white">
-              {messengerUnread() > 9 ? "9+" : messengerUnread()}
-            </span>
-          )}
-        </button>
-
-        {/* Otto AI */}
-        <button
-          className="
-            text-text-muted hover:text-accent-primary
-            cursor-pointer
-            transition-colors duration-fast
-          "
-          aria-label="Otto AI Assistant"
-          title="Otto (Cmd+J)"
-          onClick={toggleOtto}
-        >
-          <Bot size={20} />
-        </button>
-
-        {/* Notification bell */}
-        <button
-          className="
-            relative
-            text-text-muted hover:text-text-primary
-            cursor-pointer
-            transition-colors duration-fast
-          "
-          aria-label="Notifications"
-          onClick={toggleNotifications}
-        >
-          <Bell size={20} />
-          {unreadCount() > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent-danger text-[8px] font-bold text-white">
-              {unreadCount() > 9 ? "9+" : unreadCount()}
-            </span>
-          )}
+          <DoorOpen size={18} />
         </button>
 
         {/* Settings gear */}
         <button
           className="
+            relative
             text-text-muted hover:text-text-primary
             cursor-pointer
             transition-colors duration-fast
           "
           aria-label="Settings"
+          title="Admin & Settings"
+          onClick={() => {
+            setActiveModule("admin");
+            router.push("/admin");
+          }}
         >
-          <Settings size={20} />
+          <SlidersHorizontal size={20} />
+          {isAdminRoute ? (
+            <span className="absolute -left-3 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-accent-primary" />
+          ) : null}
         </button>
       </div>
     </nav>

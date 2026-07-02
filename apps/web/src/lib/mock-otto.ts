@@ -1,5 +1,7 @@
 // ─── Types ───────────────────────────────────────────────────────────
 
+import type { ChatEmbedData } from "@/components/molecules/ChatEmbed";
+
 export type OttoMessageRole = "user" | "assistant" | "system";
 
 export interface OttoMessage {
@@ -7,6 +9,7 @@ export interface OttoMessage {
   role: OttoMessageRole;
   content: string;
   timestamp: string;
+  embeds?: ChatEmbedData[];
 }
 
 export interface OttoSuggestion {

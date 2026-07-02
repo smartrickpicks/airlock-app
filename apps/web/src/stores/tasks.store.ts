@@ -9,6 +9,8 @@ import {
   type TaskType,
   type ModuleType,
 } from "@/lib/mock-tasks";
+import { mergeDemoTasks } from "@/stores/demo-lifecycle.store";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface TaskFilters {
   status: TaskStatus | "all";
@@ -56,20 +58,38 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const data = await apiFetch<{ tasks: Task[] }>("/api/v1/tasks");
-      set({ tasks: data.tasks, isLoading: false });
+      set({ tasks: mergeDemoTasks(data.tasks), isLoading: false });
     } catch {
-      set({ tasks: MOCK_TASKS, isLoading: false, error: null });
+      if (getWorkspaceMode() === "clean") {
+        set({ tasks: [], isLoading: false, error: null });
+      } else {
+        set({
+          tasks: mergeDemoTasks(MOCK_TASKS),
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
 
-  moveTask: (taskId, newStatus) =>
+  moveTask: (taskId, newStatus) => {
+    // Optimistic update
     set((state) => ({
       tasks: state.tasks.map((t) =>
         t.id === taskId
           ? { ...t, status: newStatus, updatedAt: new Date().toISOString() }
           : t,
       ),
-    })),
+    }));
+    // Fire API call (non-blocking)
+    apiFetch(`/api/v1/tasks/${taskId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    }).catch(() => {
+      // Silently accept — optimistic update stays
+    });
+  },
 
   setFilter: (key, value) =>
     set((state) => ({ filters: { ...state.filters, [key]: value } })),

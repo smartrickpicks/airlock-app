@@ -13,6 +13,7 @@ import {
   MOCK_DLQ_ENTRIES,
   MOCK_EVENT_FLOW,
 } from "@/lib/mock-event-bus";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface EventBusState {
   queueStats: QueueStats[];
@@ -63,13 +64,23 @@ export const useEventBusStore = create<EventBusState>((set, get) => ({
         isLoading: false,
       });
     } catch {
-      set({
-        queueStats: MOCK_QUEUE_STATS,
-        recentJobs: MOCK_RECENT_JOBS,
-        dlqEntries: MOCK_DLQ_ENTRIES,
-        eventFlow: MOCK_EVENT_FLOW,
-        isLoading: false,
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          queueStats: [],
+          recentJobs: [],
+          dlqEntries: [],
+          eventFlow: [],
+          isLoading: false,
+        });
+      } else {
+        set({
+          queueStats: MOCK_QUEUE_STATS,
+          recentJobs: MOCK_RECENT_JOBS,
+          dlqEntries: MOCK_DLQ_ENTRIES,
+          eventFlow: MOCK_EVENT_FLOW,
+          isLoading: false,
+        });
+      }
     }
   },
 

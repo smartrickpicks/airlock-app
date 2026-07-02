@@ -1,7 +1,7 @@
 # Airlock: Zero-to-Production Stakeholder Onboarding Flow
 
 > **Source:** Perplexity research session (2026-03-06)
-> **Status:** RESEARCH — canonical spec extracted to `docs/specs/platform/overview.md` and `docs/specs/onboarding/turnkey-flow.md`
+> **Status:** RESEARCH ONLY — not a binding spec. Canonical decisions have been extracted to `docs/specs/platform/overview.md` and `docs/specs/onboarding/turnkey-flow.md`. Any new decisions from this document must be incorporated through the proper spec update process.
 
 ## Executive Summary
 
@@ -14,18 +14,21 @@ This document defines the complete turnkey onboarding journey for enterprise sta
 ### The Airlock Model
 
 **Free Shell (Self-Hosted):**
+
 - Next.js/React frontend with reusable component library
 - Generic primitives: lists, boards, timelines, detail panels, TipTap docs
 - Local-only compute for basic functions
 - UI driven entirely by MCP context server responses
 
 **Paid Engine (Hosted):**
+
 - Multi-tenant MCP context server (org settings, roles, layouts, permissions)
 - Domain MCP servers: contracts, CRM, comms, calendar, knowledge
 - AI orchestration, vector indexing, automation pipelines
 - Heavy compute, compliance audit trails
 
 **Configuration as Code:**
+
 - JSON-based canonical journeys, lifecycles, semantics
 - Stored in org-scoped MCP context server as resources
 - Versioned, auditable, extensible by developers
@@ -37,6 +40,7 @@ This document defines the complete turnkey onboarding journey for enterprise sta
 Entry points: Website CTA, Sales Demo, Developer Install.
 
 Automated provisioning (~30s):
+
 1. Generate org_id (ULID)
 2. Create workspace DB row
 3. Bootstrap MCP context server with seeded defaults (roles, journeys, layouts, permissions)
@@ -83,16 +87,16 @@ Automated provisioning (~30s):
 
 ## Total Onboarding Time
 
-| Phase | Stakeholder Time | Automated |
-|---|---|---|
-| 0. Provision | 0 min | 0.5 min |
-| 1. Login + Config | 13 min | 2 min |
-| 2. Team | 22 min | 1 min |
-| 3. Data Mapping | 23 min | 0 min |
-| 4. UI Config | 15 min | 0 min |
-| 5. Testing | 32 min | 0 min |
-| 6. Activation | 28 min | 1 min |
-| **Total** | **133 min** | **4.5 min** |
+| Phase             | Stakeholder Time | Automated   |
+| ----------------- | ---------------- | ----------- |
+| 0. Provision      | 0 min            | 0.5 min     |
+| 1. Login + Config | 13 min           | 2 min       |
+| 2. Team           | 22 min           | 1 min       |
+| 3. Data Mapping   | 23 min           | 0 min       |
+| 4. UI Config      | 15 min           | 0 min       |
+| 5. Testing        | 32 min           | 0 min       |
+| 6. Activation     | 28 min           | 1 min       |
+| **Total**         | **133 min**      | **4.5 min** |
 
 ## Key Architecture Decisions
 

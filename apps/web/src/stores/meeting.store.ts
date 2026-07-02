@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { apiFetch } from "@/lib/api";
 import type {
   Meeting,
   MeetingIntelligence,
@@ -13,6 +14,7 @@ import {
   MOCK_THREADS,
   MOCK_TRANSCRIPTS,
 } from "@/lib/mock-meetings";
+import { getWorkspaceMode } from "@/stores/onboarding.store";
 
 interface MeetingState {
   /* data */
@@ -51,8 +53,13 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
 
   fetchMeetings: async () => {
     try {
-      const res = await fetch("/api/meetings");
-      const data = await res.json();
+      const data = await apiFetch<{
+        meetings: Meeting[];
+        intelligence: Record<string, MeetingIntelligence>;
+        prepBriefs: Record<string, PrepBrief>;
+        transcripts: Record<string, TranscriptEntry[]>;
+        threads: ConversationThread[];
+      }>("/api/v1/meetings");
       set({
         meetings: data.meetings,
         intelligence: data.intelligence,
@@ -61,13 +68,23 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
         threads: data.threads,
       });
     } catch {
-      set({
-        meetings: MOCK_MEETINGS,
-        intelligence: MOCK_INTELLIGENCE,
-        prepBriefs: MOCK_PREP_BRIEFS,
-        transcripts: MOCK_TRANSCRIPTS,
-        threads: MOCK_THREADS,
-      });
+      if (getWorkspaceMode() === "clean") {
+        set({
+          meetings: [],
+          intelligence: {},
+          prepBriefs: {},
+          transcripts: {},
+          threads: [],
+        });
+      } else {
+        set({
+          meetings: MOCK_MEETINGS,
+          intelligence: MOCK_INTELLIGENCE,
+          prepBriefs: MOCK_PREP_BRIEFS,
+          transcripts: MOCK_TRANSCRIPTS,
+          threads: MOCK_THREADS,
+        });
+      }
     }
   },
 

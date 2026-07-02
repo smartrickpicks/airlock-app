@@ -23,10 +23,13 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
       - LITELLM_API_BASE=http://litellm:4000
+      - OTTO_STATE_SERVICE_URL=http://otto-state:8100
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      meilisearch:
         condition: service_healthy
     volumes:
       - ./apps/api/src:/app/src
@@ -34,7 +37,7 @@ services:
   postgres:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: airlock
       POSTGRES_PASSWORD: airlock
@@ -64,8 +67,41 @@ services:
     environment:
       - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-dev-key}
     volumes:
-      - ./apps/api/litellm-config.yaml:/app/config.yaml
+      # Canonical config lives in airlock-config repo
+      - ../Airlock/repos/airlock-config/litellm-config.yaml:/app/config.yaml
     command: ["--config", "/app/config.yaml"]
+
+  otto-state:
+    build:
+      context: ../repos/airlock-persona
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8100"
+    environment:
+      - OTTO_ENV=development
+    volumes:
+      - ../repos/airlock-persona/sessions:/app/sessions
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-airlock_dev_key}
+      MEILI_ENV: development
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   pgdata:
+  meilisearch_data:
