@@ -58,13 +58,22 @@ class DynamicCORSMiddleware(BaseHTTPMiddleware):
         # Handle OPTIONS preflight
         if request.method == "OPTIONS" and origin:
             if self._is_allowed_origin(origin):
+                # With Allow-Credentials:true, browsers take "*" LITERALLY for methods
+                # and headers — so "*" fails to match POST / Content-Type and the whole
+                # request is blocked. List methods explicitly and echo the client's
+                # requested headers back so any needed header is allowed.
+                req_headers = request.headers.get(
+                    "access-control-request-headers", "Content-Type, Authorization"
+                )
                 return Response(
                     status_code=200,
                     headers={
                         "Access-Control-Allow-Origin": origin,
                         "Access-Control-Allow-Credentials": "true",
-                        "Access-Control-Allow-Methods": "*",
-                        "Access-Control-Allow-Headers": "*",
+                        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                        "Access-Control-Allow-Headers": req_headers,
+                        "Access-Control-Max-Age": "600",
+                        "Vary": "Origin",
                     },
                 )
             # No match — return 200 but without CORS headers (browser will block)
@@ -74,9 +83,11 @@ class DynamicCORSMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
 
         if origin and self._is_allowed_origin(origin):
+            # Actual (non-preflight) responses only need origin + credentials; the
+            # Allow-Methods/Allow-Headers negotiation already happened in the preflight,
+            # and a literal "*" here is invalid under credentialed CORS.
             response.headers["Access-Control-Allow-Origin"] = origin
             response.headers["Access-Control-Allow-Credentials"] = "true"
-            response.headers["Access-Control-Allow-Methods"] = "*"
-            response.headers["Access-Control-Allow-Headers"] = "*"
+            response.headers["Vary"] = "Origin"
 
         return response
