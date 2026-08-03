@@ -1,0 +1,43 @@
+# Build context excludes for the airlock-api image.
+#
+# Dockerfile line 16 is `COPY . .`, and until this file existed there was no
+# .dockerignore anywhere in the repo — so every build uploaded and baked in the
+# entire local tree. Two concrete consequences:
+#
+#   1. .venv is 384 MB. The build context was ~394 MB and the upload to Fly's
+#      builder timed out before it ever reached the build step.
+#   2. .env.production (tracked in git, 13 populated values including
+#      JWT_SECRET) was copied into the published image layers.
+#
+# Runtime needs neither. All 15 production vars are set as Fly secrets and
+# injected as environment variables, and src/config.py reads `.env` — not
+# `.env.production` — so nothing here is load-bearing.
+
+# Local virtualenv — the image installs from requirements.txt
+.venv/
+venv/
+env/
+
+# Secrets. Fly provides these at runtime; they must never enter a layer.
+.env
+.env.*
+!.env.example
+
+# Python caches and test artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# VCS and editor noise
+.git/
+.gitignore
+.DS_Store
+*.swp
+
+# Tests do not ship in the runtime image
+tests/
