@@ -22,7 +22,14 @@ export default function OnboardingSetupPage() {
       completeAdminItem("create_workspace");
       completeAdminItem("enable_modules");
       localStorage.setItem("airlock_onboarding_complete", "true");
-      const timer = setTimeout(() => router.push("/"), 1200);
+      // Was router.push("/") — the marketing landing page. Finishing onboarding
+      // dropped you back at the front door, which reads as "nothing happened".
+      // Worse, the flag above is now permanent, so /onboarding bounces home on
+      // every later visit too.
+      // /dispatch (not /forge) is the workspace dashboard: (shell)/dispatch
+      // re-exports (shell)/page.tsx. /forge renders WorkspaceForge — the
+      // calibration chat — which would loop the user back into onboarding.
+      const timer = setTimeout(() => router.push("/dispatch"), 1200);
       return () => clearTimeout(timer);
     }
   }, [isComplete, completeAdminItem, router]);
