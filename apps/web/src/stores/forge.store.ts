@@ -617,6 +617,36 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
       console.warn("[forge] token refresh failed:", err);
     }
 
+    // Persist the behavioural profile server-side.
+    //
+    // /api/v1/inference/bmy (called during the conversation) is a stateless
+    // calculator — it has no db dependency and writes nothing. The profile the
+    // rest of the system reads is created by /onboarding/member/infer, which
+    // runs the same inference and upserts it. Without this call the user
+    // finishes onboarding with no profile row, and /onboarding/opening-move
+    // answers 404 "No profile found — complete onboarding first".
+    //
+    // Must run BEFORE the opening-move fetch below: that endpoint reads the row
+    // this call writes.
+    try {
+      const { goalChipId, autonomyOptionId, linkedInProfile } = get();
+      const goalChip = GOAL_CHIPS.find((c) => c.id === goalChipId);
+      const autoOption = AUTONOMY_OPTIONS.find((o) => o.id === autonomyOptionId);
+
+      await apiFetch("/api/v1/onboarding/member/infer", {
+        method: "POST",
+        body: JSON.stringify({
+          goal_statement: goalChip?.label,
+          autonomy_preference: autoOption?.label,
+          job_title: linkedInProfile?.headline,
+        }),
+      });
+    } catch (err) {
+      // Non-fatal: the workspace still opens, but Otto's opening move will be
+      // missing because there is no profile to personalise it from.
+      console.warn("[forge] profile persist failed — opening move will 404:", err);
+    }
+
     set({ isLaunching: false, isComplete: true });
     const { metaArchetype } = get();
     const { loadDemoPlaybook } = usePlaybookStore.getState();
