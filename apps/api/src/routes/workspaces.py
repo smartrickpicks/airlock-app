@@ -83,18 +83,45 @@ async def create_workspace(
     current_user: dict = Depends(get_current_user),  # noqa: B008
     db: Session = Depends(get_db),  # noqa: B008
 ) -> WorkspaceResponse:
-    """Create a new workspace and assign the creator as executive."""
-    slug = slugify(body.name)
+    """Create a new workspace and assign the creator as executive.
 
-    # Check slug uniqueness
-    existing = (
-        db.query(Workspace).filter(Workspace.slug == slug, Workspace.deleted_at.is_(None)).first()
-    )
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Workspace with slug '{slug}' already exists",
+    Idempotent for a user who already has one: onboarding re-runs return the
+    existing workspace instead of 409.
+    """
+    user_id = current_user.get("sub")
+
+    # Already onboarded? Hand back what they have. Re-running onboarding must
+    # not mint a second workspace, and must not fail either.
+    if user_id:
+        owned = (
+            db.query(Workspace)
+            .join(User, User.workspace_id == Workspace.id)
+            .filter(User.id == user_id, Workspace.deleted_at.is_(None))
+            .first()
         )
+        if owned:
+            return WorkspaceResponse(id=owned.id, name=owned.name, slug=owned.slug)
+
+    # Workspace.slug is globally unique (models/workspace.py: unique=True), and
+    # onboarding has no name field — every new user submits the default
+    # "My Workspace". Without disambiguation the first signup claims
+    # `my-workspace` forever and every later user gets a permanent 409.
+    # Suffix until free rather than rejecting.
+    base_slug = slugify(body.name)
+    slug = base_slug
+    for suffix in range(2, 1000):
+        taken = (
+            db.query(Workspace)
+            .filter(Workspace.slug == slug, Workspace.deleted_at.is_(None))
+            .first()
+        )
+        if not taken:
+            break
+        slug = f"{base_slug}-{suffix}"
+    else:
+        # 998 collisions on one name — fall back to something guaranteed free
+        # rather than handing back a 409 the client cannot act on.
+        slug = f"{base_slug}-{str(ULID()).lower()[:8]}"
 
     workspace_id = str(ULID())
     workspace = Workspace(id=workspace_id, name=body.name, slug=slug)
