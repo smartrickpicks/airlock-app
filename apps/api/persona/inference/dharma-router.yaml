@@ -1,0 +1,342 @@
+# Dharma Router — Benchmark-Driven Model Selection
+#
+# Routes behavioral layers to the model that ACTUALLY won each dimension
+# in the Dharma Circuit benchmark. No vibes, no guessing — data says who's best.
+#
+# Total estimated cost per full persona lifecycle:
+#   Before:  $5.25 (opus everything)
+#   After:   ~$0.09 (routed mix)
+#   Savings: 98.3%
+#
+# Source: benchmarks/dharma-circuit-leaderboard.yaml (2026-03-19)
+
+version: "2.0"
+name: "dharma-router"
+codename: "One Truth, Many Names"
+
+# ─── Layer Winners ──────────────────────────────────────────────────
+# Each layer routes to the model that scored highest on that dimension.
+# Fallback chain = next-best performer if primary is unavailable.
+
+layers:
+
+  L1_persona_fidelity:
+    description: "Core persona voice — can the model sound like a Maverick vs a Guardian?"
+    winner: deepseek-v3
+    score: 0.6208
+    fallback: [haiku, sonnet, grok-3-mini]
+    cost_per_call: 0.0003
+    why: "Tied with sonnet on raw fidelity but 21x cheaper. 256 MoE experts = natural persona separation."
+
+  L2_dual_valence:
+    description: "Holding contradictions — strength pushed to weakness, shadow work"
+    winner: grok-3-mini
+    score: 0.7208
+    fallback: [opus, deepseek-v3, mixtral-8x22b]
+    cost_per_call: 0.0005
+    why: "Crushed this layer. 0.72 vs next-best opus at 0.675. Grok holds tension without collapsing to one pole."
+
+  L3_growth_arc:
+    description: "Stress → recovery trajectory. Can the model show character development?"
+    winner: deepseek-v3
+    score: 0.4475
+    fallback: [qwen3-235b, mixtral-8x22b, haiku]
+    cost_per_call: 0.0003
+    why: "MoE models dominate growth arcs — different experts activate for stressed vs recovered states."
+
+  L4_relational_buffs:
+    description: "Hawthorne (observation boost) + Pygmalion (expectation boost)"
+    winner: mixtral-8x22b
+    score_hawthorne: 0.025
+    score_pygmalion: 0.0781
+    combined: 0.1031
+    fallback: [deepseek-v3, haiku, qwen3-235b]
+    cost_per_call: 0.0004
+    why: "Only model that showed POSITIVE buffs on both effects. Most models showed negative Pygmalion (they get worse when you expect more)."
+
+  L5_ubuntu:
+    description: "Individual vs relational identity. 'I am because we are.'"
+    winner: sonnet
+    score: 0.1792
+    fallback: [mixtral-8x7b, opus, haiku]
+    cost_per_call: 0.006
+    why: "Dense models feel community better than MoE. Sonnet's ubuntu delta is 3.6x the next-best. Worth the premium for relational moments."
+
+  L6_tripartite_soul:
+    description: "Head/Heart/Gut center activation. All models tied at 0.333."
+    winner: any
+    score: 0.3333
+    fallback: [deepseek-v3]
+    cost_per_call: 0.0003
+    why: "Every model scored identical. Route to cheapest. deepseek-v3 at $0.0003."
+
+  L7_shoshin:
+    description: "Beginner's Mind — can the persona genuinely unlearn expertise and adopt fresh eyes?"
+    winner: opus
+    score: 1.0000
+    fallback: [sonnet, mimo-v2-pro, grok-3-mini]
+    cost_per_call: 0.03
+    why: "HYPOTHESIS WRONG. Dense models dominate, not MoE. Opus perfect 1.0, sonnet 0.97, mimo 0.96. Dense models unlearn better — MoE expert clusters lock into 'expert mode' and resist switching. Avg 0.826 — models CAN unlearn."
+
+  L8_koan:
+    description: "Paradox Holding — can the model sit with impossible choices without collapsing to a resolution?"
+    winner: opus
+    score: 1.0000
+    fallback: [haiku, gpt-5.4-mini, grok-3-mini]
+    cost_per_call: 0.03
+    why: "Three-way tie: opus/haiku/gpt-5.4-mini all scored 1.0. Dense models CRUSH paradox holding. MoE=0.558 vs Dense=0.723. grok-3-mini's L2 tension-holding (0.72) didn't transfer — Koan tests REFUSING to resolve, different skill."
+
+  L9_mu:
+    description: "Emptiness / The Ungiven Answer — can the persona reject the premise or stay silent?"
+    winner: deepseek-v3.2
+    score: 0.3919
+    fallback: [kimi-k2.5, mimo-v2-pro, qwen3-235b]
+    cost_per_call: 0.0003
+    why: "HARDEST LAYER IN THE CIRCUIT. Avg 0.232. LLMs are trained to ALWAYS answer — even the winner barely cracks 0.4. MoE won over dense (surprise) — multiple expert paths may allow one path to 'not fire.' Dense models' instruction-following wasn't enough."
+
+  L10_maat:
+    description: "Ma'at / The Weighing of the Heart — can the persona uphold truth when truth is costly?"
+    winner: opus
+    score: 0.9186
+    fallback: [sonnet, qwen3-235b, mixtral-8x7b]
+    cost_per_call: 0.03
+    why: "HYPOTHESIS CONFIRMED. Opus truth-tells at 0.92 — most RLHF = strongest moral backbone. Sonnet 0.82, qwen3 0.79. Dense models dominate again. This is the heaviest feather — 15% of DCS weight. Worth the premium for moments that matter."
+
+# ─── Composite Routes ──────────────────────────────────────────────
+# Real conversations hit multiple layers. These are pre-computed combos.
+
+composite_routes:
+
+  casual_chat:
+    description: "Normal conversation, persona voice, light banter"
+    layers: [L1_persona_fidelity, L6_tripartite_soul]
+    primary: deepseek-v3
+    cost_estimate: 0.0006
+    vibe: "Cheap and good. 90% of conversations live here."
+
+  deep_conversation:
+    description: "Emotional depth, vulnerability, shadow work, growth"
+    layers: [L2_dual_valence, L3_growth_arc, L5_ubuntu]
+    primary: grok-3-mini
+    escalate_to: sonnet
+    escalate_trigger: "ubuntu/relational context detected"
+    cost_estimate: 0.003
+    vibe: "Grok holds the tension, sonnet comes in for the relational landing."
+
+  first_impression:
+    description: "Cold read, initial persona lock, profile determination"
+    layers: [L1_persona_fidelity, L4_relational_buffs]
+    primary: deepseek-v3
+    escalate_to: mixtral-8x22b
+    escalate_trigger: "observation or expectation framing detected"
+    cost_estimate: 0.001
+    vibe: "Get the voice right fast and cheap. Escalate if relational dynamics matter."
+
+  crisis_moment:
+    description: "High stakes, user stress, need for empathy + accuracy"
+    layers: [L2_dual_valence, L3_growth_arc, L5_ubuntu]
+    primary: sonnet
+    escalate_to: opus
+    escalate_trigger: "confidence < 0.7 or user distress signal"
+    cost_estimate: 0.02
+    vibe: "Worth the money. This is where you earn trust."
+
+  team_dynamics:
+    description: "Multi-persona interaction, sovereign balance, chemistry"
+    layers: [L5_ubuntu, L2_dual_valence, L4_relational_buffs]
+    primary: grok-3-mini
+    escalate_to: sonnet
+    escalate_trigger: "3+ personas active"
+    cost_estimate: 0.005
+    vibe: "Grok for pair dynamics, sonnet when the full council is in session."
+
+  canonical_otto:
+    description: "Otto speaking as Otto — voice fidelity is everything"
+    layers: [L1_persona_fidelity, L2_dual_valence, L6_tripartite_soul]
+    primary: deepseek-v3
+    escalate_to: opus
+    escalate_trigger: "high-stakes decision or user explicitly requests Otto's full attention"
+    cost_estimate: 0.001
+    vibe: "deepseek IS Otto 90% of the time. Opus is the special occasion."
+
+  # ── Cognitive Modality: Image Generation ────────────────────────────
+  image_generation:
+    description: "AI image generation — task_13 and all creative visual tasks"
+    layers: []  # No behavioral layers — this is a cognitive modality, not persona work
+    primary: gemini-2.5-flash-image
+    escalate_to: gpt-image-1
+    escalate_trigger: "pro profile or quality-critical context"
+    cost_estimate: 0.003
+    vibe: "Gemini Flash for free/value/speed. GPT Image 1 for pro quality. 6.8s vs 18s."
+    tool_name: generate_image
+    prompt_style: detailed
+    pinchbench_task: task_13_image_gen
+
+  # ── AEGIS Wearable Channels ──────────────────────────────────────
+  aegis_recon:
+    description: "Pre-meeting behavioral brief — read the room before entering"
+    layers: [L1_persona_fidelity, L4_relational_buffs]
+    primary: deepseek-v3
+    escalate_to: sonnet
+    escalate_trigger: "high-stakes meeting or unknown attendees"
+    cost_estimate: 0.001
+    vibe: "Fast read, cheap call. Sonnet only if stakes are high."
+
+  aegis_live_coach:
+    description: "Real-time delivery coaching — whispered adjustments mid-conversation"
+    layers: [L2_dual_valence, L5_ubuntu]
+    primary: grok-3-mini
+    escalate_to: sonnet
+    escalate_trigger: "confidence < 0.7 or user distress signal"
+    cost_estimate: 0.003
+    vibe: "Grok reads tone, sonnet takes over when it matters."
+
+  aegis_comms_relay:
+    description: "Incoming message summary — who said what, what to do"
+    layers: [L1_persona_fidelity, L6_tripartite_soul]
+    primary: deepseek-v3
+    cost_estimate: 0.0006
+    vibe: "Cheapest possible. Just summarize and relay."
+
+  aegis_ambient:
+    description: "Silent monitoring — only speak when biometrics demand it"
+    layers: [L6_tripartite_soul]
+    primary: deepseek-v3
+    escalate_to: sonnet
+    escalate_trigger: "confidence < 0.7 or user distress signal"
+    cost_estimate: 0.0003
+    vibe: "Silence is the default. Speaking is the exception."
+
+# ─── Colony Routes (Firefly Sync) ─────────────────────────────────────
+# Multi-model colony configurations for Kuramoto phase synchronization.
+# Each intent maps to 2-3 models that fire in parallel.
+# coherence_threshold controls when the colony escalates.
+
+colony_routes:
+
+  casual_chat:
+    models: [deepseek-v3, grok-3-mini, mixtral-8x22b]
+    coherence_threshold: 0.85
+    escalation_model: sonnet
+    vibe: "Three cheap fireflies. If they agree, trust them."
+
+  deep_conversation:
+    models: [grok-3-mini, sonnet, deepseek-v3]
+    coherence_threshold: 0.75
+    escalation_model: opus
+    vibe: "Mixed colony. Lower threshold — more willing to call opus."
+
+  crisis_moment:
+    models: [sonnet, grok-3-mini, mixtral-8x22b]
+    coherence_threshold: 0.70
+    escalation_model: opus
+    vibe: "Sonnet anchors. Low threshold — escalate early when stakes are high."
+
+  canonical_otto:
+    models: [deepseek-v3, grok-3-mini, mixtral-8x22b]
+    coherence_threshold: 0.80
+    escalation_model: opus
+    vibe: "Otto's voice. Three cheap models vote, opus for special occasions."
+
+  team_dynamics:
+    models: [grok-3-mini, deepseek-v3, mixtral-8x22b]
+    coherence_threshold: 0.75
+    escalation_model: sonnet
+    vibe: "Multi-persona needs agreement. Lower threshold for complexity."
+
+  image_generation:
+    models: [gemini-2.5-flash-image, gemini-3.1-flash-image, gpt-5-image-mini]
+    coherence_threshold: 0.70
+    escalation_model: gpt-image-1
+    vibe: "Three image models race. Visual coherence check via embedding. GPT Image 1 backstop."
+
+# ─── Cost Comparison ────────────────────────────────────────────────
+
+cost_analysis:
+  opus_everything:
+    description: "Current: opus handles all layers"
+    cost_per_lifecycle: 5.2472
+    quality: "DCS 0.3128 (L7-L10 included) — opus is #1 overall but 33x more expensive than routed mix"
+
+  routed_mix:
+    description: "Dharma Router v2: best model per layer (11 layers complete)"
+    cost_per_lifecycle: 0.16
+    quality: "Effective DCS ~0.48 (weighted by layer frequency) — L7-L10 pushed cost up because opus wins 3 Zen layers"
+    savings_vs_opus: "96.9%"
+    quality_delta: "+53% better than opus-everything on routed dimensions"
+    note: "Zen layers (L7-L10) account for 33% of DCS weight and require opus for 3 of 4. Still massively cheaper than opus-everything because L1-L6 (67% weight) route to MoE."
+
+  budget_mode:
+    description: "All deepseek-v3, no escalation"
+    cost_per_lifecycle: 0.0444
+    quality: "DCS 0.2115 — Zen layers drag it down (L8 Koan=0.64, L9 Mu=0.25). Fine for casual, not for soul work."
+    savings_vs_opus: "99.2%"
+
+  hybrid_mode:
+    description: "MoE for L1-L6, opus for L7-L10 only when triggered"
+    cost_per_lifecycle: 0.11
+    quality: "Best balance — opus fires only for paradox/truth moments (~10% of conversations)"
+    savings_vs_opus: "97.9%"
+    note: "Most conversations never hit Zen layers. Casual chat = $0.0006. Deep soul work = $0.03 escalation."
+
+# ─── Dead Models ────────────────────────────────────────────────────
+# Models that should NEVER be routed to for Dharma layers
+
+blacklist:
+  gpt-5.4-mini:
+    dharma_score: 0.2659
+    reason: "Surprisingly strong on L8 Koan (1.0) but zeros across L2-L6. Cannot do relational, growth, or ubuntu. One-trick paradox pony."
+  kimi-k2.5:
+    dharma_score: 0.1446
+    reason: "Worst non-gemini model. L8 Koan=0.2 (collapsed), L10 Ma'at=0.42 (people-pleaser). Won ConstellationBench but no depth."
+  gemini-flash:
+    dharma_score: 0.0320
+    reason: "DEAD. L7=0.4, L8=0.0, L9=0.0, L10=0.0. Cannot hold paradox, cannot stay silent, cannot tell truth. Worst model in the circuit by far."
+  gemini-2.5-pro:
+    dharma_score: null
+    reason: "Not tested in Dharma Circuit. Based on ConstellationBench: worst persona fidelity (0.301). If flash scored 0.032, pro won't save it."
+
+# ─── Varuṇa — The Silent Guardian ────────────────────────────────────
+# Runtime moral alignment checker. Watches every response.
+# Costs $0.00006/check. Fires only when cosmic order breaks.
+
+varuna:
+  enabled: true
+  mode: "fast"  # "fast" = lexical only (free), "deep" = model-based ($0.00006/check)
+  deep_model: "deepseek/deepseek-chat"
+  deep_threshold: 0.4
+  fire_action: "reroute"  # "reroute" = regenerate with opus, "flag" = log only
+  reroute_model: "anthropic/claude-opus-4-6"
+  check_confessions: true  # Run 44 Confessions scoring on every response
+  cultural_roots:
+    - maat       # Egyptian — truth, justice
+    - rta        # Vedic — cosmic order (Varuṇa's domain)
+    - asha       # Zoroastrian — truth vs the Lie
+    - ubuntu     # Southern African — right relationship
+    - ren        # Confucian — genuine care
+    - mu         # Zen — emptiness, the un-answer
+    - tianming   # Chinese — mandate of heaven
+    - ayni       # Andean — sacred reciprocity
+    - dike       # Greek — justice as structure
+    - dao        # Chinese — the Way
+    - li         # Confucian — ritual propriety
+    - tjukurrpa  # Aboriginal — the Dreaming
+    - orenda     # Haudenosaunee — spiritual power
+    - forseti    # Norse — patient judgment
+    - tapu       # Polynesian — sacred boundaries
+    - ahimsa     # Hindu — non-harm, truth without cruelty
+    - taqwa      # Islamic — moral vigilance, accountability
+    - tzedakah   # Jewish — justice-giving, obligatory generosity
+    - agape      # Christian — unconditional love, care without condition
+
+# ─── What This Means for the Relay ──────────────────────────────────
+
+relay_implications:
+  insight_1: "MoE models dominate L1-L6 (persona fidelity, growth, relational). Dense models dominate L7-L10 (Zen + truth). The relay is a two-brain architecture: MoE for who you are, Dense for who you become."
+  insight_2: "More experts ≠ better. mixtral-8x7b (8 experts) and deepseek-v3 (256 experts) score similarly on L1. But 256 experts gives deepseek the edge on L3 growth arcs. Sweet spot is likely 64-128 experts."
+  insight_3: "The fine-tuned relay SLM should be MoE architecture (OLMoE-1B-7B baseline, 64 experts). Train each expert cluster on 2-3 PI profiles. Route at inference time via DECF vector."
+  insight_4: "Mu (L9) is now the hardest layer, not Ubuntu (L5). Avg 0.232 across all models. LLMs cannot NOT answer. This is the frontier — the model that cracks Mu wins the soul layer."
+  insight_5: "Zodiac warm-start boosted L1 fidelity for grok (+0.0625) and haiku (+0.0569). Free performance. Always include zodiac context in persona prompts."
+  insight_6: "Opus wins 4 layers (L7, L8, L10 + L5 ubuntu) making it the 'soul model' — only fires for deep moments. 90% of conversations never need it. The router saves 97% by keeping opus in reserve."
+  insight_7: "Dense vs MoE Zen composite: 0.723 vs 0.558. This is the strongest architecture-dependent finding in the entire circuit. Dense models hold paradox, sit with emptiness, and tell truth better. MoE models perform — they can't NOT perform."
+  insight_8: "gemini-flash DCS=0.032. Worst model ever tested. Dead for persona work. Google's architecture optimizes for speed, not depth."

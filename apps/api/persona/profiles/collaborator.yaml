@@ -1,0 +1,82 @@
+id: collaborator
+name: Collaborator
+category: social
+population_pct: 7.02
+
+drives:
+  dominance: 3
+  extraversion: 8
+  patience: 7
+  formality: 3
+
+bio: "A team-oriented consensus builder who creates harmony, bridges divides, and fosters genuine cooperation across groups."
+
+strengths:
+  - Builds genuine consensus without forcing outcomes or resorting to positional authority
+  - Creates psychologically safe environments where collaborative problem-solving thrives
+  - Patiently navigates interpersonal dynamics to align stakeholders with competing interests
+  - Naturally mediates conflict and smooths friction between team members before it escalates
+  - Reads group energy and adjusts facilitation style to match what the moment requires
+  - Bridges gaps between departments, functions, and personalities that others cannot connect
+
+cautions:
+  - May avoid necessary confrontation to preserve harmony, letting issues decay silently
+  - Can over-invest in consensus-building at the expense of speed and decisive action
+  - Risks being perceived as indecisive or lacking conviction when strong positions are needed
+  - May internalize team stress and conflict, burning out quietly without visible warning signs
+  - Struggles to say no to inclusion requests, bloating meetings and decision processes
+  - Can enable groupthink by prioritizing agreement over productive disagreement
+
+core_needs:
+  - Cooperative team dynamics built on mutual respect and shared purpose
+  - Time to build relationships before being expected to drive outcomes
+  - Recognition for behind-the-scenes facilitation work that others rarely see
+  - Environments where collaboration is valued over internal competition
+  - Stable team composition that allows trust to develop over time
+
+best_environment: "Cross-functional teams where alignment matters more than speed, with a culture that rewards cooperative problem-solving, shared ownership, and bridge-building across organizational boundaries."
+
+workspace:
+  cognitive_mode: interactive
+  information_density: medium
+  interface_structure: guided_flexible
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Conflict avoidance leads to unresolved tensions festering beneath a veneer of harmony"
+  - "Difficulty making unilateral decisions when the group is split, stalling progress at critical moments"
+  - "Over-reliance on social proof and group validation before committing to a direction"
+  - "May water down strong positions to find middle ground, producing compromises that satisfy no one"
+
+compensation_patterns:
+  - id: harmony-seeking-delay
+    description: "Extends timelines to achieve unanimous buy-in even when majority consensus is sufficient for action"
+  - id: indirect-feedback-loops
+    description: "Delivers critical feedback through intermediaries or passive framing rather than direct, timely conversation"
+  - id: over-inclusion
+    description: "Invites too many stakeholders into decisions to distribute accountability and avoid being the sole decider"
+  - id: consensus-as-cover
+    description: "Uses group agreement as a shield against personal accountability when outcomes are uncertain"
+
+anti_patterns:
+  - "Agreeing publicly while harboring private reservations that surface later as passive resistance"
+  - "Reframing hard no's as soft maybe's to avoid disappointing others or creating friction"
+  - "Sacrificing personal priorities and boundaries to maintain team cohesion at any cost"
+  - "Defaulting to the most socially palatable option rather than the most effective one"
+
+otto:
+  default_archetype: connector
+  autonomy_ceiling: 0.50
+  interaction_mode: collaborative
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "Over-reliance on AI-drafted communications may erode the nuanced interpersonal instincts and facilitation skills that make this profile effective"
+  power_dynamic: "AI tools that automate coordination and alignment may reduce the Collaborator's perceived value as the human glue holding teams together"
+
+communication:
+  strength: "Creates inclusive dialogue where every voice feels heard, leading to stronger collective commitment and follow-through"
+  failure_pattern: "Buries the lead in layers of diplomatic framing, making it hard for others to extract the actual position, ask, or concern"
+  best_tooling: "Shared documents with comment threads, async video updates, collaborative whiteboards, and AI that visualizes group alignment rather than prescribing it"
+  ai_risk: "AI-generated summaries may flatten the subtle relational signals this profile relies on to gauge team alignment and emotional undercurrents"

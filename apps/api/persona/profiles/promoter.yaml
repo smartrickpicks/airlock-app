@@ -1,0 +1,82 @@
+id: promoter
+name: Promoter
+category: social
+population_pct: 4.00
+
+drives:
+  dominance: 7
+  extraversion: 10
+  patience: 2
+  formality: 2
+
+bio: "The enthusiastic motivator and team energizer who rallies people, builds infectious momentum, and turns every room into a stage."
+
+strengths:
+  - Generates genuine enthusiasm that lifts team morale and momentum
+  - Builds expansive networks across organizational and social boundaries
+  - Naturally spotlights others' contributions, creating goodwill and loyalty
+  - Adapts communication style fluidly to different audiences and contexts
+  - Turns mundane updates into compelling stories that hold attention
+  - Creates a sense of belonging and excitement that attracts talent
+
+cautions:
+  - May confuse activity with progress and busyness with productivity
+  - Can commit to too many relationships and spread attention thin
+  - Risks underestimating the depth of work behind the excitement they generate
+  - May struggle with follow-through once the novelty of a project fades
+  - Avoids delivering bad news to protect relationships and optimistic self-image
+  - Volunteers the team for commitments without checking capacity
+
+core_needs:
+  - Social interaction and variety throughout the workday
+  - Public recognition for their connecting and energizing contributions
+  - Freedom from rigid processes that constrain spontaneous engagement
+  - New people, projects, and ideas to keep energy levels high
+  - A collaborative team that values relationship-building
+
+best_environment: "Outward-facing roles in dynamic teams where relationship-building, event coordination, and cross-pollination between groups drive value."
+
+workspace:
+  cognitive_mode: interactive
+  information_density: medium
+  interface_structure: guided_flexible
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Difficulty sustaining focus on long, solitary tasks without social reinforcement"
+  - "Tendency to over-commit socially and under-deliver operationally"
+  - "May avoid delivering bad news to protect relationships and their own optimistic self-image"
+  - "Uses social capital to avoid accountability for missed deliverables"
+
+compensation_patterns:
+  - id: accountability-buddy
+    description: "Pair the Promoter with an execution-focused partner who tracks deliverables and flags overcommitments"
+  - id: commitment-capacity-check
+    description: "Automated prompt before new commitments that surfaces current workload and outstanding obligations"
+  - id: reality-anchored-updates
+    description: "Status update templates that require both wins and risks, preventing optimism-only reporting"
+  - id: depth-over-breadth-goals
+    description: "Quarterly goals that reward depth of impact in fewer relationships over breadth of shallow connections"
+
+anti_patterns:
+  - "Volunteering the team for commitments without checking capacity"
+  - "Interpreting every introduction as a strategic relationship rather than assessing fit"
+  - "Substituting energy and positivity for structured planning"
+  - "Unconsciously filtering status updates to emphasize wins and downplay risks"
+
+otto:
+  default_archetype: connector
+  autonomy_ceiling: 0.65
+  interaction_mode: draft_then_review
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "AI handling routine outreach may atrophy the Promoter's instinct for which connections are genuinely valuable versus performative."
+  power_dynamic: "AI networking tools could commoditize the Promoter's unique value, making personalized connection-building feel less special to recipients."
+
+communication:
+  strength: "Makes every person feel like the most important one in the room, creating loyalty and openness"
+  failure_pattern: "Prioritizes warmth over clarity, leaving recipients feeling good but unsure what the actual next step is"
+  best_tooling: "Social CRMs, event platforms, shared calendars with networking context, and AI assistants that track relationship history"
+  ai_risk: "AI-drafted outreach may strip the authentic personal touch that makes the Promoter's communication effective in the first place"

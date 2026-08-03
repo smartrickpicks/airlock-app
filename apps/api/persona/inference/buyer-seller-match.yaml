@@ -1,0 +1,430 @@
+# Buyer-Seller Match Matrix — Behavioral Pairing Priors
+# Maps buyer behavioral bands × seller PI profiles to expected outcomes.
+#
+# All entries are seeded from PI/DISC sales literature and personality-match
+# research. Marked as source: prior. Confidence starts low. Empirical data
+# from logged deal outcomes will update these over time.
+#
+# References:
+#   - PI sales profile guidance (mindwiregroup.com, predictiveindex.com)
+#   - DISC buyer adaptation patterns (brasstacks.works, salescloser.ai)
+#   - Buyer-seller personality match studies (JSTOR, psychepedia)
+#   - LinkedIn/Big-5 inference correlation studies (arxiv:2309.08631)
+#
+# State Service endpoint (future):
+#   POST /persona/match-buyer-seller
+#   body: { buyer_band, seller_profiles }
+#   returns: { ranked_sellers, pairing_notes, recommended_play }
+
+version: "1.0"
+status: schema  # schema = priors only, not yet learning from data
+
+# ─── Buyer Bands ─────────────────────────────────────────────────────────────
+# Behavioral ICP segments. Inferred from role/title, LinkedIn content,
+# conversation tone, or explicit PI assessment when available.
+
+buyer_bands:
+  explorer:
+    description: "Visionary, risk-tolerant, fast-moving. Founders, PMs, innovation leads."
+    inferred_drives: { D: high, E: high, C: low, F: low }
+    signals:
+      - "Language: 'building the future', 'experiment', '0→1', short punchy posts"
+      - "Role: founder, CPO, head of product, innovation lead"
+      - "Behavior: fast replies, short emails, jumps to demo requests"
+    preferred_approach: "Lead with outcomes and vision. Compress detail. Early live demo."
+    channel_preference: [call, video, slack]
+    cadence: fast  # 2-3 touches per week
+    decision_style: "Decides fast, often on instinct. Wants to see it working, not read about it."
+
+  guardian:
+    description: "Risk-averse, process-oriented, slow to change. Legal, compliance, security."
+    inferred_drives: { D: low, E: low, C: high, F: high }
+    signals:
+      - "Language: 'controls', 'frameworks', 'governance', structured arguments"
+      - "Role: GC, head of risk, compliance officer, CISO"
+      - "Behavior: long evaluation cycles, asks for documentation early"
+    preferred_approach: "Lead with process, safeguards, and compliance artifacts. Show gates."
+    channel_preference: [email, document_share]
+    cadence: slow  # 1 touch per week, detail-rich
+    decision_style: "Decides carefully. Needs evidence, references, and risk mitigation documented."
+
+  operator:
+    description: "Practical, reliability-focused, process-oriented. RevOps, finance, IT ops."
+    inferred_drives: { D: medium, E: low, C: high, F: high }
+    signals:
+      - "Language: 'reliability', 'integration', 'error rates', 'SLA'"
+      - "Role: VP ops, RevOps, finance director, IT manager"
+      - "Behavior: asks about integrations and data quality before features"
+    preferred_approach: "Lead with operational impact. Show integration depth and reliability data."
+    channel_preference: [email, structured_demo]
+    cadence: moderate  # 1-2 touches per week
+    decision_style: "Decides methodically. Wants to see it work in their stack, not in isolation."
+
+  connector:
+    description: "Relationship-driven, consensus-builder. HR, customer success, partnerships."
+    inferred_drives: { D: low, E: high, C: high, F: low }
+    signals:
+      - "Language: 'team', 'collaboration', 'alignment', 'stakeholders'"
+      - "Role: VP people, CS lead, partnerships, community"
+      - "Behavior: involves others early, asks 'who else should see this?'"
+    preferred_approach: "Lead with social proof and team impact. Offer group demos. Be warm."
+    channel_preference: [call, video, linkedin_dm]
+    cadence: moderate
+    decision_style: "Decides by consensus. Needs buy-in from multiple stakeholders."
+
+  driver:
+    description: "Results-obsessed, competitive, decisive. Sales leaders, CEOs, GMs."
+    inferred_drives: { D: high, E: medium, C: low, F: medium }
+    signals:
+      - "Language: 'revenue', 'pipeline', 'results', 'ROI', direct tone"
+      - "Role: CRO, VP sales, GM, CEO"
+      - "Behavior: cuts to the chase, asks about pricing early, impatient with fluff"
+    preferred_approach: "Lead with ROI and competitive advantage. No fluff. Get to numbers fast."
+    channel_preference: [call, email]
+    cadence: fast
+    decision_style: "Decides on impact. Wants to know what it does for their number."
+
+# ─── Match Matrix ────────────────────────────────────────────────────────────
+# buyer_band × seller_profile → outcome priors
+#
+# Fields per cell:
+#   fit:          strong | moderate | weak | avoid
+#   stall_risk:   low | medium | high
+#   best_chambers: where this pairing excels
+#   weak_chambers: where this pairing struggles
+#   play_type:    mirror | complement | multi-persona
+#   notes:        coaching text Otto can surface
+#   source:       prior (literature-seeded) | empirical (learned from data)
+
+matrix:
+
+  # ── Explorer Buyers ──────────────────────────────────────────────────────
+
+  explorer:
+    captain:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover, build]
+      weak_chambers: [verify]
+      play_type: mirror
+      notes: "Both high-D, high-E. Strong momentum. Captain matches explorer energy. Risk: neither wants to slow down for review. Add Analyzer at Verify gate."
+      source: prior
+
+    maverick:
+      fit: strong
+      stall_risk: low
+      best_chambers: [build]
+      weak_chambers: [verify, ship]
+      play_type: mirror
+      notes: "Maverick's fearless innovation resonates with explorer buyers. Ship fast, iterate. Risk: may skip due diligence. Pair with Guardian for Ship."
+      source: prior
+
+    strategist:
+      fit: moderate
+      stall_risk: medium
+      best_chambers: [discover]
+      weak_chambers: [build]
+      play_type: complement
+      notes: "Strategist brings structure explorer lacks, but can feel slow. Use in Discovery to map the vision, then hand off to faster persona for Build."
+      source: prior
+
+    analyzer:
+      fit: weak
+      stall_risk: high
+      best_chambers: [verify]
+      weak_chambers: [discover, build]
+      play_type: complement
+      notes: "Explorer gets impatient with Analyzer's detail. Only pair in Verify where precision is non-negotiable. Never lead with Analyzer on first touch."
+      source: prior
+
+    guardian:
+      fit: avoid
+      stall_risk: high
+      best_chambers: []
+      weak_chambers: [discover, build]
+      play_type: avoid
+      notes: "Guardian's caution and process focus frustrates explorers. Only bring in for compliance gates, never for relationship building."
+      source: prior
+
+  # ── Guardian Buyers ──────────────────────────────────────────────────────
+
+  guardian:
+    analyzer:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover, verify]
+      weak_chambers: []
+      play_type: mirror
+      notes: "Both precision-driven. Analyzer matches guardian's need for detail, evidence, and thoroughness. This pairing builds trust through rigor."
+      source: prior
+
+    guardian:
+      fit: strong
+      stall_risk: medium
+      best_chambers: [verify, ship]
+      weak_chambers: [discover]
+      play_type: mirror
+      notes: "Guardian seller speaks guardian buyer's language — risk, controls, compliance. Stall risk: both may over-process. Set time boundaries."
+      source: prior
+
+    scholar:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover]
+      weak_chambers: [ship]
+      play_type: complement
+      notes: "Scholar's evidence-based approach earns guardian trust. Lead with research, data, and references. Strong for early-stage education."
+      source: prior
+
+    captain:
+      fit: weak
+      stall_risk: high
+      best_chambers: []
+      weak_chambers: [discover, build]
+      play_type: avoid
+      notes: "Captain's boldness and pace intimidates guardian buyers. Pressure-fatigue risk. If Captain must engage, slow down deliberately and lead with safeguards."
+      source: prior
+
+    maverick:
+      fit: avoid
+      stall_risk: high
+      best_chambers: []
+      weak_chambers: [discover, build, verify]
+      play_type: avoid
+      notes: "Maverick's 'move fast, break things' energy is the opposite of what guardian buyers need. Hard avoid for primary seller. Maybe SE role only."
+      source: prior
+
+  # ── Operator Buyers ──────────────────────────────────────────────────────
+
+  operator:
+    controller:
+      fit: strong
+      stall_risk: low
+      best_chambers: [verify, ship]
+      weak_chambers: []
+      play_type: mirror
+      notes: "Controller's process focus and quality standards match operator buyers perfectly. Lead with integration specs, SLAs, and runbooks."
+      source: prior
+
+    specialist:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover, verify]
+      weak_chambers: [ship]
+      play_type: mirror
+      notes: "Specialist's deep domain knowledge earns operator trust. Step-by-step validation, thorough testing. Strong for technical evaluation phase."
+      source: prior
+
+    strategist:
+      fit: moderate
+      stall_risk: low
+      best_chambers: [discover]
+      weak_chambers: [ship]
+      play_type: complement
+      notes: "Strategist helps operator see the bigger picture beyond their ops silo. Good for initial framing, but hand off to Controller for execution detail."
+      source: prior
+
+    promoter:
+      fit: weak
+      stall_risk: high
+      best_chambers: []
+      weak_chambers: [discover, build]
+      play_type: avoid
+      notes: "Promoter's enthusiasm feels ungrounded to operators who want data and reliability. Avoid as primary. Maybe internal champion-building only."
+      source: prior
+
+    captain:
+      fit: moderate
+      stall_risk: medium
+      best_chambers: [build]
+      weak_chambers: [verify]
+      play_type: complement
+      notes: "Captain can rally operator buyers around a project vision, but must back it with operational detail. Pair with Controller or Specialist."
+      source: prior
+
+  # ── Connector Buyers ─────────────────────────────────────────────────────
+
+  connector:
+    collaborator:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover, build]
+      weak_chambers: []
+      play_type: mirror
+      notes: "Natural fit. Both consensus-oriented. Collaborator excels at multi-stakeholder navigation that connector buyers expect."
+      source: prior
+
+    altruist:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover]
+      weak_chambers: [ship]
+      play_type: mirror
+      notes: "Altruist's supportive, harmony-seeking style builds deep trust with connector buyers. Strong for relationship foundation."
+      source: prior
+
+    promoter:
+      fit: moderate
+      stall_risk: medium
+      best_chambers: [build]
+      weak_chambers: [verify]
+      play_type: complement
+      notes: "Promoter's energy can rally connector buyers' stakeholder groups. But substance must back the enthusiasm or trust erodes."
+      source: prior
+
+    captain:
+      fit: moderate
+      stall_risk: medium
+      best_chambers: [ship]
+      weak_chambers: [discover]
+      play_type: complement
+      notes: "Captain can drive consensus to a decision when connector buyer's group is stuck. Use late-stage only. Too aggressive for early touch."
+      source: prior
+
+    venturer:
+      fit: weak
+      stall_risk: high
+      best_chambers: []
+      weak_chambers: [discover, build]
+      play_type: avoid
+      notes: "Venturer's independence clashes with connector's need for group involvement. Solo-operator energy feels dismissive."
+      source: prior
+
+  # ── Driver Buyers ────────────────────────────────────────────────────────
+
+  driver:
+    captain:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover, build, ship]
+      weak_chambers: []
+      play_type: mirror
+      notes: "Driver meets driver. Both results-obsessed. Captain matches pace and directness. Risk: may rush past important gates. Add Analyzer at Verify."
+      source: prior
+
+    venturer:
+      fit: strong
+      stall_risk: low
+      best_chambers: [build, ship]
+      weak_chambers: [verify]
+      play_type: mirror
+      notes: "Venturer's bold, ship-fast approach resonates with driver buyers. Strong for greenfield opportunities. Weak on risk review."
+      source: prior
+
+    persuader:
+      fit: strong
+      stall_risk: low
+      best_chambers: [discover, build]
+      weak_chambers: [verify]
+      play_type: mirror
+      notes: "Persuader's confident influence and storytelling matches driver buyer's competitive instincts. Strong for initial pitch and negotiation."
+      source: prior
+
+    analyzer:
+      fit: moderate
+      stall_risk: medium
+      best_chambers: [verify]
+      weak_chambers: [discover]
+      play_type: complement
+      notes: "Driver buyers respect data when presented efficiently. Analyzer works well as SE/technical resource, not as primary relationship holder."
+      source: prior
+
+    altruist:
+      fit: avoid
+      stall_risk: high
+      best_chambers: []
+      weak_chambers: [discover, build]
+      play_type: avoid
+      notes: "Altruist's accommodating style reads as weakness to driver buyers. They want someone who pushes back, not someone who agrees."
+      source: prior
+
+# ─── Multi-Persona Plays ─────────────────────────────────────────────────────
+# Some pairings work best as 2-person plays (AE + SE, primary + support)
+
+multi_persona_plays:
+  guardian_buyer:
+    recommended: "Captain (AE) + Analyzer (SE)"
+    rationale: "Captain provides executive presence and vision. Analyzer provides the detailed evidence guardian buyers need. Captain must deliberately slow down."
+    chamber_split:
+      discover: analyzer_leads
+      build: captain_leads
+      verify: analyzer_leads
+      ship: guardian_support  # Otto fills if no team member
+
+  explorer_buyer:
+    recommended: "Maverick (AE) + Guardian (oversight)"
+    rationale: "Maverick matches explorer's pace and energy. Guardian ensures nothing ships without review. Explorer buyer may never interact with Guardian directly."
+    chamber_split:
+      discover: maverick_leads
+      build: maverick_leads
+      verify: guardian_gates  # Background quality control
+      ship: maverick_leads
+
+  operator_buyer:
+    recommended: "Controller (AE) + Strategist (executive sponsor)"
+    rationale: "Controller handles the operational detail operator buyers care about. Strategist handles the bigger-picture executive conversation."
+    chamber_split:
+      discover: strategist_leads
+      build: controller_leads
+      verify: controller_leads
+      ship: controller_leads
+
+# ─── LinkedIn Inference → Buyer Band Mapping ─────────────────────────────────
+# How inferred DISC/Big-5 scores from LinkedIn text map to buyer bands.
+# Uses the DISC inference prompt (see communication/otto-homecoming-spec.md).
+
+linkedin_to_band_mapping:
+  method: "DISC scores from LLM inference → band classification"
+  mapping_rules:
+    - band: explorer
+      condition: "D ≥ 0.6 AND I ≥ 0.5 AND C < 0.4"
+      confidence_weight: 0.7  # LinkedIn inference is noisy
+
+    - band: guardian
+      condition: "C ≥ 0.6 AND S ≥ 0.5 AND D < 0.4"
+      confidence_weight: 0.7
+
+    - band: operator
+      condition: "C ≥ 0.5 AND S ≥ 0.5 AND I < 0.4"
+      confidence_weight: 0.6
+
+    - band: connector
+      condition: "I ≥ 0.6 AND S ≥ 0.5 AND D < 0.5"
+      confidence_weight: 0.6
+
+    - band: driver
+      condition: "D ≥ 0.7 AND C < 0.5"
+      confidence_weight: 0.7
+
+  fallback: operator  # When signals are ambiguous, default to operator band
+  minimum_confidence: 0.4  # Below this, don't assign a band — ask for more data
+
+# ─── Blending: LinkedIn Prior + PI Ground Truth ──────────────────────────────
+
+blending:
+  description: "When both LinkedIn inference and PI assessment exist, blend them"
+  formula: "behavior_vector = alpha * pi_vector + (1 - alpha) * linkedin_prior"
+  alpha_values:
+    no_pi: 0.0          # LinkedIn only
+    pi_available: 0.85  # Strong PI weight, LinkedIn as presentation signal
+  presentation_gap:
+    description: "Large discrepancy between LinkedIn persona and PI profile"
+    threshold: 3.0  # Euclidean distance in DECF space
+    action: "Flag for coaching — 'public persona is {linkedin_band}, underlying profile is {pi_profile}. Adjust approach accordingly.'"
+
+# ─── Learning Protocol (Future) ──────────────────────────────────────────────
+
+learning:
+  status: not_implemented
+  description: "Log deal outcomes per (buyer_band, seller_profile) cell and update priors"
+  data_sources:
+    - "airlock-coordination session logs (which personas engaged, which chambers)"
+    - "CRM integration (opp stage, win/loss, cycle length, discount)"
+  update_cadence: monthly
+  method: "Bayesian update — prior pseudo-counts + observed deal counts"
+  metrics_to_track:
+    - win_rate_by_cell
+    - stall_stage_by_cell  # Where deals die for each pairing
+    - cycle_length_by_cell
+    - discount_rate_by_cell  # Do some pairings give away more margin?
+  minimum_observations_per_cell: 10  # Don't update prior until 10+ deals in cell

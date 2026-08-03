@@ -1,0 +1,201 @@
+# Workflow Inference — Behavior → Workflow Routing
+# Given a team's DECF composition and a task type, infer the optimal
+# playbook structure: which chambers to activate, gate density, lead
+# personas, gap analysis, and Otto compensations.
+#
+# This is the "vibe planner" — the function that turns behavioral context
+# into a concrete workflow proposal. The forge UI calls this when a user
+# types their objective and clicks "Build Playbook."
+#
+# State Service endpoint:
+#   POST /persona/infer-workflow
+#   body: { team_profiles, task_type, risk_level, target_band? }
+#   returns: { chambers, gate_density, lead_personas, gaps, otto_compensations }
+
+version: "1.0"
+status: schema  # schema = contract only, not yet implemented
+
+# ─── Input Schema ────────────────────────────────────────────────────────────
+
+input:
+  team_profiles:
+    type: list[string]  # PI profile IDs from airlock-persona/profiles/
+    description: "Active team members' profile IDs (e.g., ['captain', 'maverick', 'maverick'])"
+    required: true
+
+  task_type:
+    type: enum
+    values:
+      - feature_build      # New feature implementation
+      - bug_fix            # Debugging and patching
+      - refactor           # Code restructuring
+      - research           # Discovery-heavy investigation
+      - prospecting        # Sales/outreach workflow (see buyer-seller-match.yaml)
+      - onboarding         # New team member or customer setup
+      - compliance_review  # Audit, security, regulatory
+      - content_creation   # Marketing, docs, presentations
+      - deployment         # Release, migration, infrastructure
+      - planning           # Strategy, architecture, roadmapping
+    required: true
+
+  risk_level:
+    type: enum
+    values: [low, medium, high, critical]
+    required: true
+    description: "Determines gate density and human oversight requirements"
+
+  target_band:
+    type: string
+    required: false
+    description: "Buyer behavioral band for prospecting tasks (explorer/guardian/operator)"
+
+# ─── Output Schema ───────────────────────────────────────────────────────────
+
+output:
+  chambers:
+    type: list[string]
+    description: "Ordered chamber sequence (not always all four)"
+    example: ["discover", "build", "verify"]
+
+  gate_density:
+    type: enum
+    values: [minimal, standard, elevated, maximum]
+    description: "How many gates to enforce between chambers"
+    rules:
+      minimal:   "1 gate at Ship entry. For low-risk, high-patience teams."
+      standard:  "Gates between each chamber transition. Default."
+      elevated:  "Extra mid-chamber gates. For high-risk or low-patience teams."
+      maximum:   "Gate after every 2-3 nodes. For critical-risk work."
+
+  lead_personas:
+    type: map[chamber → profile_id]
+    description: "Recommended lead persona for each active chamber"
+    example:
+      discover: scholar
+      build: maverick
+      verify: analyzer
+
+  gaps:
+    type: list[gap]
+    description: "Behavioral roles missing from the team"
+    gap_schema:
+      role: string           # Human-readable role name
+      reason: string         # Why this gap matters
+      archetype: string      # PI profile that would fill it
+      severity: enum[low, medium, high, critical]
+      affected_chambers: list[string]
+
+  otto_compensations:
+    type: list[compensation]
+    description: "How Otto fills team gaps by shifting persona"
+    compensation_schema:
+      chamber: string        # Which chamber Otto compensates in
+      persona: string        # Which PI persona Otto adopts
+      reason: string         # Why this compensation is needed
+      confidence: float      # How well Otto can fill this role (0-1)
+
+# ─── Inference Rules ─────────────────────────────────────────────────────────
+
+# These rules determine which chambers to activate and who leads them.
+# Implemented as deterministic logic, not ML. Can be upgraded later.
+
+chamber_selection:
+  # Task type → default chamber sequence
+  defaults:
+    feature_build:      [discover, build, verify, ship]
+    bug_fix:            [discover, build, verify]
+    refactor:           [discover, build, verify]
+    research:           [discover]
+    prospecting:        [discover, build, verify, ship]
+    onboarding:         [discover, build]
+    compliance_review:  [discover, verify]
+    content_creation:   [discover, build, verify]
+    deployment:         [verify, ship]
+    planning:           [discover]
+
+  # Risk level can add chambers
+  risk_escalation:
+    high:     "Add verify if not present"
+    critical: "Add verify AND ship if not present"
+
+lead_persona_selection:
+  # Chamber → default lead persona (can be overridden by team composition)
+  defaults:
+    discover: scholar
+    build: maverick
+    verify: analyzer
+    ship: guardian
+
+  # Override: if a team member's profile matches the chamber better than
+  # the default, prefer the team member's profile as lead.
+  # This uses Euclidean distance from the chamber's "ideal lead" vector.
+  override_rule: "If team has a member within distance 3.0 of the chamber lead vector, use their profile instead of default."
+
+gap_detection:
+  # Sovereign balance thresholds — if team average falls below these,
+  # flag a gap in the corresponding behavioral dimension.
+  thresholds:
+    patience_gap:    { dimension: C, below: 4.0, severity: high, role: "Methodical reviewer" }
+    formality_gap:   { dimension: F, below: 4.0, severity: high, role: "Process enforcer" }
+    guardian_gap:    { dimension: "C+F", below: 8.0, severity: critical, role: "Guardian" }
+    initiative_gap:  { dimension: D, below: 4.0, severity: medium, role: "Driver" }
+    energy_gap:      { dimension: E, below: 4.0, severity: medium, role: "Energizer" }
+
+  # Gate density escalation based on gaps
+  gap_gate_escalation:
+    - condition: "patience_gap OR formality_gap"
+      action: "Elevate gate density by one level"
+    - condition: "guardian_gap"
+      action: "Set gate density to maximum"
+
+otto_compensation_rules:
+  # When Otto fills a gap, he adopts the persona that best covers it.
+  # Confidence is lower for roles far from Otto's default (adapter).
+  compensation_map:
+    patience_gap:   { persona: analyzer, confidence: 0.85 }
+    formality_gap:  { persona: guardian, confidence: 0.90 }
+    guardian_gap:   { persona: guardian, confidence: 0.90 }
+    initiative_gap: { persona: captain, confidence: 0.75 }
+    energy_gap:     { persona: promoter, confidence: 0.70 }
+
+  # Otto can fill at most 2 gaps simultaneously.
+  # If 3+ gaps exist, recommend hiring before proceeding.
+  max_simultaneous_compensations: 2
+  overflow_message: "Your team has {n} behavioral gaps. Otto can compensate for 2. Consider adding a team member with a {recommended_profile} profile."
+
+# ─── Example ─────────────────────────────────────────────────────────────────
+
+example:
+  input:
+    team_profiles: [captain, maverick, maverick]
+    task_type: feature_build
+    risk_level: medium
+
+  output:
+    chambers: [discover, build, verify, ship]
+    gate_density: elevated  # Team has low C and low F → elevated
+    lead_personas:
+      discover: scholar     # No team member fits → Otto leads
+      build: maverick       # Two mavericks → team member leads
+      verify: analyzer      # No team member fits → Otto leads
+      ship: guardian        # No team member fits → Otto leads
+    gaps:
+      - role: "Methodical reviewer"
+        reason: "Team patience average is 1.7 (threshold: 4.0)"
+        archetype: analyzer
+        severity: high
+        affected_chambers: [verify]
+      - role: "Process enforcer"
+        reason: "Team formality average is 1.7 (threshold: 4.0)"
+        archetype: guardian
+        severity: high
+        affected_chambers: [verify, ship]
+    otto_compensations:
+      - chamber: verify
+        persona: analyzer
+        reason: "Filling patience gap — team has no methodical reviewer"
+        confidence: 0.85
+      - chamber: ship
+        persona: guardian
+        reason: "Filling formality gap — team has no process enforcer"
+        confidence: 0.90

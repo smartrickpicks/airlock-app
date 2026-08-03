@@ -1,0 +1,251 @@
+# inference/question-pool.yaml
+# Adaptive question pool for Otto's Calibration Journey
+# Otto picks from this pool based on drive gaps and archetype hypothesis
+
+questions:
+  # === Card Tap Questions (structured signal, zero typing) ===
+
+  goal_statement:
+    text: "Before I build anything — what are you actually trying to get done?"
+    format: card_tap
+    drives_measured: [dominance, patience]
+    phase: bmy
+    priority: 1
+    options:
+      - id: close_deals
+        label: "Close deals faster"
+        adjustments: { dominance: 3, patience: -2 }
+      - id: manage_contracts
+        label: "Manage contracts"
+        adjustments: { formality: 2, patience: 1 }
+      - id: organize_team
+        label: "Organize my team"
+        adjustments: { extraversion: 2, dominance: 1 }
+      - id: track_projects
+        label: "Track projects"
+        adjustments: { formality: 1, patience: 2 }
+      - id: store_documents
+        label: "Store & find documents"
+        adjustments: { formality: 3, patience: 3 }
+    allows_custom_text: true
+    custom_text_analysis: goal_signals
+
+  autonomy_pref:
+    text: "How hands-on do you want Otto?"
+    format: card_tap
+    drives_measured: [formality]
+    phase: bmy
+    priority: 2
+    options:
+      - id: run_things
+        label: "Run things for me"
+        adjustments: { formality: -3 }
+        meta:
+          autonomy_ceiling: 0.85
+          interaction_mode: autonomous
+      - id: draft_review
+        label: "Draft it, I'll review"
+        adjustments: { formality: -1 }
+        meta:
+          autonomy_ceiling: 0.70
+          interaction_mode: draft_then_review
+      - id: help_while_drive
+        label: "Help me while I drive"
+        adjustments: { formality: 1 }
+        meta:
+          autonomy_ceiling: 0.55
+          interaction_mode: collaborative
+      - id: second_opinion
+        label: "Just a second opinion"
+        adjustments: { formality: 3 }
+        meta:
+          autonomy_ceiling: 0.40
+          interaction_mode: supervised
+
+  report_style:
+    text: "When info hits your desk, what do you do first?"
+    format: card_tap
+    drives_measured: [dominance, patience, formality, extraversion]
+    phase: bmy
+    priority: 3
+    archetype_confirmation:
+      driver: scan_act
+      enforcer: read_detail
+      interpreter: ask_someone
+    options:
+      - id: scan_act
+        label: "Scan summary, then act"
+        adjustments: { dominance: 1, patience: -1 }
+      - id: read_detail
+        label: "Read every detail first"
+        adjustments: { formality: 1, patience: 1 }
+      - id: ask_someone
+        label: "Ask someone what they think"
+        adjustments: { extraversion: 1, dominance: -1 }
+
+  team_size:
+    text: "How big is your crew?"
+    format: card_tap
+    drives_measured: [extraversion, dominance]
+    phase: bmy
+    priority: 4
+    options:
+      - id: solo
+        label: "Solo"
+        adjustments: { extraversion: -0.5, dominance: 0.5 }
+      - id: pod
+        label: "2-5"
+        adjustments: {}
+      - id: squad
+        label: "5-20"
+        adjustments: { extraversion: 0.5 }
+      - id: department
+        label: "20+"
+        adjustments: { extraversion: 1, dominance: 0.5 }
+
+  plan_fails:
+    text: "When a plan falls apart, you..."
+    format: card_tap
+    drives_measured: [dominance, patience, extraversion]
+    phase: bmy
+    priority: 5
+    options:
+      - id: pivot
+        label: "Pivot immediately"
+        adjustments: { dominance: 2, patience: -2 }
+      - id: diagnose
+        label: "Diagnose first"
+        adjustments: { patience: 2, extraversion: -1 }
+      - id: rally
+        label: "Rally the team"
+        adjustments: { extraversion: 2 }
+      - id: escalate
+        label: "Escalate up"
+        adjustments: { dominance: -1, patience: 1 }
+
+  monday_energy:
+    text: "Monday morning energy:"
+    format: card_tap
+    drives_measured: [extraversion, patience, dominance]
+    phase: bmy
+    priority: 5
+    options:
+      - id: already_moving
+        label: "Already in motion"
+        adjustments: { patience: -2, dominance: 1 }
+      - id: coffee_plan
+        label: "Coffee then plan"
+        adjustments: { extraversion: -1, patience: 1 }
+      - id: check_in
+        label: "Check in with everyone"
+        adjustments: { extraversion: 2 }
+      - id: review_last_week
+        label: "Review last week first"
+        adjustments: { extraversion: -1, patience: 2, dominance: -1 }
+
+  # === Conversational Questions (rich signal via language analysis) ===
+
+  frustration:
+    text: "What's the last thing at work that genuinely frustrated you?"
+    format: conversational
+    drives_measured: [dominance, patience, formality]
+    phase: deep
+    priority: 1
+    language_analysis:
+      - pattern: speed_frustration
+        adjustments: { dominance: 1.5, patience: -1.5 }
+      - pattern: disorder_frustration
+        adjustments: { formality: 1.5 }
+      - pattern: people_frustration
+        adjustments: { dominance: 1, extraversion: -0.5 }
+    archetype_affinity: { driver: 0.8, enforcer: 0.6, interpreter: 0.4 }
+
+  best_team:
+    text: "Describe the best team you've ever been on. What made it click?"
+    format: conversational
+    drives_measured: [extraversion, dominance]
+    phase: deep
+    priority: 2
+    language_analysis:
+      - pattern: we_language
+        adjustments: { extraversion: 1.5 }
+      - pattern: leadership_language
+        adjustments: { dominance: 1.5 }
+      - pattern: speed_language
+        adjustments: { patience: -1 }
+    archetype_affinity: { interpreter: 0.8, driver: 0.6, enforcer: 0.4 }
+
+  explain_complex:
+    text: "When you explain something complicated, how do you do it?"
+    format: conversational
+    drives_measured: [formality, extraversion]
+    phase: deep
+    priority: 3
+    language_analysis:
+      - pattern: structured_explanation
+        adjustments: { formality: 1.5 }
+      - pattern: storytelling_explanation
+        adjustments: { extraversion: 1.5 }
+      - pattern: action_explanation
+        adjustments: { dominance: 1 }
+    archetype_affinity: { enforcer: 0.7, interpreter: 0.7, driver: 0.5 }
+
+  hidden_skill:
+    text: "What's something you're weirdly good at that's not in your job title?"
+    format: conversational
+    drives_measured: [extraversion, dominance]
+    phase: deep
+    priority: 4
+    language_analysis:
+      - pattern: people_skill
+        adjustments: { extraversion: 1.5 }
+      - pattern: systems_skill
+        adjustments: { formality: 1, patience: 0.5 }
+      - pattern: leadership_skill
+        adjustments: { dominance: 1.5, extraversion: 0.5 }
+    archetype_affinity: { interpreter: 0.7, driver: 0.6, enforcer: 0.5 }
+
+# Micro-insights Otto drops after processing each answer
+micro_insights:
+  dominance_high:
+    - "You don't wait for permission. That's rare."
+    - "Most people describe what they want to fix. You described what you want to build."
+    - "You said 'close' not 'organize.' That tells me something."
+  dominance_low:
+    - "You're the steady hand, not the loud voice. Teams need that more than they know."
+  extraversion_high:
+    - "You think out loud, don't you? That's a superpower in the right room."
+    - "The team came up three times in that answer. You're wired for people."
+    - "You light up talking about collaboration. Not everyone does."
+  extraversion_low:
+    - "You do your best thinking alone. That's not antisocial — it's efficient."
+  patience_low:
+    - "You were working before you clocked in. I know exactly who you are."
+    - "Waiting is your kryptonite. You'd rather make the wrong call fast than the right call slow."
+  patience_high:
+    - "You're the one who catches what everyone else missed because they moved too fast."
+    - "Methodical isn't boring. It's how you avoid cleaning up messes."
+  formality_high:
+    - "You said 'process' and 'framework' in the same breath. I already know things about you."
+    - "You want the system to be right, not just right now."
+  formality_low:
+    - "Rules are suggestions to you. That's not a flaw — it's a design choice."
+    - "Direct action over process. You trust your gut more than the spreadsheet."
+  ambiguous:
+    - "Interesting — that answer could go a few ways. Let me ask one more thing."
+    - "You're harder to read than most. I like a challenge."
+
+# Unlock tier messages
+unlock_messages:
+  "0.55":
+    otto_says: "I'm starting to see something..."
+    visual: first_drive_bar
+  "0.65":
+    otto_says: "You might be a {meta_archetype}..."
+    visual: archetype_silhouette
+  "0.75":
+    otto_says: "You're a {profile_name}. Here's why."
+    visual: full_profile_reveal
+  "0.85":
+    otto_says: "Full picture unlocked. Every signal, every distance, every tension. Nothing hidden."
+    visual: provenance_unlock

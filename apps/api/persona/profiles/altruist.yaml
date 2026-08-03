@@ -1,0 +1,82 @@
+id: altruist
+name: Altruist
+category: social
+population_pct: 6.23
+
+drives:
+  dominance: 2
+  extraversion: 9
+  patience: 8
+  formality: 2
+
+bio: "The empathetic team anchor who builds trust, sustains harmony, and puts people before process."
+
+strengths:
+  - Exceptional active listening and empathy that makes others feel genuinely heard
+  - Builds deep, lasting relationships that become the invisible infrastructure of high-performing teams
+  - Creates psychologically safe environments where vulnerability and honesty are rewarded
+  - Patient mediator in interpersonal conflicts, absorbing tension others cannot tolerate
+  - Highly attuned to shifts in team morale before they manifest in behavior or performance
+  - Reliable, consistent presence that provides emotional stability during organizational turbulence
+
+cautions:
+  - Avoids necessary confrontation and hard feedback, allowing underperformance to persist
+  - Over-commits to helping others at significant personal expense, leading to quiet burnout
+  - Difficulty setting and enforcing boundaries when requests conflict with capacity
+  - Prioritizes harmony over optimal outcomes, choosing peace over progress
+  - Slow to make decisions that might upset anyone, stalling when tough calls are needed
+  - May enable dysfunctional dynamics to preserve the appearance of team cohesion
+
+core_needs:
+  - Collaborative, supportive team culture where relationships are valued
+  - Meaningful interpersonal connections at work, not transactional exchanges
+  - Stability and predictability in relationships and team composition
+  - Recognition for team contributions and facilitation, not just individual output
+  - Low-conflict work environment where disagreement is handled with care
+
+best_environment: "Team-oriented roles requiring relationship management; collaborative cultures where trust-building, mentoring, and consensus matter more than speed or competition."
+
+workspace:
+  cognitive_mode: verbal_narrative
+  information_density: medium
+  interface_structure: guided_flexible
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Avoids delivering critical feedback, allowing problems to compound until they become crises"
+  - "Over-accommodates others' needs and timelines, leading to chronic burnout and suppressed resentment"
+  - "Prioritizes team comfort over necessary change, resisting initiatives that create short-term discomfort"
+  - "Defers to stronger personalities even when holding the better position, undermining their own credibility"
+
+compensation_patterns:
+  - id: structured-feedback-framework
+    description: "Templated feedback formats that make difficult conversations feel less personal and more procedural"
+  - id: boundary-visibility
+    description: "Explicit workload and commitment tracking to surface over-extension before it becomes burnout"
+  - id: outcome-anchoring
+    description: "Decision prompts that balance relationship impact with objective outcomes, preventing harmony from overriding results"
+  - id: assertiveness-scaffolding
+    description: "Low-stakes practice opportunities for advocating positions in supportive contexts, building the muscle for harder conversations"
+
+anti_patterns:
+  - "Solitary, independent work with no team interaction or relationship-building"
+  - "Highly competitive, zero-sum environments where collaboration is penalized"
+  - "Blunt, metrics-only performance cultures that dismiss relational contributions"
+  - "Rapid reorganizations that disrupt established relationships and trust networks"
+
+otto:
+  default_archetype: connector
+  autonomy_ceiling: 0.55
+  interaction_mode: collaborative
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "Direct interpersonal skills, conflict navigation, and intuitive empathy may atrophy if AI handles communication drafting and sentiment analysis"
+  power_dynamic: "Loses relative influence — AI-accelerated environments reward speed and output over relationship-building, marginalizing the Altruist's core contribution"
+
+communication:
+  strength: "Warm, inclusive, and trust-building — creates space where people share what they would withhold from others"
+  failure_pattern: "Softens messages so heavily that the core point gets lost, leaving recipients unsure of the actual ask or concern"
+  best_tooling: "Collaborative spaces with sentiment visibility, team health dashboards, and AI that drafts feedback frameworks rather than final messages"
+  ai_risk: "AI-mediated communication strips the warmth and nuance that makes the Altruist effective, turning their messages into generic corporate tone"

@@ -1,0 +1,331 @@
+version: "1.0"
+description: >
+  Otto's Opening Move — action catalog. Each entry defines a quick action
+  Otto can offer after onboarding. The Action Resolver scores entries by
+  archetype_affinity + goal_tags + signal coverage, picks the top 3,
+  and fills description_template variables with user data.
+
+actions:
+  # ── Driver actions ──────────────────────────────────────────────────
+
+  - id: cold_outbound_sequence
+    title: "Your {industry} Outbound Sequence"
+    description_template: >
+      A 3-email cold outbound sequence targeting {industry} {seniority}-level
+      contacts, written for a {role} at a {company_size} company.
+    archetype_affinity:
+      driver: 1.0
+      enforcer: 0.2
+      interpreter: 0.1
+    required_signals:
+      instant: [role, industry, company_size]
+      guided: [role]
+    goal_tags: [close_deals, grow_revenue, sales]
+    output_type: artifact
+    prompt_template: |
+      You are Otto, a business intelligence assistant. The user is a {role}
+      in the {industry} industry at a {company_size} company.
+
+      Write a 3-email cold outbound sequence. Each email should be:
+      - Under 150 words
+      - Personalized to {industry} pain points
+      - Progressive (intro → value → ask)
+
+      Output as numbered emails with subject lines.
+
+  - id: execution_plan_90day
+    title: "Your 90-Day Execution Plan"
+    description_template: >
+      A phased 90-day plan built around your goals: {goals}.
+    archetype_affinity:
+      driver: 1.0
+      enforcer: 0.5
+      interpreter: 0.3
+    required_signals:
+      instant: [goals, role, industry]
+      guided: [goals]
+    goal_tags: [ship_fast, build_product, execute, grow_revenue]
+    output_type: artifact
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry}. Their stated goals: {goals}.
+
+      Create a 90-day execution plan in 3 phases (30/60/90).
+      Each phase: 3-5 concrete milestones with owners marked as "You" or "Otto".
+      Format as a table.
+
+  - id: competitive_landscape
+    title: "Your {industry} Competitive Map"
+    description_template: >
+      A competitive landscape analysis for {industry}, sized for {company_size}.
+    archetype_affinity:
+      driver: 0.9
+      enforcer: 0.3
+      interpreter: 0.2
+    required_signals:
+      instant: [industry, company_size]
+      guided: [industry]
+    goal_tags: [grow_revenue, strategy, close_deals]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user works in {industry} at a {company_size} company.
+
+      Start a guided competitive analysis. Ask them:
+      "Who are the top 3 competitors you run into most? I'll map positioning, pricing tiers, and where you have an opening."
+
+  - id: deal_qualification
+    title: "Your Deal Qualification Framework"
+    description_template: >
+      A deal scoring rubric for {role} selling into {industry}.
+    archetype_affinity:
+      driver: 0.8
+      enforcer: 0.6
+      interpreter: 0.1
+    required_signals:
+      instant: [role, industry, goals]
+      guided: [role]
+    goal_tags: [close_deals, sales, grow_revenue]
+    output_type: artifact
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry}.
+
+      Create a deal qualification scorecard with 5-7 criteria,
+      each scored 1-5. Include: budget authority, timeline, champion,
+      competitive landscape, and industry-specific factors for {industry}.
+      Format as a scoring table with weights.
+
+  - id: hiring_scorecard
+    title: "Your Next-Hire Scorecard"
+    description_template: >
+      A structured hiring rubric for your next key role.
+    archetype_affinity:
+      driver: 0.7
+      enforcer: 0.5
+      interpreter: 0.4
+    required_signals:
+      instant: [role, industry, goals]
+      guided: [role]
+    goal_tags: [build_team, manage_people, hire]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry}.
+
+      Start a guided hiring scorecard build. Ask them:
+      "What's the single most important role you need to fill in the next 90 days? I'll build you a scoring rubric and interview guide."
+
+  # ── Enforcer actions ────────────────────────────────────────────────
+
+  - id: workflow_bottleneck_audit
+    title: "Your Workflow Bottleneck Audit"
+    description_template: >
+      An audit of your current workflow based on your goals: {goals}.
+    archetype_affinity:
+      enforcer: 1.0
+      driver: 0.3
+      interpreter: 0.2
+    required_signals:
+      instant: [goals, role, industry]
+      guided: [goals]
+    goal_tags: [optimize_ops, manage_projects, efficiency]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry} with goals: {goals}.
+
+      Start a workflow audit. Ask them:
+      "Walk me through your current process from start to finish for your most important recurring task. I'll find the bottlenecks."
+
+  - id: compliance_checklist
+    title: "Your {industry} Compliance Checklist"
+    description_template: >
+      A compliance and regulatory checklist for {industry}.
+    archetype_affinity:
+      enforcer: 1.0
+      driver: 0.1
+      interpreter: 0.3
+    required_signals:
+      instant: [industry]
+      guided: [industry]
+    goal_tags: [compliance, risk, legal, manage_contracts]
+    output_type: artifact
+    prompt_template: |
+      You are Otto. The user works in {industry}.
+
+      Create a compliance checklist covering the top regulatory requirements
+      for {industry}. Include: applicable regulations, key deadlines,
+      documentation requirements, and common audit findings.
+      Format as a checklist with status columns.
+
+  - id: risk_assessment
+    title: "Your Risk Assessment Matrix"
+    description_template: >
+      A risk matrix for {role} in {industry}, weighted by your goals.
+    archetype_affinity:
+      enforcer: 0.9
+      driver: 0.4
+      interpreter: 0.3
+    required_signals:
+      instant: [goals, industry]
+      guided: [industry]
+    goal_tags: [risk, compliance, manage_projects, optimize_ops]
+    output_type: artifact
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry} with goals: {goals}.
+
+      Build a risk assessment matrix with 8-10 risks relevant to their
+      role and industry. Columns: Risk, Likelihood (1-5), Impact (1-5),
+      Risk Score, Mitigation. Sort by risk score descending.
+
+  - id: process_documentation
+    title: "Your Process Documentation Draft"
+    description_template: >
+      A structured process doc for your core workflow.
+    archetype_affinity:
+      enforcer: 0.8
+      driver: 0.2
+      interpreter: 0.5
+    required_signals:
+      instant: [role, goals, industry]
+      guided: [role]
+    goal_tags: [optimize_ops, manage_projects, documentation]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry}.
+
+      Start a process documentation session. Ask them:
+      "What's the one process your team does most often but has never written down? I'll turn your description into a step-by-step SOP."
+
+  - id: vendor_evaluation
+    title: "Your Vendor Evaluation Rubric"
+    description_template: >
+      A vendor scoring rubric for {industry} at {company_size} scale.
+    archetype_affinity:
+      enforcer: 0.7
+      driver: 0.3
+      interpreter: 0.2
+    required_signals:
+      instant: [industry, company_size]
+      guided: [industry]
+    goal_tags: [manage_contracts, optimize_ops, procurement]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user works in {industry} at a {company_size} company.
+
+      Start a vendor evaluation. Ask them:
+      "What category of vendor are you evaluating right now? (e.g., software, services, hardware) I'll build a weighted rubric."
+
+  # ── Interpreter actions ─────────────────────────────────────────────
+
+  - id: team_communication_map
+    title: "Your Team Communication Map"
+    description_template: >
+      A communication pattern analysis for your team.
+    archetype_affinity:
+      interpreter: 1.0
+      enforcer: 0.2
+      driver: 0.1
+    required_signals:
+      instant: [role, goals, industry]
+      guided: [role]
+    goal_tags: [build_team, manage_people, collaboration]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry}.
+
+      Start a team communication mapping session. Ask them:
+      "How many people are on your immediate team, and what's the biggest communication breakdown you've seen in the last month?"
+
+  - id: stakeholder_alignment
+    title: "Your Stakeholder Alignment Brief"
+    description_template: >
+      An alignment brief for {role} stakeholder relationships in {industry}.
+    archetype_affinity:
+      interpreter: 1.0
+      driver: 0.3
+      enforcer: 0.2
+    required_signals:
+      instant: [role, industry]
+      guided: [role]
+    goal_tags: [collaboration, manage_people, strategy]
+    output_type: artifact
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry}.
+
+      Create a stakeholder alignment brief template with:
+      - Key stakeholder roles (3-5 relevant to their industry)
+      - Communication cadence recommendation per stakeholder
+      - Alignment check questions for each
+      - Decision escalation paths
+      Format as a structured document.
+
+  - id: feedback_collection
+    title: "Your Feedback Collection System"
+    description_template: >
+      A feedback system designed around your goals: {goals}.
+    archetype_affinity:
+      interpreter: 0.9
+      enforcer: 0.4
+      driver: 0.1
+    required_signals:
+      instant: [goals, role]
+      guided: [goals]
+    goal_tags: [manage_people, build_team, collaboration]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user is a {role} with goals: {goals}.
+
+      Start a feedback system design session. Ask them:
+      "What kind of feedback matters most to you right now — from your team, your customers, or your leadership? I'll design a lightweight collection system."
+
+  - id: meeting_rhythm
+    title: "Your Meeting Rhythm Designer"
+    description_template: >
+      An optimized meeting cadence for {role} in {industry}.
+    archetype_affinity:
+      interpreter: 0.8
+      enforcer: 0.5
+      driver: 0.3
+    required_signals:
+      instant: [role, goals]
+      guided: [role]
+    goal_tags: [optimize_ops, manage_people, collaboration]
+    output_type: artifact
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry} with goals: {goals}.
+
+      Design an optimized weekly meeting rhythm:
+      - Which meetings to keep, cut, or combine
+      - Recommended cadence (daily/weekly/biweekly/monthly)
+      - Agenda template for each
+      - Async alternatives where possible
+      Format as a weekly calendar view.
+
+  - id: onboarding_experience
+    title: "Your Team Onboarding Draft"
+    description_template: >
+      An onboarding experience for new hires joining your {industry} team.
+    archetype_affinity:
+      interpreter: 0.7
+      enforcer: 0.4
+      driver: 0.2
+    required_signals:
+      instant: [role, industry, goals]
+      guided: [role]
+    goal_tags: [build_team, hire, manage_people]
+    output_type: playbook
+    prompt_template: |
+      You are Otto. The user is a {role} in {industry}.
+
+      Start an onboarding design session. Ask them:
+      "When was the last time you onboarded someone, and what was the biggest gap in the experience? I'll draft a 30-day onboarding plan."
+
+# ── Hook text templates ─────────────────────────────────────────────
+
+hooks:
+  driver:
+    opening: "Your workspace is live. I already pulled three moves based on what you showed me."
+    escape: "Or just tell me what you need. I'm not going anywhere."
+  enforcer:
+    opening: "Everything's set up. I ran the numbers on your setup — here's where I'd start."
+    escape: "Or just tell me what you need. I'm not going anywhere."
+  interpreter:
+    opening: "I've been thinking about what you told me. Three things jumped out."
+    escape: "Or just tell me what you need. I'm not going anywhere."

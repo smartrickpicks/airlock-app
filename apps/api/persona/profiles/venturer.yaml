@@ -1,0 +1,83 @@
+id: venturer
+name: Venturer
+category: analytical
+population_pct: 2.00
+
+drives:
+  dominance: 10
+  extraversion: 3
+  patience: 1
+  formality: 3
+
+bio: "The fiercely independent risk-taker who moves fast, works alone, and trusts gut over consensus — the boldest solo operator in the framework."
+
+strengths:
+  - Exceptional self-reliance and initiative with minimal need for external validation
+  - Thrives under pressure and uncertainty where others freeze
+  - Fastest time-to-action of any profile — decides and moves immediately
+  - Comfortable making bold, unilateral decisions with high stakes
+  - High tolerance for risk and ambiguity that paralyzes more cautious profiles
+  - Relentless competitive drive that pushes past obstacles others accept
+  - Cuts through organizational noise to identify the essential action
+
+cautions:
+  - Strongly resists collaboration and oversight, even when beneficial
+  - Disregards process, documentation, and compliance as unnecessary friction
+  - Alienates teammates with lone-wolf behavior and dismissive attitude toward input
+  - Decisions lack input from affected stakeholders, creating downstream surprises
+  - Burns through resources pursuing singular vision without cross-checking feasibility
+  - Difficulty sustaining effort on maintenance or follow-through after initial victory
+
+core_needs:
+  - Maximum autonomy and independence in how work gets done
+  - Challenging, high-stakes work with clear ownership of outcomes
+  - Freedom from bureaucratic constraints and reporting overhead
+  - Direct line between effort and visible results
+  - Minimal mandatory collaboration or consensus-seeking
+
+best_environment: "Entrepreneurial roles with full ownership; high-stakes projects where speed and decisiveness matter more than consensus or collaborative process."
+
+workspace:
+  cognitive_mode: visual
+  information_density: low
+  interface_structure: exploratory
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Bypasses team input, creating blind spots in decisions that affect multiple functions"
+  - "Ignores process guardrails, introducing compliance and quality risk that surfaces late"
+  - "Speed-first approach leaves inadequate documentation trail for others to follow"
+  - "Struggles to sustain engagement after the initial challenge is solved, leaving projects half-finished"
+
+compensation_patterns:
+  - id: lightweight-guardrails
+    description: "Minimal, non-blocking checkpoints that capture critical decisions without slowing momentum"
+  - id: auto-documentation
+    description: "Passive capture of decisions and actions to build audit trails without requiring manual effort from the Venturer"
+  - id: stakeholder-impact-alert
+    description: "Automated surfacing of downstream effects on other teams before unilateral actions take effect"
+  - id: sustainability-pacing
+    description: "Visibility into long-term project health metrics to counterbalance sprint-oriented instincts"
+
+anti_patterns:
+  - "Committee-based decision-making requiring consensus"
+  - "Detailed documentation requirements before action is permitted"
+  - "Highly collaborative, consensus-driven team cultures"
+  - "Slow-moving, compliance-heavy environments with multiple approval layers"
+
+otto:
+  default_archetype: strategist
+  autonomy_ceiling: 0.85
+  interaction_mode: act_then_report
+
+ai_impact:
+  automation_bias_risk: high
+  deskilling_risk: "Stakeholder awareness, collaborative decision-making, and finishing discipline — AI removes friction that normally forces engagement with others"
+  power_dynamic: "Gains maximum velocity — AI removes the friction Venturers already resist, amplifying both speed and blind spots simultaneously"
+
+communication:
+  strength: "Direct, action-oriented, and decisive — zero wasted words, maximum clarity on intent"
+  failure_pattern: "Announces decisions after the fact, leaving no room for input or course correction from affected parties"
+  best_tooling: "Lightweight action logs with automated stakeholder notifications and minimal-input interfaces"
+  ai_risk: "AI removes the natural friction that forces Venturers to slow down and consider consequences, enabling faster but less examined action"

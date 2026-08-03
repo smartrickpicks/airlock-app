@@ -1,0 +1,81 @@
+id: artisan
+name: Artisan
+category: stabilizing
+population_pct: 5.49
+
+drives:
+  dominance: 5
+  extraversion: 3
+  patience: 7
+  formality: 5
+
+bio: "A practical, hands-on worker who delivers tangible results through steady, focused effort and deep craftsmanship."
+
+strengths:
+  - Produces consistently high-quality work through disciplined, patient execution and pride in craft
+  - Thrives on tangible tasks where progress is visible, measurable, and tied to real outcomes
+  - Maintains focus and composure during repetitive or detail-heavy work that wears down others
+  - Brings a craftsman's pride to output quality that elevates standards across the entire team
+  - Works independently without needing external motivation, social reinforcement, or constant check-ins
+  - Develops deep practical expertise in specific domains through sustained, focused investment
+
+cautions:
+  - May resist abstract strategic discussions that feel disconnected from tangible, real work
+  - Can become siloed, preferring solitary execution over collaborative problem-solving
+  - Risks missing the bigger picture by staying heads-down in the details of their craft
+  - May undervalue communication and visibility, letting excellent work go unnoticed and unrecognized
+  - Reluctance to engage in organizational politics or self-promotion needed for career advancement
+  - Can dig into established methods and resist process changes even when improvement is clearly needed
+
+core_needs:
+  - Clearly defined tasks with tangible, measurable outcomes they can take ownership of
+  - Uninterrupted focus time to produce quality work without context-switching
+  - Appreciation for craftsmanship and precision rather than just speed of delivery
+  - Stable environments where steady effort is rewarded over flashy pivots and visibility plays
+
+best_environment: "Roles with clear deliverables, minimal meeting overhead, and a culture that values quality of output over volume of activity or social performance."
+
+workspace:
+  cognitive_mode: interactive
+  information_density: medium
+  interface_structure: guided_flexible
+  update_pace: batch
+  explanation_style: labeled
+
+weak_points:
+  - "Reluctance to engage in organizational politics or self-promotion needed for career advancement and visibility"
+  - "Difficulty adapting quickly when priorities shift and current work-in-progress becomes obsolete or deprioritized"
+  - "May underestimate the value of communicating progress and blockers to stakeholders who lack direct visibility"
+  - "Resists abstract or conceptual work, potentially missing strategic context that would improve execution decisions"
+
+compensation_patterns:
+  - id: quality-as-shield
+    description: "Uses the pursuit of perfection as justification for slower timelines, avoiding the discomfort of shipping imperfect work"
+  - id: heads-down-isolation
+    description: "Retreats into focused work to avoid ambiguous social or strategic situations that lack clear right answers"
+  - id: tangibility-bias
+    description: "Gravitates toward tasks with visible, concrete outputs and avoids work that is important but abstract, like planning or relationship-building"
+  - id: process-anchoring
+    description: "Clings to established methods and workflows as a source of stability, resisting change even when the evidence for improvement is compelling"
+
+anti_patterns:
+  - "Deprioritizing communication in favor of execution, leaving stakeholders in the dark about status and blockers"
+  - "Resisting process changes that disrupt established workflows even when improvement is objectively clear"
+  - "Measuring personal value solely by output volume and craft quality rather than strategic impact or team contribution"
+  - "Avoiding meetings and collaborative forums that feel unproductive, missing context that would improve their own work"
+
+otto:
+  default_archetype: executor
+  autonomy_ceiling: 0.60
+  interaction_mode: supervised
+
+ai_impact:
+  automation_bias_risk: low
+  deskilling_risk: "AI automating routine execution tasks may threaten the Artisan's core identity, which is deeply tied to the quality and craft of hands-on work"
+  power_dynamic: "AI tools that handle execution may push the Artisan toward strategic or communicative roles they are less comfortable in, creating identity tension"
+
+communication:
+  strength: "Communicates through the quality of their deliverables — their work speaks clearly and authoritatively even when they do not"
+  failure_pattern: "Under-communicates context, assumptions, and blockers, leaving collaborators to guess at status and rationale behind decisions"
+  best_tooling: "Task boards with clear ownership, documentation-first workflows, and AI assistants that handle status reporting so the Artisan can stay focused on craft"
+  ai_risk: "AI-generated work may undermine the Artisan's sense of ownership and craftsmanship if they cannot distinguish their contribution from the machine's output"

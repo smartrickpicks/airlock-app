@@ -1,0 +1,85 @@
+id: operator
+name: Operator
+category: stabilizing
+population_pct: 5.00
+
+drives:
+  dominance: 2
+  extraversion: 3
+  patience: 8
+  formality: 6
+
+bio: "The process-oriented, reliable executor who keeps the machinery running through consistency, steady discipline, and procedural mastery."
+
+strengths:
+  - Exceptional at following, maintaining, and improving established procedures
+  - Consistent, predictable output quality across sustained workloads
+  - Reliable under routine operations without performance variance
+  - Strong at identifying when a process breaks down or drifts from standard
+  - Comfortable with repetitive tasks that require precision and discipline
+  - Reduces variance in team output through standardization and documentation
+  - Steady temperament that stabilizes teams during periods of uncertainty
+  - Excellent institutional knowledge of how systems actually work in practice
+
+cautions:
+  - Struggles when established procedures do not exist or are poorly defined
+  - May resist process changes even when improvements are clear and validated
+  - Under-communicates concerns until frustration accumulates to a breaking point
+  - Can become invisible to leadership due to quiet, steady reliability
+  - Avoids initiative-taking outside defined scope even when opportunity is clear
+  - May undervalue creative or ad-hoc problem-solving approaches
+  - Discomfort with ambiguity can cause paralysis in novel situations
+
+core_needs:
+  - Documented procedures and standard operating playbooks
+  - Stable workload with predictable cadence and minimal surprises
+  - Clear role boundaries, expectations, and escalation paths
+  - Recognition for consistency, reliability, and operational contribution
+  - Advance notice before process changes take effect
+
+best_environment: "Operations-heavy roles where repeatable processes drive outcomes; teams that value reliability over improvisation, provide clear SOPs, and recognize steady execution alongside heroic firefighting."
+
+workspace:
+  cognitive_mode: verbal_procedural
+  information_density: medium_high
+  interface_structure: guided_flexible
+  update_pace: batch
+  explanation_style: labeled
+
+weak_points:
+  - "Freezes when dropped into undefined or novel situations without a playbook or template"
+  - "Over-relies on existing processes even when they are outdated, suboptimal, or no longer fit for purpose"
+  - "Avoids escalating issues, assuming someone else will notice or the process will surface them"
+  - "Resists change even when the rationale is clear, preferring the comfort of known procedures"
+
+compensation_patterns:
+  - id: playbook-scaffolding
+    description: "Provide lightweight process templates for new situations so the Operator has a starting framework rather than a blank slate"
+  - id: change-preview-window
+    description: "Share upcoming process changes in advance so the Operator can mentally rehearse the transition before it takes effect"
+  - id: visibility-rituals
+    description: "Structured check-ins that surface the Operator's work to leadership who might otherwise overlook steady contributors"
+  - id: escalation-nudge
+    description: "Periodic prompts that encourage the Operator to flag concerns rather than absorbing them silently"
+
+anti_patterns:
+  - "Constantly shifting priorities with no documented rationale or transition plan"
+  - "Expecting initiative on ambiguous, greenfield projects with no starting framework"
+  - "Verbal-only process changes with no written documentation or confirmation"
+  - "Rewarding only heroic firefighting while ignoring steady, reliable execution"
+
+otto:
+  default_archetype: executor
+  autonomy_ceiling: 0.50
+  interaction_mode: autonomous_with_checkpoints
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "Manual process execution and exception-handling judgment may atrophy if AI automates routine workflows end-to-end"
+  power_dynamic: "AI handles routine steps, freeing the Operator to focus on exception handling and process improvement — but risks hollowing out the role if taken too far"
+
+communication:
+  strength: "Clear, factual, and procedurally grounded — reports exactly what happened, what step comes next, and what deviates from standard"
+  failure_pattern: "Under-communicates risks and emerging concerns, assuming the process will surface them naturally without human escalation"
+  best_tooling: "Step-by-step task queues, status dashboards with progress indicators, runbook-linked notifications, change-log feeds with advance notice"
+  ai_risk: "AI automation may bypass the Operator's verification checkpoints, removing the human layer that catches process drift and exception cases"

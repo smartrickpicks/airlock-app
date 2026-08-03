@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
@@ -56,7 +57,19 @@ class Settings(BaseSettings):
     klipy_api_key: str = ""
 
     # MAGS / Inference Engine
-    persona_repo_path: str = ""
+    #
+    # Defaults to the persona data vendored into the image at apps/api/persona/
+    # (profiles/, inference/, actions/ — copied verbatim from airlock-persona).
+    #
+    # This was previously "" and PERSONA_REPO_PATH was never set on Fly, so
+    # ProfileMatchingEngine globbed ""/profiles/*.yaml, loaded zero of the 17 PI
+    # profiles, and every /api/v1/inference/bmy call returned
+    # 422 "No profiles loaded — cannot match". The frontend caught that and fell
+    # back to mock inference, which never persists a profile — so
+    # /onboarding/opening-move then 404'd with "No profile found".
+    #
+    # Set PERSONA_REPO_PATH to override with a live airlock-persona checkout.
+    persona_repo_path: str = str(Path(__file__).resolve().parent.parent / "persona")
 
     # Email (Resend)
     resend_api_key: str = ""

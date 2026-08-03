@@ -1,0 +1,543 @@
+# Bias Susceptibility Mapping — DECF Drives → Cognitive Bias Fingerprint
+# Each PI profile maps to predicted cognitive biases based on drive configuration.
+# Otto's observation engine uses this to know WHERE to look for each user.
+#
+# Design principles (non-negotiable):
+#   - Observations are surfaced as natural language, NEVER scores
+#   - Mirror, not scoreboard (see: feedback_no_scores_mirror_not_scoreboard)
+#   - Contradictions use user's own words (see: feedback_contradiction_mirror_pattern)
+#   - Override is always available (see: feedback_owner_override_absolute)
+#
+# Bias categories drawn from perceptual, cognitive, emotional, social, and meta-level domains.
+
+# ── Drive-Level Susceptibility Rules ────────────────────────────────────
+# These are the base rules. A profile's fingerprint is the UNION of its drive-level biases.
+
+drive_rules:
+  dominance:
+    high:  # D >= 7
+      - id: overconfidence
+        domain: cognitive
+        description: "More certain about knowledge and predictions than accuracy justifies"
+        observation_template: "You committed to {decision} without checking {unchecked_assumption}"
+      - id: cognitive_dissonance_reduction
+        domain: emotional
+        description: "When beliefs and actions conflict, changes the story rather than the behavior"
+        observation_template: "You said '{past_statement}' on {date}. Today you're doing the opposite."
+      - id: anchoring
+        domain: cognitive
+        description: "First number or idea heavily influences later judgments"
+        observation_template: "The first number in this conversation was {anchor}. Everything since has been relative to it."
+      - id: authority_resistance
+        domain: social
+        description: "Dismisses input from perceived authority as constraint rather than signal"
+        observation_template: "{person} flagged {concern}. You moved past it without engaging."
+    low:  # D <= 3
+      - id: authority_deference
+        domain: social
+        description: "Overweights opinions from perceived authority figures"
+        observation_template: "You changed direction after {authority_figure} suggested it. Was that your call or theirs?"
+      - id: consensus_seeking
+        domain: social
+        description: "Defaults to group agreement over independent judgment"
+        observation_template: "You've agreed with the last {count} suggestions without pushback."
+      - id: conflict_avoidance
+        domain: emotional
+        description: "Avoids necessary confrontation to preserve harmony"
+        observation_template: "You mentioned being uncomfortable with {issue} but haven't raised it."
+
+  extraversion:
+    high:  # E >= 7
+      - id: halo_effect
+        domain: social
+        description: "One salient positive trait colors the whole impression of a person"
+        observation_template: "You've mentioned {person}'s {trait} {count} times. What don't you know about them yet?"
+      - id: optimism_bias
+        domain: emotional
+        description: "Expects more good outcomes than is realistic"
+        observation_template: "You're planning for the best case. What happens if {risk_factor}?"
+      - id: social_proof
+        domain: social
+        description: "Assumes something is right because many others do it"
+        observation_template: "You cited {count} people doing this. How many tried and failed?"
+      - id: activity_as_progress
+        domain: meta
+        description: "Mistakes busyness for meaningful advancement"
+        observation_template: "You've touched {count} things today. Which one actually moved forward?"
+    low:  # E <= 3
+      - id: knowledge_hoarding
+        domain: social
+        description: "Holds information rather than sharing, creating silos"
+        observation_template: "You figured out {insight} last week but haven't shared it with {relevant_person}."
+      - id: under_communication
+        domain: social
+        description: "Assumes others understand context they don't have"
+        observation_template: "You made a decision about {topic} without telling {stakeholder}."
+      - id: isolation_bias
+        domain: social
+        description: "Prefers solo analysis over collaborative sense-making"
+        observation_template: "You've been working on {topic} alone for {duration}. Who else has seen it?"
+
+  patience:
+    low:  # C <= 3
+      - id: present_bias
+        domain: meta
+        description: "Overvalues immediate rewards vs long-term outcomes"
+        observation_template: "You were working on {long_term_goal}. You've been on {shiny_thing} for {duration} instead."
+      - id: selective_attention
+        domain: perceptual
+        description: "Hyperfocuses on current interest, missing other signals"
+        observation_template: "While you've been deep in {focus_area}, {missed_signal} happened."
+      - id: sunk_cost_people
+        domain: cognitive
+        description: "Holds onto people relationships past their productive life"
+        observation_template: "You've been waiting on {person} for {duration}. What's changed since last check-in?"
+      - id: speed_over_rigor
+        domain: meta
+        description: "Prioritizes velocity at expense of validation"
+        observation_template: "You shipped {thing} without {validation_step}."
+    high:  # C >= 7
+      - id: analysis_paralysis
+        domain: cognitive
+        description: "Over-analyzes before acting, missing timing windows"
+        observation_template: "You've been evaluating {decision} for {duration}. What's the cost of waiting longer?"
+      - id: change_resistance
+        domain: meta
+        description: "Prefers status quo even when change is warranted"
+        observation_template: "You've flagged {issue} three times but haven't changed anything."
+      - id: risk_aversion
+        domain: emotional
+        description: "Avoids necessary risks to maintain stability"
+        observation_template: "The safe path is {safe_option}. You haven't considered {risky_but_better_option}."
+
+  formality:
+    low:  # F <= 3
+      - id: framing_effects
+        domain: cognitive
+        description: "Relies on narrative framing over structured analysis"
+        observation_template: "You described {decision} as a story. What does the data say?"
+      - id: survivorship_bias
+        domain: meta
+        description: "Reasons from visible successes, ignoring hidden failures"
+        observation_template: "You referenced {success_example}. How many tried the same approach and failed?"
+      - id: process_dismissal
+        domain: meta
+        description: "Bypasses documentation and process as unnecessary friction"
+        observation_template: "You skipped {process_step} on {task}. Last time that caused {consequence}."
+    high:  # F >= 7
+      - id: process_rigidity
+        domain: meta
+        description: "Follows process even when it's counterproductive"
+        observation_template: "You're following {process} by the book. The situation calls for {adaptation}."
+      - id: perfectionism
+        domain: emotional
+        description: "Delays delivery pursuing unnecessary precision"
+        observation_template: "This has been in review for {duration}. What's the gap between 'good enough' and 'perfect' here?"
+      - id: over_compliance
+        domain: social
+        description: "Treats guidelines as rules even when exceptions are warranted"
+        observation_template: "The guideline says {rule}. This situation is an exception because {reason}."
+
+
+# ── Per-Profile Bias Fingerprints ───────────────────────────────────────
+# Derived from drive rules above, plus profile-specific behavioral patterns.
+# primary: top 3 biases most likely to manifest daily
+# secondary: biases that emerge under stress or in specific contexts
+# strength: natural resistance to certain biases (the flip side of drives)
+
+profiles:
+  maverick:
+    drives: { D: 10, E: 8, C: 1, F: 1 }
+    primary:
+      - cognitive_dissonance_reduction
+      - selective_attention
+      - optimism_bias
+    secondary:
+      - halo_effect
+      - overconfidence
+      - framing_effects
+      - present_bias
+      - sunk_cost_people
+      - survivorship_bias
+      - anchoring
+    strengths:
+      - analysis_paralysis_immune
+      - change_resistance_immune
+      - authority_deference_immune
+      - process_rigidity_immune
+
+  captain:
+    drives: { D: 9, E: 8, C: 2, F: 2 }
+    primary:
+      - overconfidence
+      - optimism_bias
+      - speed_over_rigor
+    secondary:
+      - cognitive_dissonance_reduction
+      - halo_effect
+      - anchoring
+      - present_bias
+      - framing_effects
+      - authority_resistance
+    strengths:
+      - analysis_paralysis_immune
+      - consensus_seeking_immune
+      - conflict_avoidance_immune
+
+  persuader:
+    drives: { D: 8, E: 9, C: 3, F: 3 }
+    primary:
+      - optimism_bias
+      - halo_effect
+      - framing_effects
+    secondary:
+      - cognitive_dissonance_reduction
+      - social_proof
+      - overconfidence
+      - activity_as_progress
+      - present_bias
+      - survivorship_bias
+    strengths:
+      - isolation_bias_immune
+      - under_communication_immune
+      - analysis_paralysis_immune
+
+  promoter:
+    drives: { D: 7, E: 10, C: 2, F: 2 }
+    primary:
+      - activity_as_progress
+      - optimism_bias
+      - social_proof
+    secondary:
+      - halo_effect
+      - present_bias
+      - framing_effects
+      - speed_over_rigor
+      - overconfidence
+    strengths:
+      - isolation_bias_immune
+      - knowledge_hoarding_immune
+      - analysis_paralysis_immune
+
+  venturer:
+    drives: { D: 10, E: 3, C: 1, F: 3 }
+    primary:
+      - overconfidence
+      - speed_over_rigor
+      - knowledge_hoarding
+    secondary:
+      - cognitive_dissonance_reduction
+      - anchoring
+      - present_bias
+      - selective_attention
+      - framing_effects
+      - under_communication
+      - isolation_bias
+    strengths:
+      - consensus_seeking_immune
+      - authority_deference_immune
+      - social_proof_immune
+
+  strategist:
+    drives: { D: 8, E: 3, C: 3, F: 5 }
+    primary:
+      - overconfidence
+      - under_communication
+      - speed_over_rigor
+    secondary:
+      - cognitive_dissonance_reduction
+      - anchoring
+      - isolation_bias
+      - knowledge_hoarding
+      - present_bias
+    strengths:
+      - social_proof_immune
+      - halo_effect_resistant
+      - consensus_seeking_immune
+
+  controller:
+    drives: { D: 9, E: 2, C: 3, F: 8 }
+    primary:
+      - process_rigidity
+      - overconfidence
+      - under_communication
+    secondary:
+      - cognitive_dissonance_reduction
+      - anchoring
+      - perfectionism
+      - isolation_bias
+      - knowledge_hoarding
+      - authority_resistance
+    strengths:
+      - framing_effects_immune
+      - survivorship_bias_immune
+      - social_proof_immune
+
+  analyzer:
+    drives: { D: 3, E: 2, C: 8, F: 9 }
+    primary:
+      - analysis_paralysis
+      - perfectionism
+      - isolation_bias
+    secondary:
+      - risk_aversion
+      - knowledge_hoarding
+      - under_communication
+      - process_rigidity
+      - over_compliance
+      - authority_deference
+    strengths:
+      - overconfidence_immune
+      - framing_effects_immune
+      - survivorship_bias_immune
+      - optimism_bias_immune
+
+  specialist:
+    drives: { D: 2, E: 2, C: 9, F: 10 }
+    primary:
+      - analysis_paralysis
+      - perfectionism
+      - over_compliance
+    secondary:
+      - risk_aversion
+      - change_resistance
+      - isolation_bias
+      - knowledge_hoarding
+      - under_communication
+      - authority_deference
+      - conflict_avoidance
+    strengths:
+      - overconfidence_immune
+      - optimism_bias_immune
+      - framing_effects_immune
+      - speed_over_rigor_immune
+
+  guardian:
+    drives: { D: 3, E: 3, C: 9, F: 8 }
+    primary:
+      - risk_aversion
+      - change_resistance
+      - analysis_paralysis
+    secondary:
+      - over_compliance
+      - perfectionism
+      - authority_deference
+      - conflict_avoidance
+      - isolation_bias
+      - under_communication
+    strengths:
+      - overconfidence_immune
+      - speed_over_rigor_immune
+      - optimism_bias_immune
+      - framing_effects_immune
+
+  operator:
+    drives: { D: 2, E: 3, C: 8, F: 6 }
+    primary:
+      - change_resistance
+      - authority_deference
+      - conflict_avoidance
+    secondary:
+      - analysis_paralysis
+      - risk_aversion
+      - under_communication
+      - isolation_bias
+      - consensus_seeking
+    strengths:
+      - overconfidence_immune
+      - speed_over_rigor_immune
+      - optimism_bias_resistant
+
+  scholar:
+    drives: { D: 3, E: 2, C: 7, F: 8 }
+    primary:
+      - analysis_paralysis
+      - perfectionism
+      - isolation_bias
+    secondary:
+      - knowledge_hoarding
+      - under_communication
+      - risk_aversion
+      - authority_deference
+      - over_compliance
+    strengths:
+      - overconfidence_immune
+      - framing_effects_immune
+      - survivorship_bias_immune
+
+  altruist:
+    drives: { D: 2, E: 9, C: 8, F: 2 }
+    primary:
+      - conflict_avoidance
+      - consensus_seeking
+      - halo_effect
+    secondary:
+      - authority_deference
+      - optimism_bias
+      - social_proof
+      - framing_effects
+      - change_resistance
+      - sunk_cost_people
+    strengths:
+      - isolation_bias_immune
+      - knowledge_hoarding_immune
+      - under_communication_immune
+
+  collaborator:
+    drives: { D: 3, E: 8, C: 7, F: 3 }
+    primary:
+      - consensus_seeking
+      - conflict_avoidance
+      - social_proof
+    secondary:
+      - halo_effect
+      - optimism_bias
+      - framing_effects
+      - authority_deference
+      - sunk_cost_people
+    strengths:
+      - isolation_bias_immune
+      - overconfidence_immune
+      - knowledge_hoarding_immune
+
+  adapter:
+    drives: { D: 5, E: 5, C: 5, F: 5 }
+    primary:
+      - consensus_seeking
+      - social_proof
+      - framing_effects
+    secondary:
+      - authority_deference
+      - conflict_avoidance
+      - halo_effect
+    strengths:
+      - flexibility  # balanced drives resist extremes
+    notes: "Mid-range drives create a unique vulnerability: contextual mirroring. The Adapter absorbs the biases of whoever they're with. Otto should track which biases activate based on WHO they're interacting with, not just their own drives."
+
+  artisan:
+    drives: { D: 5, E: 3, C: 7, F: 5 }
+    primary:
+      - perfectionism
+      - isolation_bias
+      - change_resistance
+    secondary:
+      - under_communication
+      - knowledge_hoarding
+      - analysis_paralysis
+    strengths:
+      - overconfidence_resistant
+      - speed_over_rigor_immune
+      - framing_effects_resistant
+
+  individualist:
+    drives: { D: 6, E: 2, C: 5, F: 6 }
+    primary:
+      - knowledge_hoarding
+      - isolation_bias
+      - under_communication
+    secondary:
+      - authority_resistance
+      - process_rigidity
+      - perfectionism
+    strengths:
+      - social_proof_immune
+      - consensus_seeking_immune
+      - halo_effect_resistant
+
+
+# ── Observation Engine Categories ───────────────────────────────────────
+# The 10 operational categories Otto uses internally.
+# Users never see category labels — only natural language observations.
+
+observation_categories:
+  - id: cognitive_dissonance
+    label: "Belief-Action Gap"
+    biases: [cognitive_dissonance_reduction]
+    tool: contradiction_mirror
+    description: "User's current action contradicts a prior stated belief or value"
+
+  - id: attention_blindness
+    label: "Hyperfocus Blindness"
+    biases: [selective_attention, present_bias]
+    tool: drift_detection
+    description: "User is locked onto one thing and missing other signals"
+
+  - id: reality_distortion
+    label: "Optimism Override"
+    biases: [optimism_bias, overconfidence, survivorship_bias]
+    tool: open_questions
+    description: "User is seeing what they want to see, not what's there"
+
+  - id: people_perception
+    label: "People Lens"
+    biases: [halo_effect, sunk_cost_people, authority_deference, authority_resistance]
+    tool: relationship_timeline
+    description: "User's perception of a person is colored by a single trait or history"
+
+  - id: certainty_excess
+    label: "Confidence Calibration"
+    biases: [overconfidence, anchoring]
+    tool: open_questions
+    description: "User is more certain than the evidence warrants"
+
+  - id: narrative_lock
+    label: "Story vs Data"
+    biases: [framing_effects, survivorship_bias, confirmation_bias]
+    tool: pattern_reflections
+    description: "User is reasoning from narrative, not evidence"
+
+  - id: pace_mismatch
+    label: "Speed Check"
+    biases: [speed_over_rigor, analysis_paralysis, present_bias]
+    tool: drift_detection
+    description: "User's pace doesn't match the stakes of the decision"
+
+  - id: relationship_gaps
+    label: "Connection Gaps"
+    biases: [selective_attention, sunk_cost_people, conflict_avoidance]
+    tool: relationship_timeline
+    description: "User has neglected a relationship or avoided a necessary conversation"
+
+  - id: evidence_gaps
+    label: "Reasoning Gaps"
+    biases: [survivorship_bias, social_proof, anchoring]
+    tool: open_questions
+    description: "User's reasoning has structural gaps they haven't noticed"
+
+  - id: autonomy_tension
+    label: "Independence vs Input"
+    biases: [isolation_bias, knowledge_hoarding, under_communication, consensus_seeking]
+    tool: pattern_reflections
+    description: "User is either too isolated or too consensus-driven for the situation"
+
+
+# ── Mirror Panel Components ─────────────────────────────────────────────
+# The four surfaces that make up the behavioral mirror in the Command Center.
+
+mirror_panels:
+  open_questions:
+    description: "Questions Otto is genuinely curious about, derived from observed patterns"
+    refresh: per_session
+    max_visible: 5
+    source: observation_engine
+    display: "natural language questions, no categories, no scores"
+
+  pattern_reflections:
+    description: "Ambient observations about working patterns, energy, focus"
+    refresh: continuous
+    max_visible: 3
+    source: session_state + observation_engine
+    display: "natural language observations, available when sought, never pushed"
+
+  contradiction_mirror:
+    description: "User's own words surfaced when current action contradicts them"
+    trigger: contradiction_detected
+    source: contradiction_log + session_history
+    display: "quoted past statement + current observation + override button"
+    override: always_available
+
+  relationship_timeline:
+    description: "Timestamps and topics for relationship touchpoints"
+    refresh: on_interaction
+    source: session_state + communication_log
+    display: "timeline view, no health scores, gaps speak for themselves"

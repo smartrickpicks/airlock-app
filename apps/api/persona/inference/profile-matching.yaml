@@ -1,0 +1,38 @@
+# Profile Matching — Canonical DECF Vectors
+# Each profile has a canonical drive vector.
+# Inference engine computes Euclidean distance from inferred drives to all 17 vectors.
+# Closest match wins. Confidence = 1 - (normalized_distance / max_possible_distance)
+
+algorithm: euclidean_distance
+normalization: min_max  # Normalize distance to 0-1 range
+max_possible_distance: 18.0  # sqrt((10-1)^2 * 4) ≈ 18
+
+profiles:
+  captain:     { D: 9, E: 8, C: 2, F: 2 }
+  maverick:    { D: 10, E: 8, C: 1, F: 1 }
+  persuader:   { D: 8, E: 9, C: 3, F: 3 }
+  promoter:    { D: 7, E: 10, C: 2, F: 2 }
+  venturer:    { D: 10, E: 3, C: 1, F: 3 }
+  strategist:  { D: 8, E: 3, C: 3, F: 5 }
+  controller:  { D: 9, E: 2, C: 3, F: 8 }
+  analyzer:    { D: 3, E: 2, C: 8, F: 9 }
+  specialist:  { D: 2, E: 2, C: 9, F: 10 }
+  guardian:    { D: 3, E: 3, C: 9, F: 8 }
+  operator:    { D: 2, E: 3, C: 8, F: 6 }
+  scholar:     { D: 3, E: 2, C: 7, F: 8 }
+  altruist:    { D: 2, E: 9, C: 8, F: 2 }
+  collaborator: { D: 3, E: 8, C: 7, F: 3 }
+  adapter:     { D: 5, E: 5, C: 5, F: 5 }
+  artisan:     { D: 5, E: 3, C: 7, F: 5 }
+  individualist: { D: 6, E: 2, C: 5, F: 6 }
+
+# Meta-archetype mapping (derived from profile)
+meta_archetype_mapping:
+  driver: [captain, maverick, persuader, promoter, venturer, controller, strategist]
+  enforcer: [analyzer, specialist, guardian, operator, scholar, controller]
+  interpreter: [altruist, collaborator, adapter, artisan, individualist, promoter]
+
+# Note: controller and promoter appear in two categories.
+# The meta-archetype is determined by the STRONGEST drive alignment.
+# Controller: Driver (high D) but also Enforcer (high F). Primary = Driver if D > F, else Enforcer.
+# Promoter: Driver (high D) but also Interpreter (high E). Primary = Driver if D > E, else Interpreter.

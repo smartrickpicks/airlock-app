@@ -1,0 +1,81 @@
+id: persuader
+name: Persuader
+category: social
+population_pct: 5.00
+
+drives:
+  dominance: 8
+  extraversion: 9
+  patience: 3
+  formality: 3
+
+bio: "A compelling communicator and natural relationship builder who drives outcomes through influence, narrative, and social dominance."
+
+strengths:
+  - Wins buy-in for initiatives through compelling narrative and personal magnetism
+  - Reads a room instantly and adjusts pitch to the audience
+  - Converts skeptics into advocates through persistent, energetic engagement
+  - Thrives under pressure and uses urgency as fuel rather than friction
+  - Naturally connects disparate stakeholders around a shared objective
+  - Builds trust rapidly across organizational boundaries
+
+cautions:
+  - May prioritize winning the argument over finding the right answer
+  - Can oversell commitments the team cannot realistically deliver
+  - Risks overlooking data that contradicts the narrative they are building
+  - May dominate conversations and crowd out analytical voices
+  - Tends to conflate enthusiasm from others with genuine commitment
+  - Can treat every interaction as a pitch rather than a genuine exchange
+
+core_needs:
+  - An audience and a platform to influence outcomes
+  - Visible impact from their persuasion efforts
+  - Autonomy to shape the message and the approach
+  - Fast-moving environments where influence translates to results
+  - Recognition as the person who made things happen
+
+best_environment: "Client-facing or cross-functional leadership roles where the ability to sell ideas internally and externally is the primary driver of success."
+
+workspace:
+  cognitive_mode: verbal_narrative
+  information_density: medium
+  interface_structure: exploratory
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Confirmation bias when building a case — selectively gathers supporting evidence and dismisses contradicting signals"
+  - "Difficulty accepting feedback that undermines a position they have publicly championed"
+  - "Tendency to conflate enthusiasm with commitment, misreading engagement levels"
+
+compensation_patterns:
+  - id: counter-argument-surfacer
+    description: "Automatically surface the strongest counter-arguments before the Persuader commits to a position publicly"
+  - id: commitment-reality-check
+    description: "Prompt stakeholders to confirm understanding and capacity after the Persuader's pitch to verify real alignment"
+  - id: evidence-balance-audit
+    description: "Track the ratio of supporting vs. contradicting evidence in the Persuader's proposals"
+  - id: listening-quota
+    description: "Structured time in meetings where the Persuader listens and paraphrases before advocating"
+
+anti_patterns:
+  - "Treating every interaction as a pitch rather than a genuine exchange"
+  - "Overpromising to close the deal and relying on the team to figure out delivery"
+  - "Interpreting silence as agreement when it is actually disengagement"
+  - "Using social pressure to lock in decisions before dissenters can organize objections"
+
+otto:
+  default_archetype: connector
+  autonomy_ceiling: 0.70
+  interaction_mode: draft_then_review
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "AI-generated talking points may reduce the Persuader's incentive to deeply understand the material they are advocating for, hollowing out substantive expertise."
+  power_dynamic: "AI amplifies persuasive reach but may also expose shallow understanding when counterparts use AI to fact-check claims in real time."
+
+communication:
+  strength: "Turns complex or dry material into narratives that create emotional momentum and drive action"
+  failure_pattern: "Oversimplifies nuanced issues to maintain narrative coherence, losing critical detail that surfaces later as surprises"
+  best_tooling: "Presentation tools, CRM systems with relationship context, and AI writing assistants that help craft targeted messaging"
+  ai_risk: "AI-polished communications may make every message sound equally urgent, eroding the Persuader's ability to signal when something truly matters"

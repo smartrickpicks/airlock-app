@@ -1,0 +1,49 @@
+# Confidence Calculation Rules
+# Confidence ranges from 0.0 to 1.0
+# Represents how sure MAGS is about the profile assignment
+
+# Base confidence from signal sources (additive)
+signal_confidence:
+  conversation_only:
+    base: 0.55
+    per_additional_question: 0.05  # Each Q after Q1 adds 0.05
+    max: 0.70
+  linkedin_import:
+    base: 0.20  # Added on top of conversation
+    max_with_conversation: 0.90
+  resume_upload:
+    base: 0.15
+    max_with_conversation: 0.85
+  behavioral_observation:
+    initial: 0.00
+    growth_per_week: 0.03  # Grows ~0.03 per week of active use
+    max: 0.20  # Caps at 0.20 additional confidence
+
+# Distance penalty (from profile matching)
+# If the Euclidean distance to the closest profile is high,
+# confidence is penalized
+distance_penalty:
+  threshold: 4.0  # If distance > 4.0, start penalizing
+  penalty_per_unit: 0.05  # Lose 0.05 confidence per unit above threshold
+  max_penalty: 0.20
+
+# Confidence thresholds for system behavior
+thresholds:
+  bmy_minimum: 0.55          # Below this, ask more questions
+  workspace_config: 0.65     # Minimum to configure workspace
+  playbook_suggestion: 0.70  # Minimum to suggest playbooks
+  team_matching: 0.80        # Minimum for team composition suggestions
+  enrichment_prompt: 0.75    # Below this, suggest LinkedIn/resume import
+
+# Override rules
+override_impact:
+  user_override_to_different_profile:
+    new_confidence: 0.90  # User explicitly chose, so high confidence
+    source: "user_override"
+    lock_for_days: 30     # Don't re-infer for 30 days unless user asks
+
+# Re-assessment triggers
+reassessment:
+  confidence_drift_threshold: 0.15  # If behavioral observation differs by > 0.15 from profile
+  minimum_observations: 50           # Need at least 50 behavioral data points
+  prompt: "Your work patterns have shifted. Want to update your profile?"

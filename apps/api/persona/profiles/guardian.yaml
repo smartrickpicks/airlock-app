@@ -1,0 +1,85 @@
+id: guardian
+name: Guardian
+category: stabilizing
+population_pct: 6.00
+
+drives:
+  dominance: 3
+  extraversion: 3
+  patience: 9
+  formality: 8
+
+bio: "The careful, thorough protector who reads every word, questions every assumption, and ensures nothing slips through the cracks."
+
+strengths:
+  - Meticulous compliance and regulatory awareness across frameworks
+  - Catches errors, inconsistencies, and omissions others miss entirely
+  - Upholds process integrity under pressure without cutting corners
+  - Thorough contract and document review with forensic attention
+  - Reliable steward of quality standards and organizational controls
+  - Patient with tedious but critical detail work that others avoid
+  - Strong institutional memory for precedent and historical context
+  - Risk identification and mitigation planning before issues materialize
+
+cautions:
+  - Risk-aversion can block progress and stall innovation
+  - Slow to adapt when processes need to evolve or be replaced
+  - May become overly rigid about procedural adherence
+  - Reluctance to approve anything with residual ambiguity or incomplete documentation
+  - Can be perceived as obstructionist by faster-moving teammates
+  - Struggles to prioritize when everything feels equally critical
+  - May escalate minor issues to the same level as major compliance failures
+
+core_needs:
+  - Clear compliance standards, checklists, and procedural frameworks
+  - Sufficient time for thorough review without artificial urgency
+  - Defined escalation paths for exceptions and edge cases
+  - Stable, predictable workflow with advance notice of changes
+  - Authority to flag, halt, and remediate non-compliant work
+
+best_environment: "Quality-critical roles with defined compliance frameworks; environments where thoroughness is valued over speed and where process adherence directly impacts outcomes, risk, and organizational integrity."
+
+workspace:
+  cognitive_mode: verbal_procedural
+  information_density: high
+  interface_structure: guided
+  update_pace: batch
+  explanation_style: evidence_first
+
+weak_points:
+  - "Paralyzed by edge cases that lack clear procedural guidance or precedent"
+  - "Over-indexes on compliance at the expense of business velocity and pragmatic progress"
+  - "Avoids making judgment calls when the rules are ambiguous, preferring to escalate indefinitely"
+  - "Treats all risks as equal severity, failing to distinguish critical from cosmetic issues"
+
+compensation_patterns:
+  - id: exception-triage-matrix
+    description: "Pre-categorized risk tiers that give the Guardian permission to fast-track low-risk items without full review"
+  - id: compliance-checkpoint-cadence
+    description: "Scheduled review windows that prevent continuous re-checking of already-approved work"
+  - id: ambiguity-escalation-protocol
+    description: "Clear handoff path when rules are unclear, so the Guardian is not stuck indefinitely on edge cases"
+  - id: risk-severity-calibration
+    description: "Training and frameworks that help the Guardian distinguish critical compliance gaps from cosmetic findings"
+
+anti_patterns:
+  - "Move-fast-and-break-things culture with no review gates"
+  - "Verbal approvals with no paper trail or audit record"
+  - "Frequent process changes without transition periods or documentation"
+  - "Pressure to rubber-stamp incomplete or non-conforming submissions"
+
+otto:
+  default_archetype: guardian
+  autonomy_ceiling: 0.45
+  interaction_mode: supervised
+
+ai_impact:
+  automation_bias_risk: low
+  deskilling_risk: "Manual clause-by-clause review skills and compliance intuition may atrophy if AI auto-flags replace human reading and judgment"
+  power_dynamic: "AI accelerates surface-level checks but the Guardian retains authority on judgment-heavy compliance calls — the risk is AI creating a false sense of coverage"
+
+communication:
+  strength: "Precise, thorough, and traceable — every conclusion has a citation, every finding has supporting evidence"
+  failure_pattern: "Buries actionable findings in exhaustive detail, making it difficult for stakeholders to extract the verdict or priority"
+  best_tooling: "Checklists with pass/fail status, audit trails with expandable evidence, structured compliance dashboards, exception tracking with severity classification"
+  ai_risk: "AI summaries may omit the nuanced exceptions and edge-case findings the Guardian considers most important to flag"

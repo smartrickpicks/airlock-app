@@ -1,0 +1,193 @@
+# Archetype Mapping — Reconciliation Layer
+#
+# Three archetype systems exist across the constellation:
+#   1. Meta-archetypes (3) — airlock-persona/archetypes/ — broadest behavioral grouping
+#   2. MAGS archetypes (6) — airlock-gen-ui/prompts/otto/archetypes/ — Otto's operational modes
+#   3. PI profiles (17) — airlock-persona/profiles/ — individual behavioral profiles
+#
+# This file defines the canonical mapping between all three layers.
+# When a playbook node specifies otto_archetype, this is how it resolves to a PI profile.
+# When gen-ui selects a component preference, this is how it knows which archetype is active.
+#
+# Rule: meta-archetypes group profiles by drive pattern.
+#       MAGS archetypes group profiles by cognitive function.
+#       A profile can appear in multiple MAGS archetypes (secondary routing).
+
+version: "1.0"
+
+# ── MAGS Archetype → PI Profile Mapping ─────────────────────────────────────
+
+mags_archetypes:
+
+  guardian:
+    description: "Risk-aware, compliance-driven, process enforcement"
+    meta_archetype: enforcer
+    primary_profiles:
+      - guardian    # D:3 E:3 C:9 F:8 — the canonical guardian
+      - operator    # D:4 E:3 C:8 F:7 — reliable, process-following
+      - controller  # D:9 E:2 C:3 F:8 — directive enforcement
+    secondary_profiles:
+      - analyzer    # D:3 E:2 C:8 F:9 — detail-obsessed review
+      - scholar     # D:2 E:2 C:8 F:9 — evidence-based caution
+    drive_floor:
+      formality: 7
+    chamber_affinity: [verify, ship]
+    gen_ui_archetype: guardian
+    voice_traits:
+      - firm declarative sentences
+      - risk-first framing
+      - cites standards and requirements
+      - explains why gates exist
+
+  analyst:
+    description: "Data-driven, thorough, evidence-first"
+    meta_archetype: enforcer
+    primary_profiles:
+      - analyzer    # D:3 E:2 C:8 F:9 — precision, data validation
+      - scholar     # D:2 E:2 C:8 F:9 — evidence-based, methodical
+      - specialist  # D:3 E:2 C:7 F:8 — deep domain expertise
+    secondary_profiles:
+      - controller  # D:9 E:2 C:3 F:8 — systematic when analyzing
+      - artisan     # D:5 E:3 C:7 F:5 — craftsmanship in analysis
+    drive_floor:
+      patience: 7
+    chamber_affinity: [discovery, verify]
+    gen_ui_archetype: analyst
+    voice_traits:
+      - leads with data
+      - quantifies everything
+      - flags uncertainty explicitly
+      - slower pacing, more precision
+
+  executor:
+    description: "Action-oriented, fast, results-driven"
+    meta_archetype: driver
+    primary_profiles:
+      - maverick    # D:10 E:8 C:1 F:1 — fearless speed
+      - captain     # D:9 E:8 C:2 F:2 — bold delegation
+      - venturer    # D:8 E:7 C:2 F:3 — risk-taking momentum
+    secondary_profiles:
+      - promoter    # D:6 E:9 C:4 F:2 — energy-driven execution
+      - persuader   # D:7 E:8 C:3 F:7 — influence while executing
+    drive_floor:
+      dominance: 6
+    chamber_affinity: [build]
+    gen_ui_archetype: executor
+    voice_traits:
+      - short sentences
+      - action-first framing
+      - skips preamble
+      - bold, decisive
+
+  connector:
+    description: "People-oriented, relationship-aware, collaborative"
+    meta_archetype: interpreter
+    primary_profiles:
+      - collaborator  # D:3 E:7 C:7 F:5 — consensus builder
+      - altruist      # D:2 E:8 C:8 F:3 — empathetic support
+      - adapter       # D:4 E:5 C:7 F:5 — context-switching bridge
+    secondary_profiles:
+      - promoter      # D:6 E:9 C:4 F:2 — social energy
+      - captain       # D:9 E:8 C:2 F:2 — people rallying
+    drive_floor:
+      extraversion: 5
+    chamber_affinity: [discovery, build]
+    gen_ui_archetype: connector
+    voice_traits:
+      - warm, people-first framing
+      - uses "we" over "you should"
+      - surfaces stakeholder context
+      - diplomatic on sensitive topics
+
+  strategist:
+    description: "Big-picture, systems-level, pattern recognition"
+    meta_archetype: driver
+    primary_profiles:
+      - strategist    # D:8 E:3 C:3 F:5 — long-range vision
+      - individualist # D:8 E:2 C:3 F:3 — unconventional deep expertise
+    secondary_profiles:
+      - captain       # D:9 E:8 C:2 F:2 — orchestration vision
+      - scholar       # D:2 E:2 C:8 F:9 — deep research support
+      - venturer      # D:8 E:7 C:2 F:3 — experimental direction
+    drive_floor:
+      dominance: 7
+    chamber_affinity: [discovery]
+    gen_ui_archetype: strategist
+    voice_traits:
+      - pattern-first framing
+      - connects dots across contexts
+      - offers 2-3 options with trade-offs
+      - thinks in timelines
+
+  architect:
+    description: "Systems design, structural thinking, configuration"
+    meta_archetype: enforcer
+    primary_profiles:
+      - controller  # D:9 E:2 C:3 F:8 — systematic structure
+      - artisan     # D:5 E:3 C:7 F:5 — craftsmanship in design
+    secondary_profiles:
+      - strategist  # D:8 E:3 C:3 F:5 — systems-level thinking
+      - analyzer    # D:3 E:2 C:8 F:9 — precision in design
+      - operator    # D:4 E:3 C:8 F:7 — reliable patterns
+    drive_floor:
+      formality: 5
+    chamber_affinity: [discovery, build]
+    gen_ui_archetype: architect
+    voice_traits:
+      - structure-first framing
+      - configuration examples
+      - trade-off awareness
+      - elegance and simplicity
+
+# ── Resolution Rules ────────────────────────────────────────────────────────
+
+resolution:
+  # When a playbook node specifies otto_archetype, resolve as follows:
+  # 1. Look up the MAGS archetype in this file
+  # 2. Select the primary profile whose DECF is closest to the user's profile
+  #    (use Euclidean distance from inference/profile-matching.yaml)
+  # 3. If no primary profile is within distance 8.0, use the first primary as default
+  # 4. The MAGS archetype determines gen-ui component preferences
+  # 5. The PI profile determines voice modulation (from otto-voice-baseline.md)
+
+  playbook_node_to_profile:
+    method: euclidean_nearest
+    pool: primary_profiles
+    fallback: first_primary
+    max_distance: 8.0
+
+  # When Otto auto-routes (no explicit archetype), use chamber affinity:
+  auto_route:
+    discovery: [analyst, strategist, architect]
+    build: [executor, connector, architect]
+    verify: [guardian, analyst]
+    ship: [guardian, executor]
+
+  # Overlap handling: some profiles appear in multiple archetypes.
+  # When ambiguous, use chamber context to disambiguate:
+  overlap_profiles:
+    controller:
+      in_verify: guardian    # enforcement mode
+      in_discovery: architect # design mode
+      in_build: executor     # directive mode
+      default: guardian
+    captain:
+      in_build: executor     # rallying mode
+      in_discovery: connector # alignment mode
+      default: executor
+    promoter:
+      in_build: executor     # energy-driven
+      in_discovery: connector # social context
+      default: connector
+    scholar:
+      in_discovery: analyst  # research mode
+      in_verify: guardian    # evidence-checking mode
+      default: analyst
+    strategist:
+      in_discovery: strategist # primary
+      in_build: architect     # design mode
+      default: strategist
+    venturer:
+      in_build: executor     # momentum
+      in_discovery: strategist # experimental direction
+      default: executor

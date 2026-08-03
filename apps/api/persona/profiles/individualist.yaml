@@ -1,0 +1,82 @@
+id: individualist
+name: Individualist
+category: persistent
+population_pct: 4.88
+
+drives:
+  dominance: 6
+  extraversion: 2
+  patience: 5
+  formality: 6
+
+bio: "A self-reliant, task-driven specialist who achieves results through deep focus, independent execution, and quiet persistence."
+
+strengths:
+  - Deeply focused and capable of sustained concentration on complex, long-duration problems
+  - Self-directed and requires minimal oversight, managing their own priorities and pace
+  - Produces high-quality, precise output on problems that demand careful attention
+  - Persistent through difficult challenges that cause others to disengage or escalate prematurely
+  - Strong internal standards that ensure consistency without external enforcement
+  - Comfortable working in isolation for extended periods without losing motivation or quality
+
+cautions:
+  - Can become isolated from the team, missing collaborative input that would improve their work
+  - May withhold knowledge or context that should be documented or transferred to others
+  - Resistant to collaboration and shared ownership, preferring sole control over their domain
+  - Can become territorial about areas of expertise, blocking others from contributing
+  - Dismisses input that does not meet their internal quality bar, even when it has merit
+  - Underestimates the value of communication, alignment, and visibility in organizational success
+
+core_needs:
+  - Autonomy over approach, methodology, and pace of work
+  - Complex, meaningful problems worthy of sustained, deep investment
+  - Minimal interruptions, meeting overhead, and context-switching
+  - Recognition for depth of contribution, not just speed of delivery
+  - Freedom to set their own quality standards and working methods
+
+best_environment: "Roles requiring deep focus and independent problem-solving; teams that respect specialist autonomy, minimize interruptions, and measure outcomes over process adherence or social performance."
+
+workspace:
+  cognitive_mode: verbal_procedural
+  information_density: medium_high
+  interface_structure: exploratory
+  update_pace: batch
+  explanation_style: evidence_first
+
+weak_points:
+  - "Hoards context and creates single-point-of-failure knowledge silos that threaten team resilience"
+  - "Dismisses collaborative input and external perspectives, leading to blind spots in solutions"
+  - "Resists adapting approach even when team dynamics or shifting priorities clearly require it"
+  - "Under-communicates progress and blockers, leaving stakeholders uninformed until delivery or failure"
+
+compensation_patterns:
+  - id: knowledge-extraction-rituals
+    description: "Structured documentation sprints that externalize the Individualist's tacit knowledge without requiring real-time collaboration"
+  - id: peer-review-contracts
+    description: "Pre-agreed review checkpoints that normalize outside input without threatening autonomy or implying distrust"
+  - id: outcome-framing
+    description: "Frame collaboration requests in terms of problem outcomes rather than process compliance, aligning with the Individualist's results orientation"
+  - id: async-communication-channels
+    description: "Written, asynchronous communication workflows that respect the Individualist's need for uninterrupted focus while maintaining team visibility"
+
+anti_patterns:
+  - "Mandatory pair work or constant collaboration without opt-out windows for deep focus"
+  - "Frequent context-switching across unrelated projects that fragments concentration"
+  - "Consensus-driven decisions on technical matters where the Individualist holds clear expertise"
+  - "Open-plan environments with constant interruptions and social expectations"
+
+otto:
+  default_archetype: analyst
+  autonomy_ceiling: 0.70
+  interaction_mode: autonomous
+
+ai_impact:
+  automation_bias_risk: low
+  deskilling_risk: "Deep debugging, root-cause analysis, and investigative instincts may atrophy if AI surfaces answers without requiring the investigation process"
+  power_dynamic: "AI becomes a force multiplier — the Individualist uses it as a private research and execution tool, further widening expertise and output gaps with peers"
+
+communication:
+  strength: "Technically precise and substantive — when they communicate, the content carries weight and authority earned through depth"
+  failure_pattern: "Communicates too little and too late, leaving stakeholders uninformed until delivery or unexpected blockers force the conversation"
+  best_tooling: "Async documentation tools, technical wikis, structured status updates that do not require synchronous meetings or social performance"
+  ai_risk: "AI-generated explanations may oversimplify the Individualist's nuanced work, eroding stakeholder appreciation of complexity and depth of contribution"

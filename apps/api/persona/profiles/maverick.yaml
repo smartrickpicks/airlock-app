@@ -1,0 +1,83 @@
+id: maverick
+name: Maverick
+category: social
+population_pct: 2.50
+
+drives:
+  dominance: 10
+  extraversion: 8
+  patience: 1
+  formality: 1
+
+bio: "The rarest profile — an independent innovator and unconventional thinker who breaks every mold and bets on the future others cannot see."
+
+strengths:
+  - Sees possibilities others dismiss and acts on them before the window closes
+  - Thrives in ambiguity where conventional thinkers stall
+  - Naturally challenges assumptions and breaks stale patterns
+  - Inspires teams with bold vision and infectious energy
+  - Rapidly iterates through ideas, discarding what does not work without ego attachment
+  - Highest tolerance for risk and uncertainty of any profile
+  - Generates breakthrough concepts that redefine categories
+
+cautions:
+  - Dismisses process and structure as obstacles rather than guardrails
+  - Can lose interest in execution once the creative problem is solved
+  - Risks alienating process-oriented teammates with visible impatience for rules
+  - May underestimate operational complexity of their own ideas
+  - Resistant to any form of imposed methodology or framework
+  - Can confuse novelty with value, pursuing change for its own sake
+
+core_needs:
+  - Freedom to experiment without excessive approval gates
+  - Fast feedback loops that match their pace of iteration
+  - A team that can translate vision into execution without slowing momentum
+  - Problems that are genuinely novel, not incremental improvements
+  - Recognition for innovation and original thinking
+
+best_environment: "Fast-moving, founder-stage environments where bold bets are rewarded, bureaucracy is minimal, and the team can pivot without lengthy approval chains."
+
+workspace:
+  cognitive_mode: visual
+  information_density: low
+  interface_structure: exploratory
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Impatience with detailed follow-through after the initial breakthrough leaves execution gaps"
+  - "Tendency to start new initiatives before finishing existing ones fragments team focus"
+  - "Undervaluing process and documentation creates institutional knowledge loss"
+  - "Extreme independence makes sustained collaboration difficult for structured teammates"
+
+compensation_patterns:
+  - id: execution-handoff-protocol
+    description: "Structured handoff points where the Maverick transfers ownership to execution-oriented teammates with full context"
+  - id: initiative-cap
+    description: "Limit concurrent active initiatives to force completion before new starts"
+  - id: impact-retrospective
+    description: "Periodic review connecting the Maverick's innovations to actual outcomes, reinforcing follow-through value"
+  - id: process-as-accelerator
+    description: "Reframe minimal process as a speed multiplier rather than a constraint to reduce resistance"
+
+anti_patterns:
+  - "Restarting from scratch when incremental improvement would suffice"
+  - "Dismissing risk assessments as pessimism rather than due diligence"
+  - "Creating urgency where none exists to maintain momentum and excitement"
+  - "Sequential procedural gates that block experimentation"
+
+otto:
+  default_archetype: strategist
+  autonomy_ceiling: 0.80
+  interaction_mode: autonomous_with_checkpoints
+
+ai_impact:
+  automation_bias_risk: low
+  deskilling_risk: "Minimal — Mavericks naturally question AI outputs and are unlikely to accept recommendations uncritically. However, creative ideation muscles may atrophy if AI generates starting points too readily."
+  power_dynamic: "AI amplifies the Maverick's speed advantage, but may widen the gap between their pace and the team's ability to absorb change."
+
+communication:
+  strength: "Paints vivid, compelling futures that make people want to follow, even into uncertain territory"
+  failure_pattern: "Moves so fast that context gets lost — others receive conclusions without the reasoning chain and cannot reconstruct the logic"
+  best_tooling: "High-density dashboards, rapid prototyping tools, and AI copilots that can keep up with nonlinear thinking"
+  ai_risk: "AI that reinforces the Maverick's existing hypotheses may create an echo chamber that accelerates bad bets alongside good ones"

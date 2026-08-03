@@ -1,0 +1,128 @@
+# Drive Signal Extraction Rules
+# Used by MAGS inference engine to map goal language,
+# question answers, and behavioral signals to DECF drives.
+
+# Q1: "What are you here to accomplish?" — Open-ended
+# Maps to Dominance (A) and Patience (C)
+goal_signals:
+  high_dominance:
+    keywords: ["ship", "launch", "close", "win", "dominate", "scale", "disrupt", "lead", "build"]
+    phrases: ["get this done", "move fast", "ship the product", "close deals", "grow revenue"]
+    weight: 0.7
+  low_dominance:
+    keywords: ["support", "help", "maintain", "assist", "serve", "contribute", "organize"]
+    phrases: ["help the team", "keep things running", "support our clients"]
+    weight: 0.7
+  low_patience:
+    keywords: ["fast", "now", "immediately", "urgent", "asap", "quickly", "sprint"]
+    phrases: ["need it yesterday", "move quickly", "no time to waste"]
+    weight: 0.6
+  high_patience:
+    keywords: ["carefully", "thoroughly", "methodically", "gradually", "steadily"]
+    phrases: ["take our time", "get it right", "careful approach", "step by step"]
+    weight: 0.6
+
+# Q2: "How much should MAGS handle on its own?" — Tappable cards
+# Maps to Formality (D) and interaction mode
+autonomy_signals:
+  "Run things for me":
+    formality: 2
+    extraversion_hint: "high"
+    interaction_mode: autonomous
+    autonomy_ceiling: 0.85
+  "Draft it, I'll review":
+    formality: 4
+    extraversion_hint: "mid"
+    interaction_mode: draft_then_review
+    autonomy_ceiling: 0.70
+  "Help me while I drive":
+    formality: 6
+    extraversion_hint: "mid"
+    interaction_mode: collaborative
+    autonomy_ceiling: 0.55
+  "Just a second opinion":
+    formality: 8
+    extraversion_hint: "low"
+    interaction_mode: supervised
+    autonomy_ceiling: 0.40
+
+# Q3 (conditional): "When you get a new report, what do you do first?"
+# Maps to meta-archetype confirmation
+report_style_signals:
+  "Scan summary, then act":
+    meta_archetype: driver
+    dominance_adjust: +1
+    patience_adjust: -1
+  "Read every detail first":
+    meta_archetype: enforcer
+    formality_adjust: +1
+    patience_adjust: +1
+  "Ask someone what they think":
+    meta_archetype: interpreter
+    extraversion_adjust: +1
+    dominance_adjust: -1
+
+# Q4 (conditional): "How big is your team?"
+# Maps to scale tier
+team_size_signals:
+  "Solo":
+    tier: solo
+    scale_factor: 1
+  "2-5":
+    tier: pod
+    scale_factor: 2
+  "5-20":
+    tier: squad
+    scale_factor: 3
+  "20+":
+    tier: department
+    scale_factor: 4
+
+# Language style signals (extracted by LLM from Q1 open-ended answer)
+# Maps to Extraversion (B)
+language_style_signals:
+  high_extraversion:
+    indicators:
+      - "Uses 'we' language"
+      - "References team, people, relationships"
+      - "Enthusiastic tone, exclamation marks"
+      - "Mentions collaboration, meetings, alignment"
+    weight: 0.5
+  low_extraversion:
+    indicators:
+      - "Uses 'I' language"
+      - "References tasks, systems, data"
+      - "Measured tone, precise language"
+      - "Mentions analysis, research, building"
+    weight: 0.5
+
+# LinkedIn / Resume signals (when available)
+career_signals:
+  job_titles:
+    ceo_founder_cto:
+      dominance: 8
+      extraversion: 6
+      confidence_bonus: 0.15
+    vp_director:
+      dominance: 7
+      extraversion: 7
+      confidence_bonus: 0.10
+    manager_lead:
+      dominance: 5
+      extraversion: 6
+      confidence_bonus: 0.08
+    engineer_analyst:
+      dominance: 4
+      extraversion: 3
+      confidence_bonus: 0.08
+    specialist_coordinator:
+      dominance: 3
+      extraversion: 5
+      confidence_bonus: 0.08
+  tenure_patterns:
+    short_tenure_avg: # < 2 years per role
+      patience: 2
+      hint: "variety-seeking, low patience"
+    long_tenure_avg: # > 4 years per role
+      patience: 8
+      hint: "steady, high patience"

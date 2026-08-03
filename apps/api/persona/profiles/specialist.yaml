@@ -1,0 +1,87 @@
+id: specialist
+name: Specialist
+category: analytical
+population_pct: 3.00
+
+drives:
+  dominance: 2
+  extraversion: 2
+  patience: 9
+  formality: 10
+
+bio: "The deep expert who masters narrow domains through patience, precision, and relentless methodical focus."
+
+strengths:
+  - Unmatched depth of expertise in chosen domain
+  - Exceptional consistency and reliability in output quality
+  - Meticulous quality control with zero tolerance for inaccuracy
+  - Patient with long, complex, multi-phase investigations
+  - Produces highly accurate, well-documented, and reproducible work
+  - Calm and steady under sustained workload without performance degradation
+  - Detects subtle anomalies and edge cases that generalists miss
+  - Maintains the highest formality standards in documentation and process
+
+cautions:
+  - Narrow focus limits cross-functional contribution and organizational visibility
+  - Extremely resistant to changes in methods, tools, or scope
+  - Difficulty communicating expertise to non-specialists in accessible terms
+  - Avoids leadership roles, visibility, and organizational influence
+  - Slow to adapt when domain shifts or foundational assumptions change
+  - May withdraw rather than advocate for a technical position under pressure
+  - Perfectionism in narrow scope at the expense of broader priorities
+
+core_needs:
+  - Deep focus time without interruption or context-switching
+  - Stable, predictable work scope with clear boundaries
+  - Recognition for expertise, accuracy, and technical contribution
+  - Clear parameters and specifications before beginning work
+  - Autonomy within area of specialization with defined guardrails
+
+best_environment: "Technical or specialist roles requiring sustained deep work; stable domains with high accuracy requirements, minimal context-switching, and respect for methodical expertise."
+
+workspace:
+  cognitive_mode: verbal_procedural
+  information_density: high
+  interface_structure: guided
+  update_pace: batch
+  explanation_style: evidence_first
+
+weak_points:
+  - "Resists expanding beyond comfort zone even when the role demands cross-functional contribution"
+  - "Under-communicates progress, leaving stakeholders uncertain about status and direction"
+  - "Perfectionism in narrow scope creates bottlenecks when broader priorities demand speed"
+  - "Avoids conflict entirely, ceding ground on important technical decisions to more assertive voices"
+
+compensation_patterns:
+  - id: scope-expansion-scaffolding
+    description: "Gradual, supported exposure to adjacent domains with clear connection to existing expertise"
+  - id: structured-status-cadence
+    description: "Lightweight, templated status updates that reduce communication overhead while maintaining visibility"
+  - id: expertise-amplification
+    description: "Channels for the Specialist's knowledge to reach broader audiences without direct presentation"
+  - id: advocacy-coaching
+    description: "Frameworks for asserting technical positions in low-confrontation formats such as written reviews"
+  - id: parameter-definition-protocol
+    description: "Pre-work briefing templates that ensure the Specialist receives clear parameters before starting"
+
+anti_patterns:
+  - "Frequent context-switching between unrelated domains or projects"
+  - "Public speaking or large-group facilitation requirements"
+  - "Rapid prototyping with low quality thresholds and ambiguous specs"
+  - "Generalist roles requiring breadth over depth"
+
+otto:
+  default_archetype: analyst
+  autonomy_ceiling: 0.45
+  interaction_mode: supervised
+
+ai_impact:
+  automation_bias_risk: low
+  deskilling_risk: "Primary research skills, manual data verification, and domain-specific intuition may atrophy if AI approximates surface-level expertise"
+  power_dynamic: "Most vulnerable to perceived displacement — AI can approximate breadth but the Specialist's deep, verified knowledge remains irreplaceable for edge cases and high-stakes decisions"
+
+communication:
+  strength: "Precise, deeply informed, and technically authoritative — trusted as the definitive voice within their domain"
+  failure_pattern: "Provides exhaustive detail without prioritizing what the audience needs to know, overwhelming non-specialists"
+  best_tooling: "Structured knowledge bases with layered detail levels (summary to deep dive), version-controlled documentation, annotation tools with citation tracking"
+  ai_risk: "AI-generated content creates false confidence in areas where only true, verified expertise suffices — the Specialist's value is precisely the depth AI shortcuts"

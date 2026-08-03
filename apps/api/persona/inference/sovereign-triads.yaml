@@ -1,0 +1,100 @@
+# Sovereign Triads — Canonical compositions derived from sovereign_triads.py
+# Scored by: composite = (1/(1+imbalance)) * (E_mean/5.5, cap 1.5) * (1+0.2*meta_count)
+# All triads span 3 meta-archetypes (driver + enforcer + interpreter)
+
+# Math-optimal top 3 (lowest imbalance, balanced DECF)
+math_optimal:
+  triad_1:
+    profiles: [persuader, guardian, adapter]
+    mean_decf: {D: 5.33, E: 5.67, C: 5.67, F: 5.33}
+    imbalance: 0.333
+    e_mean: 5.67
+    composite_score: 1.2364
+    rationale: "Near-perfect DECF balance with slight E preservation"
+
+  triad_2:
+    profiles: [persuader, analyzer, adapter]
+    mean_decf: {D: 5.33, E: 5.33, C: 5.33, F: 5.67}
+    imbalance: 0.333
+    e_mean: 5.33
+    composite_score: 1.1636
+    rationale: "Near-perfect balance, slightly formal-leaning"
+
+  triad_3:
+    profiles: [captain, guardian, adapter]
+    mean_decf: {D: 5.67, E: 5.33, C: 5.33, F: 5.0}
+    imbalance: 0.577
+    e_mean: 5.33
+    composite_score: 0.9836
+    rationale: "Strong D-leadership with enforcer+interpreter balance"
+
+# Best triads for strong primary personas (benchmark test subjects)
+strong_primary:
+  maverick_best:
+    profiles: [maverick, specialist, collaborator]
+    mean_decf: {D: 5.0, E: 6.0, C: 5.67, F: 4.33}
+    imbalance: 1.106
+    e_mean: 6.0
+    composite_score: 0.8290
+    rationale: "Best Maverick triad by composite — specialist provides structure, collaborator preserves energy"
+
+  captain_best:
+    profiles: [captain, guardian, adapter]
+    mean_decf: {D: 5.67, E: 5.33, C: 5.33, F: 5.0}
+    imbalance: 0.577
+    e_mean: 5.33
+    composite_score: 0.9836
+    rationale: "Captain's optimal triad — also #3 overall"
+
+# Founder's triad — Zac's lived experience override
+founders_triad:
+  profiles: [maverick, collaborator, guardian]
+  mean_decf: {D: 5.33, E: 6.33, C: 5.67, F: 4.0}
+  imbalance: 1.732
+  e_mean: 6.33
+  composite_score: 0.6744
+  overall_rank: 46
+  rationale: >
+    Zac's override: Collaborator amplifies Maverick without constraining.
+    Guardian directly paired with Maverick creates friction (Ivan).
+    Highest E-preservation of any Maverick triad (6.33 vs 5.0-6.0).
+    Lower composite score because F=4.0 (low formality), but this IS the
+    Maverick identity — formality is supposed to be low.
+
+# Comparison baselines (for benchmark)
+baselines:
+  maverick_solo:
+    profiles: [maverick]
+    mean_decf: {D: 10, E: 8, C: 1, F: 1}
+    imbalance: 8.19
+    known_fidelity: 0.246
+    note: "Baseline from VoiceDrift v1"
+
+  maverick_guardian_pair:
+    profiles: [maverick, guardian]
+    mean_decf: {D: 6.5, E: 5.5, C: 5.0, F: 4.5}
+    imbalance: 1.58
+    known_fidelity: 0.49
+    issue: "Kills extraversion (E: 8 -> 5.5). VoiceDrift v2 ceiling."
+
+# Benchmark test configurations
+benchmark_configs:
+  - name: "Maverick — Founder's Triad"
+    primary: maverick
+    solo: [maverick]
+    pair: [maverick, guardian]
+    triad: [maverick, collaborator, guardian]
+    corkscrew_primary_model: sonnet-4.6
+    corkscrew_support_model: haiku-4.5
+
+  - name: "Maverick — Math Optimal"
+    primary: maverick
+    solo: [maverick]
+    pair: [maverick, specialist]
+    triad: [maverick, specialist, collaborator]
+
+  - name: "Captain — Math Optimal"
+    primary: captain
+    solo: [captain]
+    pair: [captain, guardian]
+    triad: [captain, guardian, adapter]

@@ -1,0 +1,209 @@
+# Empaako-PI Mapping — Behavioral Profile to Router Profile
+#
+# Maps all 17 PI profiles to the 12 Empaako router profiles.
+# Each PI profile has a primary Empaako (default routing) and secondary (fallback/context-dependent).
+#
+# The mapping is based on behavioral drive alignment:
+#   - High D (dominance) profiles → action-oriented routers (architect, wrecking_ball)
+#   - High E (extraversion) profiles → social/adaptive routers (resonator, amplifier)
+#   - High C (patience) profiles → thorough/defensive routers (stonewall, lorekeeper)
+#   - High F (formality) profiles → precision routers (deadbolt, stitcher)
+#
+# When a user's PI profile is known, the router biases toward their primary Empaako
+# unless task affinity overrides it (task affinity always wins).
+#
+# Version: 1.0
+# Generated: 2026-04-04
+# Source: profiles/*.yaml + benchmarks/empaako-profiles.yaml
+
+version: "1.0"
+
+pi_to_empaako:
+
+  # ── Driver Meta-Archetype ────────────────────────────────────────────
+
+  maverick:
+    # D:10 E:8 C:1 F:1 — fearless speed, risk-tolerant, action-first
+    primary: wrecking_ball
+    secondary: architect
+    rationale: "Maximum speed matches maverick impatience. Architect for complex builds."
+    budget_override:
+      when_premium: architect
+      when_budget: burnout
+
+  captain:
+    # D:9 E:8 C:2 F:2 — bold delegation, people-rallying
+    primary: architect
+    secondary: resonator
+    rationale: "System-building instinct. Resonator for team coordination tasks."
+    budget_override:
+      when_premium: lorekeeper
+      when_budget: wrecking_ball
+
+  venturer:
+    # D:8 E:7 C:2 F:3 — risk-taking, experimental momentum
+    primary: wrecking_ball
+    secondary: amplifier
+    rationale: "Speed and expansion match venturer energy. Amplifier for ideation."
+    budget_override:
+      when_premium: architect
+      when_budget: burnout
+
+  strategist:
+    # D:8 E:3 C:3 F:5 — long-range vision, pattern recognition
+    primary: stitcher
+    secondary: architect
+    rationale: "Multi-step chaining matches strategic thinking. Architect for system design."
+    budget_override:
+      when_premium: lorekeeper
+      when_budget: magnet
+
+  individualist:
+    # D:8 E:2 C:3 F:3 — unconventional deep expertise, solo operator
+    primary: magnet
+    secondary: phantom
+    rationale: "Efficient retrieval for deep dives. Phantom for background autonomy."
+    budget_override:
+      when_premium: lorekeeper
+      when_budget: phantom
+
+  # ── Enforcer Meta-Archetype ──────────────────────────────────────────
+
+  controller:
+    # D:9 E:2 C:3 F:8 — directive enforcement, systematic structure
+    primary: deadbolt
+    secondary: stonewall
+    rationale: "Precision-first matches controller formality. Stonewall for verification."
+    budget_override:
+      when_premium: deadbolt
+      when_budget: phantom
+
+  analyzer:
+    # D:3 E:2 C:8 F:9 — precision, data validation, detail-obsessed
+    primary: deadbolt
+    secondary: stitcher
+    rationale: "Never-wrong precision. Stitcher for complex analytical pipelines."
+    budget_override:
+      when_premium: lorekeeper
+      when_budget: phantom
+
+  scholar:
+    # D:2 E:2 C:8 F:9 — evidence-based, methodical, deep research
+    primary: lorekeeper
+    secondary: stonewall
+    rationale: "Deep context for research depth. Stonewall for thorough verification."
+    budget_override:
+      when_premium: lorekeeper
+      when_budget: magnet
+
+  guardian:
+    # D:3 E:3 C:9 F:8 — risk-aware, compliance, process enforcement
+    primary: stonewall
+    secondary: deadbolt
+    rationale: "Thorough defensive routing matches guardian caution. Deadbolt for precision gates."
+    budget_override:
+      when_premium: stonewall
+      when_budget: phantom
+
+  operator:
+    # D:4 E:3 C:8 F:7 — reliable, process-following, steady
+    primary: stonewall
+    secondary: stitcher
+    rationale: "Step-by-step thoroughness. Stitcher for multi-step process chains."
+    budget_override:
+      when_premium: deadbolt
+      when_budget: burnout
+
+  specialist:
+    # D:3 E:2 C:7 F:8 — deep domain expertise, narrow focus
+    primary: magnet
+    secondary: lorekeeper
+    rationale: "Retrieval efficiency for domain lookup. Lorekeeper when depth needed."
+    budget_override:
+      when_premium: lorekeeper
+      when_budget: phantom
+
+  artisan:
+    # D:5 E:3 C:7 F:5 — craftsmanship, quality focus, detail in design
+    primary: architect
+    secondary: resonator
+    rationale: "System-building craftsmanship. Resonator for user-calibrated output."
+    budget_override:
+      when_premium: architect
+      when_budget: amplifier
+
+  # ── Interpreter Meta-Archetype ───────────────────────────────────────
+
+  collaborator:
+    # D:3 E:7 C:7 F:5 — consensus builder, team-oriented
+    primary: resonator
+    secondary: stitcher
+    rationale: "Adaptive mirroring for collaboration. Stitcher for team workflow chains."
+    budget_override:
+      when_premium: architect
+      when_budget: burnout
+
+  altruist:
+    # D:2 E:8 C:8 F:3 — empathetic support, people-first
+    primary: resonator
+    secondary: amplifier
+    rationale: "User-mirroring for empathy. Amplifier for supportive expansion."
+    budget_override:
+      when_premium: resonator
+      when_budget: burnout
+
+  adapter:
+    # D:4 E:5 C:7 F:5 — context-switching, bridge-building
+    primary: stitcher
+    secondary: resonator
+    rationale: "Multi-step chaining for context switches. Resonator for tone adaptation."
+    budget_override:
+      when_premium: architect
+      when_budget: phantom
+
+  promoter:
+    # D:6 E:9 C:4 F:2 — social energy, influence-driven
+    primary: amplifier
+    secondary: wrecking_ball
+    rationale: "Expansion for social energy. Wrecking ball for fast influence bursts."
+    budget_override:
+      when_premium: resonator
+      when_budget: burnout
+
+  persuader:
+    # D:7 E:8 C:3 F:7 — influence while executing, structured charm
+    primary: resonator
+    secondary: deadbolt
+    rationale: "Adaptive mirroring for persuasion. Deadbolt for precision arguments."
+    budget_override:
+      when_premium: architect
+      when_budget: amplifier
+
+# ── Merge Table ──────────────────────────────────────────────────────────
+#
+# Some PI profiles converge on the same Empaako. This is intentional.
+# The behavioral overlap means similar routing strategies serve them well.
+#
+# Empaako          Primary PI Profiles           Secondary PI Profiles
+# ─────────────    ─────────────────────────     ──────────────────────────
+# architect        captain, artisan               venturer, strategist, collaborator, adapter, persuader
+# deadbolt         controller, analyzer           guardian, operator, persuader
+# resonator        collaborator, altruist, persuader  artisan, adapter, promoter
+# wrecking_ball    maverick, venturer             promoter
+# stonewall        guardian, operator             scholar, analyzer
+# lorekeeper       scholar                        analyzer, specialist, individualist, strategist, captain
+# stitcher         strategist, adapter            collaborator, operator, analyzer
+# magnet           individualist, specialist      scholar, strategist
+# amplifier        promoter                       altruist, venturer, artisan, persuader
+# phantom          (none primary)                 individualist, controller, guardian, specialist, operator, adapter
+# burnout          (none primary)                 maverick, venturer, operator, collaborator, altruist, promoter
+# freefall         (none — experimental only)     (none)
+
+# ── Resolution Rules ────────────────────────────────────────────────────
+#
+# 1. Task affinity ALWAYS overrides PI mapping
+#    (if Architect is strongest for this task, use Architect even for a Maverick user)
+# 2. PI mapping is the TIE-BREAKER when multiple Empaako profiles score equally
+# 3. Budget constraint is the HARD GATE — never route to a profile above budget tier
+# 4. budget_override fields specify which Empaako to use when tier forces a switch
+# 5. Freefall is NEVER auto-selected — only used when explicitly requested or in experiment mode

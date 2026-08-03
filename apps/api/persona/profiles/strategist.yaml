@@ -1,0 +1,82 @@
+id: strategist
+name: Strategist
+category: analytical
+population_pct: 4.00
+
+drives:
+  dominance: 8
+  extraversion: 3
+  patience: 3
+  formality: 5
+
+bio: "The big-picture thinker who sees around corners — driving innovation through analytical boldness, systems thinking, and the patience to let a plan unfold."
+
+strengths:
+  - Long-range strategic vision that anticipates market and organizational shifts
+  - Rapid pattern recognition across disparate domains and data sources
+  - Comfortable with calculated risk when the analysis supports the bet
+  - Strong conceptual and systems thinking that maps complex interdependencies
+  - Challenges assumptions productively without creating defensiveness
+  - Excels at competitive analysis, positioning, and scenario planning
+
+cautions:
+  - Impatient with implementation details and operational minutiae
+  - May pursue ideas before validating feasibility with execution teams
+  - Communication can feel abstract or disconnected from day-to-day reality
+  - Underestimates execution complexity and the human cost of constant change
+  - Dismissive of incremental improvement when transformational change is possible
+  - Struggles to maintain interest after the strategy is set and execution begins
+
+core_needs:
+  - Intellectual challenge and novelty in the problems they tackle
+  - Authority over direction-setting and strategic framing
+  - Space to think without operational noise and interruptions
+  - Access to cross-functional data and signals from multiple domains
+  - Freedom to challenge orthodoxy and propose unconventional approaches
+
+best_environment: "Strategy and innovation roles with authority to set direction; conceptual work with minimal operational burden and access to diverse information streams."
+
+workspace:
+  cognitive_mode: visual
+  information_density: medium
+  interface_structure: exploratory
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Moves to the next idea before the current one is fully executed, leaving strategic debt"
+  - "Dismisses operational concerns as 'details' when they represent real constraints"
+  - "Abstract communication leaves teams without clear action steps for Monday morning"
+  - "Overestimates organizational capacity for change, creating initiative fatigue"
+
+compensation_patterns:
+  - id: strategy-to-execution-bridge
+    description: "Automated translation of strategic intent into actionable task breakdowns with owners and deadlines"
+  - id: feasibility-reality-check
+    description: "Structured prompts surfacing resource, timeline, and dependency constraints before strategic commitments"
+  - id: idea-lifecycle-tracker
+    description: "Visibility into the execution status of past strategic decisions to prevent strategic amnesia"
+  - id: concrete-language-prompt
+    description: "Rewrite suggestions that convert abstract directives into specific, measurable actions teams can execute"
+
+anti_patterns:
+  - "Detailed task execution with no strategic context or bigger picture"
+  - "Repetitive operational workflows without intellectual challenge"
+  - "Rigid step-by-step processes with no room for reframing the approach"
+  - "Incremental improvement mandates without transformational goals"
+
+otto:
+  default_archetype: architect
+  autonomy_ceiling: 0.70
+  interaction_mode: draft_then_review
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "Competitive analysis rigor, primary research discipline, and ground-truth validation — AI-generated analysis feels thorough but may lack genuine insight"
+  power_dynamic: "Gains amplification leverage — AI accelerates scenario modeling and research synthesis but the Strategist must guard against echo-chamber reasoning"
+
+communication:
+  strength: "Visionary, challenging, and intellectually stimulating — reframes problems in ways that unlock new solution spaces"
+  failure_pattern: "Communicates in abstractions that leave teams unsure what to do Monday morning, creating a strategy-execution gap"
+  best_tooling: "Strategy maps with auto-linked execution plans, scenario modeling tools, and cross-domain data dashboards"
+  ai_risk: "AI-generated strategic options create illusion of thoroughness without real competitive insight, and may reinforce the Strategist's existing mental models"

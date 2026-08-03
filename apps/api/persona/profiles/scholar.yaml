@@ -1,0 +1,85 @@
+id: scholar
+name: Scholar
+category: analytical
+population_pct: 4.00
+
+drives:
+  dominance: 3
+  extraversion: 2
+  patience: 7
+  formality: 8
+
+bio: "The knowledge-seeker who masters deep domains through disciplined study, valuing accuracy, intellectual rigor, and verified understanding above all."
+
+strengths:
+  - Deep subject-matter expertise built through sustained, disciplined study
+  - Exceptional accuracy and factual precision across research outputs
+  - Thorough research methodology with rigorous source validation
+  - Strong written communication grounded in evidence and citations
+  - Identifies subtle patterns, inconsistencies, and gaps in data
+  - Maintains intellectual honesty even when findings are inconvenient or unpopular
+  - Synthesizes complex information into structured, defensible arguments
+  - Builds durable knowledge assets that retain value over time
+
+cautions:
+  - Perfectionism delays delivery of usable, actionable output
+  - Reluctance to share work before it meets internal quality bar
+  - May prioritize depth over breadth when breadth is what the situation demands
+  - Discomfort with rapid decisions based on incomplete information
+  - Can appear detached or disengaged from team dynamics and social context
+  - Over-invests in research at the expense of execution and action
+  - Difficulty accepting externally imposed deadlines that conflict with thoroughness
+
+core_needs:
+  - Access to comprehensive, high-quality information sources
+  - Time for deep study without arbitrary or artificial deadlines
+  - Respect for expertise and intellectual contribution from peers and leadership
+  - Structured environments with clear accuracy and citation standards
+  - Freedom to pursue understanding before committing to a position or recommendation
+
+best_environment: "Knowledge-intensive roles where depth of understanding directly impacts decision quality; advisory positions where thorough analysis is valued over rapid output and where intellectual rigor is a competitive advantage."
+
+workspace:
+  cognitive_mode: verbal_procedural
+  information_density: high
+  interface_structure: guided_flexible
+  update_pace: batch
+  explanation_style: evidence_first
+
+weak_points:
+  - "Delays action indefinitely in pursuit of complete understanding, missing windows of opportunity"
+  - "Struggles to translate deep knowledge into accessible, actionable recommendations for non-experts"
+  - "Avoids interpersonal influence and organizational politics, preferring the work to speak for itself"
+  - "Over-analyzes decisions that would benefit from rapid iteration and experiential learning"
+
+compensation_patterns:
+  - id: insight-packaging
+    description: "Structured templates that force the Scholar to distill findings into executive-ready summaries with clear recommendations"
+  - id: research-timebox
+    description: "Pre-agreed investigation windows with mandatory output checkpoints to prevent open-ended research spirals"
+  - id: advisory-pair
+    description: "Partner the Scholar with a communicator who translates depth into stakeholder-ready narratives and presentations"
+  - id: progressive-publication
+    description: "Normalize sharing draft findings early to prevent all-or-nothing delivery and build incremental confidence"
+
+anti_patterns:
+  - "Snap decisions with no research phase or evidence review"
+  - "Verbal-only knowledge transfer with no documentation or written record"
+  - "Environments that reward speed over accuracy and punish thoroughness"
+  - "Meetings-heavy cultures that fragment deep focus time into unusable fragments"
+
+otto:
+  default_archetype: analyst
+  autonomy_ceiling: 0.55
+  interaction_mode: draft_then_review
+
+ai_impact:
+  automation_bias_risk: low
+  deskilling_risk: "Primary source evaluation and research methodology may atrophy if AI-generated summaries replace direct investigation and verification"
+  power_dynamic: "AI accelerates the Scholar's research pipeline but risks creating shallow breadth where the Scholar's value is deep, verified, and defensible understanding"
+
+communication:
+  strength: "Authoritative, well-sourced, and intellectually rigorous — trusted as the definitive voice on their domain"
+  failure_pattern: "Over-qualifies findings with caveats and hedges, making it difficult for decision-makers to extract a clear recommendation or call to action"
+  best_tooling: "Annotated research libraries, structured knowledge bases with citation tracking, long-form document editors with versioning, layered outputs from summary to full evidence"
+  ai_risk: "AI-generated content may dilute the Scholar's carefully verified conclusions with plausible but unverified assertions, undermining the trust their thoroughness builds"

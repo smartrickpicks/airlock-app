@@ -1,0 +1,85 @@
+id: analyzer
+name: Analyzer
+category: analytical
+population_pct: 7.00
+
+drives:
+  dominance: 3
+  extraversion: 2
+  patience: 8
+  formality: 9
+
+bio: "The meticulous investigator who builds conclusions from evidence, not instinct."
+
+strengths:
+  - Exceptional attention to detail and data validation
+  - Thorough research methodology with rigorous source evaluation
+  - Systematic problem decomposition into manageable components
+  - High-quality written documentation and reporting
+  - Identifies risks, inconsistencies, and edge cases others overlook
+  - Maintains exacting quality standards across deliverables
+  - Patient with complex, multi-layered investigations
+  - Produces well-structured analyses that withstand scrutiny
+
+cautions:
+  - Analysis paralysis delays decisions when data is incomplete
+  - Perfectionism slows delivery beyond practical necessity
+  - Reluctance to share work before it meets internal quality bar
+  - Discomfort with ambiguity or rapidly shifting priorities
+  - May over-engineer solutions past the point of diminishing returns
+  - Struggles to delegate tasks that require precision
+  - Can appear cold or detached when focused on data over people
+
+core_needs:
+  - Sufficient time to validate before committing to a position
+  - Access to complete, high-quality information sources
+  - Clear quality standards and well-defined success criteria
+  - Predictable work environment with stable priorities
+  - Recognition for accuracy, depth, and intellectual rigor
+
+best_environment: "Structured roles requiring deep analysis and evidence-based decision-making; quality-critical domains with defined standards, adequate time, and respect for thoroughness."
+
+workspace:
+  cognitive_mode: verbal_procedural
+  information_density: high
+  interface_structure: guided
+  update_pace: batch
+  explanation_style: evidence_first
+
+weak_points:
+  - "Delays action waiting for perfect information that may never arrive"
+  - "Over-documents at the expense of shipping actionable output"
+  - "Avoids interpersonal conflict, allowing disagreements to fester unresolved"
+  - "Resistant to heuristics and good-enough solutions even when speed matters"
+
+compensation_patterns:
+  - id: timeboxed-analysis
+    description: "Hard deadlines on research phases to force closure and prevent infinite investigation loops"
+  - id: progressive-disclosure
+    description: "Share work in stages to normalize incomplete outputs and build stakeholder confidence incrementally"
+  - id: risk-threshold-framework
+    description: "Pre-agreed quality thresholds that define 'good enough' so the Analyzer has permission to stop"
+  - id: decision-forcing-function
+    description: "Structured prompts that require a recommendation, not just findings, at every checkpoint"
+
+anti_patterns:
+  - "Unstructured brainstorming without supporting data or clear objectives"
+  - "Rapid-fire decision cycles with no review or validation window"
+  - "Ambiguous success criteria that shift mid-project"
+  - "Verbal-only requirements with no written specification"
+
+otto:
+  default_archetype: analyst
+  autonomy_ceiling: 0.50
+  interaction_mode: draft_then_review
+
+ai_impact:
+  automation_bias_risk: low
+  deskilling_risk: "Research methodology and primary source evaluation may atrophy if AI-generated summaries replace direct investigation"
+  power_dynamic: "AI accelerates data gathering but the Analyzer retains interpretive authority — gains depth leverage without ceding analytical ownership"
+
+communication:
+  strength: "Precise, well-sourced, and thorough — every conclusion traces back to evidence"
+  failure_pattern: "Over-qualifies every statement and buries the headline under layers of caveats and supporting detail"
+  best_tooling: "Structured reports with auto-generated executive summaries, layered detail views (summary → evidence → raw data), annotation and citation tools"
+  ai_risk: "AI-generated summaries may strip the nuance and caveats the Analyzer considers essential to intellectual honesty"

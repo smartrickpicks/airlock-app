@@ -1,0 +1,81 @@
+id: adapter
+name: Adapter
+category: stabilizing
+population_pct: 12.07
+
+drives:
+  dominance: 5
+  extraversion: 5
+  patience: 5
+  formality: 5
+
+bio: "A flexible generalist with no extreme drives who reads context and adjusts behavior to match whatever the situation demands."
+
+strengths:
+  - Operates effectively across wildly different team cultures and work styles without friction
+  - Fills gaps that rigid specialists cannot, serving as organizational connective tissue
+  - Remains calm and functional when change throws others off balance
+  - Learns new roles and processes quickly due to lack of strong behavioral resistance
+  - Acts as a stabilizing presence in teams where high-drive personalities clash
+  - Translates between different personality types, making cross-functional collaboration smoother
+
+cautions:
+  - May lack a clear personal brand or professional identity, making self-advocacy difficult
+  - Can become a chameleon who absorbs others' priorities at the expense of their own development
+  - Risks being overlooked for leadership roles because adaptability reads as passivity or lack of ambition
+  - May struggle to articulate what they uniquely bring to a team beyond flexibility
+  - Can accumulate responsibilities nobody else wants, building a role with no clear growth path
+  - Under-invests in deep expertise because breadth feels more natural and less risky
+
+core_needs:
+  - Clear role definition so adaptability does not become aimless flexibility
+  - Regular feedback since internal calibration signals are muted by mid-range drives
+  - Variety that leverages their range without fragmenting their focus across too many domains
+  - Recognition that adaptability is a skill and a strategic asset, not a lack of specialization
+
+best_environment: "Versatile roles in organizations undergoing change, where the ability to wear multiple hats and bridge different working styles is more valuable than deep specialization in any single domain."
+
+workspace:
+  cognitive_mode: context_dependent
+  information_density: medium
+  interface_structure: guided_flexible
+  update_pace: batch
+  explanation_style: labeled
+
+weak_points:
+  - "Difficulty asserting a strong point of view when the situation calls for conviction over compromise"
+  - "Risk of identity diffusion — becoming whoever the environment needs rather than developing a core professional stance"
+  - "May under-invest in developing deep expertise because breadth feels more natural and less exposing"
+  - "Tends to agree with the last person who spoke rather than synthesizing a genuine independent position"
+
+compensation_patterns:
+  - id: contextual-mirroring
+    description: "Unconsciously adopts the communication style, priorities, and energy level of whoever they are working with most closely"
+  - id: flexibility-as-avoidance
+    description: "Uses willingness to adapt as a way to avoid committing to a position that might generate pushback or conflict"
+  - id: gap-filling-drift
+    description: "Gradually takes on responsibilities that nobody else wants, accumulating a role that is broad but has no clear ownership or growth path"
+  - id: consensus-default
+    description: "Defers to group consensus as a substitute for personal conviction, which feels safer but erodes leadership perception over time"
+
+anti_patterns:
+  - "Agreeing with the last person who spoke rather than synthesizing a genuine, independent position"
+  - "Deferring career development decisions indefinitely because no single path feels urgent or compelling"
+  - "Absorbing team dysfunction as personal responsibility rather than surfacing it for collective resolution"
+  - "Accepting every request without pushback, training others to treat their capacity as unlimited"
+
+otto:
+  default_archetype: executor
+  autonomy_ceiling: 0.60
+  interaction_mode: draft_then_review
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "AI recommendations may further erode the Adapter's already muted internal signals, making them even more reliant on external cues for decision-making"
+  power_dynamic: "AI tools that prescribe workflows may restrict the contextual flexibility that is the Adapter's primary competitive advantage"
+
+communication:
+  strength: "Translates between different personality types and working styles, making cross-functional collaboration smoother and less contentious"
+  failure_pattern: "Communications can feel generic or uncommitted because the Adapter hedges to accommodate multiple audiences simultaneously"
+  best_tooling: "Flexible workspace tools that support multiple views, configurable dashboards, and AI that surfaces context-appropriate suggestions without locking into a single mode"
+  ai_risk: "AI personalization may lock the Adapter into a single behavioral mode, undermining the very flexibility that defines their value"

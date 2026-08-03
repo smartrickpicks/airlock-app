@@ -1,0 +1,81 @@
+id: captain
+name: Captain
+category: social
+population_pct: 3.38
+
+drives:
+  dominance: 9
+  extraversion: 8
+  patience: 2
+  formality: 2
+
+bio: "The natural-born leader with an articulate, authoritative voice."
+
+strengths:
+  - Commanding presence that rallies teams around a vision
+  - Decisive under pressure with high tolerance for risk
+  - Articulate and persuasive communicator
+  - Thrives in fast-paced, high-stakes environments
+  - Naturally delegates and builds momentum
+  - Unafraid to make bold calls with incomplete information
+
+cautions:
+  - Steamrolls dissenting voices in pursuit of speed
+  - May overlook critical details in the rush to act
+  - Impatient with process, compliance, and thorough review
+  - Can dominate conversations, reducing team psychological safety
+  - Underestimates the effort behind execution once decisions are made
+  - Prone to over-committing the team to ambitious timelines
+
+core_needs:
+  - Authority to make decisions and drive direction
+  - Visible impact and recognition for leadership
+  - Fast feedback loops and rapid iteration cycles
+  - A competent team that executes without heavy oversight
+  - Big, challenging problems worthy of their energy
+
+best_environment: "Leadership roles in fast-moving organizations; environments that reward decisiveness, tolerate calculated risk, and provide high-visibility challenges."
+
+workspace:
+  cognitive_mode: visual
+  information_density: low
+  interface_structure: exploratory
+  update_pace: alerts
+  explanation_style: summary_first
+
+weak_points:
+  - "Charges ahead without validating assumptions, creating costly rework"
+  - "Dismisses compliance and process as bureaucratic drag"
+  - "Over-promises to stakeholders based on instinct rather than capacity analysis"
+
+compensation_patterns:
+  - id: detail-delegate
+    description: "Pair the Captain with a detail-oriented partner who catches what they skip"
+  - id: commitment-checkpoint
+    description: "Require a brief capacity check before the Captain commits the team to new initiatives"
+  - id: listening-rounds
+    description: "Structured meeting segments where the Captain listens before speaking to surface dissent"
+  - id: risk-register-review
+    description: "Periodic review of outstanding risks that forces the Captain to slow down and assess exposure"
+
+anti_patterns:
+  - "Highly bureaucratic environments with multi-layer approval chains"
+  - "Roles with no decision-making authority"
+  - "Slow-moving consensus cultures where every voice has equal weight"
+  - "Detail-intensive execution work with no strategic component"
+
+otto:
+  default_archetype: executor
+  autonomy_ceiling: 0.75
+  interaction_mode: draft_then_review
+
+ai_impact:
+  automation_bias_risk: high
+  deskilling_risk: "Strategic thinking and stakeholder reading if AI handles decision framing and communication drafting"
+  power_dynamic: "AI amplifies the Captain's speed advantage — faster decisions, faster communication — but also amplifies the risk of under-examined conclusions"
+
+communication:
+  strength: "Compelling, concise, and action-oriented — moves people from discussion to execution"
+  failure_pattern: "Communicates decisions without adequate context, leaving the team executing without understanding why"
+  best_tooling: "High-level dashboards with drill-down, real-time alerts for key metrics, voice-first interfaces for rapid input"
+  ai_risk: "AI-drafted communications may carry the Captain's authority without their judgment, sending premature or overconfident messages"

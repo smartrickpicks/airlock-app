@@ -1,0 +1,85 @@
+id: controller
+name: Controller
+category: persistent
+population_pct: 4.00
+
+drives:
+  dominance: 9
+  extraversion: 2
+  patience: 3
+  formality: 8
+
+bio: "The directive, systematic authority who drives results through structure, exacting standards, and disciplined execution."
+
+strengths:
+  - Builds reliable, repeatable systems and enforces them consistently
+  - Strong project and process management with measurable outcomes
+  - Holds teams to high standards without requiring social consensus
+  - Decisive under pressure with low tolerance for ambiguity
+  - Excellent at identifying inefficiencies and eliminating waste
+  - Maintains focus on deliverables and deadline adherence
+  - Creates order from chaos through systematic frameworks
+  - Persistent in driving results even against organizational resistance
+
+cautions:
+  - Rigid adherence to process can stifle creativity and adaptation
+  - Task-focused communication feels impersonal and directive
+  - Difficulty adapting when plans require mid-course changes
+  - May micromanage to maintain control over quality and process
+  - Impatient with exploration, brainstorming, and open-ended discovery
+  - Undervalues relationship-building in pursuit of measurable results
+  - Can create a fear-based dynamic where team members avoid reporting problems
+
+core_needs:
+  - Authority over process design and execution outcomes
+  - Clear accountability structures with defined ownership
+  - Measurable progress indicators and objective success criteria
+  - Autonomy within defined systems to drive execution
+  - Predictable timelines with minimal scope disruption
+
+best_environment: "Operations-heavy roles requiring systematic execution and quality enforcement; process ownership with clear authority, measurable deliverables, and teams that respect structure."
+
+workspace:
+  cognitive_mode: verbal_procedural
+  information_density: medium_high
+  interface_structure: guided
+  update_pace: batch
+  explanation_style: evidence_first
+
+weak_points:
+  - "Prioritizes process compliance over team morale, creating silent disengagement"
+  - "Resists deviations even when circumstances clearly warrant flexibility"
+  - "Communicates directives without soliciting input, reducing team ownership"
+  - "Struggles to motivate through inspiration — relies entirely on structure and authority"
+
+compensation_patterns:
+  - id: adaptive-process-gates
+    description: "Process checkpoints that flex based on context without breaking overall structure"
+  - id: stakeholder-pulse-check
+    description: "Scheduled prompts to gather team sentiment alongside performance metrics"
+  - id: innovation-sandbox
+    description: "Defined zones where experimentation is explicitly permitted without threatening core processes"
+  - id: delegation-with-latitude
+    description: "Structured delegation that grants method autonomy within outcome constraints"
+
+anti_patterns:
+  - "Open-ended exploration without defined deliverables or timelines"
+  - "Consensus-driven decision-making where every voice has equal weight"
+  - "Unstructured collaboration sessions with no agenda or outcomes"
+  - "Frequent scope changes mid-execution without documented rationale"
+
+otto:
+  default_archetype: guardian
+  autonomy_ceiling: 0.60
+  interaction_mode: autonomous_with_checkpoints
+
+ai_impact:
+  automation_bias_risk: medium
+  deskilling_risk: "Hands-on process design and operational intuition may erode if AI handles system-building and exception routing"
+  power_dynamic: "AI enforces the Controller's systems at scale — amplifying structural leverage but risking over-automation that removes necessary human judgment"
+
+communication:
+  strength: "Clear, structured, and accountability-oriented — leaves no ambiguity about expectations, deadlines, or ownership"
+  failure_pattern: "Issues directives without context, making team members feel like task executors rather than contributors"
+  best_tooling: "Process dashboards with status tracking, exception alerts, SLA monitors, and structured approval workflows"
+  ai_risk: "AI-enforced processes become inflexible proxies for the Controller's intent, removing the situational judgment they actually apply in practice"
