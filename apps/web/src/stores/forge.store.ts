@@ -29,7 +29,7 @@ import {
   createProfileResultMessage,
   createLinkedInResultMessage,
 } from "@/lib/mock-forge";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
 
 let messageCounter = 0;
 
@@ -579,8 +579,24 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
           body: JSON.stringify({ name: workspaceName }),
         },
       );
+    } catch (err) {
+      // 409 = this workspace already exists, which is the normal case on any
+      // re-run. It is NOT a failure and must not abort the refresh below.
+      if (err instanceof ApiError && err.status === 409) {
+        console.info("[forge] workspace already exists — continuing");
+      } else {
+        console.warn("[forge] workspace creation failed:", err);
+      }
+    }
 
-      // Refresh JWT so it includes the new workspace_id
+    // Refresh the JWT so it carries workspace_id.
+    //
+    // This used to live inside the try above, after the workspace POST — so a
+    // benign 409 ("already exists") skipped it entirely. The user finished
+    // onboarding holding a token with no workspace, and the shell bounced them
+    // back to the landing page. Runs unconditionally now: whether the workspace
+    // was just created or already existed, the token still needs the claim.
+    try {
       const refreshToken = localStorage.getItem("airlock_refresh_token");
       if (refreshToken) {
         const refreshData = await apiFetch<{ access_token: string }>(
@@ -594,10 +610,11 @@ export const useForgeStore = create<ForgeState>((set, get) => ({
         document.cookie = `airlock_access_token=${refreshData.access_token}; path=/; max-age=900; SameSite=Lax`;
         const { useAuthStore } = await import("@/stores/auth.store");
         useAuthStore.getState().setAccessToken(refreshData.access_token);
+      } else {
+        console.warn("[forge] no refresh token — workspace claim not applied");
       }
     } catch (err) {
-      // Log but don't block — workspace may already exist (409) or API unreachable
-      console.warn("Workspace creation:", err);
+      console.warn("[forge] token refresh failed:", err);
     }
 
     set({ isLaunching: false, isComplete: true });
