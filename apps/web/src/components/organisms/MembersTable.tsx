@@ -3,8 +3,10 @@
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminStore } from "@/stores/admin.store";
+import PIProfileBadge from "@/components/atoms/PIProfileBadge";
 import {
   MEMBER_STATUS_CONFIG,
+  MOCK_PI_ASSESSMENTS,
   ORG_ROLE_LABELS,
   MODULE_ROLE_LABELS,
   CHAMBER_ACCESS,
@@ -144,6 +146,11 @@ export default function MembersTable() {
 
   const activeCount = members.filter((m) => m.status === "active").length;
 
+  const piByUserId = MOCK_PI_ASSESSMENTS.reduce<Record<string, PIAssessment>>(
+    (acc, a) => ({ ...acc, [a.userId]: a }),
+    {},
+  );
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -172,6 +179,9 @@ export default function MembersTable() {
               </th>
               <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Module Roles
+              </th>
+              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                PI Profile
               </th>
               <th className="px-4 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-text-muted">
                 Status

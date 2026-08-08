@@ -6,6 +6,7 @@ from src.models.credit_pool import CreditPool, CreditPoolTransaction
 from src.models.credit_transaction import CreditTransaction
 from src.models.document import Document
 from src.models.event import Event
+from src.models.pi_assessment import PIAssessment
 from src.models.invite import Invite
 from src.models.mcp_permission import McpToolPermission
 from src.models.passkey import PasskeyCredential
@@ -24,27 +25,11 @@ from src.models.workspace_config import WorkspaceConfig
 from src.models.workspace_membership import WorkspaceMembership
 
 __all__ = [
-    "Document",
     "Event",
-    "Invite",
-    "McpToolPermission",
-    "PasskeyCredential",
-    "Patch",
-    "PlaybookInstance",
-    "PlaybookNodeState",
+    "PIAssessment",
     "User",
-    "UserConnection",
     "UserModuleRole",
-    "UserProfile",
-    "UserProfileChangelog",
     "Vault",
     "VaultMember",
     "Workspace",
-    "WorkspaceConfig",
-    "WorkspaceMembership",
-    "CreditAccount",
-    "CreditPlan",
-    "CreditPool",
-    "CreditPoolTransaction",
-    "CreditTransaction",
 ]

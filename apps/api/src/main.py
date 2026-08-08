@@ -26,6 +26,7 @@ from src.routes.crm import router as crm_router
 from src.routes.documents import router as document_router
 from src.routes.engines import router as engine_router
 from src.routes.events import router as event_router
+from src.routes.pi_assessments import router as pi_router
 from src.routes.gateway import router as gateway_router
 from src.routes.inference import init_inference_engine
 from src.routes.inference import router as inference_router
@@ -100,6 +101,7 @@ def create_app() -> FastAPI:
     app.include_router(event_router)
     app.include_router(patch_router)
     app.include_router(engine_router)
+    app.include_router(pi_router)
     app.include_router(otto_router)
     app.include_router(otto_general_router)
     app.include_router(event_bus_router)
